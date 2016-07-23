@@ -1,0 +1,12 @@
+INFO:root:Start logging -------------------------------------------- 2015-12-01 22:20:40
+INFO:apscheduler.scheduler:Added job "heartbeat (trigger: interval[0:15:00], next run at: 2015-12-01 22:20:43.239759)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-12-01 22:20:43.239923)" to job store "default"
+INFO:root:-------------------------------------------- logging managed by hardwaremod 
+INFO:werkzeug: * Running on http://0.0.0.0:5512/ (Press CTRL+C to quit)
+INFO:apscheduler.scheduler:Running job "heartbeat (trigger: interval[0:15:00], next run at: 2015-12-01 22:20:43.239759)" (scheduled at 2015-12-01 22:20:43.239759)
+INFO:root:Start heartbeat routine 2015-12-01 22:20:43
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-12-01 22:35:43.239923)" (scheduled at 2015-12-01 22:20:43.239923)
+INFO:root:Get sensor data 2015-12-01 22:20:43
+INFO:apscheduler.scheduler:Job "heartbeat (trigger: interval[0:15:00], next run at: 2015-12-01 22:35:43.239759)" executed successfully
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-12-01 22:35:43.239923)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 22:20:49] "GET /ShowCalibration/ HTTP/1.1" 200 -

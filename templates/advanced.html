@@ -1,0 +1,247 @@
+{% extends "layout.html" %}
+{% set active_page = "advanced" %}
+{% block body %}
+ 	
+
+
+		<ul class="nav nav-pills">
+			{% for name in elementlist %}
+			{% set row_i = loop %}
+				<li {% if name == selectedelement %} class="active"{% endif%}  style="font-size:1.4em;">
+					<a href="#{{ name }}" data-toggle="tab">{{ name }}</a>
+				</li>
+			{% endfor %}
+		</ul>
+			
+
+
+
+          	
+        <div class="tab-content">
+			
+		{% for elem in elementlist %}
+		{% set row_i = loop %}	
+         <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
+			 
+			 <!---- start panel  -->
+			 
+		<form novalidate="true" action="{{ url_for('advanced') }}" method="post" id="theform" name="theform">
+			 
+			 <input id="autotags" name="element" value="{{elem}}" type="hidden" />
+			 
+			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
+			 
+			 <div class="panel panel-primary">
+			  <div class="panel-heading">
+				  <div class="row">
+					<div class="panel-title col-xs-8"><span style="font-size:1.4em;">{{ elem }}
+
+					</span></div>
+					<div class=" col-xs-4">
+					<button id="savebtn" name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+					<span class="glyphicon glyphicon-saved"></span>
+					</button>
+					</div>
+				</div>
+			  </div>
+			  <div class="panel-body">
+
+				
+				<!---- panel  body -->
+				
+
+				
+					{% set col = 2 %}
+					{% set col_size = 12//col %}				
+					{% for name in paramlist %}
+					{% set col_i = loop %}
+
+
+
+									<div class="col-lg-6 col-md-6 col-sm-12">
+										<div class="panel panel-default">
+											<div class="panel-heading">
+												<strong class="lead">{{ name }}</strong>
+											</div>
+											<div class="panel-body">
+						 
+												
+													<div class="row" id="{{ elem }}{{ name }}">
+
+
+
+														<div class="table-responsive">
+															<table class="table table-striped">
+																<thead>
+																	<tr>
+																		<!--{% for th in tablehead %}
+																		<th><h6>{{ th }}</h6></th>
+																		
+																		{% endfor %}-->
+																		<th>
+																		<img src="/static/calendar BW.png" style="width:55px;height:40px" class="center-block" />
+																		</th>																		
+																		<th>
+																		<img src="/static/time BW.png" style="width:45px;height:40px" class="center-block"/>
+																		</th>
+																		<th>
+																		<img src="/static/temperature BW.png" style="width:45px;height:40px" class="center-block"/>
+																		</th>																		
+																		<th>
+																		<img src="/static/humidity BW.png" style="width:45px;height:40px" class="center-block"/>
+																		</th>																			
+																		
+																		
+																	</tr>
+																</thead>
+																<tbody>
+																	{% for rowp in table[row_i.index0][col_i.index0] %}
+																	{% set rowp_i = loop %}
+																	<tr>
+
+																		{% for colp in rowp %}
+																		{% set colp_i = loop %}
+
+																			{% if loop.index0 == 0 %}
+																			<td class="col-xs-3 ">
+																				<div class="form-group">
+																					<select class="form-control input-sm dontwantgap seltimeclass" valueinit="{{ colp }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}{{colp_i.index0}}">
+																					</select>
+																				</div>	
+																			</td>																			
+																			{% else %}
+																			<td class="col-xs-3 ">
+																				<div class="form-group">
+																					<div class="controls">
+																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{ colp }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}{{colp_i.index0}}" />
+																					</div>
+																					<div class="help-block with-errors"></div>
+																				</div>																	
+
+																		
+																			</td>
+																			{% endif%}
+
+																		{% endfor %}
+
+																	</tr>
+																	{% endfor %}
+
+																</tbody>
+															</table>
+														</div>
+														<!-- /.table-responsive -->
+
+
+
+																																											
+													</div>
+
+
+											</div>
+											<!--<div class="panel-footer">
+												<input value="{% if (table|length)>0 %}{{ table[row_i.index0][col_i.index0]}}{% endif %}" id="{{ elem }}{{ name }}_input" name="{{elem}}_{{col_i.index0}}" class="form-control" />						
+
+											</div>-->
+										</div>
+									</div>
+
+
+
+
+					
+			
+				
+				
+				<!-- -- end panel content --->
+				{% endfor %}				
+			  </div>
+			  <div class="panel-footer">
+				  <div class="row">
+						<div class="panel-title col-xs-4">
+							<span style="font-size:1.4em;">{{ elem }}
+							</span>
+						</div>
+						<div class=" col-xs-4">				
+								<button id="defaultbtn" name="setdefault" idref="actionbtn{{elem}}" value="setdefault" type="submit" class="thebutton small btn btn-danger btn-md btn-block btn-warp dontwantgap">
+									Restore Default Setting
+								<span class="glyphicon glyphicon-cog"></span>
+								</button>
+						</div>
+						<div class=" col-xs-4">
+						<button id="savebtn" name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+						<span class="glyphicon glyphicon-saved"></span>
+						</button>
+						</div>
+				  </div> 
+ 
+				  
+				  
+				  
+				  
+				  
+				  
+			   </div>
+			
+			
+			</div>
+         
+			</form>
+         
+         </div>
+         {% endfor %}
+          
+         
+         
+         
+         
+        </div>
+        
+
+
+
+		<script type="text/javascript">
+
+		
+			$(document).ready(function()
+			{
+				$(".seltimeclass").each(function() {
+				var seltime=$(this).attr('valueinit');
+				//alert(seltime);
+				for (var i=0; i<48; i++)
+				  {
+					//Creates the time item and populate il select
+					var minh= (((i)%2)*3).toString() ;
+					var minl= "0";
+					var hourl=(((i/2) - (i/2) % 1) % 10).toString() ;
+					var hourh=((i/20) - (i/20) % 1).toString() ;
+					var time=hourh+hourl+":"+minh+minl
+					if (time==seltime)
+					{
+					var itemval= '<option selected="selected" value="'+time+'">' + time +'</option>';
+					} else
+					{
+					var itemval= '<option value="'+time+'">' + time +'</option>';
+					}
+					//Appends it within your select element
+					$(this).append(itemval);
+				  }
+				});	
+			});
+		
+			$(function() {
+				$(".thebutton").click(function() {
+					var selvalue=$(this).attr('name');
+					//alert(selvalue);
+					var idref=$(this).attr('idref');
+					$('#' + idref).attr("value", selvalue);
+				});  
+			}); 
+	
+		
+		</script>  
+
+
+
+
+{% endblock %}

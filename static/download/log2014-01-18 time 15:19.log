@@ -1,0 +1,24 @@
+INFO:root:Start logging --------------------------------------------
+INFO:apscheduler.scheduler:Scheduler started
+INFO:apscheduler.scheduler:Added job "master (trigger: interval[1 day, 0:00:00], next run at: 2014-01-19 00:00:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 15:10:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "light (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:02)" to job store "default"
+INFO:werkzeug: * Running on http://127.0.0.1:5000/
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:06:26] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:06:29] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:06:34] "GET /static/download/log2014-01-18%20time%2015:06.log?1390053989377 HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 15:20:00)" (scheduled at 2014-01-18 15:10:00)
+INFO:apscheduler.scheduler:Job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 15:20:00)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:14:14] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:14:19] "GET /static/download/log2014-01-18%20time%2015:14.log?1390054454911 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:14:28] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:14:30] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:01)" (scheduled at 2014-01-18 15:15:01)
+INFO:root:data request
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2014-01-18 15:30:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:02)" (scheduled at 2014-01-18 15:15:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2014-01-18 15:30:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:17:28] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:17:34] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:19:10] "GET /ShowCalibration/ HTTP/1.1" 200 -

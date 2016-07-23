@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+{% set active_page = "home" %}
+{% block body %}
+  {% if session.logged_in %}
+  <div class="container-fluid">
+
+
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">Today Report {{currentday}}</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+       		
+
+            <!-- /.row -->
+            <div class="row">
+				
+				{% for photopanel in photopanellist %}				
+				<!-- photo panel -->
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading smallgap">
+								<a href="{{ url_for('static', filename=photopanel.file)}}" title="{{ pt }}">
+								<img src="{{ url_for('static', filename=photopanel.file)}}" class="img-responsive center-block">
+								</a>
+                        </div>
+                        <div class="panel-footer smallgap">
+							<a href="{{photopanel.link}}">							
+                                <span class="pull-left small">{{photopanel.linktitle}}</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+							</a>                               
+                        </div>
+
+                    </div>
+                </div>
+				<!-- end photo panel -->
+				{% endfor %}
+				
+				{% for panelinfo in panelinfolist %}
+				<!-- sensor panel -->
+				{% if panelinfo.active=="yes" %}
+				<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                    <div class="panel panel-{{panelinfo.color}}">
+                        <div class="panel-heading smallgap">
+								<div class="col-xs-12 text-center">{{panelinfo.title}} ({{panelinfo.unit}})
+								</div>
+								<div class="row dontwantgap">
+									<div class="col-lg-4 col-xs-4 dontwantgap ">
+										<!--<i class="fa fa-comments fa-5x"></i>-->
+										<img src="{{ url_for('static', filename=panelinfo.icon)}}" class="img-responsive center-block">
+									</div>
+									<div class="col-lg-8 col-xs-8 text-right dontwantgap">
+										<span class="huge">{{panelinfo.average}}</span>
+										{% if panelinfo.min!="" %}
+										<div class="small">MIN={{panelinfo.min}} MAX={{panelinfo.max}}</div>
+										{% endif %}
+									</div>
+								</div>
+                        </div>
+                        <div class="panel-footer smallgap">
+							<a href="{{panelinfo.link}}">								
+                                <span class="pull-left small" >{{panelinfo.linktitle}}</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+							</a>                                
+                        </div>
+
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+				<!-- Setting panel -->
+               <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-cogs fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div>Setting</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-footer">                       
+                        <a href={{settinglink}}>
+                                <span class="pull-left small">Go to Setting</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                        </a>                            
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Network panel -->
+               <div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+                    <div class="panel panel-red">
+                        <div class="panel-heading">
+                            <div class="row">
+                                <div class="col-xs-3">
+                                    <i class="fa fa-rss fa-4x"></i>
+                                </div>
+                                <div class="col-xs-9 text-right">
+                                    <div>Network</div>
+                                </div>
+                            </div>
+                        </div>
+   
+                        <div class="panel-footer">
+                        <a href={{networklink}}>								
+                                <span class="pull-left small">Go to Network</span>
+                                <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                                <div class="clearfix"></div>
+                        </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <!-- /.row -->
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    </div>
+  
+  
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+
+{% endblock %}

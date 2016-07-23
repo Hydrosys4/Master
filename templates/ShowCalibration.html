@@ -1,0 +1,903 @@
+{% extends "layout.html" %}
+{% set active_page = "showcalibration" %}
+{% block body %}
+  {% if session.logged_in %}
+  <div class="container-fluid">
+		<script type=text/javascript>
+
+			
+			
+			$(document).ready(function()
+			{
+				$(".seltimeclass").each(function() {
+				var seltime=$(this).attr('valueinit');
+				//alert(seltime);
+				for (var i=0; i<48; i++)
+				  {
+					//Creates the time item and populate il select
+					var minh= (((i)%2)*3).toString() ;
+					var minl= "0";
+					var hourl=(((i/2) - (i/2) % 1) % 10).toString() ;
+					var hourh=((i/20) - (i/20) % 1).toString() ;
+					var time=hourh+hourl+":"+minh+minl
+					if (time==seltime)
+					{
+					var itemval= '<option selected="selected" value="'+time+'">' + time +'</option>';
+					} else
+					{
+					var itemval= '<option value="'+time+'">' + time +'</option>';
+					}
+					//Appends it within your select element
+					$(this).append(itemval);
+				  }
+				});	
+			});
+			
+			
+			
+			
+			
+			</script>
+
+		<form novalidate="true" action="{{ url_for('show_realtimedata') }}" id="PHform" method="post" >
+			<div class="page-header">
+					  <h3>Sensor data real time</h3>   
+			</div>
+			<div class="well bs-component">
+			<div class="row">
+				<div class="col-xs-2">
+				<!-- Sensor button -->
+					<button id="realtimebtn" class="btn-sm btn btn-default" name="realtimebtn" value="" type="submit">ShowRealTimeData</button>
+				</div>
+			</div>
+			
+			
+			
+			
+			
+			
+			
+			<!--  result  -->
+		<table class="table" margin: 20px;>
+        <thead>
+            <tr>
+                <th>Sensor</th>
+                <th>Value</th>
+                <th>Unit</th>
+            </tr>
+        </thead>
+		<tbody>
+
+			{% for key, item in sensordatadict.items() %}	
+            <tr>			
+					<td >{{ key }}</td>
+
+					<td>{{ item }}</td>
+					
+					<td>{{ unitdict[key] }}</td>
+			 </tr>			
+			{% endfor %}
+
+        </tbody>
+    </table>
+			
+			</div>
+		</form>
+		
+
+  
+		<!-- Actuators test -->
+  
+  		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
+			<div class="page-header">
+					  <h3>Actuators Test</h3>   
+			</div>
+			
+			<div class="well bs-component">
+			
+						<!--  Actuator table   -->
+			<table class="table" margin: 20px;>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Time Seconds</th>
+					<th>Button</th>
+					<th>Bar</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
+
+			{% for item in actuatorlist %}	
+			<tr>
+
+				<td>
+					<label>{{ item }}</label>
+				</td>
+
+
+				  <td>
+		  					  				
+				  <select class="form-control input-sm" id="selseconds_{{ item }}">
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>20</option>
+					<option>40</option>
+					<option>60</option>
+					<option>80</option>
+				  </select>
+				  </td>	
+				  		
+							
+				<td>
+					<button class="thebutton btn-sm btn btn-default" type="button" name="pulse" element="{{item}}">Start</button>
+				</td>
+				<td>
+					<!--  progress bar bootstrap-->
+		
+					<div class="progress">
+					  <div id="{{ item }}progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					  </div>
+					</div>
+
+					<!-- progress-->
+
+				</td>
+
+
+			</tr>
+			{% endfor %}				
+
+        </tbody>
+    </table>
+	
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label class="form-label-left" id="actuatorstatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+			</div>
+			 <script type=text/javascript>
+			  $(function() {
+				$(".thebutton").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				
+					var prid=$(this).attr('name');
+					var elem=$(this).attr('element');
+					var value = $("#selseconds_" + elem).val();					
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&element=" + elem,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#actuatorstatus').text(data.answer);
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown); $("#thebutton").attr('name')
+								//}
+							});    
+				  
+					
+				// increment status bar bootstrap
+				$( '#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
+				var pGress = setInterval(function() {
+						var pVal = parseInt($('#' + elem + "progress").attr('aria-valuenow'));
+						var maxsec = parseInt( $("#selseconds_" + elem).val());
+						var pCnt = !isNaN(pVal) ? (pVal + 100/maxsec) : 1;
+						if (pCnt > 100) {
+							clearInterval(pGress);
+							$('#actuatorstatus').text("Done");							
+						} else {
+							$('#' + elem + "progress").css('width', pCnt+'%').attr('aria-valuenow', pCnt);
+						}
+					},1000);
+					
+
+					
+				});
+			  });
+			   
+			  
+			  
+			</script>
+			
+			
+		</form>
+  
+
+			
+		<!-- light setting
+		
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="PHform" method="post" >
+			
+			
+			<div class="page-header">
+					  <h3>Light Setting</h3>   
+			</div>
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label id="label_30" for="input_3">Allow light ON after time:</label>
+				</div>
+				<div class="col-xs-4">
+					
+					<select class="form-control seltimeclass"  id="SelTime3" name="name" valueinit="{{lightsetting[0]}}">
+					</select>				
+					
+				</div>
+				<div class="col-xs-4">
+					<button class="btn-sm btn btn-default" id="savesettinglight" type="button" name="light1" >Save Config</button>
+				</div>
+			</div>	
+			
+	
+	
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="lightteststatus" for="input_4">Status</label>
+				</div>
+			</div>	
+
+			
+
+			<script type=text/javascript>
+			  $(function() {
+						
+				$("#savesettinglight").click(function() {
+				// send ajax interrupt to flask to save parameters
+					$('#lightteststatus').text("Saving");
+					var prid=$(this).attr('name');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/saveit/?name=" + prid + "&time=" + $('#SelTime3').val(),
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#lightteststatus').text(data.answer);
+									if (data.answer=="saved"){
+										$('#lightteststatus').text("Saved");
+									}
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+			  });
+			</script>
+
+		</form>  -->
+  
+		<!-- Photocam test -->
+		
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="PHform" method="post" >
+
+
+			<div class="page-header">
+					  <h3>WebCam Setting</h3>   
+			</div>
+
+			<div class="form-group">	
+			<div class="row">
+				<div class="col-xs-12">
+					<label id="label_30" for="input_3">Daily picture time:</label>
+				</div>
+				<!-- old 
+
+					<select class="form-control seltimeclass"  id="SelTime1" name="name" valueinit="{{photosetting[0]}}">
+					</select>		
+				-->
+				<!-- new -->
+				<div class="col-xs-6">
+						<div class="input-group clockpicker" data-autoclose="true">
+							<input readonly="readonly" type="text" class="form-control" id="SelTime1" value="{{photosetting[0]}}">
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
+							<script type="text/javascript">
+							$('.clockpicker').clockpicker({ placement: 'top'});
+							</script>								
+						</div>
+				</div>
+				<!-- new -->				
+				
+				
+				
+				
+				<div class="col-xs-6">
+					<button id="savesettingphoto" class="btn-sm btn btn-default" type="button" name="photo">Save Config</button>
+				</div>
+			</div>	
+			</div>	
+			
+			<div class="form-group">	
+			<div class="row">
+				<div class="col-xs-12">			
+				{% for video in videolist %}	
+
+					<button class="startphoto btn-sm btn btn-default" type="button" name="photo" video="{{video}}">Test Webcam {{video}}</button>
+
+				{% endfor %}	
+				</div>
+			</div>				
+			</div>	
+						
+			<div class="row">
+				<div class="col-xs-12">			
+				<img id="imgtest" class="img-responsive" src="{{ url_for('static', filename="cameratest/testimage1.jpg")}}">
+				</div>
+			</div>	
+			<div class="row">
+				<!--  progress bar bootstrap-->
+					<div class="col-xs-12">			
+					<div class="progress">
+					  <div id="photoprogressbar1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					  </div>
+					</div>
+					</div>
+				<!-- progress-->
+			</div>	
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="phototeststatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+
+
+
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".startphoto").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				$('#phototeststatus').text("Started ...");
+
+					var prid=$(this).attr('name');
+					var value = $(this).attr('video');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + value ,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#phototeststatus').text(data.answer);
+									if (data.answer=="photo taken"){
+										   setTimeout(function(){
+													d = new Date();
+													var fileurl="{{ url_for('static', filename="cameratest/testimage.jpg")}}"+"?"+d.getTime();
+													$('#imgtest').attr("src", fileurl);
+											}, 200);
+									}
+
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    
+				
+				
+
+
+				// increment status bar bootstrap
+				$( "#photoprogressbar1").css('width', '0%').attr('aria-valuenow', 0);
+				var pGress = setInterval(function() {
+						var pVal = parseInt($("#photoprogressbar1").attr('aria-valuenow'));
+						var pCnt = !isNaN(pVal) ? (pVal + 1) : 1;
+						if (pCnt > 100) {
+							clearInterval(pGress);
+							
+						} else {
+								$('#photoprogressbar1').css('width', pCnt+'%').attr('aria-valuenow', pCnt);
+								if ($('#phototeststatus').text()=="photo taken"){
+										$( "#photoprogressbar1").css('width', '99%').attr('aria-valuenow', 99);
+
+								}
+							
+						}
+					},100);
+
+					
+				});
+				$("#savesettingphoto").click(function() {
+				// send ajax interrupt to flask to save parameters
+				$('#phototeststatus').text("Saving");
+					var prid=$(this).attr('name');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/saveit/?name=" + prid + "&time=" + $('#SelTime1').val(),
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#phototeststatus').text(data.answer);
+									if (data.answer=="saved"){
+										$('#phototeststatus').text("Saved");
+									}
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+			  });
+			</script>
+
+		</form>
+  
+		<!-- mail test and setting -->
+		
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="mailset" method="post" >
+
+			<div class="page-header">
+				<h3>Mail Setting</h3>   
+			</div>
+
+			{% for mailsetting in mailsettinglist %}
+			
+			
+			<div class="well bs-component">
+				
+			<div class="form-group">			
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>eMail item: {{mailsetting[0]}}</legend>  
+				</div>	
+			</div>	
+			</div>	
+				
+				
+			<div class="form-group">					
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label id="label_30" for="input_3">Daily mail time:</label>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<select class="form-control seltimeclass"  id="SelTime_{{mailsetting[0]}}" name="name" valueinit="{{mailsetting[1]}}">
+					</select>		
+				</div>
+			</div>	
+			</div>	
+			
+			<div class="form-group">		
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+				<label>Email address to send report:
+				</label>
+
+				
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+				<input value="{{mailsetting[2]}}" class="form-control" id="address_{{mailsetting[0]}}" name="address" type="text">
+				<div class="small">Multiple addresses separated by ;</div>
+
+				</div>
+			</div>				
+			</div>	
+						
+			<div class="form-group">			
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Mail title:</label>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<input value="{{mailsetting[3]}}" class="form-control" id="title_{{mailsetting[0]}}" name="title" type="text">
+
+				</div>
+			</div>	
+			</div>	
+						
+			<div class="form-group">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Mail type:</label>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<input value="{{mailsetting[4]}}" class="form-control" disabled>
+				</div>
+			</div>	
+			</div>	
+			
+			
+			<div class="row">
+				<div class="col-xs-4">
+					<button id="test_{{mailsetting[0]}}" class="testmailbutton btn-sm btn btn-default" type="button" name="mail" element="{{mailsetting[0]}}">Send Test Mail</button>
+								
+				</div>
+				
+				<div class="col-xs-4">
+					<button id="save_{{mailsetting[0]}}" class="savemailbutton btn-sm btn btn-default"  type="button" name="mail" element="{{mailsetting[0]}}">Save Config</button>
+
+				</div>
+			</div>	
+			</div>
+			{% endfor %}
+
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="mailteststatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+
+			
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".testmailbutton").click(function() {
+				//alert("test button pressed");
+				// send ajax interrupt to flask to initiate the actuator test
+				$('#mailteststatus').text("Started ...");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&address=" + $('#address_' + elem).val() + "&title=" + $('#title_' + elem).val(),
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#mailteststatus').text(data.answer);
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+				
+				$(".savemailbutton").click(function() {
+				// send ajax interrupt to flask to save parameters
+				$('#mailteststatus').text("Saving");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&address=" + $('#address_' + elem).val() + "&title=" + $('#title_' + elem).val()+ "&time=" + $('#SelTime_' + elem).val(),
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#mailteststatus').text(data.answer);
+									if (data.answer=="saved"){
+										$('#mailteststatus').text("Saved");
+									}
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+			  });
+			</script>
+
+		</form> 
+  
+		
+		<form novalidate="true" action="{{ url_for('systemmailsetting') }}" id="sysmail" method="post" >
+			<!--<div class="page-header">
+					  <h3>Sensor Measure</h3>   
+			</div> -->
+			<div class="row">
+				<div class="col-xs-4">
+				
+					<!-- advanced mail setting button -->
+			
+					<button id="advconfigbtn" name="button" value="show" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
+						Email Setting
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+			</div>
+		</form>  
+		
+		
+		
+		
+		<!-- Clock test and setting -->
+		
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="mailset" method="post" >
+
+			<div class="page-header">
+				<h3>Clock Setting</h3>   
+			</div>
+
+			
+			
+			<div class="well bs-component">
+			
+				<div class="row">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<legend>Clock and local timezone</legend>  
+					</div>	
+				</div>	
+				
+				
+			<div class="form-group">			
+
+				<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Select Country</label>
+				</div>
+				</div>
+				<div class="row">			
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<select class="selectpicker settimezone" data-live-search="true">
+					{% for country in countries %}
+
+
+					  <optgroup label={{country.name}}>
+									{% for zone in country["timezones"] %}
+										<option data-tokens="{{country.name}}" {% if (zone==timezone) %}selected="selected"{% endif %} >{{zone}}</option>
+									{% endfor %}
+					  </optgroup>
+
+					{% endfor %}
+
+					</select>
+
+				</div>
+			
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button id="settimezone" class="timezonebutton btn btn-default"  type="button" name="timezone" element="settimezone">SetTimeZone</button>
+				</div>
+				</div>			
+			</div>				
+			
+				
+	
+				
+				
+
+
+						
+			<div class="form-group">			
+
+				<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Read System Time</label>
+				</div>
+				</div>	
+
+			
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<button id="readsystemdate" class="clockbutton btn btn-default" type="button" name="clock" element="system">Readsystemclock</button>
+		
+					</div>
+					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+						<label id="clockvalue_system" for="input_3"></label>
+					</div>
+				</div>	
+			</div>	
+
+			<div class="form-group">	
+
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Read Network Time</label>
+				</div>
+
+			</div>	
+						
+			<div class="row">				
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button id="readnetworkclock" class="clockbutton btn btn-default"  type="button" name="clock" element="network">Readnetworkclock</button>
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+					<label id="clockvalue_network" for="input_3"></label>
+				</div>
+			</div>	
+
+			</div>				
+
+			<div class="form-group">	
+			
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Set system time</label>
+					</div>
+
+				</div>	
+
+			
+
+				<div class="row">
+					<div class='col-lg-6 col-md-6 col-sm-6 col-xs-12'>
+						<div class="form-group">
+							<div class='input-group date datetimepicker'>
+								<input readonly="readonly" name="setclock" type='text' class="setclock form-control" value="{{initdatetime}}" >
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<button id="setHWClock" class="clockbutton btn btn-default"  type="button" name="clock" element="setHWClock">SetHWClock</button>
+					</div>
+					
+					<script type="text/javascript">
+						$(function () {
+							$('.datetimepicker').datetimepicker({
+								locale: 'en-gb',
+								//useCurrent:false
+								ignoreReadonly: true,
+							});
+						});
+					</script>
+				</div>
+			</div>				
+			
+
+			
+
+			
+			
+			</div> <!-- end well -->
+
+
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="clockteststatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+			<script type=text/javascript> <!-- timezone -->
+			  $(function() {
+				$(".timezonebutton").click(function() {
+				//alert("test button pressed");
+				// send ajax interrupt to flask to initiate the actuator test
+				$('#clockteststatus').text("Started ...");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&timezone=" + $('.settimezone option:selected').text(),
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#clockteststatus').text(data.answer);							
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+				
+
+			  });
+			</script>
+			
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".clockbutton").click(function() {
+				//alert("test button pressed");
+				// send ajax interrupt to flask to initiate the actuator test
+				$('#clockteststatus').text("Started ...");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&datetime=" + $('.setclock').val(),
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#clockteststatus').text(data.answer);
+									$('#clockvalue_' + elem).text(data.value);
+									$('.setclock').val(data.value);									
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+				
+
+			  });
+			</script>
+
+		</form> 
+		
+		<!-- End Clock test and setting -->		
+		
+		
+		
+		
+		
+		
+		
+  
+		<!-- Restore original setting -->
+  		<form  action="{{ url_for('show_Calibration') }}" id="menuForm3" class="jotform-form" method="post" >
+
+			<div class="page-header">
+					  <h3>Restore all setting to default</h3>   
+			</div>
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label for="input_3">Restore factory default</label>
+				</div>
+				<div class="col-xs-8">
+					<!--<button id="deletbtn" class="btn-sm btn btn-default" name="buttonsub" value="delete" type="submit">Default</button>
+					-->
+
+				<!-- Button HTML (to Trigger Modal) -->
+				<a href="#myModal" role="button" class="btn-sm btn btn-default" data-toggle="modal">Restore default</a>					
+					
+					
+				</div>
+			</div>	
+
+
+				 
+				<!-- Modal HTML -->
+				<div id="myModal" class="modal fade">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title">Confirmation</h4>
+							</div>
+							<div class="modal-body">
+								<p>Are you sure to restore the default setting?</p>
+								<p class="text-warning"><small>All the current setting will be lost, wifi connection will be removed</small></p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button id="deletbtn" name="buttonsub" value="delete" type="submit" class="btn btn-primary">Restore Default</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+
+
+
+
+
+
+
+
+		</form>
+
+
+ 
+   </div> 
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

@@ -1,0 +1,33 @@
+INFO:root:Start logging -------------------------------------------- 2015-12-01 21:26:55
+INFO:apscheduler.scheduler:Added job "heartbeat (trigger: interval[0:15:00], next run at: 2015-12-01 21:26:58.340877)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-12-01 21:26:58.341099)" to job store "default"
+INFO:werkzeug: * Running on http://0.0.0.0:5512/ (Press CTRL+C to quit)
+INFO:apscheduler.scheduler:Running job "heartbeat (trigger: interval[0:15:00], next run at: 2015-12-01 21:26:58.340877)" (scheduled at 2015-12-01 21:26:58.340877)
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-12-01 21:41:58.341099)" (scheduled at 2015-12-01 21:26:58.341099)
+INFO:root:Start heartbeat routine 2015-12-01 21:26:58
+INFO:root:Get sensor data 2015-12-01 21:26:58
+INFO:apscheduler.scheduler:Job "heartbeat (trigger: interval[0:15:00], next run at: 2015-12-01 21:41:58.340877)" executed successfully
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-12-01 21:41:58.341099)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jqplot.barRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:02] "GET /static/jquery.timeTo.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/timeTo.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/bootstrap/css/bootstrap-theme.min.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /static/bootstrap/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [01/Dec/2015 21:27:03] "GET /favicon.ico HTTP/1.1" 404 -

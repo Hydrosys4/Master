@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% set active_page = "about" %}
+{% block body %}
+  {% if session.logged_in %}
+
+  <div class="container-fluid">
+
+
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">About page</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+         
+        </div>
+        
+        
+  {% else %}
+
+		<h1>Please log in</h1>
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

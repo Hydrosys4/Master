@@ -1,0 +1,145 @@
+import logging
+import sys
+import time
+import os
+from datetime import datetime,date,timedelta
+#!/usr/bin/env python
+from socket import AF_INET, SOCK_DGRAM
+import socket
+import struct
+import clockdbmod
+
+# ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
+
+DATEFORMAT="%d/%m/%Y %H:%M"
+timezone=clockdbmod.gettimezone()
+os.environ['TZ'] = timezone
+time.tzset()
+print "timezone set to ->", timezone
+#logging.info('Timezone Set to  = %s', timezone) # if this is enabled,for some reason the whole logging become empty
+
+
+# ///////////////// --- END GLOBAL VARIABLES AND INIT------
+
+def timediffinsec(timestr1, timestr2):
+	datetime1=datetime.strptime(timestr1, DATEFORMAT)
+	datetime2=datetime.strptime(timestr2, DATEFORMAT)	
+	delta=datetime2-datetime1
+	timediff=abs(delta.total_seconds())
+	return timediff
+
+
+def readsystemdatetime():
+	return datetime.now().strftime(DATEFORMAT)
+
+def getNTPTime(host = "pool.ntp.org"):
+	port = 123
+	buf = 1024
+	address = (host,port)
+	msg = '\x1b' + 47 * '\0'
+
+	# reference time (in seconds since 1900-01-01 00:00:00)
+	TIME1970 = 2208988800L # 1970-01-01 00:00:00
+
+	# connect to server
+	try:
+		client = socket.socket( AF_INET, SOCK_DGRAM)
+		client.sendto(msg, address)
+		msg, address = client.recvfrom( buf )
+		t = struct.unpack( "!12I", msg )[10]
+		t -= TIME1970
+		#strvalue=time.ctime(t).replace("  "," ")
+		datetimevalue=datetime.utcfromtimestamp(t)
+		strvalueUTC=datetimevalue.strftime(DATEFORMAT)
+		strvalue=convertUTCtoLOC(strvalueUTC)
+		return strvalue
+	except:
+		print "Not able to retrieve Network Clock "
+		#logging.error('Not able to retrieve Network Clock ')
+		return ""	
+		
+		
+def setHWclock(datetime_format):
+	
+	datetimeUTC=convertLOCtoUTC(datetime_format)
+	print "Set HWclock datetime UTC ->" ,datetimeUTC
+	
+	datetimetype=datetime.strptime(datetimeUTC, DATEFORMAT)
+
+	newformat="%d %b %Y %H:%M:%S"
+	date_str="\"" + datetimetype.strftime(newformat) + "\""	
+	print "Set HW clock ->" , date_str
+	
+	try:
+		os.system('hwclock --set --date %s --localtime' % date_str)
+		#logging.info('HW clock set to = %s', date_str)
+		return "Done"	
+	except:
+		print "Not able to set Hardware Clock "
+		#logging.error('Not able to set Hardware Clock')
+		return "ERROR: not able to set Hardware Clock"	
+		
+		
+		
+def setsystemclock(datetime_format):
+
+	datetimeUTC=convertLOCtoUTC(datetime_format)
+	print "Set System date to datetime UTC ->" ,datetimeUTC
+
+	datetimetype=datetime.strptime(datetimeUTC, DATEFORMAT)
+	print "Set system clock ->", datetimetype
+	newformat="%d %b %Y %H:%M:%S"
+	date_str="\"" + datetimetype.strftime(newformat) + "\""
+	
+	print "Datetime value format for date setting ", date_str
+
+	try:
+		os.system('date -s %s -u' % date_str)
+		return "Done"	
+	except:
+		print "Not able to set system Clock "
+		#logging.error('Not able to set Hardware Clock')
+		return "ERROR: not able to set Hardware Clock"	
+
+	
+def settimezone(timezone):
+	os.environ['TZ'] = timezone
+	time.tzset()
+	return ""
+
+	
+def deltadatetimetoUTC():
+	timeUTC=time.gmtime()
+	timelocal=time.localtime()
+	newformat="%d %b %Y %H:%M:%S"
+	timestrUTC = time.strftime(newformat, timeUTC)
+	timestrLOC = time.strftime(newformat, timelocal)	
+
+	datetimeUTC=datetime.strptime(timestrUTC,newformat)
+	datetimeLOC=datetime.strptime(timestrLOC,newformat)	
+	delta = datetimeLOC-datetimeUTC
+	return delta
+
+def convertLOCtoUTC(dtime_str):
+	dtime=datetime.strptime(dtime_str, DATEFORMAT)
+	delta=deltadatetimetoUTC()
+	UTCdtime=dtime-delta
+	UTCdtime_str=UTCdtime.strftime(DATEFORMAT)
+	return UTCdtime_str
+
+def convertUTCtoLOC(dtime_str):
+	dtime=datetime.strptime(dtime_str, DATEFORMAT)
+	delta=deltadatetimetoUTC()
+	LOCdtime=dtime+delta
+	LOCdtime_str=LOCdtime.strftime(DATEFORMAT)
+	return LOCdtime_str
+
+def convertLOCtoUTC_datetime(dtime):
+	delta=deltadatetimetoUTC()
+	UTCdtime=dtime-delta
+	return UTCdtime
+	
+if __name__ == '__main__':
+	# comment
+	a=10
+

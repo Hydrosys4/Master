@@ -1,0 +1,154 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+		<script type=text/javascript>
+				$(function() {
+									
+				var concat="{{ namelist|join(',')}}";
+				var namelist=concat.split(",");	
+
+				$( "#autotags" ).autocomplete({
+				source: namelist
+				});
+			
+				});                                 
+			  
+			  	$(function() {
+				$( "button" ).button();
+				});
+				$(function() {
+					$( ".weekinput" ).spinner({ //selected by class name
+						step: 1,
+						max: 53,
+						min: 0
+						});	
+						
+						$( ".nutrientinput" ).spinner({ //selected by class name
+						step: 1,
+						max: 100,
+						min: 0
+						});	
+				});
+
+			</script>
+		<form novalidate="true" action="{{ url_for('save_nutrienttable') }}" class="jotform-form" method="post" >
+			<input name="formID" value="31355431117344" type="hidden">
+			<div class="form-all">
+				<ul class="form-section">
+						<li id="cid_1" class="form-input-wide">
+						<div class="form-header-group">
+							<h2 id="header_1" class="form-header">Nutrient table</h2>
+						</div>
+						</li>
+						<li class="form-line" id="id_3">
+						<label class="form-label-left" id="label_3" for="input_3">Memo Name<span class="form-required">*</span> 
+						</label>
+							<div id="cid_3" class="form-input">
+									<input id="autotags" name="name" value="{{selname }}" />
+
+							</div>
+						</li>
+
+							<li class="form-line" id="id_6">
+								<div id="cid_6" class="form-input-wide">
+								<table summary="" class="form-matrix-table" cellpadding="4" cellspacing="0">
+									<tbody>
+										<tr>
+											<th style="text-align: left; width: 300px">Week</th>
+											{% for col in coltitle %}
+														<th class="form-matrix-column-headers form-matrix-column_0" style="min-width:50px">{{ col }}</th>
+											{% endfor %}
+										</tr>
+										{% for row in rowtitle %}
+										<tr>
+											<th  style="text-align: left; width: 300px">{{ row }}</th>
+											<!--class="form-matrix-row-headers" -->
+											{% set row_i = loop %}
+											
+												{% for i in range(coltitle|length) %}
+													<td class="form-matrix-values" align="center" >
+													
+													{% if row_i.index==1 %}
+									
+													<input value="{% if (table|length)>0 %}{{ table[i][row_i.index+1] }}{% endif %}" id="weekinput{{ i }}" name="{{ row }}_{{i}}" class="weekinput" style="width: 20px" />
+													{% elif row_i.index==2  %}
+														{% if (table|length)>0 %}
+														<select name="{{ row }}_{{i}}" style="width:50px" id="planttypeinput" name="name">
+															<option {% if table[i][row_i.index+1]=="Grow"%}selected="selected"{% endif %} value="Grow">Grow</option>
+															<option {% if table[i][row_i.index+1]=="Bloom"%}selected="selected"{% endif %} value="Bloom">Bloom</option>
+															<option {% if table[i][row_i.index+1]=="Harvest"%}selected="selected"{% endif %} value="Harvest">Harvest</option>
+														</select>														
+														{% else %}														
+														<select name="{{ row }}_{{i}}" style="width:50px" id="planttypeinput" name="name">
+															<option selected="selected" value="Grow">Grow</option>
+															<option  value="Bloom">Bloom</option>
+															<option  value="Harvest">Harvest</option>
+														</select>
+														{% endif %}
+													{% elif (row_i.index>2)and(row_i.index<7)  %}
+														<input value="{% if (table|length)>0 %}{{ table[i][row_i.index+1] }}{% endif %}" id="weekinput{{ i }}" name="{{ row }}_{{i}}" class="nutrientinput" style="width: 20px" />
+													
+													{% elif (row_i.index==9)or(row_i.index==12)or(row_i.index==15)  %}
+														{% if (table|length)>0 %}
+														<select name="{{ row }}_{{i}}" style="width:50px" id="planttypeinput" name="name">
+															<option {% if table[i][row_i.index+1]=="None"%}selected="selected"{% endif %} value="None">None</option>
+															<option {% if table[i][row_i.index+1]=="Low"%}selected="selected"{% endif %} value="Low">Low</option>
+															<option {% if table[i][row_i.index+1]=="Med"%}selected="selected"{% endif %} value="Med">Med</option>
+															<option {% if table[i][row_i.index+1]=="High"%}selected="selected"{% endif %} value="High">High</option>
+														</select>														
+														{% else %}														
+														<select name="{{ row }}_{{i}}" style="width:50px" id="planttypeinput" name="name">
+															<option selected="selected" value="None">None</option>
+															<option  value="Low">Low</option>
+															<option  value="Med">Med</option>
+															<option  value="High">High</option>
+														</select>
+														{% endif %}
+													
+													{% else %}
+
+													<input value="{% if (table|length)>0 %}{{ table[i][row_i.index+1] }}{% endif %}" style="width: 55px; border: medium none; padding: 0px; font-size: 14px; text-align: right; outline: medium none;" autocomplete="off" size="5" class="form-textbox validate[required]" id="input_5_from" name="{{ row }}_{{i}}" type="number">
+	
+													{% endif %}
+													</td>
+												{% endfor %}
+											
+											
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+								</div>
+							</li>
+
+					
+				
+					<li class="form-line" id="id_30">
+
+						<div id="cid_40" class="form-input">
+							
+							<button id="cancelbtn" name="buttonsub" value="cancel" type="submit" style="width: 100px">Cancel</button>
+
+							<button id="savebtn" name="buttonsub" value="save" type="submit" style="width: 100px">Save</button>
+
+						</div>
+					</li>
+					
+					
+					
+					<li style="display:none">Should be Empty: <input name="website" type="text"> 
+					</li>
+				</ul>
+			</div>
+			
+			
+			
+			<input id="simple_spc" name="simple_spc" value="31355431117344-31355431117344" type="hidden"> 
+		</form><div style="list-style: none outside none; position: absolute; z-index: 10000; display: none;" class="form-autocomplete-list"></div>
+  
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

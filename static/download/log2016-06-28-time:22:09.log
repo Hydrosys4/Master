@@ -1,0 +1,74 @@
+INFO:root:Start logging -------------------------------------------- 2016-06-28 22:09:36
+INFO:root:This is a sample INFO message
+WARNING:root:This is a sample WARNING message
+ERROR:root:This is a sample ERROR message
+INFO:apscheduler.scheduler:Added job "heartbeat" to job store "default"
+INFO:apscheduler.scheduler:Added job "tempsensor1" to job store "default"
+INFO:apscheduler.scheduler:Added job "humidsensor" to job store "default"
+INFO:apscheduler.scheduler:Added job "pressuresensor" to job store "default"
+INFO:apscheduler.scheduler:Added job "hygropass" to job store "default"
+INFO:apscheduler.scheduler:Added job "hygroampl" to job store "default"
+INFO:apscheduler.scheduler:Added job "lightsensor" to job store "default"
+INFO:apscheduler.scheduler:Added job "photo" to job store "default"
+INFO:apscheduler.scheduler:Added job "mail1" to job store "default"
+INFO:apscheduler.scheduler:Added job "mail2" to job store "default"
+INFO:root:-------------------------------------------- logging managed by hardwaremod 
+INFO:root:try to start system as WiFi access point
+WARNING:apscheduler.executors.default:Run time of job "photo (trigger: date[2016-06-28 07:35:00 CEST], next run at: 2016-06-28 07:35:00 CEST)" was missed by 14:34:36.035069
+INFO:apscheduler.scheduler:Removed job 4d87764836d744f1960d5e0323cf32dc
+WARNING:apscheduler.executors.default:Run time of job "mail1 (trigger: date[2016-06-28 08:00:00 CEST], next run at: 2016-06-28 08:00:00 CEST)" was missed by 14:09:36.037309
+INFO:apscheduler.scheduler:Removed job 5dccbf9946104ceba68e72626028967c
+WARNING:apscheduler.executors.default:Run time of job "mail2 (trigger: date[2016-06-28 08:00:00 CEST], next run at: 2016-06-28 08:00:00 CEST)" was missed by 14:09:36.039066
+INFO:apscheduler.scheduler:Removed job c85080d3e0cd4d43b26d8c15d951e284
+INFO:apscheduler.executors.default:Running job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:09:38 CEST)" (scheduled at 2016-06-28 22:09:38.021590+02:00)
+INFO:root:Read sensor data: pressuresensor - 2016-06-28 22:09:38
+INFO:apscheduler.executors.default:Running job "hygropass (trigger: interval[0:15:00], next run at: 2016-06-28 22:09:38 CEST)" (scheduled at 2016-06-28 22:09:38.021943+02:00)
+INFO:apscheduler.executors.default:Running job "hygroampl (trigger: interval[0:15:00], next run at: 2016-06-28 22:09:38 CEST)" (scheduled at 2016-06-28 22:09:38.022291+02:00)
+INFO:root:Read sensor data: hygropass - 2016-06-28 22:09:38
+INFO:apscheduler.executors.default:Running job "lightsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:09:38 CEST)" (scheduled at 2016-06-28 22:09:38.022637+02:00)
+INFO:root:Read sensor data: hygroampl - 2016-06-28 22:09:38
+INFO:apscheduler.executors.default:Job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:24:38 CEST)" executed successfully
+INFO:apscheduler.executors.default:Job "hygropass (trigger: interval[0:15:00], next run at: 2016-06-28 22:24:38 CEST)" executed successfully
+INFO:root:Read sensor data: lightsensor - 2016-06-28 22:09:38
+INFO:apscheduler.executors.default:Job "hygroampl (trigger: interval[0:15:00], next run at: 2016-06-28 22:24:38 CEST)" executed successfully
+INFO:apscheduler.executors.default:Job "lightsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:24:38 CEST)" executed successfully
+INFO:root:Access point failed to start, attempt
+INFO:apscheduler.executors.default:Running job "humidsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:09:40 CEST)" (scheduled at 2016-06-28 22:09:40.021234+02:00)
+INFO:root:Read sensor data: humidsensor - 2016-06-28 22:09:40
+INFO:apscheduler.executors.default:Job "humidsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:24:40 CEST)" executed successfully
+INFO:root:Access point failed to start, attempt
+WARNING:root:Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+INFO:werkzeug: * Running on http://0.0.0.0:5012/ (Press CTRL+C to quit)
+INFO:apscheduler.executors.default:Running job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-06-28 22:09:42 CEST)" (scheduled at 2016-06-28 22:09:42.020744+02:00)
+INFO:root:Read sensor data: tempsensor1 - 2016-06-28 22:09:42
+INFO:apscheduler.executors.default:Job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-06-28 22:24:42 CEST)" executed successfully
+INFO:root:No Saved Wifi Network available
+INFO:root:No Wifi Network connected, no AP connected, going back to Access Point mode
+INFO:root:try to start system as WiFi access point
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /HardwareSetting/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jquery/js/jquery-2.2.3.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jqplot.barRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap/css/bootstrap-theme.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap/css/custom.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/moment/min/moment-with-locales.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/datetimepicker/css/bootstrap-datetimepicker.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/datetimepicker/js/bootstrap-datetimepicker.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap-select/js/bootstrap-select.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap-select/css/bootstrap-select.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/clockpicker/js/bootstrap-clockpicker.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/clockpicker/css/bootstrap-clockpicker.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/bootstrap/font-awesome/css/font-awesome.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/photoswipe/dist/photoswipe.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/photoswipe/dist/default-skin/default-skin.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/photoswipe/dist/photoswipe.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:09:46] "GET /static/photoswipe/dist/photoswipe-ui-default.js HTTP/1.1" 304 -

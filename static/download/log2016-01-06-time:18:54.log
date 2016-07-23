@@ -1,0 +1,25 @@
+INFO:root:Start logging -------------------------------------------- 2016-01-06 18:53:25
+INFO:root:This is a sample INFO message
+WARNING:root:This is a sample WARNING message
+ERROR:root:This is a sample ERROR message
+INFO:apscheduler.scheduler:Added job "heartbeat (trigger: interval[0:15:00], next run at: 2016-01-06 18:58:26.066186)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2016-01-06 18:53:28.066327)" to job store "default"
+INFO:apscheduler.scheduler:Added job "waterpump (trigger: date[2016-01-06 22:00:00], next run at: 2016-01-06 22:00:00)" to job store "default"
+INFO:root:-------------------------------------------- logging managed by hardwaremod 
+WARNING:root:Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+INFO:werkzeug: * Running on http://0.0.0.0:5012/ (Press CTRL+C to quit)
+INFO:root:No known Wifi Network available
+INFO:root:Connected to Wifi Network AngeloAnnie, now testing connectivity
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2016-01-06 19:08:28.066327)" (scheduled at 2016-01-06 18:53:28.066327)
+INFO:root:Get sensor data 2016-01-06 18:53:28
+INFO:root:Google is reacheable ! 
+INFO:root:send Mail 2016-01-06 18:53:28
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2016-01-06 19:08:28.066327)" executed successfully
+INFO:root:mail sent succesfully 
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:53:40] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:53:42] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:53:48] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:53:48] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:53:56] "GET /wateringplan/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:54:11] "GET /fertilizerplan/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [06/Jan/2016 18:54:14] "GET /ShowCalibration/ HTTP/1.1" 200 -

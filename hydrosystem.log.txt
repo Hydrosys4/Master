@@ -1,0 +1,143 @@
+17:54:39 INFO     Start logging -------------------------------------------- 2016-07-17 17:54:39
+17:54:39 INFO     This is a sample INFO message
+17:54:39 WARNING  This is a sample WARNING message
+17:54:39 ERROR    This is a sample ERROR message
+17:54:39 INFO     Added job "heartbeat" to job store "default"
+17:54:39 INFO     Added job "tempsensor1" to job store "default"
+17:54:39 INFO     Added job "humidsensor" to job store "default"
+17:54:39 INFO     Added job "pressuresensor" to job store "default"
+17:54:39 INFO     Added job "hygropass" to job store "default"
+17:54:39 INFO     Added job "hygroampl" to job store "default"
+17:54:39 INFO     Added job "lightsensor" to job store "default"
+17:54:39 INFO     Added job "photo" to job store "default"
+17:54:39 INFO     Added job "mail1" to job store "default"
+17:54:39 INFO     Added job "mail2" to job store "default"
+17:54:39 INFO     Added job "water1" to job store "default"
+17:54:39 INFO     Added job "water1" to job store "default"
+17:54:39 INFO     Added job "water1" to job store "default"
+17:54:39 INFO     Added job "water1" to job store "default"
+17:54:39 INFO     Added job "water1" to job store "default"
+17:54:39 INFO     Added job "water2" to job store "default"
+17:54:39 INFO     Added job "water2" to job store "default"
+17:54:39 INFO     Added job "doser1" to job store "default"
+17:54:39 INFO     Added job "doser2" to job store "default"
+17:54:39 INFO     try to start system as WiFi access point
+17:54:39 WARNING  Run time of job "doser1 (trigger: date[2016-07-16 22:00:00 CEST], next run at: 2016-07-16 22:00:00 CEST)" was missed by 19:54:39.173300
+17:54:39 INFO     Removed job 3b1d2b40fc654ab390a1d926f950d025
+17:54:39 WARNING  Run time of job "doser2 (trigger: date[2016-07-16 22:00:00 CEST], next run at: 2016-07-16 22:00:00 CEST)" was missed by 19:54:39.175503
+17:54:39 INFO     Removed job e2add296aa864659a1a206e6e57118d1
+17:54:39 WARNING  Run time of job "water2 (trigger: date[2016-07-17 04:00:00 CEST], next run at: 2016-07-17 04:00:00 CEST)" was missed by 13:54:39.176378
+17:54:39 INFO     Removed job dcc1f340e54946f5bf3bfcede1f1e8ca
+17:54:39 WARNING  Run time of job "water1 (trigger: date[2016-07-17 06:00:00 CEST], next run at: 2016-07-17 06:00:00 CEST)" was missed by 11:54:39.177294
+17:54:39 INFO     Removed job e875f518a7ad4be5a691a3f619a56d12
+17:54:39 WARNING  Run time of job "photo (trigger: date[2016-07-17 07:35:00 CEST], next run at: 2016-07-17 07:35:00 CEST)" was missed by 10:19:39.178128
+17:54:39 INFO     Removed job 9e53a4f6a7754528ab02a0cdc5537ddc
+17:54:39 INFO     Removed job 5531ca79a50647dc89e59e3c56f1f912
+17:54:39 WARNING  Run time of job "mail2 (trigger: date[2016-07-17 08:00:00 CEST], next run at: 2016-07-17 08:00:00 CEST)" was missed by 9:54:39.180621
+17:54:39 WARNING  Run time of job "mail1 (trigger: date[2016-07-17 08:00:00 CEST], next run at: 2016-07-17 08:00:00 CEST)" was missed by 9:54:39.181203
+17:54:39 INFO     Removed job 776d69a7830c47efa7f982b82f24c27c
+17:54:39 WARNING  Run time of job "water1 (trigger: date[2016-07-17 10:00:00 CEST], next run at: 2016-07-17 10:00:00 CEST)" was missed by 7:54:39.183486
+17:54:39 INFO     Removed job 381821223c1a4fab8de0a8803bcee01a
+17:54:39 WARNING  Run time of job "water1 (trigger: date[2016-07-17 12:00:00 CEST], next run at: 2016-07-17 12:00:00 CEST)" was missed by 5:54:39.185029
+17:54:39 INFO     Removed job 19cc5f61373d49c795a1d4c0b52faead
+17:54:39 WARNING  Run time of job "water2 (trigger: date[2016-07-17 14:00:00 CEST], next run at: 2016-07-17 14:00:00 CEST)" was missed by 3:54:39.186493
+17:54:39 INFO     Removed job c43e19ec63844be3b48e96e9ba272ff5
+17:54:39 INFO     Removed job 89fb3e4e0e4f40789a14f995799f048a
+17:54:39 WARNING  Run time of job "water1 (trigger: date[2016-07-17 16:00:00 CEST], next run at: 2016-07-17 16:00:00 CEST)" was missed by 1:54:39.188150
+17:54:41 INFO     Running job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:41 CEST)" (scheduled at 2016-07-17 17:54:41.131100+02:00)
+17:54:41 INFO     Read sensor data: pressuresensor - 2016-07-17 17:54:41
+17:54:41 INFO     Job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:41 CEST)" executed successfully
+17:54:41 INFO     Running job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:41 CEST)" (scheduled at 2016-07-17 17:54:41.131492+02:00)
+17:54:41 INFO     Running job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:41 CEST)" (scheduled at 2016-07-17 17:54:41.131849+02:00)
+17:54:41 INFO     Read sensor data: hygropass - 2016-07-17 17:54:41
+17:54:41 INFO     Read sensor data: hygroampl - 2016-07-17 17:54:41
+17:54:41 INFO     Running job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:41 CEST)" (scheduled at 2016-07-17 17:54:41.132197+02:00)
+17:54:41 INFO     Read sensor data: lightsensor - 2016-07-17 17:54:41
+17:54:41 INFO     Job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 18:09:41 CEST)" executed successfully
+17:54:41 INFO     Job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 18:09:41 CEST)" executed successfully
+17:54:41 INFO     Job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:09:41 CEST)" executed successfully
+17:54:43 INFO     Running job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:43 CEST)" (scheduled at 2016-07-17 17:54:43.130737+02:00)
+17:54:43 INFO     Read sensor data: humidsensor - 2016-07-17 17:54:43
+17:54:43 INFO     Job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:09:43 CEST)" executed successfully
+17:54:45 INFO     Running job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 17:54:45 CEST)" (scheduled at 2016-07-17 17:54:45.130216+02:00)
+17:54:45 INFO     Read sensor data: tempsensor1 - 2016-07-17 17:54:45
+17:54:45 INFO     Job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 18:09:45 CEST)" executed successfully
+17:54:45 INFO     SSID empty, try again to get SSID
+17:54:48 INFO     SSID empty, try again to get SSID
+17:54:50 INFO     SSID empty, try again to get SSID
+17:54:52 INFO     Access point failed to start, attempt 0 
+17:54:55 INFO     SSID empty, try again to get SSID
+17:54:58 INFO     SSID empty, try again to get SSID
+17:55:00 INFO     SSID empty, try again to get SSID
+17:55:02 INFO     Access point failed to start, attempt 1 
+17:55:02 WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+17:55:02 INFO      * Running on http://0.0.0.0:5012/ (Press CTRL+C to quit)
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET / HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jquery/js/jquery-2.2.3.min.js HTTP/1.1" 200 -
+17:55:05 INFO     No Saved Wifi Network available
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jqplot.barRenderer.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/bootstrap/css/bootstrap-theme.min.css HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 200 -
+17:55:05 INFO     127.0.0.1 - - [17/Jul/2016 17:55:05] "GET /static/moment/min/moment-with-locales.min.js HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/datetimepicker/css/bootstrap-datetimepicker.min.css HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/datetimepicker/js/bootstrap-datetimepicker.min.js HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/bootstrap-select/js/bootstrap-select.js HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/bootstrap-select/css/bootstrap-select.min.css HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/clockpicker/js/bootstrap-clockpicker.min.js HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/clockpicker/css/bootstrap-clockpicker.min.css HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/bootstrap/font-awesome/css/font-awesome.min.css HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/photoswipe/dist/photoswipe.css HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/photoswipe/dist/default-skin/default-skin.css HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/photoswipe/dist/photoswipe.min.js HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/photoswipe/dist/photoswipe-ui-default.js HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/bootstrap/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 200 -
+17:55:06 INFO     127.0.0.1 - - [17/Jul/2016 17:55:06] "GET /static/favicon.ico HTTP/1.1" 200 -
+17:55:07 INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+17:55:07 INFO     try to start system as WiFi access point
+17:55:08 INFO     127.0.0.1 - - [17/Jul/2016 17:55:08] "GET /login HTTP/1.1" 200 -
+17:55:12 INFO     SSID empty, try again to get SSID
+17:55:14 INFO     127.0.0.1 - - [17/Jul/2016 17:55:14] "POST /login HTTP/1.1" 302 -
+17:55:14 INFO     SSID empty, try again to get SSID
+17:55:17 INFO     SSID empty, try again to get SSID
+17:55:18 INFO     Access point failed to start, attempt 0 
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET / HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/temperature-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/humidity-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/pressure-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/light-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/moisture-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/watertap-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/icons/fertilizer-transp.png HTTP/1.1" 200 -
+17:55:19 INFO     127.0.0.1 - - [17/Jul/2016 17:55:19] "GET /static/bootstrap/font-awesome/fonts/fontawesome-webfont.woff?v=4.2.0 HTTP/1.1" 200 -
+17:55:22 INFO     SSID empty, try again to get SSID
+17:55:24 INFO     SSID empty, try again to get SSID
+17:55:27 INFO     SSID empty, try again to get SSID
+17:55:28 INFO     Access point failed to start, attempt 1 
+17:55:58 INFO     127.0.0.1 - - [17/Jul/2016 17:55:58] "GET /HardwareSetting/ HTTP/1.1" 200 -
+17:56:24 INFO     127.0.0.1 - - [17/Jul/2016 17:56:24] "GET /About/ HTTP/1.1" 200 -
+17:56:26 INFO     127.0.0.1 - - [17/Jul/2016 17:56:26] "GET /HardwareSetting/ HTTP/1.1" 200 -
+17:56:28 INFO     127.0.0.1 - - [17/Jul/2016 17:56:28] "GET /network/ HTTP/1.1" 200 -
+17:56:29 INFO     127.0.0.1 - - [17/Jul/2016 17:56:29] "GET /ShowCalibration/ HTTP/1.1" 200 -
+17:56:30 INFO     127.0.0.1 - - [17/Jul/2016 17:56:30] "GET / HTTP/1.1" 200 -
+17:56:30 INFO     127.0.0.1 - - [17/Jul/2016 17:56:30] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 200 -
+17:58:06 INFO     127.0.0.1 - - [17/Jul/2016 17:58:06] "GET /Sensordata/ HTTP/1.1" 200 -
+17:58:08 INFO     127.0.0.1 - - [17/Jul/2016 17:58:08] "GET /Imageshow/ HTTP/1.1" 200 -
+17:58:10 INFO     127.0.0.1 - - [17/Jul/2016 17:58:10] "GET /wateringplan/ HTTP/1.1" 200 -
+17:58:10 INFO     127.0.0.1 - - [17/Jul/2016 17:58:10] "GET /static/dropv3%20xs.jpg HTTP/1.1" 200 -
+17:58:11 INFO     127.0.0.1 - - [17/Jul/2016 17:58:11] "GET /fertilizerplan/ HTTP/1.1" 200 -
+17:58:12 INFO     127.0.0.1 - - [17/Jul/2016 17:58:12] "GET /static/dropv3%20xs%20green.jpg HTTP/1.1" 200 -
+17:58:12 INFO     127.0.0.1 - - [17/Jul/2016 17:58:12] "GET /ShowCalibration/ HTTP/1.1" 200 -
+17:58:13 INFO     127.0.0.1 - - [17/Jul/2016 17:58:13] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 200 -
+17:58:16 INFO     127.0.0.1 - - [17/Jul/2016 17:58:16] "GET /network/ HTTP/1.1" 200 -
+17:58:18 INFO     127.0.0.1 - - [17/Jul/2016 17:58:18] "GET /HardwareSetting/ HTTP/1.1" 200 -
+17:58:22 INFO     127.0.0.1 - - [17/Jul/2016 17:58:22] "GET /About/ HTTP/1.1" 200 -

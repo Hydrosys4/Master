@@ -1,0 +1,174 @@
+INFO:root:Start logging --------------------------------------------
+INFO:apscheduler.scheduler:Scheduler started
+INFO:apscheduler.scheduler:Added job "master (trigger: interval[1 day, 0:00:00], next run at: 2015-08-09 00:00:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "waterpump (trigger: interval[2:00:00], next run at: 2015-08-08 20:00:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 19:15:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "light (trigger: interval[0:15:00], next run at: 2015-08-08 19:15:02)" to job store "default"
+INFO:werkzeug: * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:13:17] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:13:58] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:14:13] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:14:19] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 19:15:01)" (scheduled at 2015-08-08 19:15:01)
+INFO:root:Get sensor data 2015-08-08 19:15:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 19:30:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 19:30:02)" (scheduled at 2015-08-08 19:15:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 19:30:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:49] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:28:53] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:29:10] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:29:15] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:29:44] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:29:46] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:29:48] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:29:50] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 19:30:01)" (scheduled at 2015-08-08 19:30:01)
+INFO:root:Get sensor data 2015-08-08 19:30:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 19:45:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 19:30:02)" (scheduled at 2015-08-08 19:30:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 19:45:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:39:18] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:40:49] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:41:04] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:41:06] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:43:35] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:44:19] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:44:22] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:44:27] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:44:29] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:44:33] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:44:36] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 19:45:01)" (scheduled at 2015-08-08 19:45:01)
+INFO:root:Get sensor data 2015-08-08 19:45:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:00:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 19:45:02)" (scheduled at 2015-08-08 19:45:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:00:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:45:56] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:46:35] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:46:41] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:46:43] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:46:46] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:46:48] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:47:06] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:48:35] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:49:17] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:49:28] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:49:31] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:49:33] "POST /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 19:49:46] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "waterpump (trigger: interval[2:00:00], next run at: 2015-08-08 20:00:00)" (scheduled at 2015-08-08 20:00:00)
+INFO:root:Startpump evaluation
+INFO:root:execute water pump check 2015-08-08 20:00:00
+INFO:root:Waterpump Check parameter, lightquantity=52.3333333333 < MinimumLightinde=0 
+INFO:root:Waterpump Check parameter, tempquantity=37.3333333333 < MinAveragetemp=27 
+INFO:root:Pump ON, lightquantity=52.3333333333 < MinimumLightinde=0 
+INFO:root:Pump ON, tempquantity=37.3333333333 < MinAveragetemp=27 
+INFO:root:Pump ON, optional time for ms = 65000
+INFO:apscheduler.scheduler:Job "waterpump (trigger: interval[2:00:00], next run at: 2015-08-08 22:00:00)" executed successfully
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:00:01)" (scheduled at 2015-08-08 20:00:01)
+INFO:root:Get sensor data 2015-08-08 20:00:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:15:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:00:02)" (scheduled at 2015-08-08 20:00:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:15:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:41] "GET /Imageshow/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /About/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /static/documentation/userguide.html HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /static/documentation/userguide_html_dc0dcd4f.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /static/documentation/userguide_html_1cdac398.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /static/documentation/userguide_html_dbff3446.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /static/documentation/userguide_html_b5254f70.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:08:52] "GET /static/documentation/userguide_html_475a3087.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:09:13] "GET /Advanced/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:09:34] "POST /saveadvancedtable/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:09:47] "GET /Advanced/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:09:53] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:09:58] "POST /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:10:00] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:10:01] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:10:19] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:11:41] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:14:27] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:14:37] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:14:55] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:30:01)" (scheduled at 2015-08-08 20:15:01)
+INFO:root:Get sensor data 2015-08-08 20:15:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:30:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:15:02)" (scheduled at 2015-08-08 20:15:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:30:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:15:04] "GET /Advanced/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:15:14] "GET /Sensordata/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:15:22] "GET /About/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:20:32] "GET /About/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:21:01] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:21:10] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:21:42] "POST /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:21:44] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:21:45] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:21:47] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:30:01)" (scheduled at 2015-08-08 20:30:01)
+INFO:root:Get sensor data 2015-08-08 20:30:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:45:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:30:02)" (scheduled at 2015-08-08 20:30:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:45:02)" executed successfully
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 20:45:01)" (scheduled at 2015-08-08 20:45:01)
+INFO:root:Get sensor data 2015-08-08 20:45:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:00:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 20:45:02)" (scheduled at 2015-08-08 20:45:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:00:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:51:51] "GET /About/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:51:57] "GET /Advanced/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:51:58] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:54:17] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:54:19] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:56:04] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:57:07] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:57:16] "POST /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:57:18] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 20:58:19] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:00:01)" (scheduled at 2015-08-08 21:00:01)
+INFO:root:Get sensor data 2015-08-08 21:00:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:15:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:00:02)" (scheduled at 2015-08-08 21:00:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:15:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:04:38] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:04:46] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:05:06] "GET /doit/?name=light1&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:05:44] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:07:36] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:07:51] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:13:54] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:14:49] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:15:01)" (scheduled at 2015-08-08 21:15:01)
+INFO:root:Get sensor data 2015-08-08 21:15:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:30:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:15:02)" (scheduled at 2015-08-08 21:15:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:30:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:15:06] "POST /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:15:08] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:15:15] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:21:57] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:22:08] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:23:31] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:23:36] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:23:55] "GET /saveit/?name=photo&time=09:30&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:24:37] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:30:01)" (scheduled at 2015-08-08 21:30:01)
+INFO:root:Get sensor data 2015-08-08 21:30:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:45:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:30:02)" (scheduled at 2015-08-08 21:30:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:30:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:35:32] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:35:46] "GET /saveit/?name=mail&address=valerio.angelo@gmail.com&title=My%20Grow%20plan&time=09:00&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 21:45:01)" (scheduled at 2015-08-08 21:45:01)
+INFO:root:Get sensor data 2015-08-08 21:45:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-08 22:00:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-08 21:45:02)" (scheduled at 2015-08-08 21:45:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-08 22:00:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:45:33] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Aug/2015 21:47:56] "GET /ShowCalibration/ HTTP/1.1" 200 -

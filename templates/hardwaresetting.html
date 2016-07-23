@@ -1,0 +1,359 @@
+{% extends "layout.html" %}
+{% set active_page = "HardwareSetting" %}
+{% block body %}
+  {% if session.logged_in %}
+  
+   
+    <div class="container-fluid">
+		
+		
+		
+<!-- Warning -->
+    <div class="container-fluid">
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h3 id="header">WARNING: don't modify the data on this page unless you know what you are doing. This page is for very expert only.</h3>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+        
+        
+        
+  
+<!-- select and load preset HW config -->
+    <div class="container-fluid">
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">Select and Load preset HW config</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+  
+
+<form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
+  
+    
+  
+	<div class="form-group">
+		
+		<select class="form-control input-sm dontwantgap" name="HWfilelist">
+		{% for name in HWfilelist %}	
+			{% set option_i = loop %}
+			<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name[1]}}">{{name[1]}}</option>
+		{% endfor %}											
+		</select>
+		
+	</div>	
+														
+	<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="applyHWpreset">Apply Selected Hardware Setting</button>
+	<div>Please reboot the system after apply the new setting										
+	</div>													
+												
+</form>
+<!-- END END select and load preset HW config -->
+
+
+
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">Hardwaresetting Configuration options</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+  
+<!-- first section add record -->
+<form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
+  
+    
+  
+													<div class="table-responsive">
+															<table class="table table-striped">
+																<thead>
+																	<tr>
+																		{% for th in tablehead %}
+																		<th><h6>{{ th }}</h6></th>																			
+																		{% endfor %}
+																	</tr>
+																</thead>
+																<tbody>
+																	<tr>
+																		{% for th in tablehead %}
+
+																			<td>
+																			<div class="form-group">	
+																			{% if fields[th]|length<1 %}
+																			<input class="form-control input-sm smallgap" name="{{ th }}" value="">																					
+																			{% else %}		
+																			<select class="form-control input-sm smallgap" name="{{ th }}">																				
+																																			
+																						{% for field in fields[th] %}
+
+																						<option {% if loop.index == 1 %}selected="selected"{% endif %} value="{{field}}">{{field}}</option>
+																									
+																						{% endfor %}	
+																																					
+																			  </select>
+																			  {% endif %}
+																			  </div>																							
+																						
+																						
+																			</td>
+																			
+																		{% endfor %}
+
+																	</tr>
+																</tbody>
+															</table>
+															<!-- /.table-responsive -->		
+														</div>
+														
+	<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="save">ADD and Save</button>
+														
+														
+												
+</form>
+  
+<!-- second section with list ot records -->
+<form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
+  
+  
+  <div class="container-fluid">
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">Current Hardwaresetting</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+
+													<div class="table-responsive">
+															<table class="table table-striped">
+																<thead>
+																	<tr>
+																		<th><h6>Delete</h6></th>	
+																		{% for th in tablehead %}
+																		<th><h6>{{ th }}</h6></th>																			
+																		{% endfor %}
+																	</tr>
+																</thead>
+																<tbody>
+																	{% for rowdict in hwdata %}
+
+																	<tr>
+	<td>										
+		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="delete_{{rowdict[tablehead[0]]}}">Del</button>
+	</td>
+																		
+																		{% for th in tablehead %}
+
+																			<td>
+																						<h6>{{ rowdict[th] }}</h6>
+																			</td>
+																			
+																		{% endfor %}
+
+																	</tr>
+																	{% endfor %}
+
+																</tbody>
+															</table>
+														</div>
+														<!-- /.table-responsive -->
+
+
+</form>
+																																											
+
+		<!-- Download file -->
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="dwform" class="jotform-form" method="post" >
+
+			<div class="page-header">
+					  <h3>Download file (debugging only)</h3>   
+			</div>
+			<!--  file 1 -->
+			<div class="row">
+				<div class="col-xs-4">
+					<label >Current Log file</label>
+				</div>
+				<div class="col-xs-4">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlog">Prepare File</button>
+				</div>
+				<div class="col-xs-4">
+					<a id="downloadlinkdownloadlog" href="" ></a>
+				</div>
+			</div>	
+			<!--  file 1b -->
+			<div class="row">
+				<div class="col-xs-4">
+					<label >Previous saved Log file</label>
+				</div>
+				<div class="col-xs-4">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadprevlog">Prepare File</button>
+				</div>
+				<div class="col-xs-4">
+					<a id="downloadlinkdownloadprevlog" href="" ></a>
+				</div>
+			</div>	
+			<!--  file 2 -->
+			<div class="row">
+				<div class="col-xs-4">
+					<label >Hardware Config</label>
+				</div>
+				<div class="col-xs-4">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadHW">Prepare File</button>
+				</div>
+				<div class="col-xs-4">
+					<a id="downloadlinkdownloadHW" href="" ></a>
+				</div>
+			</div>		
+
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="downloadstatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".downloadbutton").click(function() {
+				
+				// send ajax interrupt to flask 
+				$('#downloadstatus').text("Status");
+
+					var prid=$(this).attr('name');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/downloadit/?name=" + prid,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#downloadstatus').text(data.answer);
+									if (data.answer=="ready"){
+										   setTimeout(function(){
+													d = new Date();
+													var filename=data.filename;
+													//var fileurl="{{ url_for('static', filename=filename)}}"+"?"+d.getTime();
+													var fileurl="{{ url_for('static', filename="")}}"+filename+"?"+d.getTime();
+													$('#downloadlink'+prid).text("Download Ready");
+													$('#downloadlink'+prid).attr("href", fileurl);
+											}, 200);
+									}
+
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    
+				
+				// increment status bar should stay here
+
+
+					
+				});
+
+			  });
+			</script>
+
+
+		<!-- testing function button -->
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="dwform" class="jotform-form" method="post" >
+
+			<div class="page-header">
+					  <h3>Function test (debugging only)</h3>   
+			</div>
+			<!--  button 1 -->
+			<div class="row">
+				<div class="col-xs-4">
+					<label >Testing</label>
+				</div>
+				<div class="col-xs-4">
+					<button class="testingbutton btn-sm btn btn-default"  type="button" name="testing">Start function test</button>
+				</div>
+
+			</div>	
+
+
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="testingstatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".testingbutton").click(function() {
+				
+				// send ajax interrupt to flask 
+				$('#testingstatus').text("Status");
+
+					var prid=$(this).attr('name');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/testit/?name=" + prid,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#testingstatus').text(data.answer);
+
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    
+				
+				// increment status bar should stay here
+
+
+					
+				});
+
+			  });
+			</script>
+
+
+
+		</form>
+
+
+
+  
+
+ 
+   </div> 
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

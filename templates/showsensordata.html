@@ -1,0 +1,230 @@
+{% extends "layout.html" %}
+{% set active_page = "sensordata" %}
+{% block body %}
+  {% if session.logged_in %}
+  <div class="container-fluid">
+		<script type="text/javascript">
+
+			$(function() {
+				$( "button" ).button();
+			});
+
+			
+		</script>
+		
+		<script type="text/javascript">	
+
+		
+		
+		$(document).ready(function(){
+			$.jqplot.config.enablePlugins = true;
+			var line1={{sensordata|safe}};
+			var datatype="{{actiontype}}";
+			if (( line1.length > 0)&&(datatype=="sensor")) { 
+			var plot1 = $.jqplot('chart', [line1], {
+				title:'{{sensortype}} - {{periodtype}}',
+				autoscale:true,
+				gridPadding:{left:40,right:35},
+				axes:{
+					xaxis:{
+						renderer:$.jqplot.DateAxisRenderer,
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer
+							// above is necessary to make the text rotate effect
+						},
+						tickOptions:{
+							fontSize:'8pt',
+							angle:-60,
+							formatString:'%b %#d, %H:%M'
+						}
+					},
+					yaxis:{
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							}
+					}
+				},
+				series:[{ lineWidth:4}],
+				cursor:{
+					//show: true,
+					zoom:true,
+					looseZoom: true
+				}
+			});
+		   }
+		});		
+		
+		$(document).ready(function(){
+			$.jqplot.config.enablePlugins = true;
+			var line1={{sensordata|safe}};
+			var datatype="{{actiontype}}";
+			if (( line1.length > 0)&&(datatype=="actuator")) { 
+			var plot1 = $.jqplot('chart', [line1], {
+				title:'{{sensortype}} - {{periodtype}}',
+				autoscale:true,
+				
+				seriesDefaults: {
+				  renderer:$.jqplot.BarRenderer,
+				  rendererOptions: { barWidth: 3 }
+				},
+				axes: {
+				  xaxis: {
+					renderer: $.jqplot.CategoryAxisRenderer,
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer
+							
+						},
+						tickOptions:{
+							fontSize:'8pt',
+							angle:-60
+						}
+				  }
+				}
+
+
+			});
+		   }
+		});		
+		
+		$(function() {
+				$(".thebutton").click(function() {
+					var selvalue=$(this).attr('name');
+					//alert(selvalue);
+					$('#actionbtn').attr("value", selvalue);
+				});  
+			});  
+		
+
+		
+		$(function() {
+				$(".elembutton").click(function() {
+					var selvalue=$(this).attr('name');
+					//alert(selvalue);
+					$('#elementtype').attr("value", selvalue);
+				});  
+			});  
+		
+		</script>
+		<!-- The contents of myscript.js will be loaded inside the script tag -->
+
+		<div class="page-header">
+
+					  <h4>Data Trend</h4>
+       
+       </div>
+		
+		<form novalidate="true" action="{{ url_for('show_sensordata') }}" id="menuForm" method="post" >
+	
+			<div class="page-header">
+	
+							<div class="row">
+							<div class="col-xs-4">
+								<button class="thebutton btn-block btn btn-{% if actiontype=="sensor" %}primary{% else %}default{% endif %}" type="submit" name="sensor">sensor</button>
+							</div>
+							<div class="col-xs-4">
+								<button class="thebutton btn-block btn btn-{% if actiontype=="actuator" %}primary{% else %}default{% endif %}" type="submit" name="actuator">actuator</button>
+
+							</div>
+							</div>
+							<input value={{actiontype}} id="actionbtn" name="actionbtn" type="hidden">
+						
+			</div>
+
+			<div class="well bs-component">
+
+							<div class="row top-buffer">
+									<div class="form-group col-xs-12">
+												<!-- BUTTONS -->
+												<div class="col-xs-12">
+												<div class="row">
+											{% for sensorname in sensorlist %}														
+											<button class="smallgap elembutton btn-sm btn btn-{% if sensorname==sensortype %}warning{% else %}default{% endif %}" type="submit" name="{{sensorname}}">{{sensorname}}</button>
+											
+											{% endfor %}													
+												</div>
+												</div>
+												<input value="{{sensortype}}" id="elementtype" name="elementtype" type="hidden">
+										
+
+
+								
+										
+										
+										
+										
+										
+										
+									</div>	
+							</div>
+
+
+							{% if (sensordata|length)>2 %}
+							
+							<!-- graph here-->
+							<div class="row">
+								<div class="col-xs-12">
+								<div id="chart" name="chart"></div>
+								</div>
+							</div>
+
+							{% else %}
+
+							<div class="row">
+								<div class="col-xs-12">
+									<div style="height:400px"><h4>Data not available</h4></div>
+								
+								</div>
+							</div>
+
+							{% endif %}
+
+
+
+							<div class="row">
+								<div class="col-xs-12">
+
+								<div class="form-group">
+									<label>Period</label>									
+							    {% for period in periodlist %}									
+									<label class="radio-inline">
+										<input onclick="this.form.submit()" type="radio" name="period" id="period" value="{{period}}" {% if period == periodtype %}checked{% endif %}>{{period}}
+									</label>
+								{% endfor %}
+								</div>
+								</div>
+
+							</div>
+
+      </div>
+
+
+							<div class="page-header">
+
+										<h4>Delete Data Record</h4>
+
+							</div>
+							<div class="row">							
+									<div class="col-xs-12">
+									<button class="thebutton btn btn-default" type="submit" name="delete">Delete all data</button>
+									</div>
+									
+
+							</div>
+
+				
+		</form>	
+		
+		
+  </div>
+  {% else %}
+
+		<h1>Please log in</h1>
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

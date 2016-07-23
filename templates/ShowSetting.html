@@ -1,0 +1,203 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+		<script type=text/javascript>
+			$(function() {
+					$( "button" ).button();
+			});
+			$(function() {
+					$( "#progressbar" ).progressbar({value: 0});
+			});
+			$(document).ready(function()
+			{
+				for (var i=0; i<48; i++)
+				  {
+					//Creates the time item and populate il select
+					var minh= (((i)%2)*3).toString() ;
+					var minl= "0";
+					var hourl=(((i/2) - (i/2) % 1) % 10).toString() ;
+					var hourh=((i/20) - (i/20) % 1).toString() ;
+					var time=hourh+hourl+":"+minh+minl
+					var seltime="{{seltime}}";
+					if (time==seltime)
+					{
+					var itemval= '<option selected="selected" value="'+time+'">' + time +'</option>';
+					} else
+					{
+					var itemval= '<option value="'+time+'">' + time +'</option>';
+					}
+					//Appends it within your select element
+					$("#SelTime").append(itemval);
+				  }
+			});
+		</script>
+
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="PHform" class="jotform-form" method="post" >
+			<div class="form-all">
+				<ul class="form-section">
+						<li id="cid_10" class="form-input-wide">
+						<div class="form-header-group">
+							<h2 id="header_10" class="form-header">WebCam Setting</h2>
+						</div>
+						</li>
+						<li class="form-line" id="id_30">
+						<label class="form-label-left" id="label_30" for="input_3">Automatic daily picture at time:</label>
+							<div id="cid_4" class="form-input">
+								<select class="form-dropdown validate[required]" onchange="this.form.submit()" style="width:150px" id="SelTime" name="name">					
+								</select>
+							</div>
+
+						</li>
+						
+						<li class="form-line" id="id_30">
+							<div id="cid_20" class="form-input">
+
+								<button id="Btnstarttest" type="button" name="BtnPHref1" style="width: 150px">Take Shot</button>
+
+							</div>
+
+
+
+						</li>
+							
+						<li class="form-line" id="id_30">
+						<img id="imgtest" src="{{ url_for('static', filename="cameratest/testimage1.jpg")}}" height="240" width="320">
+						<div style="width:320px;height:5px" id="progressbar"></div>
+						</li>
+						<li class="form-line" id="id_30">
+							<label class="form-label-left" id="teststatus" for="input_3">Status</label>
+						</li>
+				
+				</ul>
+			<script type=text/javascript>
+			  $(function() {
+				$("#Btnstarttest").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				$('#teststatus').text("Status");
+
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/shotit/?camera=test",
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#teststatus').text(data.answer);
+									if (data.answer=="photo taken"){
+										   setTimeout(function(){
+													d = new Date();
+													var fileurl="{{ url_for('static', filename="cameratest/testimage.jpg")}}"+"?"+d.getTime();
+													$('#imgtest').attr("src", fileurl);
+											}, 200);
+									}
+
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    
+				
+				// increment status bar
+				$( "#progressbar" ).progressbar({value: 0});
+                                var pGress = setInterval(function() {
+                                                var pVal = $('#progressbar').progressbar('option', 'value');
+                                                var pCnt = !isNaN(pVal) ? (pVal + 1) : 1;
+                                                if (pCnt > 100) {
+                                                        clearInterval(pGress);
+                                                } else {
+                                                        $('#progressbar').progressbar({value: pCnt});
+                                                        if ($('#teststatus').text()=="photo taken"){
+                                                                $('#progressbar').progressbar({value: 99});
+
+                                                        }
+
+                                                }
+                                        },100);
+
+					
+				});
+			  });
+			</script>
+
+			</div>
+			
+
+		</form>
+			
+			
+		<!--  this part is about EMAIL ---------------------------------------------------------------------------------------------------------->	
+			
+			
+		<form novalidate="true" action="{{ url_for('show_Setting') }}" id="menuForm" class="jotform-form" method="post" >
+			<input name="formID" value="31355431117344" type="hidden">
+			<div class="form-all">
+				<ul class="form-section">
+						<li id="cid_1" class="form-input-wide">
+						<div class="form-header-group">
+							<h2 id="header_1" class="form-header">Mail Notification Setting</h2>
+						</div>
+						</li>
+						<li class="form-line" id="id_3">
+							<label class="form-label-left" id="label_3" for="input_3">Doser number<span class="form-required">*</span> 
+							</label>
+							<div id="cid_4" class="form-input">
+								<select class="form-dropdown validate[required]" style="width:150px" id="doserselection" name="dosernumber">
+									{% for pt in dosername %}									
+									<option value="{{ pt }}">{{ pt }}</option>
+									{% endfor %}
+								</select>
+
+
+				
+							<button id="doserbtn" name="buttonsub" value="doser" type="submit" style="width: 150px">calibrate</button>
+				
+				
+							</div>
+						</li>
+
+				</ul>
+			</div>
+			
+			
+			
+			<input id="simple_spc" name="simple_spc" value="31355431117344-31355431117344" type="hidden"> 
+		</form><div style="list-style: none outside none; position: absolute; z-index: 10000; display: none;" class="form-autocomplete-list"></div>
+
+
+		<!--  this part is about Serial CONNECTION  ---------------------------------------------------------------------------------------------------------->	
+
+		<form novalidate="true" action="{{ url_for('show_Setting') }}" id="menuForm" class="jotform-form" method="post" >
+			<input name="formID" value="31355431117344" type="hidden">
+			<div class="form-all">
+				<ul class="form-section">
+						<li id="cid_1" class="form-input-wide">
+						<div class="form-header-group">
+							<h2 id="header_1" class="form-header">Check serial communication</h2>
+						</div>
+						</li>
+						<li class="form-line" id="id_3">
+
+							<div id="cid_4" class="form-input">
+
+
+				
+								<button id="doserbtn" name="buttonsub" value="restartserial" type="submit" style="width: 150px">restart serial</button>
+				
+				
+							</div>
+						</li>
+
+				</ul>
+			</div>
+			
+			
+			
+			<input id="simple_spc" name="simple_spc" value="31355431117344-31355431117344" type="hidden"> 
+		</form><div style="list-style: none outside none; position: absolute; z-index: 10000; display: none;" class="form-autocomplete-list"></div>
+  
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

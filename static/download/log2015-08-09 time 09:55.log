@@ -1,0 +1,407 @@
+INFO:root:Start logging --------------------------------------------
+INFO:apscheduler.scheduler:Scheduler started
+INFO:apscheduler.scheduler:Added job "master (trigger: interval[1 day, 0:00:00], next run at: 2015-08-10 00:00:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "waterpump (trigger: interval[2:00:00], next run at: 2015-08-09 10:00:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 08:45:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "mail (trigger: date[2015-08-09 09:00:00], next run at: 2015-08-09 09:00:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "photo (trigger: date[2015-08-09 09:30:00], next run at: 2015-08-09 09:30:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "light (trigger: interval[0:15:00], next run at: 2015-08-09 08:45:02)" to job store "default"
+INFO:werkzeug: * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 08:45:01)" (scheduled at 2015-08-09 08:45:01)
+INFO:root:Get sensor data 2015-08-09 08:45:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:00:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-09 08:45:02)" (scheduled at 2015-08-09 08:45:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:00:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:46:46] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:46:47] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:46:50] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:46:58] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:46:58] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:53:56] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:53:57] "GET /wateringplan/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:53:58] "GET /static/goccia-xs.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:53:58] "GET /static/bootstrap/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:54:02] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:54:02] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:58:26] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 08:59:38] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "mail (trigger: date[2015-08-09 09:00:00], next run at: 2015-08-09 09:00:00)" (scheduled at 2015-08-09 09:00:00)
+INFO:apscheduler.scheduler:Removed job "mail (trigger: date[2015-08-09 09:00:00], next run at: None)"
+INFO:root:send Mail 2015-08-09 09:00:00
+INFO:apscheduler.scheduler:Job "mail (trigger: date[2015-08-09 09:00:00], next run at: None)" executed successfully
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:15:01)" (scheduled at 2015-08-09 09:00:01)
+INFO:root:Get sensor data 2015-08-09 09:00:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:15:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:00:02)" (scheduled at 2015-08-09 09:00:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:15:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:02:04] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:03:31] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:03:59] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:34] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:50] "GET /saveit/?name=photo&time=10:00&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/bootstrap/css/custom.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryui/images/ui-bg_gloss-wave_35_f6a828_500x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:04:55] "GET /static/jqueryui/images/ui-bg_highlight-soft_100_eeeeee_1x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:05:00] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:05:01] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:14:17] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:14:20] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:14:32] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:30:01)" (scheduled at 2015-08-09 09:15:01)
+INFO:root:Get sensor data 2015-08-09 09:15:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:30:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:15:02)" (scheduled at 2015-08-09 09:15:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:30:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:15:41] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:15:42] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:15:44] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:15:49] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:12] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:14] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:26] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:36] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:42] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:47] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:53] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:16:55] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:17:21] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:17:23] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:18:07] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:18:10] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:18:22] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:20:23] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:20:26] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:20:38] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:20:49] "GET /doit/?name=light1&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:21:09] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:21:11] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:27:30] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:27:38] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:27:50] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:28:01] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:28:11] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:28:17] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:28:38] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Removed job "photo (trigger: date[2015-08-09 09:30:00], next run at: None)"
+INFO:apscheduler.scheduler:Running job "photo (trigger: date[2015-08-09 09:30:00], next run at: None)" (scheduled at 2015-08-09 09:30:00)
+INFO:root:take picture 2015-08-09 09:30:00
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:30:01)" (scheduled at 2015-08-09 09:30:01)
+INFO:root:Get sensor data 2015-08-09 09:30:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:45:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:30:02)" (scheduled at 2015-08-09 09:30:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:45:02)" executed successfully
+INFO:root:Camera not detected
+INFO:apscheduler.scheduler:Job "photo (trigger: date[2015-08-09 09:30:00], next run at: None)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryui/images/ui-bg_highlight-soft_100_eeeeee_1x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:49] "GET /static/jqueryui/images/ui-bg_gloss-wave_35_f6a828_500x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:53] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:38:57] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:21] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:22] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:24] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:31] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:31] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:37] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:42] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:45] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:47] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:39:51] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:22] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:27] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryui/images/ui-bg_gloss-wave_35_f6a828_500x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:30] "GET /static/jqueryui/images/ui-bg_highlight-soft_100_eeeeee_1x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:34] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:36] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:40:41] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:20] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:20] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:20] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:20] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:20] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:20] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:21] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:24] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:40] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:41:57] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:02] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:07] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:09] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:22] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:23] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:23] "GET /static/jqueryui/images/ui-bg_gloss-wave_35_f6a828_500x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:23] "GET /static/jqueryui/images/ui-bg_highlight-soft_100_eeeeee_1x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:26] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:28] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:33] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:41] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:45] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:48] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:50] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:54] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:56] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:42:58] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:00] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:02] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:05] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:06] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:17] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:21] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:43:25] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 09:45:01)" (scheduled at 2015-08-09 09:45:01)
+INFO:root:Get sensor data 2015-08-09 09:45:01
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-08-09 10:00:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2015-08-09 09:45:02)" (scheduled at 2015-08-09 09:45:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2015-08-09 10:00:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:46:01] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:46:07] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:46:18] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:46:29] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:36] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryui/images/ui-bg_gloss-wave_35_f6a828_500x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:39] "GET /static/jqueryui/images/ui-bg_highlight-soft_100_eeeeee_1x100.png HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:43] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:47] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:53] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:47:58] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:09] "POST /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:11] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:12] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:14] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:15] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:17] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:18] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:20] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:21] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:23] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:24] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:26] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:27] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:29] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:30] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:32] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:33] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:35] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:36] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:38] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:39] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:41] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:42] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:44] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:45] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:47] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:48] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:50] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:51] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:53] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:54] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:56] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:57] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:48:59] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:00] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:02] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:03] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:05] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:06] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:07] "GET /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:08] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:10] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:11] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:11] "GET /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/1000hzvalidate/js/validator.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryui/jquery-ui.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/bootstrap/css/custom.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:12] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:13] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:15] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:16] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:18] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:19] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:21] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:21] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:26] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:32] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:49:37] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:50:49] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:50:57] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:51:39] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:51:57] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:04] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:12] "GET /doit/?name=photo&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:19] "GET /doit/?name=waterpump&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:24] "POST /ShowRealTimeData/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:25] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:27] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:28] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:30] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [09/Aug/2015 09:52:31] "GET /echo/?echoValue=requestfordata HTTP/1.1" 200 -

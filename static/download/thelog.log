@@ -1,0 +1,28 @@
+INFO:root:Start logging --------------------------------------------
+INFO:apscheduler.scheduler:Scheduler started
+INFO:apscheduler.scheduler:Added job "master (trigger: interval[1 day, 0:00:00], next run at: 2014-01-19 00:00:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 14:50:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2014-01-18 15:00:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "light (trigger: interval[0:15:00], next run at: 2014-01-18 15:00:02)" to job store "default"
+INFO:werkzeug: * Running on http://127.0.0.1:5000/
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:46:00] "GET /ShowCalibration/ HTTP/1.1" 500 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:46:00] "GET /ShowCalibration/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:46:00] "GET /ShowCalibration/?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:46:00] "GET /ShowCalibration/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:46:00] "GET /ShowCalibration/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:46:00] "GET /ShowCalibration/?__debugger__=yes&cmd=resource&f=source.png HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 14:50:00)" (scheduled at 2014-01-18 14:50:00)
+INFO:apscheduler.scheduler:Job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 15:00:00)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:58:33] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:58:37] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 14:58:52] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:apscheduler.scheduler:Running job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 15:00:00)" (scheduled at 2014-01-18 15:00:00)
+INFO:apscheduler.scheduler:Job "waterpump (trigger: interval[0:10:00], next run at: 2014-01-18 15:10:00)" executed successfully
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:01)" (scheduled at 2014-01-18 15:00:01)
+INFO:root:data request
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:01)" executed successfully
+INFO:apscheduler.scheduler:Running job "light (trigger: interval[0:15:00], next run at: 2014-01-18 15:00:02)" (scheduled at 2014-01-18 15:00:02)
+INFO:apscheduler.scheduler:Job "light (trigger: interval[0:15:00], next run at: 2014-01-18 15:15:02)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:00:24] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:00:27] "GET /downloadit/?name=downloadlog&echoValue=requestfordata HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [18/Jan/2014 15:00:53] "GET /ShowCalibration/ HTTP/1.1" 200 -

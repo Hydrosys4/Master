@@ -1,0 +1,192 @@
+17:59:53 INFO     Start logging -------------------------------------------- 2016-07-17 17:59:53
+17:59:53 INFO     This is a sample INFO message
+17:59:53 WARNING  This is a sample WARNING message
+17:59:53 ERROR    This is a sample ERROR message
+17:59:53 INFO     Added job "heartbeat" to job store "default"
+17:59:53 INFO     Added job "tempsensor1" to job store "default"
+17:59:53 INFO     Added job "humidsensor" to job store "default"
+17:59:53 INFO     Added job "pressuresensor" to job store "default"
+17:59:53 INFO     Added job "hygropass" to job store "default"
+17:59:53 INFO     Added job "hygroampl" to job store "default"
+17:59:53 INFO     Added job "lightsensor" to job store "default"
+17:59:53 INFO     Added job "photo" to job store "default"
+17:59:53 INFO     Added job "mail1" to job store "default"
+17:59:53 INFO     Added job "mail2" to job store "default"
+17:59:53 INFO     Added job "water1" to job store "default"
+17:59:53 WARNING  Run time of job "water1 (trigger: date[2016-07-17 06:00:00 CEST], next run at: 2016-07-17 06:00:00 CEST)" was missed by 11:59:53.175719
+17:59:53 INFO     Removed job ced34a3d3eeb4010ba1ebf4d6bbf1f84
+17:59:53 WARNING  Run time of job "photo (trigger: date[2016-07-17 07:35:00 CEST], next run at: 2016-07-17 07:35:00 CEST)" was missed by 10:24:53.176784
+17:59:53 INFO     Removed job 3fcf318d8f554adeb461ea8692681b53
+17:59:53 WARNING  Run time of job "mail1 (trigger: date[2016-07-17 08:00:00 CEST], next run at: 2016-07-17 08:00:00 CEST)" was missed by 9:59:53.177386
+17:59:53 INFO     Removed job a3f7dd57093e4a4ab76d5213e19119af
+17:59:53 WARNING  Run time of job "mail2 (trigger: date[2016-07-17 08:00:00 CEST], next run at: 2016-07-17 08:00:00 CEST)" was missed by 9:59:53.177849
+17:59:53 INFO     Removed job eb6827447034496e86e804c08019b9ec
+17:59:53 INFO     Added job "water1" to job store "default"
+17:59:53 WARNING  Run time of job "water1 (trigger: date[2016-07-17 10:00:00 CEST], next run at: 2016-07-17 10:00:00 CEST)" was missed by 7:59:53.178774
+17:59:53 INFO     Removed job e6a07a84af9e4ad6ac481f55159f8474
+17:59:53 INFO     Added job "water1" to job store "default"
+17:59:53 WARNING  Run time of job "water1 (trigger: date[2016-07-17 12:00:00 CEST], next run at: 2016-07-17 12:00:00 CEST)" was missed by 5:59:53.180944
+17:59:53 INFO     Removed job d5508fd9a6e44f178c33158f4eef7be2
+17:59:53 INFO     Added job "water1" to job store "default"
+17:59:53 WARNING  Run time of job "water1 (trigger: date[2016-07-17 16:00:00 CEST], next run at: 2016-07-17 16:00:00 CEST)" was missed by 1:59:53.183590
+17:59:53 INFO     Removed job d98c0cf8c5f34be59fbadf08d3d0c066
+17:59:53 INFO     Added job "water1" to job store "default"
+17:59:53 INFO     Added job "water2" to job store "default"
+17:59:53 INFO     Added job "water2" to job store "default"
+17:59:53 WARNING  Run time of job "water2 (trigger: date[2016-07-17 04:00:00 CEST], next run at: 2016-07-17 04:00:00 CEST)" was missed by 13:59:53.188238
+17:59:53 INFO     Removed job 10d9bf42739c467a84ac6141b4297802
+17:59:53 WARNING  Run time of job "water2 (trigger: date[2016-07-17 14:00:00 CEST], next run at: 2016-07-17 14:00:00 CEST)" was missed by 3:59:53.190382
+17:59:53 INFO     Removed job 82d65eb2ecad4cbe81c3045f80461ae6
+17:59:53 INFO     Added job "doser1" to job store "default"
+17:59:53 INFO     Added job "doser2" to job store "default"
+17:59:53 WARNING  Run time of job "doser2 (trigger: date[2016-07-16 22:00:00 CEST], next run at: 2016-07-16 22:00:00 CEST)" was missed by 19:59:53.196209
+17:59:53 INFO     try to start system as WiFi access point
+17:59:53 INFO     Removed job 7b203484106244d2af30b9278926927d
+17:59:53 WARNING  Run time of job "doser1 (trigger: date[2016-07-16 22:00:00 CEST], next run at: 2016-07-16 22:00:00 CEST)" was missed by 19:59:53.198320
+17:59:53 INFO     Removed job e828670b56004917b1703ec29c54d1d1
+17:59:55 INFO     Running job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:55 CEST)" (scheduled at 2016-07-17 17:59:55.170597+02:00)
+17:59:55 INFO     Running job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:55 CEST)" (scheduled at 2016-07-17 17:59:55.171168+02:00)
+17:59:55 INFO     Read sensor data: pressuresensor - 2016-07-17 17:59:55
+17:59:55 INFO     Running job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:55 CEST)" (scheduled at 2016-07-17 17:59:55.171836+02:00)
+17:59:55 INFO     Read sensor data: hygropass - 2016-07-17 17:59:55
+17:59:55 INFO     Read sensor data: hygroampl - 2016-07-17 17:59:55
+17:59:55 INFO     Running job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:55 CEST)" (scheduled at 2016-07-17 17:59:55.172198+02:00)
+17:59:55 INFO     Job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" executed successfully
+17:59:55 INFO     Job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" executed successfully
+17:59:55 INFO     Job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" executed successfully
+17:59:55 INFO     Read sensor data: lightsensor - 2016-07-17 17:59:55
+17:59:55 INFO     Job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" executed successfully
+17:59:57 INFO     Running job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:57 CEST)" (scheduled at 2016-07-17 17:59:57.169763+02:00)
+17:59:57 INFO     Read sensor data: humidsensor - 2016-07-17 17:59:57
+17:59:57 INFO     Job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:57 CEST)" executed successfully
+17:59:58 INFO     SSID empty, try again to get SSID
+17:59:59 INFO     Running job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 17:59:59 CEST)" (scheduled at 2016-07-17 17:59:59.169008+02:00)
+17:59:59 INFO     Read sensor data: tempsensor1 - 2016-07-17 17:59:59
+17:59:59 INFO     Job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:59 CEST)" executed successfully
+18:00:00 INFO     SSID empty, try again to get SSID
+18:00:03 INFO     SSID empty, try again to get SSID
+18:00:04 INFO     Access point failed to start, attempt 0 
+18:00:08 INFO     SSID empty, try again to get SSID
+18:00:10 INFO     SSID empty, try again to get SSID
+18:00:13 INFO     SSID empty, try again to get SSID
+18:00:14 INFO     Access point failed to start, attempt 1 
+18:00:14 WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+18:00:14 INFO      * Running on http://0.0.0.0:5012/ (Press CTRL+C to quit)
+18:00:17 INFO     No Saved Wifi Network available
+18:00:19 INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+18:00:19 INFO     try to start system as WiFi access point
+18:00:24 INFO     SSID empty, try again to get SSID
+18:00:27 INFO     SSID empty, try again to get SSID
+18:00:29 INFO     SSID empty, try again to get SSID
+18:00:31 INFO     Access point failed to start, attempt 0 
+18:00:34 INFO     SSID empty, try again to get SSID
+18:00:37 INFO     SSID empty, try again to get SSID
+18:00:39 INFO     SSID empty, try again to get SSID
+18:00:41 INFO     Access point failed to start, attempt 1 
+18:00:43 INFO     127.0.0.1 - - [17/Jul/2016 18:00:43] "GET / HTTP/1.1" 200 -
+18:00:48 INFO     127.0.0.1 - - [17/Jul/2016 18:00:48] "GET /login HTTP/1.1" 200 -
+18:00:54 INFO     127.0.0.1 - - [17/Jul/2016 18:00:54] "POST /login HTTP/1.1" 302 -
+18:00:54 INFO     127.0.0.1 - - [17/Jul/2016 18:00:54] "GET / HTTP/1.1" 200 -
+18:02:03 INFO     127.0.0.1 - - [17/Jul/2016 18:02:03] "GET /ShowCalibration/ HTTP/1.1" 200 -
+18:02:09 INFO     try to start system as WiFi access point
+18:02:14 INFO     SSID empty, try again to get SSID
+18:02:17 INFO     SSID empty, try again to get SSID
+18:02:19 INFO     SSID empty, try again to get SSID
+18:02:21 INFO     Access point failed to start, attempt 0 
+18:02:24 INFO     SSID empty, try again to get SSID
+18:02:27 INFO     SSID empty, try again to get SSID
+18:02:29 INFO     SSID empty, try again to get SSID
+18:02:31 INFO     Access point failed to start, attempt 1 
+18:02:31 INFO     127.0.0.1 - - [17/Jul/2016 18:02:31] "POST /ShowCalibration/ HTTP/1.1" 200 -
+18:04:54 INFO     Running job "heartbeat (trigger: interval[0:15:00], next run at: 2016-07-17 18:04:54 CEST)" (scheduled at 2016-07-17 18:04:54.168413+02:00)
+18:04:54 INFO     Start heartbeat routine 2016-07-17 18:04:54
+18:04:55 WARNING  Heartbeat check , no network connected -------------- try to connect
+18:04:56 INFO     No Saved Wifi Network available
+18:04:58 INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+18:04:58 INFO     try to start system as WiFi access point
+18:05:03 INFO     SSID empty, try again to get SSID
+18:05:05 INFO     SSID empty, try again to get SSID
+18:05:08 INFO     SSID empty, try again to get SSID
+18:05:09 INFO     Access point failed to start, attempt 0 
+18:05:13 INFO     SSID empty, try again to get SSID
+18:05:15 INFO     SSID empty, try again to get SSID
+18:05:18 INFO     SSID empty, try again to get SSID
+18:05:19 INFO     Access point failed to start, attempt 1 
+18:05:20 INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+18:05:20 ERROR    Job "heartbeat (trigger: interval[0:15:00], next run at: 2016-07-17 18:19:54 CEST)" raised an exception
+Traceback (most recent call last):
+  File "/home/anona/env/local/lib/python2.7/site-packages/apscheduler/executors/base.py", line 125, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+  File "/home/anona/env/autonomMaster/selectedplanmod.py", line 181, in heartbeat
+    emailmod.sendallmail()
+  File "/home/anona/env/autonomMaster/emailmod.py", line 229, in sendallmail
+    sendmail(hwname)
+  File "/home/anona/env/autonomMaster/emailmod.py", line 238, in sendmail
+    issent=send_email_main(address,title,cmd)
+  File "/home/anona/env/autonomMaster/emailmod.py", line 220, in send_email_main
+    issent=send_email_html(user, pwd, recipient, subject, htmlbody)
+  File "/home/anona/env/autonomMaster/emailmod.py", line 155, in send_email_html
+    picturefile="static/hydropicture/"+sortedlist[0]
+IndexError: list index out of range
+18:12:03 INFO     127.0.0.1 - - [17/Jul/2016 18:12:03] "GET /HardwareSetting/ HTTP/1.1" 200 -
+18:12:12 INFO     127.0.0.1 - - [17/Jul/2016 18:12:12] "POST /HardwareSetting/ HTTP/1.1" 200 -
+18:12:25 INFO     127.0.0.1 - - [17/Jul/2016 18:12:25] "GET /Sensordata/ HTTP/1.1" 200 -
+18:12:49 INFO     127.0.0.1 - - [17/Jul/2016 18:12:49] "POST /Sensordata/ HTTP/1.1" 200 -
+18:13:01 INFO     127.0.0.1 - - [17/Jul/2016 18:13:01] "GET /Imageshow/ HTTP/1.1" 200 -
+18:13:24 INFO      all image files deleted 
+18:13:24 INFO     127.0.0.1 - - [17/Jul/2016 18:13:24] "POST /Imageshow/ HTTP/1.1" 200 -
+18:14:55 INFO     Running job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" (scheduled at 2016-07-17 18:14:55.170597+02:00)
+18:14:55 INFO     Read sensor data: pressuresensor - 2016-07-17 18:14:55
+18:14:55 INFO     Running job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" (scheduled at 2016-07-17 18:14:55.171168+02:00)
+18:14:55 INFO     Job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" executed successfully
+18:14:55 INFO     Running job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" (scheduled at 2016-07-17 18:14:55.171836+02:00)
+18:14:55 INFO     Read sensor data: hygropass - 2016-07-17 18:14:55
+18:14:55 INFO     Running job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:55 CEST)" (scheduled at 2016-07-17 18:14:55.172198+02:00)
+18:14:55 INFO     Job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" executed successfully
+18:14:55 INFO     Read sensor data: hygroampl - 2016-07-17 18:14:55
+18:14:55 INFO     Read sensor data: lightsensor - 2016-07-17 18:14:55
+18:14:55 INFO     Job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" executed successfully
+18:14:55 INFO     Job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" executed successfully
+18:14:57 INFO     Running job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:57 CEST)" (scheduled at 2016-07-17 18:14:57.169763+02:00)
+18:14:57 INFO     Read sensor data: humidsensor - 2016-07-17 18:14:57
+18:14:57 INFO     Job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:57 CEST)" executed successfully
+18:14:59 INFO     Running job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 18:14:59 CEST)" (scheduled at 2016-07-17 18:14:59.169008+02:00)
+18:14:59 INFO     Read sensor data: tempsensor1 - 2016-07-17 18:14:59
+18:14:59 INFO     Job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:59 CEST)" executed successfully
+18:19:54 INFO     Running job "heartbeat (trigger: interval[0:15:00], next run at: 2016-07-17 18:19:54 CEST)" (scheduled at 2016-07-17 18:19:54.168413+02:00)
+18:19:54 INFO     Start heartbeat routine 2016-07-17 18:19:54
+18:19:55 WARNING  Heartbeat check , no network connected -------------- try to connect
+18:19:56 INFO     No Saved Wifi Network available
+18:19:58 INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+18:19:58 INFO     try to start system as WiFi access point
+18:20:03 INFO     SSID empty, try again to get SSID
+18:20:05 INFO     SSID empty, try again to get SSID
+18:20:08 INFO     SSID empty, try again to get SSID
+18:20:09 INFO     Access point failed to start, attempt 0 
+18:20:13 INFO     SSID empty, try again to get SSID
+18:20:15 INFO     SSID empty, try again to get SSID
+18:20:18 INFO     SSID empty, try again to get SSID
+18:20:20 INFO     Access point failed to start, attempt 1 
+18:20:20 INFO     Heartbeat check , Network time NTP: 17/07/2016 18:20 
+18:20:20 INFO     Heartbeat check , System time NTP: 17/07/2016 18:20 
+18:20:20 WARNING  Heartbeat check , Clock OK
+18:20:20 INFO     Job "heartbeat (trigger: interval[0:15:00], next run at: 2016-07-17 18:34:54 CEST)" executed successfully
+18:29:55 INFO     Running job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" (scheduled at 2016-07-17 18:29:55.170597+02:00)
+18:29:55 INFO     Read sensor data: pressuresensor - 2016-07-17 18:29:55
+18:29:55 INFO     Running job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" (scheduled at 2016-07-17 18:29:55.171168+02:00)
+18:29:55 INFO     Job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:55 CEST)" executed successfully
+18:29:55 INFO     Read sensor data: hygropass - 2016-07-17 18:29:55
+18:29:55 INFO     Running job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:55 CEST)" (scheduled at 2016-07-17 18:29:55.171836+02:00)
+18:29:55 INFO     Running job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:55 CEST)" (scheduled at 2016-07-17 18:29:55.172198+02:00)
+18:29:55 INFO     Job "hygropass (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:55 CEST)" executed successfully
+18:29:55 INFO     Read sensor data: hygroampl - 2016-07-17 18:29:55
+18:29:55 INFO     Read sensor data: lightsensor - 2016-07-17 18:29:55
+18:29:55 INFO     Job "hygroampl (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:55 CEST)" executed successfully
+18:29:55 INFO     Job "lightsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:55 CEST)" executed successfully
+18:29:57 INFO     Running job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:57 CEST)" (scheduled at 2016-07-17 18:29:57.169763+02:00)
+18:29:57 INFO     Read sensor data: humidsensor - 2016-07-17 18:29:57
+18:29:57 INFO     Job "humidsensor (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:57 CEST)" executed successfully
+18:29:59 INFO     Running job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 18:29:59 CEST)" (scheduled at 2016-07-17 18:29:59.169008+02:00)
+18:29:59 INFO     Read sensor data: tempsensor1 - 2016-07-17 18:29:59
+18:29:59 INFO     Job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-07-17 18:44:59 CEST)" executed successfully
+18:31:21 INFO     Scheduler has been shut down

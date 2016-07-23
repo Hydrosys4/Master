@@ -1,0 +1,63 @@
+INFO:root:Start logging -------------------------------------------- 2016-06-28 22:25:10
+INFO:root:This is a sample INFO message
+WARNING:root:This is a sample WARNING message
+ERROR:root:This is a sample ERROR message
+INFO:apscheduler.scheduler:Added job "heartbeat" to job store "default"
+INFO:apscheduler.scheduler:Added job "tempsensor1" to job store "default"
+INFO:apscheduler.scheduler:Added job "humidsensor" to job store "default"
+INFO:apscheduler.scheduler:Added job "pressuresensor" to job store "default"
+INFO:apscheduler.scheduler:Added job "hygropass" to job store "default"
+INFO:apscheduler.scheduler:Added job "hygroampl" to job store "default"
+INFO:apscheduler.scheduler:Added job "lightsensor" to job store "default"
+INFO:apscheduler.scheduler:Added job "photo" to job store "default"
+INFO:apscheduler.scheduler:Added job "mail1" to job store "default"
+INFO:apscheduler.scheduler:Added job "mail2" to job store "default"
+INFO:apscheduler.scheduler:Added job "water1" to job store "default"
+INFO:apscheduler.scheduler:Added job "water1" to job store "default"
+INFO:apscheduler.scheduler:Added job "water1" to job store "default"
+INFO:apscheduler.scheduler:Added job "water1" to job store "default"
+INFO:apscheduler.scheduler:Added job "water1" to job store "default"
+INFO:apscheduler.scheduler:Added job "water2" to job store "default"
+INFO:apscheduler.scheduler:Added job "water2" to job store "default"
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:25:10] "POST /fertilizerplan/ HTTP/1.1" 200 -
+WARNING:apscheduler.executors.default:Run time of job "water2 (trigger: date[2016-06-28 04:00:00 CEST], next run at: 2016-06-28 04:00:00 CEST)" was missed by 18:25:10.666008
+INFO:apscheduler.scheduler:Removed job 584e8edc7f4a404cb6bfb5fee778485b
+WARNING:apscheduler.executors.default:Run time of job "water1 (trigger: date[2016-06-28 06:00:00 CEST], next run at: 2016-06-28 06:00:00 CEST)" was missed by 16:25:10.666687
+INFO:apscheduler.scheduler:Removed job 246e15fb3bf64f978c0e321055e177bd
+WARNING:apscheduler.executors.default:Run time of job "photo (trigger: date[2016-06-28 07:35:00 CEST], next run at: 2016-06-28 07:35:00 CEST)" was missed by 14:50:10.667191
+INFO:apscheduler.scheduler:Removed job 935fab4eeced40609d8b0299b1264e8a
+WARNING:apscheduler.executors.default:Run time of job "mail2 (trigger: date[2016-06-28 08:00:00 CEST], next run at: 2016-06-28 08:00:00 CEST)" was missed by 14:25:10.667707
+INFO:apscheduler.scheduler:Removed job 0fbef94da14f4a79afbbe6af5ccff00e
+WARNING:apscheduler.executors.default:Run time of job "mail1 (trigger: date[2016-06-28 08:00:00 CEST], next run at: 2016-06-28 08:00:00 CEST)" was missed by 14:25:10.668173
+INFO:apscheduler.scheduler:Removed job eb9fd823b6f64b8baa93594924f2cced
+WARNING:apscheduler.executors.default:Run time of job "water1 (trigger: date[2016-06-28 10:00:00 CEST], next run at: 2016-06-28 10:00:00 CEST)" was missed by 12:25:10.668690
+INFO:apscheduler.scheduler:Removed job 7c5ec128c9f3414693583c1c44881f2f
+WARNING:apscheduler.executors.default:Run time of job "water1 (trigger: date[2016-06-28 12:00:00 CEST], next run at: 2016-06-28 12:00:00 CEST)" was missed by 10:25:10.669837
+INFO:apscheduler.scheduler:Removed job 8855fcacf17741aba1e372b26e84a367
+WARNING:apscheduler.executors.default:Run time of job "water2 (trigger: date[2016-06-28 12:00:00 CEST], next run at: 2016-06-28 12:00:00 CEST)" was missed by 10:25:10.671904
+INFO:apscheduler.scheduler:Removed job f5fd202d2e344278a5b22654d08c1796
+WARNING:apscheduler.executors.default:Run time of job "water1 (trigger: date[2016-06-28 16:00:00 CEST], next run at: 2016-06-28 16:00:00 CEST)" was missed by 6:25:10.673600
+INFO:apscheduler.scheduler:Removed job bdda89583f524ad2a28e2ad0821a1590
+INFO:apscheduler.scheduler:Removed job c66b3fe0d47f4aaa8635fa94446f029c
+WARNING:apscheduler.executors.default:Run time of job "water1 (trigger: date[2016-06-28 20:00:00 CEST], next run at: 2016-06-28 20:00:00 CEST)" was missed by 2:25:10.675068
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:25:12] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:apscheduler.executors.default:Running job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" (scheduled at 2016-06-28 22:25:12.635281+02:00)
+INFO:apscheduler.executors.default:Running job "hygropass (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" (scheduled at 2016-06-28 22:25:12.635678+02:00)
+INFO:apscheduler.executors.default:Running job "hygroampl (trigger: interval[0:15:00], next run at: 2016-06-28 22:25:12 CEST)" (scheduled at 2016-06-28 22:25:12.636055+02:00)
+INFO:root:Read sensor data: hygropass - 2016-06-28 22:25:12
+INFO:root:Read sensor data: pressuresensor - 2016-06-28 22:25:12
+INFO:apscheduler.executors.default:Running job "lightsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" (scheduled at 2016-06-28 22:25:12.636423+02:00)
+INFO:root:Read sensor data: hygroampl - 2016-06-28 22:25:12
+INFO:apscheduler.executors.default:Job "hygropass (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" executed successfully
+INFO:root:Read sensor data: lightsensor - 2016-06-28 22:25:12
+INFO:apscheduler.executors.default:Job "lightsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" executed successfully
+INFO:apscheduler.executors.default:Job "pressuresensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" executed successfully
+INFO:apscheduler.executors.default:Job "hygroampl (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:12 CEST)" executed successfully
+INFO:apscheduler.executors.default:Running job "humidsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:25:14 CEST)" (scheduled at 2016-06-28 22:25:14.634909+02:00)
+INFO:root:Read sensor data: humidsensor - 2016-06-28 22:25:14
+INFO:apscheduler.executors.default:Job "humidsensor (trigger: interval[0:15:00], next run at: 2016-06-28 22:25:14 CEST)" executed successfully
+INFO:apscheduler.executors.default:Running job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-06-28 22:25:16 CEST)" (scheduled at 2016-06-28 22:25:16.634519+02:00)
+INFO:root:Read sensor data: tempsensor1 - 2016-06-28 22:25:16
+INFO:apscheduler.executors.default:Job "tempsensor1 (trigger: interval[0:15:00], next run at: 2016-06-28 22:40:16 CEST)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:25:19] "GET /network/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [28/Jun/2016 22:25:21] "GET /HardwareSetting/ HTTP/1.1" 200 -

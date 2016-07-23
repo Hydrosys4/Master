@@ -1,0 +1,237 @@
+{% extends "layout.html" %}
+{% set active_page = "fertilizerplan" %}
+{% block body %}
+   {% if session.logged_in %}
+<div class="container-fluid dontwantgap">
+ 
+
+
+		<ul class="nav nav-pills">
+			{% for name in elementlist %}
+				<li {% if name == selectedelement %} class="active"{% endif%}><a href="#{{ name }}" data-toggle="tab"  style="font-size:1.4em;">{{ name }}</a></li>
+			{% endfor %}
+		</ul>
+			
+
+
+          	
+        <div class="tab-content">
+			
+		{% for elem in elementlist %}
+		{% set row_i = loop %}	
+         <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
+			 
+			 <!---- start panel  -->
+			 
+		<form novalidate="true" action="{{ url_for('fertilizerplan') }}" method="post" >
+			 
+			 <input id="autotags" name="element" value="{{elem}}" type="hidden" />
+			 		 
+			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
+			 
+			 <div class="panel panel-primary">
+			  <div class="panel-heading">
+				  <div class="row">
+					    <div class=" col-xs-9">
+							<span style="font-size:1.2em;">{{ elem }}</span>
+						</div>
+
+						<div class=" col-xs-3">				
+							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+							<span class="glyphicon glyphicon-saved"></span>
+							</button>
+						</div>
+					</div>
+			  </div>
+			  <div class="panel-body">
+
+				
+				<!---- panel  body -->
+				<table class="table table-condensed">
+				<thead>
+				  <tr>
+					<th class="col-xs-2">month</th>
+					<th class="col-xs-1">seconds</th>
+					<th class="col-xs-1">++++</th>
+					<th class="col-xs-7">Times per month</th>
+					<th class="col-xs-1">++++</th>
+				  </tr>
+				</thead>
+				<tbody>
+
+
+
+
+				
+					{% set col = 3 %}
+					{% set col_size = 12//col %}				
+					{% for name in paramlist %}
+					{% set col_i = loop %}
+
+						  <tr>
+							<td><strong class="text-uppercase lead">{{ name }}</strong></td>
+							
+							<td>
+				
+								 <!-- <select class="form-control" id="{{ elem }}{{ name }}_second" name="{{elem}}_{{col_i.index0}}_0">
+									<option>10</option>
+									<option>20</option>
+									<option>30</option>
+									<option>40</option>
+									<option>50</option>
+								  </select> -->
+								  
+								<input value="{% if (table1|length)>0 %}{{ table1[row_i.index0][col_i.index0]}}{% endif %}" name="{{elem}}_{{col_i.index0}}_0" class="form-control" />
+
+
+							</td>
+							
+							
+							<td>
+								<button id="{{ elem }}{{ name }}_min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
+								<span class="glyphicon glyphicon-minus"></span>
+								</button>
+						
+							</td>
+							<td>
+									<div class="col-xs-12">
+									<div class="drop" id="{{ elem }}{{ name }}">
+										<!--{% for n in range(table[row_i.index0][col_i.index0]) %}
+										<img src="/static/goccia-xs.png" style="height:35px"/>
+										{% endfor %}-->
+									</div>
+									</div>
+
+								<input type="hidden" value="{% if (table|length)>0 %}{{ table[row_i.index0][col_i.index0]}}{% endif %}" id="{{ elem }}{{ name }}_input" name="{{elem}}_{{col_i.index0}}" class="form-control" />
+
+							
+							</td>
+							<td>
+								<button id="{{ elem }}{{ name }}_plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
+								<span class="glyphicon glyphicon-plus"></span>
+								</button>
+							
+							
+							</td>
+
+						  </tr>
+
+
+			
+
+				
+				<!-- -- end panel content --->
+				{% endfor %}				
+			  </tbody>
+				</table>			  
+			  </div>		  
+			  <div class="panel-footer">
+				  <div class="row">
+					    <div class=" col-xs-9">
+							<span  style="font-size:1.2em;">{{ elem }}</span>
+						</div>
+
+						<div class=" col-xs-3">				
+							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+							<span class="glyphicon glyphicon-saved"></span>
+							</button>
+						</div>
+					</div>
+			   </div>
+			
+			
+			</div>
+         
+		</form>
+         
+         </div>
+         {% endfor %}
+          
+         
+         
+         
+         
+        </div>
+        
+
+    
+
+  
+
+		<script type="text/javascript">
+			$(document).ready(function(){
+				var imgtext='<img src="/static/dropv3 xs green.jpg" style="height:30px;width:22px"/>';
+				$(".drop").each(function() {  // fill the element with waterdropo images
+				var thisid=$(this).attr('id');
+				var val = $('#' + thisid +"_input").val();
+				var num = parseInt(val);
+				//alert(seltime);
+				for (var i=0; i<num; i++)
+				  {
+					$(this).append(imgtext);
+				  }
+				});	
+
+				
+				$('.qtybutton').click(function(){ // quantity button pressed, ad or remove water drop image
+					var idbut=$(this).attr('id');
+					var idimg=idbut.split("_")[0];
+					var action=idbut.split("_")[1];
+					//alert(idimg);
+					if (action=="plus") {
+					var val = $('#' + idimg +"_input").val();
+					var num = parseInt(val)+1;						
+						
+						if (num<5) {
+								$('#' + idimg).append(imgtext);
+								$('#' + idimg +"_input").val(num.toString());
+						} 
+						
+
+					} else {
+	
+					var val = $('#' + idimg +"_input").val();
+					var num = parseInt(val)-1;
+					
+						if (num>-1) {
+							$('#' + idimg).children("img:first").remove();							
+							$('#' + idimg +"_input").val(num.toString());
+						} 
+	
+					
+
+					}
+					
+					
+				});
+			})
+			
+			$(function() {
+					$(".thebutton").click(function() {
+						var selvalue=$(this).attr('name');
+						//alert(selvalue);
+						var idref=$(this).attr('idref');
+						$('#' + idref).attr("value", selvalue);
+					});  
+				}); 
+		
+		</script>  
+
+
+</div>
+
+
+
+
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+
+
+
+
+
+{% endblock %}

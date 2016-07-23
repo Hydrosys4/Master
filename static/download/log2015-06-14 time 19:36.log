@@ -1,0 +1,12 @@
+INFO:root:Start logging --------------------------------------------
+INFO:apscheduler.scheduler:Scheduler started
+INFO:apscheduler.scheduler:Added job "master (trigger: interval[1 day, 0:00:00], next run at: 2015-06-15 00:00:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "waterpump (trigger: interval[6:00:00], next run at: 2015-06-15 00:00:00)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-06-14 19:45:01)" to job store "default"
+INFO:apscheduler.scheduler:Added job "light (trigger: interval[0:15:00], next run at: 2015-06-14 19:45:02)" to job store "default"
+INFO:root:Startpump evaluation
+INFO:root:execute water pump check 2015-06-14 19:36:00
+INFO:root:Waterpump Check parameter, lightquantity=0 < MinimumLightinde=3500 
+INFO:root:Waterpump Check parameter, tempquantity=0 < MinAveragetemp=26 
+INFO:werkzeug: * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+INFO:werkzeug:127.0.0.1 - - [14/Jun/2015 19:36:14] "GET /ShowCalibration/ HTTP/1.1" 200 -

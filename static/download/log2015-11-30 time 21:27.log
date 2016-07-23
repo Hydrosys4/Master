@@ -1,0 +1,50 @@
+INFO:root:Start logging -------------------------------------------- 2015-11-30 21:27:07
+INFO:apscheduler.scheduler:Added job "heartbeat (trigger: interval[0:15:00], next run at: 2015-11-30 21:27:10.187020)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-11-30 21:27:10.187205)" to job store "default"
+INFO:werkzeug: * Running on http://0.0.0.0:5012/ (Press CTRL+C to quit)
+INFO:apscheduler.scheduler:Running job "heartbeat (trigger: interval[0:15:00], next run at: 2015-11-30 21:27:10.187020)" (scheduled at 2015-11-30 21:27:10.187020)
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-11-30 21:27:10.187205)" (scheduled at 2015-11-30 21:27:10.187205)
+INFO:root:Start heartbeat routine 2015-11-30 21:27:10
+ERROR:apscheduler.scheduler:Job "heartbeat (trigger: interval[0:15:00], next run at: 2015-11-30 21:42:10.187020)" raised an exception
+Traceback (most recent call last):
+  File "/home/anona/env/local/lib/python2.7/site-packages/apscheduler/scheduler.py", line 512, in _run_job
+    retval = job.func(*job.args, **job.kwargs)
+  File "/home/anona/env/autonom42/selectedplanmod.py", line 167, in heartbeat
+    if len(networkmod.connectedssid)==0:
+TypeError: object of type 'function' has no len()
+INFO:root:Get sensor data 2015-11-30 21:27:10
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-11-30 21:42:10.187205)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jquery/js/jquery-2.1.4.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryui/jquery-ui.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/css/jquery.jqplot.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jquery.jqplot.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jqplot.dateAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jqplot.canvasTextRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jqplot.cursor.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jqplot.barRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/jquery.timeTo.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/timeTo.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/bootstrap/css/bootstrap.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/bootstrap/css/bootstrap-theme.min.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/bootstrap/css/custom.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/bootstrap/js/bootstrap.min.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/prettyPhoto/css/prettyPhoto.css HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/prettyPhoto/js/jquery.prettyPhoto.js HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /static/bootstrap/fonts/glyphicons-halflings-regular.woff2 HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:27] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:29] "GET /login HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:36] "POST /login HTTP/1.1" 302 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:37] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:37] "GET /static/hydropicture/15-11-22%2C15:58%40video1.jpg HTTP/1.1" 304 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:41] "GET /About/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /static/documentation/userguide.html HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /static/documentation/userguide_html_dc0dcd4f.jpg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /static/documentation/userguide_html_1cdac398.jpg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /static/documentation/userguide_html_dbff3446.jpg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /static/documentation/userguide_html_b5254f70.jpg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /static/documentation/userguide_html_475a3087.jpg HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:42] "GET /ShowCalibration/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:27:43] "GET /static/cameratest/testimage1.jpg HTTP/1.1" 304 -

@@ -1,0 +1,17 @@
+INFO:root:Start logging -------------------------------------------- 2015-11-30 21:33:07
+INFO:apscheduler.scheduler:Added job "heartbeat (trigger: interval[0:15:00], next run at: 2015-11-30 21:33:10.276545)" to job store "default"
+INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2015-11-30 21:33:10.276692)" to job store "default"
+INFO:werkzeug: * Running on http://0.0.0.0:5012/ (Press CTRL+C to quit)
+INFO:apscheduler.scheduler:Running job "heartbeat (trigger: interval[0:15:00], next run at: 2015-11-30 21:33:10.276545)" (scheduled at 2015-11-30 21:33:10.276545)
+INFO:apscheduler.scheduler:Running job "sensor (trigger: interval[0:15:00], next run at: 2015-11-30 21:33:10.276692)" (scheduled at 2015-11-30 21:33:10.276692)
+INFO:root:Start heartbeat routine 2015-11-30 21:33:10
+INFO:root:Get sensor data 2015-11-30 21:33:10
+ERROR:apscheduler.scheduler:Job "heartbeat (trigger: interval[0:15:00], next run at: 2015-11-30 21:48:10.276545)" raised an exception
+Traceback (most recent call last):
+  File "/home/anona/env/local/lib/python2.7/site-packages/apscheduler/scheduler.py", line 512, in _run_job
+    retval = job.func(*job.args, **job.kwargs)
+  File "/home/anona/env/autonom42/selectedplanmod.py", line 167, in heartbeat
+    if len(networkmod.connectedssid)==0:
+TypeError: object of type 'function' has no len()
+INFO:apscheduler.scheduler:Job "sensor (trigger: interval[0:15:00], next run at: 2015-11-30 21:48:10.276692)" executed successfully
+INFO:werkzeug:127.0.0.1 - - [30/Nov/2015 21:33:16] "GET /ShowCalibration/ HTTP/1.1" 200 -
