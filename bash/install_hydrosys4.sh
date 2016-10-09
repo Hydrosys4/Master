@@ -207,7 +207,6 @@ fi
 
 
 sudo bash -c "cat >> $aconf" << EOF
-      
 interface=wlan0
 ssid=HydroSys4
 hw_mode=g
