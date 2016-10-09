@@ -252,7 +252,6 @@ sudo bash -c "cat >> $aconf" << EOF
 #START HYDROSYS4 SECTION
 interface=wlan0
 dhcp-range=192.168.0.100,192.168.0.200,12h
-no-resolv
 #END HYDROSYS4 SECTION
 EOF
 
