@@ -421,8 +421,14 @@ def getfieldinstringvalue(fielditem,stringtofind,valuelist):
 			valuelist.append(name)
 
 def photolist(apprunningpath):
+
 	folderpath=os.path.join(apprunningpath, "static")
-	folderpath=os.path.join(folderpath, "hydropicture")	
+	folderpath=os.path.join(folderpath, "hydropicture")
+	# control if the folder hydropicture exist otherwise create it
+	if not os.path.exists(folderpath):
+		os.makedirs(folderpath)
+		print "Hydropicture folder has been created"
+	
 	filenamelist=[]
 	sortedlist=sorted(os.listdir(folderpath))
 	sortedlist.reverse()
@@ -432,12 +438,16 @@ def photolist(apprunningpath):
 			templist.append("hydropicture/"+files)
 			if "@" in files:
 				templist.append("Image taken on "+files.split("@")[0])
-				dateref=datetime.strptime(files.split("@")[0],'%y-%m-%d,%H:%M')
+				datestr=files.split("@")[0]
 			else:
 				templist.append("Image taken on "+files.split(".")[0])
-				dateref=datetime.strptime(files.split(".")[0],'%y-%m-%d,%H:%M')				
-			templist.append(dateref)
-			filenamelist.append(templist)
+				datestr=files.split(".")[0]
+			try:
+				dateref=datetime.strptime(datestr,'%y-%m-%d,%H:%M')
+				templist.append(dateref)
+				filenamelist.append(templist)
+			except:
+				print "file name format not compatible with date"
 	return filenamelist # item1 (path) item2 (name) item3 (datetime)
 
 def deleteallpictures(apprunningpath):
