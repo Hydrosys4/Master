@@ -47,7 +47,7 @@ HW_INFO_MEASURE="measure"  # info group , mandatory, measurement type of info pa
 HW_CTRL_CMD="controllercmd" # HW control group , mandatory, command sent to the HWControl section to specify the function to select -> HW
 HW_CTRL_PIN="pin" # HW control  group ,optional, specify the PIN board for the HWControl if needed -> gpiopin
 HW_CTRL_ADCCH="ADCchannel" # HW control  group , optional, specify the arg1 board for the HWControl if needed -> "ADCchannel"
-HW_CTRL_PWRPIN="ADCpowerpin"  # HW control  group , optional, specify the arg2 board for the HWControl if needed -> "ADCpowerpin"
+HW_CTRL_PWRPIN="powerpin"  # HW control  group , optional, specify PIN that is set ON before starting tasks relevant to ADC convert, Actuator pulse, then is set OFF when the task is finished -> "ADCpowerpin"
 HW_CTRL_LOGIC="logic"  # HW control  group , optional, in case the relay works in negative logic
 #"settingaction", # HW control  group , use the controllercmd instead -> to be removed
 HW_CTRL_MAILADDR="mailaddress" # HW control  group , optional, specify this info for the HWControl if needed -> mailaddress
@@ -57,9 +57,9 @@ HW_FUNC_USEDFOR="usefor" # function group , optional, description of main usage 
 HW_FUNC_SCHEDTYPE="schedulingtype" # function group , optional, between "oneshot" and "periodic" 
 HW_FUNC_TIME="time"  #function group , optional, description of time or interval to activate the item depending on the "schedulingtype" item, in case of interval information the minutes are used for the period, seconds are used for start offset
 
-USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "N/A"]
-MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity"]
-MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs"]
+USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "powercontrol", "N/A"]
+MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture"]
+MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs", "Volt"]
 
 
 HWdataKEYWORDS[HW_INFO_IOTYPE]=["input"  , "output" ]
@@ -217,12 +217,14 @@ def makepulse(target,duration):
 		return "error"
 
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
-	
+	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
+	if POWERPIN=="":
+		POWERPIN="-1"
 	
 	if logic=="neg":
-		sendstring="pulse:"+PIN+":"+testpulsetime+":1"
+		sendstring="pulse:"+PIN+":"+testpulsetime+":0"+":"+POWERPIN
 	elif logic=="pos":
-		sendstring="pulse:"+PIN+":"+testpulsetime
+		sendstring="pulse:"+PIN+":"+testpulsetime+":1"+":"+POWERPIN
 	print "logic " , logic , " sendstring " , sendstring
 	isok=False	
 	if float(testpulsetime)>0:
@@ -421,8 +423,14 @@ def getfieldinstringvalue(fielditem,stringtofind,valuelist):
 			valuelist.append(name)
 
 def photolist(apprunningpath):
+
 	folderpath=os.path.join(apprunningpath, "static")
-	folderpath=os.path.join(folderpath, "hydropicture")	
+	folderpath=os.path.join(folderpath, "hydropicture")
+	# control if the folder hydropicture exist otherwise create it
+	if not os.path.exists(folderpath):
+		os.makedirs(folderpath)
+		print "Hydropicture folder has been created"
+	
 	filenamelist=[]
 	sortedlist=sorted(os.listdir(folderpath))
 	sortedlist.reverse()
@@ -432,12 +440,16 @@ def photolist(apprunningpath):
 			templist.append("hydropicture/"+files)
 			if "@" in files:
 				templist.append("Image taken on "+files.split("@")[0])
-				dateref=datetime.strptime(files.split("@")[0],'%y-%m-%d,%H:%M')
+				datestr=files.split("@")[0]
 			else:
 				templist.append("Image taken on "+files.split(".")[0])
-				dateref=datetime.strptime(files.split(".")[0],'%y-%m-%d,%H:%M')				
-			templist.append(dateref)
-			filenamelist.append(templist)
+				datestr=files.split(".")[0]
+			try:
+				dateref=datetime.strptime(datestr,'%y-%m-%d,%H:%M')
+				templist.append(dateref)
+				filenamelist.append(templist)
+			except:
+				print "file name format not compatible with date"
 	return filenamelist # item1 (path) item2 (name) item3 (datetime)
 
 def deleteallpictures(apprunningpath):

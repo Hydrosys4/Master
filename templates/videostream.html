@@ -1,9 +1,252 @@
-<html>
-  <head>
-    <title>Video Streaming Demonstration</title>
-  </head>
-  <body>
-    <h1>Video Streaming Demonstration</h1>
-    <img src="{{ url_for('video_feed') }}">
-  </body>
-</html>
+{% extends "layout.html" %}
+{% set active_page = "Video" %}
+{% block body %}
+  {% if session.logged_in %}
+
+
+  <div class="container-fluid">
+
+
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">Video Streaming</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+         
+
+
+<!--<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" />-->
+
+
+<!--<iframe frameborder="0" scrolling="yes" width="100%" height="100%"
+   id="videoimg" src="/static/waiting.jpg">
+</iframe>-->
+
+<!-- Scroll bar present but disabled -->
+<div style="width: 100%; overflow: auto;">
+<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" />    
+    </div>
+
+
+
+<!-- Setup button -->
+
+		<!--  boo -->
+  
+ 
+			<div class="page-header">
+					  <h3>Setup</h3>   
+			</div>
+			
+			<div class="well bs-component">
+			
+						<!--  Actuator table   -->
+			<table class="table" margin: 20px;>
+			<thead>
+				<tr>
+					<th>Device</th>
+					<th>WidthxHeight</th>
+					<th>FPS</th>
+					<th>Button</th>
+					<th>Bar</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
+
+			{% for item in videolist %}	
+			<tr>
+
+				<td>
+					<label>{{ item }}</label>
+				</td>
+
+
+				  <td>
+		  					  				
+				  <select class="form-control input-sm" id="selsettingres_{{ item }}">
+					<option>640x480</option>
+					<option>1024x768</option>
+					<option>1280x720</option>
+					<option>1920x1080</option>
+					<option>1920x1440</option>
+					<option>2592×1944</option>
+				  </select>
+				  </td>	
+				  		
+							
+				<td>		
+				  <select class="form-control input-sm" id="selsettingfps_{{ item }}">
+					<option>2</option>
+					<option>5</option>
+					<option>10</option>
+					<option>20</option>
+					<option>25</option>
+					<option>30</option>
+					<option>60</option>
+
+				  </select>
+				 </td>	 		
+							
+				<td>
+					
+					
+					
+					<button class="thebutton btn-sm btn btn-default" type="button" name="setting" element="{{item}}">Start</button>
+				</td>
+				<td>
+					<!--  progress bar bootstrap-->
+		
+					<div class="progress">
+					  <div id="{{ item }}progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					  </div>
+					</div>
+
+					<!-- progress-->
+
+				</td>
+
+	
+
+			</tr>
+			{% endfor %}				
+
+
+
+        </tbody>
+    </table>
+	
+	<table class="table" margin: 20px;>
+		<tbody>
+		<tr>
+			<td>
+					<button class="thebutton btn-sm btn btn-default" type="button" name="stop" element="stop">Stop Streaming</button>
+			</td>
+			<td>
+					<label>Status:</label>
+					<label class="form-label-left" id="actuatorstatus" for="input_3"></label>					
+			</td>
+		</tr>
+		<tr>
+			<td>
+						<label>Adapt video to the screen
+						<input id="toggle-event" checked="checked" type="checkbox">
+						</label>
+						<script>
+						  $(function() {
+							$('#toggle-event').change(function() {
+								var togglevalue=$(this).prop('checked');
+					
+								if (togglevalue==true) {
+									$("#videoimg").addClass("img-responsive");										
+								} else {
+									$("#videoimg").removeClass("img-responsive");	
+								}
+							})
+						  })
+						</script>
+						
+
+			</td>
+		</tr>
+		</tbody>
+	</table>
+
+
+
+
+			</div>
+			 <script type=text/javascript>
+			  $(function() {
+				$(".thebutton").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				
+					var prid=$(this).attr('name');
+					var elem=$(this).attr('element');
+					var res = $("#selsettingres_" + elem).val();					
+					var fps = $("#selsettingfps_" + elem).val();	
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/videocontrol/?name=" + prid + "&name=" + res + "&name=" + fps + "&element=" + elem,
+								contentType: "application/json",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#actuatorstatus').text(data.answer);
+									if (prid != "stop") {
+										var d = new Date();
+										var linksrc="/stream?action=stream";
+										$("#videoimg").attr("src", linksrc+"?"+d.getTime());
+										}
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown); $("#thebutton").attr('name')
+								//}
+							});    
+				  
+										
+
+					
+				});
+			  });
+			   
+			  
+			  
+			</script>
+			
+
+
+
+
+	<script type="text/javascript">
+		window.onbeforeunload = check;
+		function check()
+		{
+		var prid="close";
+		var elem="video";
+		var value ="none";	
+		$.ajax({
+					type: "GET",
+					url: $SCRIPT_ROOT + "/videocontrol/?name=" + prid + "&name=" + value + "&element=" + elem,
+					contentType: "application/json; charset=utf-8",
+					data: { echoValue: "requestfordata" },
+					//error: function(jqXHR, textStatus, errorThrown) {
+					//    alert(errorThrown); $("#thebutton").attr('name')
+					//}
+				}); 
+
+
+		}
+	</script>
+
+
+
+
+
+
+
+  </div>
+        
+        
+  {% else %}
+
+		<h1>Please log in</h1>
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}
+
+
+
+
+

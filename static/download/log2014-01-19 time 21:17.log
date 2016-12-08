@@ -1,8 +1,0 @@
-INFO:root:Start logging --------------------------------------------
-INFO:apscheduler.scheduler:Scheduler started
-INFO:apscheduler.scheduler:Added job "master (trigger: interval[1 day, 0:00:00], next run at: 2014-01-20 00:00:01)" to job store "default"
-INFO:apscheduler.scheduler:Added job "waterpump (trigger: interval[14:00:00], next run at: 2014-01-20 04:00:00)" to job store "default"
-INFO:apscheduler.scheduler:Added job "sensor (trigger: interval[0:15:00], next run at: 2014-01-19 21:30:01)" to job store "default"
-INFO:apscheduler.scheduler:Added job "light (trigger: interval[0:15:00], next run at: 2014-01-19 21:30:02)" to job store "default"
-INFO:werkzeug: * Running on http://127.0.0.1:5000/
-INFO:werkzeug:127.0.0.1 - - [19/Jan/2014 21:16:57] "GET /ShowCalibration/ HTTP/1.1" 200 -

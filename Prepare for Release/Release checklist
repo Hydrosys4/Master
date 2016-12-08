@@ -6,6 +6,7 @@ OPERATING SYSTEM LEVEL:
 
 HYDROSYSTEM SW LEVEL:
 
+2) Check in start.py if the debugmode is set to False
 3) reset all data to default -> go to settings, scroll down, push reset button
 5) check that the email send account are deleted -> go to hwdata.txt in database
 6) check that the main mail account is deleted -> go to emailcred.txt in database

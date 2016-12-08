@@ -15,7 +15,7 @@ import wpa_cli_mod
 
 CELLSLIST=[]
 localwifisystem="HydroSys4"
-PUBLICPORT=5012
+PUBLICPORT=5020
 WAITTOCONNECT=180
 IPADDRESS ='192.168.0.172'
 
@@ -491,10 +491,15 @@ def get_external_ip():
 
 def get_local_ip():
 	try:
-		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.connect(("gmail.com",80))
-		ipaddr=s.getsockname()[0]
-		s.close()		
+		cmd = ["hostname -I"]
+		ipaddrlist = subprocess.check_output(cmd, shell=True).decode('utf-8')
+		ipaddr=ipaddrlist.split(" ")[0]
+		print "IP addresses " , ipaddrlist
+		#hostname -I
+		#s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		#s.connect(("gmail.com",80))
+		#ipaddr=s.getsockname()[0]
+		#s.close()			
 	except:
 		print "Local IP Error "
 		logging.error('Error to get local IP')

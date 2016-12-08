@@ -43,12 +43,12 @@ import countryinfo
 from camera_pi import Camera
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
-app = Flask(__name__)
-app.config.from_object('flasksettings') #read the configuration variables from a separate module (.py) file
+application = Flask(__name__)
+application.config.from_object('flasksettings') #read the configuration variables from a separate module (.py) file
 global SELTABLENAME
 SELTABLENAME=""
 global DEBUGMODE
-DEBUGMODE=True
+DEBUGMODE=False
 global PUBLICMODE
 PUBLICMODE=True
 MYPATH=""
@@ -105,7 +105,7 @@ except:
 
 
 	
-@app.teardown_appcontext
+@application.teardown_appcontext
 def close_db_connection(exception):
     """Closes the database again at the end of the request."""
     top = _app_ctx_stack.top
@@ -113,7 +113,7 @@ def close_db_connection(exception):
         top.sqlite_db.close()
 
 
-@app.route('/')
+@application.route('/')
 def show_entries():
 	print "preparing home page"
 	currentday=date.today()
@@ -134,6 +134,7 @@ def show_entries():
 				photopanel["type"]="photo"	
 				photopanel["active"]="yes"
 				photopanel["title"]=""
+				photopanel["subtitle"]=""
 				photopanel["file"]=picturefile	
 				photopanel["link"]=url_for('imageshow')
 				photopanel["linktitle"]="Go to Gallery"		
@@ -154,6 +155,7 @@ def show_entries():
 		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
+		paneldict["subtitle"]=name
 		paneldict["active"]="yes"
 		sensordata=[]
 		sensordbmod.getsensordbdatadays(name,sensordata,1)
@@ -181,6 +183,7 @@ def show_entries():
 		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
+		paneldict["subtitle"]=name
 		paneldict["active"]="yes"
 		sensordata=[]
 		sensordbmod.getsensordbdatadays(name,sensordata,1)
@@ -208,6 +211,7 @@ def show_entries():
 		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
+		paneldict["subtitle"]=name
 		paneldict["active"]="yes"
 		sensordata=[]
 		sensordbmod.getsensordbdatadays(name,sensordata,1)
@@ -236,6 +240,7 @@ def show_entries():
 		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
+		paneldict["subtitle"]=name
 		paneldict["active"]="yes"
 		sensordata=[]
 		sensordbmod.getsensordbdatadays(name,sensordata,1)
@@ -263,6 +268,7 @@ def show_entries():
 		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
+		paneldict["subtitle"]=name
 		paneldict["active"]="yes"
 		sensordata=[]
 		sensordbmod.getsensordbdatadays(name,sensordata,1)
@@ -338,7 +344,7 @@ def show_entries():
 	return render_template('homepage.html',panelinfolist=panelinfolist,photopanellist=photopanellist,currentday=currentday, networklink=networklink, settinglink=settinglink)
 
 
-@app.route('/network/', methods=['GET', 'POST'])
+@application.route('/network/', methods=['GET', 'POST'])
 def network():
 	wifilist=[]
 	savedssid=[]	
@@ -375,7 +381,7 @@ def network():
 
 
 
-@app.route('/wificonfig/', methods=['GET', 'POST'])
+@application.route('/wificonfig/', methods=['GET', 'POST'])
 def wificonfig():
 	print "method " , request.method
 	if request.method == 'GET':
@@ -403,7 +409,7 @@ def wificonfig():
 	return render_template('wificonfig.html', ssid=ssid)
 
 
-@app.route('/Imageshow/', methods=['GET', 'POST'])
+@application.route('/Imageshow/', methods=['GET', 'POST'])
 def imageshow():
 	monthdict= {1: "jan", 10: "oct", 11: "nov", 12: "dec", 2: "feb", 3: "mar", 4: "apr", 5: "may", 6: "jun", 7: "jul", 8: "aug", 9: "sep"}
 	monthlist=[]
@@ -451,7 +457,7 @@ def imageshow():
 
 
 	
-@app.route('/echo/', methods=['GET'])
+@application.route('/echo/', methods=['GET'])
 def echo():
     # read from serial the values for arduino
 
@@ -471,7 +477,7 @@ def echo():
 	
 
 	
-@app.route('/doit/', methods=['GET'])
+@application.route('/doit/', methods=['GET'])
 def doit():
     # send command to the actuator for test
 	cmd=""
@@ -549,7 +555,7 @@ def doit():
 
 	return jsonify(ret_data)
 
-@app.route('/saveit/', methods=['GET'])
+@application.route('/saveit/', methods=['GET'])
 def saveit():
     # send command to the actuator for test
 	cmd=""
@@ -584,7 +590,7 @@ def saveit():
 	return jsonify(ret_data)
 	
 	
-@app.route('/downloadit/', methods=['GET'])
+@application.route('/downloadit/', methods=['GET'])
 def downloadit():
     # send command to the actuator for test
 	recdata=[]
@@ -634,7 +640,7 @@ def downloadit():
 	print "The actuator ", ret_data
 	return jsonify(ret_data)
 	
-@app.route('/testit/', methods=['GET'])
+@application.route('/testit/', methods=['GET'])
 def testit():
     # this is used for debugging purposes, activate the functiontest from web button
 	recdata=[]
@@ -652,7 +658,7 @@ def testit():
 	
 	
 		
-@app.route('/ShowRealTimeData/', methods=['GET', 'POST'])
+@application.route('/ShowRealTimeData/', methods=['GET', 'POST'])
 def show_realtimedata():
 	sensorlist=sensordbmod.gettablelist()
 	unitdict={}
@@ -661,7 +667,7 @@ def show_realtimedata():
 	print "unitdict "  , unitdict
 	return render_template('ShowRealTimeSensor.html', sensorlist=sensorlist, unitdict=unitdict)
 	
-@app.route('/systemmailsetting/', methods=['GET', 'POST'])
+@application.route('/systemmailsetting/', methods=['GET', 'POST'])
 def systemmailsetting():
 	error = None
 	
@@ -685,12 +691,12 @@ def systemmailsetting():
 	return render_template('systemmailsetting.html', address=address, password=password)	
 	
 
-@app.route('/About/', methods=['GET', 'POST'])
+@application.route('/About/', methods=['GET', 'POST'])
 def show_about():
 	return render_template('About.html')
 	
 	
-@app.route('/ShowCalibration/', methods=['GET', 'POST'])
+@application.route('/ShowCalibration/', methods=['GET', 'POST'])
 def show_Calibration():  #on the contrary of the name, this show the setting menu
 	print "visualizzazione menu Setting:"
 	if request.method == 'POST':
@@ -746,7 +752,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	return render_template('ShowCalibration.html',videolist=videolist,actuatorlist=actuatorlist,lightsetting=lightsetting,photosetting=photosetting,mailsettinglist=mailsettinglist,sensordatadict=sensordatadict, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
 	
-@app.route('/Sensordata/', methods=['GET', 'POST'])
+@application.route('/Sensordata/', methods=['GET', 'POST'])
 def show_sensordata():
 	#----------------
 	datatypelist=["sensor","actuator"]
@@ -793,7 +799,7 @@ def show_sensordata():
 	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,sensortype=sensortype,sensorlist=sensorlist,sensordata=json.dumps(sensordata))
 
 
-@app.route('/wateringplan/' , methods=['GET', 'POST'])
+@application.route('/wateringplan/' , methods=['GET', 'POST'])
 def wateringplan():
 
 	title = "Watering Schedule"
@@ -851,7 +857,7 @@ def wateringplan():
 		
 	return render_template("wateringplan.html", title=title,paramlist=paramlist,elementlist=elementlist,schemaementlist=schemaementlist,table=table,table1=table1,selectedelement=selectedelement)
 
-@app.route('/fertilizerplan/' , methods=['GET', 'POST'])
+@application.route('/fertilizerplan/' , methods=['GET', 'POST'])
 def fertilizerplan():
 
 	title = "Fertilizer Schedule"
@@ -899,7 +905,7 @@ def fertilizerplan():
 
 
 
-@app.route('/Advanced/', methods=['GET', 'POST'])
+@application.route('/Advanced/', methods=['GET', 'POST'])
 def advanced():
 	title = "Advanced Watering Schedule"
 	paramlist= advancedmod.getparamlist()
@@ -980,21 +986,21 @@ def advanced():
 
 
 	
-@app.route('/login', methods=['GET', 'POST'])
+@application.route('/login', methods=['GET', 'POST'])
 def login():
 
 	error = None
 	change=False
-	username=logindbmod.getusername()
+	username=logindbmod.getusername().lower() #always transform to lowercase
 	password=logindbmod.getpassword()
 	
 	if request.method == 'POST':
-		print " here we are"
+		print " LOGIN " , username
 		reqtype = request.form['button']
 		if reqtype=="login":
-			if request.form['username'] != username:
-				error = 'Invalid Credentials'
-			elif request.form['password'] != password:
+			usernameform=request.form['username'].lower()
+			passwordform=request.form['password']
+			if (usernameform != username) or (passwordform != password):
 				error = 'Invalid Credentials'
 			else:
 				session['logged_in'] = True
@@ -1002,18 +1008,15 @@ def login():
 				return redirect(url_for('show_entries'))
 
 		elif reqtype=="change":
-			print "Display chang password interface"
+			print "Display change password interface"
 			change=True
 						
 		elif reqtype=="save":
 			print "saving new login password"
-			username=logindbmod.getusername()
-			password=logindbmod.getpassword()
+			usernameform=request.form['username'].lower()
+			passwordform=request.form['password']
 			newpassword=request.form['newpassword']
-			if request.form['username'] != username:
-				error = 'Invalid Credentials'
-				change=True
-			elif request.form['password'] != password:
+			if (usernameform != username) or (passwordform != password):
 				error = 'Invalid Credentials'
 				change=True
 			else:
@@ -1030,14 +1033,14 @@ def login():
 
 
 
-@app.route('/logout')
+@application.route('/logout')
 def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
 
 
-@app.route('/HardwareSetting/', methods=['GET', 'POST'])
+@application.route('/HardwareSetting/', methods=['GET', 'POST'])
 def hardwaresetting():  #on the contrary of the name, this show the setting menu
 	print "visualizzazione menu hardwareSetting:"
 	
@@ -1131,6 +1134,75 @@ def functiontest():
 	return True
 
 
+# video part ---------------------------------- hello -------------------------------
+import videocontrolmod
+
+@application.route('/videostream/')
+def videostream():
+	itemlist=['video0','b']
+	"""Video streaming home page."""
+	ipaddress=networkmod.get_local_ip()
+	videolist=hardwaremod.videodevlist()
+	return render_template('videostream.html',itemlist=itemlist, ipaddress=ipaddress, videolist=videolist)
+
+
+@application.route('/videocontrol/', methods=['GET'])
+def videocontrol():
+    # this is used for debugging purposes, activate the functiontest from web button
+	ret_data={}
+	cmd=""
+	sendstring=""
+	argumentlist=request.args.getlist('name')
+	name=argumentlist[0]
+
+	if name=="testing":
+		print "testing video stop"
+		answer="done"		
+		answer=videocontrolmod.stream_video()
+		
+	if name=="setting":
+		idx=1
+		data=""
+		print "argument list ", argumentlist
+		while idx < len(argumentlist):
+			data=data+"x"+argumentlist[idx]
+			idx=idx+1
+		data=data[1:]
+		print data
+		element=request.args['element']	
+		print "element " , element
+		print "starting Stream " , data
+		answer=videocontrolmod.stream_video(element,data) + "-" + element
+		time.sleep(2)
+		
+
+	if name=="close":
+		print "Closing mjpg-streamer server"
+		videocontrolmod.stop_stream()
+		answer="closed"
+
+	if name=="stop":
+		print "Stop mjpg-streamer server"
+		videocontrolmod.stop_stream()
+		answer="stopped"
+
+
+	ret_data = {"answer": answer}
+	print "response data ", ret_data
+	return jsonify(ret_data)
+	
+
+#if __name__ == '__main__':  
+#    application.run(host='0.0.0.0', debug=True, threaded=True)
+
+
+# END ---------------------------------video part ---------------------------
+
+
+
+
+
+
 	
 if __name__ == '__main__':
 	
@@ -1139,10 +1211,10 @@ if __name__ == '__main__':
 	print "start web server"	
 	global PUBLICPORT
 	if PUBLICMODE:
-		app.run(debug=DEBUGMODE,use_reloader=False,host= '0.0.0.0',port=networkmod.PUBLICPORT)
-		#app.run(host='0.0.0.0', debug=True, port=12345, use_reloader=True)
+		application.run(debug=DEBUGMODE,use_reloader=False,host= '0.0.0.0',port=networkmod.PUBLICPORT)
+		#application.run(host='0.0.0.0', debug=True, port=12345, use_reloader=True)
 	else:
-		app.run(debug=DEBUGMODE,use_reloader=False,port=80)	
+		application.run(debug=DEBUGMODE,use_reloader=False,port=80)	
 
 	print "close"
 	selectedplanmod.stop()
