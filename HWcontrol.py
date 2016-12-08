@@ -35,7 +35,9 @@ DHT22_data['lastupdate']=datetime.datetime.now() - datetime.timedelta(seconds=2)
 
 #" GPIO_data is an array of dictionary, total 40 items in the array
 GPIO_data=[{"level":None, "state":None} for k in range(40)]
-
+#" PowerPIN_Status is an array of dictionary, total 40 items in the array, the array is used to avoid comflict between tasks using same PIN 
+# each time the pin is activated the level is increased by 1 unit.
+PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
 
 def execute_task(cmd, message, recdata):
 	if cmd==HWCONTROLLIST[0]:
@@ -54,7 +56,7 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[4]:	
 		return get_BH1750_light(cmd, message, recdata)
 
-	elif cmd==HWCONTROLLIST[5]:	
+	elif cmd==HWCONTROLLIST[5]:	# pulse
 		return gpio_pulse(cmd, message, recdata)
 
 	elif cmd==HWCONTROLLIST[6]:	
@@ -105,6 +107,8 @@ def get_DHT22_temperature_fake(cmd, message, recdata, DHT22_data):
 	recdata.append(DHT22_data['Temperature'])
 	recdata.append(1)
 	return DHT22_data['lastupdate']
+	
+	
 
 def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
 	
@@ -114,8 +118,13 @@ def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
 
 	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
 	if deltat.total_seconds()>2:
-		sensor = Adafruit_DHT.DHT22
-		humidity, temperature = Adafruit_DHT.read(sensor, pin)
+		
+		try:
+			sensor = Adafruit_DHT.DHT22
+			humidity, temperature = Adafruit_DHT.read(sensor, pin)
+		except:
+			print "error reading the DHT sensor (Humidity,Temperature)"
+		
 
 		if (humidity is not None) and (temperature is not None):
 			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
@@ -140,8 +149,11 @@ def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
 	pin=int(msgarray[1])
 	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
 	if deltat.total_seconds()>2:
-		sensor = Adafruit_DHT.DHT22
-		humidity, temperature = Adafruit_DHT.read(sensor, pin)
+		try:
+			sensor = Adafruit_DHT.DHT22
+			humidity, temperature = Adafruit_DHT.read(sensor, pin)
+		except:
+			print "error reading the DHT sensor (Humidity,Temperature)"
 
 		if (humidity is not None) and (temperature is not None):
 			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
@@ -226,15 +238,14 @@ def get_MCP3008_channel(cmd, message, recdata):
 	#PIN=msgarray[1]
 
 	SUBPIN=int(msgarray[2])
-	#if messagelen>3:	
-	POWERPIN=int(msgarray[3])
+	channel=SUBPIN	
 	
-	channel=SUBPIN
+	POWERPIN=-1	
+	if messagelen>3:	
+		POWERPIN=int(msgarray[3])
 	
-	#enable power on the hygrometer
-	GPIO_setup(POWERPIN, "out")
-	GPIO_output(POWERPIN, 1)
-	time.sleep(0.2)
+	powerPIN_start(POWERPIN,"pos",0.2)
+	
 	
 	try:
 		# Open SPI bus
@@ -250,7 +261,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 
 		# Function to convert data to voltage level,
 		# rounded to specified number of decimal places.
-		volts = (data * 3.3) / float(1023)
+		volts = (data * 5) / float(1023)
 		volts = round(volts,2)
 
 		spi.close()
@@ -260,11 +271,53 @@ def get_MCP3008_channel(cmd, message, recdata):
 	
 	recdata.append(cmd)
 	recdata.append(volts)
-	recdata.append(successflag)	
-	#set powerpin to zero again
-	GPIO_output(POWERPIN, 0)
+	recdata.append(successflag)
+
+
+	powerPIN_stop(POWERPIN,0)
 
 	return True	
+
+
+
+def powerPIN_start(POWERPIN,logic,waittime):
+
+	if POWERPIN>0:
+		PowerPIN_Status[POWERPIN]["level"]+=1
+		#start power pin
+		if PowerPIN_Status[POWERPIN]["state"]=="off":
+			GPIO_setup(POWERPIN, "out")
+			if logic=="pos": 
+				GPIO_output(POWERPIN, 1)
+				PowerPIN_Status[POWERPIN]["pinstate"]="1"
+			else:
+				GPIO_output(POWERPIN, 0)
+				PowerPIN_Status[POWERPIN]["pinstate"]="0"
+				
+			PowerPIN_Status[POWERPIN]["state"]="on"
+			time.sleep(waittime)
+	return True	
+
+		
+def powerPIN_stop(POWERPIN,waittime):
+	
+	if POWERPIN>0:
+		#set powerpin to zero again in case this is the last thread
+		PowerPIN_Status[POWERPIN]["level"]-=1		
+		#stop power pin
+		if PowerPIN_Status[POWERPIN]["level"]<=0:
+			if PowerPIN_Status[POWERPIN]["state"]=="on":
+				time.sleep(waittime)
+				if PowerPIN_Status[POWERPIN]["pinstate"]=="1": 
+					GPIO_output(POWERPIN, 0)
+					PowerPIN_Status[POWERPIN]["pinstate"]="0"
+				elif PowerPIN_Status[POWERPIN]["pinstate"]=="0":
+					GPIO_output(POWERPIN, 1)
+					PowerPIN_Status[POWERPIN]["pinstate"]="1"
+				PowerPIN_Status[POWERPIN]["state"]="off"
+
+	return True	
+
 
 def GPIO_output(PIN, level):
 	if ISRPI:
@@ -281,7 +334,7 @@ def GPIO_setup(PIN, state):
 	GPIO_data[PIN]["state"]=state
 	return True
 
-def endpulse(PIN,logic):
+def endpulse(PIN,logic,POWERPIN):
 
 	if logic=="pos":
 		level=0
@@ -289,20 +342,30 @@ def endpulse(PIN,logic):
 		level=1
 	GPIO_output(PIN, level)
 	
+	powerPIN_stop(POWERPIN,0)	
 	print "pulse ended", time.ctime() , " PIN=", PIN , " Logic=", logic , " Level=", level
 	return True
 
 
 def gpio_pulse(cmd, message, recdata):
 	msgarray=message.split(":")
+	messagelen=len(msgarray)
 	PIN=int(msgarray[1])
 	testpulsetime=msgarray[2]
 	pulsesecond=int(testpulsetime)/1000
 	
-	if len(msgarray)>3:
-		logic="neg"
-	else:
-		logic="pos"	
+	if messagelen>3:
+		if msgarray[3]=="0":
+			logic="neg"
+		elif msgarray[3]=="1":
+			logic="pos"	
+	
+	POWERPIN=-1	
+	if messagelen>4:	
+		POWERPIN=int(msgarray[4])
+	
+	powerPIN_start(POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
+	
 		
 	GPIO_setup(PIN, "out")
 	if logic=="pos":
@@ -311,7 +374,7 @@ def gpio_pulse(cmd, message, recdata):
 		level=0
 	GPIO_output(PIN, level)
 		
-	t = threading.Timer(pulsesecond, endpulse, [PIN , logic]).start()
+	t = threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN]).start()
 	print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic , " Level=", level
 	recdata.append(cmd)
 	recdata.append(PIN)

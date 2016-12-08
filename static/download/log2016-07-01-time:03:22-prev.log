@@ -1,5 +1,0 @@
-03:19:37 INFO     Start logging -------------------------------------------- 2016-07-01 03:19:37
-03:19:37 INFO     This is a sample INFO message
-03:19:37 WARNING  This is a sample WARNING message
-03:19:37 ERROR    This is a sample ERROR message
-03:19:37 INFO     127.0.0.1 - - [01/Jul/2016 03:19:37] "GET /testit/?name=testing&echoValue=requestfordata HTTP/1.1" 200 -

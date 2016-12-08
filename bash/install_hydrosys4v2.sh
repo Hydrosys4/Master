@@ -262,9 +262,6 @@ sudo systemctl enable dnsmasq.service
 }
 
 
-
-
-
 install_mjpegstr ()
 {
 cd /home/pi
@@ -288,6 +285,61 @@ cd ..
 
 }
 
+
+
+install_nginx ()
+{
+cd /home/pi
+
+sudo apt-get install nginx
+
+# create default file
+aconf="/etc/nginx/sites-enabled/default"
+if [ -f $aconf ]; then
+   cp $aconf /home/pi/$aconf.1
+   sudo rm $aconf
+   echo "remove file"
+fi
+
+
+sudo bash -c "cat >> $aconf" << EOF
+server {
+    # for a public HTTP server:
+    listen 5012;
+    server_name localhost hydrosys4.local;
+
+    access_log off;
+    error_log off;
+
+    location / {
+        proxy_pass http://127.0.0.1:5020;
+    }
+
+    location /stream {
+        rewrite ^/stream(.*) /$1 break;
+        proxy_pass http://127.0.0.1:5022;
+        proxy_buffering off;
+    }
+
+    location /favicon.ico {
+        alias /home/pi/env/autonom/static/favicon.ico;
+    }
+}
+EOF
+
+sudo service nginx start
+
+cd ..
+cd ..
+
+}
+
+
+
+
+
+
+
 # --- RUN the functions
 
 
@@ -296,4 +348,5 @@ cd ..
 fn_hostapd
 fn_dnsmasq
 install_mjpegstr
+install_nginx
 

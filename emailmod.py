@@ -152,14 +152,15 @@ def send_email_html(user, pwd, recipient, subject, html):
 	folderpath=os.path.join(folderpath, "hydropicture")
 	sortedlist=sorted(os.listdir(folderpath))
 	sortedlist.reverse()
-	picturefile="static/hydropicture/"+sortedlist[0]
 	
-	imgfiles=[]
-	referencestr=sortedlist[0].split("@")[0]
-	for filelist in sortedlist:
-		if filelist.split("@")[0]==referencestr:
-			picturefile="static/hydropicture/"+filelist
-			imgfiles.append(picturefile)
+	imgfiles=[]	
+	if sortedlist:
+		picturefile="static/hydropicture/"+sortedlist[0]
+		referencestr=sortedlist[0].split("@")[0]
+		for filelist in sortedlist:
+			if filelist.split("@")[0]==referencestr:
+				picturefile="static/hydropicture/"+filelist
+				imgfiles.append(picturefile)
 		
 	
 	for filename in imgfiles:
@@ -169,6 +170,8 @@ def send_email_html(user, pwd, recipient, subject, html):
 		fp = open(filename, 'rb')
 		img = MIMEImage(fp.read())
 		fp.close()
+		picturename="picture1"
+		img.add_header('Content-Disposition','attachment; filename="%s"' % picturename)
 		msg.attach(img)
 
 	try:
