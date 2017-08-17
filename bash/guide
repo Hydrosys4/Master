@@ -4,3 +4,7 @@ wget https://raw.githubusercontent.com/Hydrosys4/Master/master/bash/install_hydr
 
 sudo chmod u+x install_hydrosys4.sh
 sudo ./install_hydrosys4.sh
+
+sudo raspi-config
+
+enable camera

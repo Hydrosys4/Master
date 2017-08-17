@@ -38,6 +38,7 @@ PRESETFILENAME='presetsettings.txt'
 
 # ///////////////// --- END GLOBAL VARIABLES ------
 
+logger = logging.getLogger("hydrosys4."+__name__)
 
 #-- start filestorage utility--------////////////////////////////////////////////////////////////////////////////////////	
 def dbpath(filename):
@@ -56,7 +57,7 @@ def dbpath(filename):
 def pulsenutrient(target,activationseconds):
 	duration=1000*hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
-	logging.info('Doser Pulse, pulse time for ms = %s', duration)
+	logger.info('Doser Pulse, pulse time for ms = %s', duration)
 	hardwaremod.makepulse(target,duration)
 	# salva su database
 	actuatordbmod.insertdataintable(target,duration)
@@ -77,13 +78,13 @@ def dictionarydataforactuator(actuatorname,data1,data2, description):
 def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 	duration=1000*hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
-	logging.info('Startpump evaluation')
+	logger.info('Startpump evaluation')
 	# evaluate parameters
 	#MinAverageLight=500 not used now
 	MinutesOfAverage=120 #minutes in which the average data is calculated from sensor sampling
 
 	print "waterpump check"
-	logging.info('execute water pump check %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+	logger.info('execute water pump check %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 	# then check the temperature and Humidity
 
@@ -96,7 +97,7 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		sensordbmod.getsensordbdata(hsensorname,sensordata)
 		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
 		humquantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
-		logging.info('Waterpump Check parameter if humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))
+		logger.info('Waterpump Check parameter if humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))
 		print 'Waterpump Check parameter if humquantity=',humquantity,' < MaxAverageHumid=' ,MaxAverageHumid
 	
 	tsensornamelist=hardwaremod.getsensornamebymeasure(hardwaremod.MEASURELIST[0])
@@ -106,7 +107,7 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		sensordbmod.getsensordbdata(tsensorname,sensordata)
 		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
 		tempquantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
-		logging.info('Waterpump Check parameter if tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))
+		logger.info('Waterpump Check parameter if tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))
 		print 'Waterpump Check parameter if tempquantity=',tempquantity,' > MinAveragetemp=' ,MinAveragetemp
 	
 	MinAveragetempnum=hardwaremod.tonumber(MinAveragetemp,"NA")
@@ -117,24 +118,24 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 	
 	if (MinAveragetempnum!="NA"):
 		if (tempquantity>MinAveragetempnum):		
-			logging.info('Temperature check PASSED, tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))			
+			logger.info('Temperature check PASSED, tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))			
 		else:
-			logging.info('Temperature check FAILED')
+			logger.info('Temperature check FAILED')
 			print 'Temperature check FAILED'
 			pumpit=False	
 			
 	if (MaxAverageHumidnum!="NA"):
 		if (humquantity<MaxAverageHumidnum):		
-			logging.info('Humidity check PASSED, humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))			
+			logger.info('Humidity check PASSED, humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))			
 		else:
-			logging.info('Humidity check FAILED')
+			logger.info('Humidity check FAILED')
 			print 'Humidity check FAILED'
 			pumpit=False			
 		
 	if pumpit:
 		hardwaremod.makepulse(target,duration)
 		# salva su database
-		logging.info('Pump ON, optional time for sec = %s', duration)
+		logger.info('Pump ON, optional time for sec = %s', duration)
 		print 'Pump ON, optional time for sec =', duration
 		actuatordbmod.insertdataintable(target,duration)
 		
@@ -143,79 +144,85 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 	
 def periodicdatarequest(sensorname):
 	print "Read sensors request: ", sensorname , " " , datetime.now()
-	logging.info('Read sensor data: %s - %s', sensorname, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+	logger.info('Read sensor data: %s - %s', sensorname, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	sensorvalue=hardwaremod.getsensordata(sensorname,3)
 	if sensorvalue!="":
 		sensordbmod.insertdataintable(sensorname,sensorvalue)
 	
 def heartbeat():
 	print "start heartbeat check", " " , datetime.now()
-	logging.info('Start heartbeat routine %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+	logger.info('Start heartbeat routine %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	connectedssid=networkmod.connectedssid()
+	connected=False
 	if len(connectedssid)==0:
-		logging.warning('Heartbeat check , no network connected -------------- try to connect')
+		logger.warning('Heartbeat check , no network connected -------------- try to connect')
 		print 'Heartbeat check , no network connected -------------- try to connect'
-		networkmod.connect_network()
+		connected=networkmod.connect_network()
 	else:
-		logging.info('Heartbeat check , Connected Wifi Network: %s ', connectedssid[0])
+		logger.info('Heartbeat check , Connected Wifi Network: %s ', connectedssid[0])
 		if connectedssid[0]==networkmod.localwifisystem:
-			logging.info('Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network')
-			networkmod.connect_network()
+			logger.info('Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network')
+			connected=networkmod.connect_network()
 		else:		
 			reachgoogle=networkmod.check_internet_connection(3)
 
 			if not reachgoogle:
-				logging.warning('Heartbeat check , test ping not able to reach Google -------------- try to connect')
+				logger.warning('Heartbeat check , test ping not able to reach Google -------------- try to connect')
 				print 'Heartbeat check , no IP connection-------------- try to connect'
-				networkmod.connect_network()
+				connected=networkmod.connect_network()
 			else:
-				logging.info('Heartbeat check , wifi connection OK')
-				print 'Heartbeat check , wifi connection OK'				
+				logger.info('Heartbeat check , wifi connection OK')
+				print 'Heartbeat check , wifi connection OK'
+				connected=True			
 
-	# Check if remote IP address is changed compared to previous communication and in such case resend the mail	
-	ipext=networkmod.get_external_ip()
-	if ipext!="":
-		if ipext!=emailmod.IPEXTERNALSENT:
-			print "Heartbeat check, IP address change detected. Send email with updated IP address"
-			logging.info('Heartbeat check, IP address change detected. Send email with updated IP address')
-			emailmod.sendallmail()
+	if connected:
+		# Check if remote IP address is changed compared to previous communication and in such case resend the mail	
+		ipext=networkmod.get_external_ip()
+		if ipext!="":
+			if ipext!=emailmod.IPEXTERNALSENT:
+				print "Heartbeat check, IP address change detected. Send email with updated IP address"
+				logger.info('Heartbeat check, IP address change detected. Send email with updated IP address')
+				emailmod.sendallmail("alert","System detected IP address change, below the updated links")
 
-	# Check current time is less than 60 second different from NTP information
-	# try to get the clock from network
-	networktime=clockmod.getNTPTime()
-	logging.info('Heartbeat check , Network time NTP: %s ', networktime)
-	systemtime=clockmod.readsystemdatetime()
-	logging.info('Heartbeat check , System time NTP: %s ', systemtime)
-	if not networktime=='':
-		diffsec=clockmod.timediffinsec(networktime, systemtime)
-		if diffsec>60:
-			print "Heartbeat check , warning difference between system time and network time >60 sec, diffsec = " , diffsec
-			logging.warning('Heartbeat check , warning difference between system time and network time >60 sec, diffsec =  %d ', diffsec)
-			print "Heartbeat check , Apply network datetime to system"
-			logging.warning('Heartbeat check , Apply network datetime to system ')
-			clockmod.setHWclock(networktime)
-			clockmod.setsystemclock(networktime)
+		# Check current time is less than 60 second different from NTP information
+		# try to get the clock from network
+		networktime=clockmod.getNTPTime()
+		logger.info('Heartbeat check , Network time NTP: %s ', networktime)
+		systemtime=clockmod.readsystemdatetime()
+		logger.info('Heartbeat check , System time NTP: %s ', systemtime)
+		if not networktime=='':
+			diffsec=clockmod.timediffinsec(networktime, systemtime)
+			if diffsec>60:
+				print "Heartbeat check , warning difference between system time and network time >60 sec, diffsec = " , diffsec
+				logger.warning('Heartbeat check , warning difference between system time and network time >60 sec, diffsec =  %d ', diffsec)
+				print "Heartbeat check , Apply network datetime to system"
+				logger.warning('Heartbeat check , Apply network datetime to system ')
+				clockmod.setHWclock(networktime)
+				clockmod.setsystemclock(networktime)
+			else:
+				print "Heartbeat check , Clock OK"
+				logger.info('Heartbeat check , Clock OK')
 		else:
-			print "Heartbeat check , Clock OK"
-			logging.warning('Heartbeat check , Clock OK')
+			print "not able to get network time"
+			logger.warning('Heartbeat check , not able to get network time')
 	else:
-		print "not able to get network time"
-		logging.warning('Heartbeat check , not able to get network time')
+		print "not able to establish an internet connection"
+		logger.warning("not able to establish an internet connection")			
 
 		
 	return True
 	
 def sendmail(target):
-	logging.info('send Mail %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+	logger.info('send Mail %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	# save action in database
-	issent=emailmod.sendmail(target)
+	issent=emailmod.sendmail(target,"report","Periodic system report generated automatically")
 	if issent:
 		actuatordbmod.insertdataintable(target,1)
 		print "Action", target , " " , datetime.now()
 	
 	
 def takephoto(target):
-	logging.info('take picture %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+	logger.info('take picture %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	hardwaremod.takephoto()
 	# save action in database
 	actuatordbmod.insertdataintable(target,1)
@@ -261,10 +268,7 @@ def mastercallback():
 	sensordbmod.RemoveSensorDataPeriod(pastdays)
 	actuatordbmod.RemoveActuatorDataPeriod(pastdays)
 	hardwaremod.removephotodataperiod(364)
-	
-	# Reset log file and back it up
-	
-	hardwaremod.resetandbackuplog()
+
 
 	
 	# remove all jobs except masterscheduler
@@ -281,7 +285,7 @@ def mastercallback():
 	calltype="periodic"
 	global HEARTBEATINTERVAL
 	interval=HEARTBEATINTERVAL
-	timelist=[0,interval,300] # 300 indicates to start after 5 minutes
+	timelist=[0,interval,900] # 900 indicates to start after 15 minutes
 	callback="heartbeat"
 	argument=[]
 	
@@ -292,13 +296,17 @@ def mastercallback():
 	# info file dedicate call-back --------------------------------------------- (sensor)
 	
 	hwnamelist=sensordbmod.gettablelist()
-	callback="sensor"	
+	callback="sensor"
+	timeshift=300
+	shiftstep=2 #seconds	
 	for hwname in hwnamelist:
 		calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_FUNC_SCHEDTYPE)
 		timelist=hardwaremod.gettimedata(hwname)
+		timelist[2]=timelist[2]+timeshift # avoid all the sensor thread to be called in the same time
 		argument=[]
 		argument.append(hwname)
 		setschedulercallback(calltype,timelist,argument,callback,hwname)
+		timeshift=timeshift+shiftstep
 
 	#<------>
 	# info file dedicate quinto call-back ----------------------------------(takephoto)
@@ -342,7 +350,7 @@ def mastercallback():
 	elementlist= wateringdbmod.getelementlist()  # pump ordered (based on "watercontrol" field)
 	table=wateringdbmod.gettable(1)# table, each row is a pump, each column is a month, value is watering time multiplieer
 	table1=wateringdbmod.gettable(0)# table, each row is a pump, each column is a month, value is watering scheme
-	
+	table2=wateringdbmod.gettable(2)# table, each row is a pump, each column is a month, value is time delay 	
 	
 	#print paramlist
 	#print elementlistly
@@ -358,15 +366,23 @@ def mastercallback():
 		# Monday is 0 and Sunday is 6
 		weekday = todaydate.weekday()
 		month = todaydate.month	
-		waterschemanumber=table1[pumpnumber][month-1]
-		waterdropnumber=hardwaremod.toint(table[pumpnumber][month-1],0)
+		
+		try:					
+			waterschemanumber=table1[pumpnumber][month-1]
+			waterdropnumber=hardwaremod.toint(table[pumpnumber][month-1],0)
+			watertimedelaysec=hardwaremod.toint(table2[pumpnumber][month-1],0)
+		except IndexError:
+			print "EXCEPTION: index out of range" 		
+			waterdropnumber=0
+			watertimedelaysec=0		
+		
 		if waterdropnumber>0:			
 			#print " month  " , month, " drop  " , waterdropnumber
 			calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,pumpname,hardwaremod.HW_FUNC_SCHEDTYPE)
 			for todayevent in tabledrop[waterschemanumber-1][weekday]:
 				
 				timelist=hardwaremod.separatetimestringint(todayevent[0])
-				
+				timelist[2]=timelist[2]+watertimedelaysec
 				argument=[]
 				argument.append(pumpname)
 				durationinseconds=hardwaremod.toint(todayevent[1],0)*waterdropnumber
@@ -426,7 +442,7 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 	if calltype=="periodic":
 		try:
 			theinterval=timelist[1]
-			randomsecond=timelist[2]+1
+			randomsecond=timelist[2]
 			thedateloc=datetime.now()+timedelta(seconds=randomsecond)
 			#convert to UTC time
 			thedate=clockmod.convertLOCtoUTC_datetime(thedateloc)

@@ -39,25 +39,57 @@
 			
 			</script>
 
+
+    
+   <!-- new Table for sensor data using ajax -->
+   
+   		<script type=text/javascript>
+
+
+			  (function worker() {
+
+				$.ajax({
+							type: "GET",
+							url: $SCRIPT_ROOT + "/echo/",
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" },
+							success: function(s) {
+								var data = eval(s); // this will convert your json string to a javascript object
+								for (var key in data) {
+									//alert(key+': '+data[key]); // this will show each key with it's value
+									$('#' +key).text(data[key]);	
+						
+								}
+							},								
+							complete: function() {
+							  // Schedule the next request when the current one's complete
+
+							}
+
+
+							//error: function(jqXHR, textStatus, errorThrown) {
+							//    alert(errorThrown);
+							//}
+						});
+			  
+			  })();
+
+			
+			 
+			</script>
+
+
 		<form novalidate="true" action="{{ url_for('show_realtimedata') }}" id="PHform" method="post" >
+
 			<div class="page-header">
-					  <h3>Sensor data real time</h3>   
+					  <h3>Sensor data</h3>   
 			</div>
-			<div class="well bs-component">
-			<div class="row">
-				<div class="col-xs-2">
-				<!-- Sensor button -->
-					<button id="realtimebtn" class="btn-sm btn btn-default" name="realtimebtn" value="" type="submit">ShowRealTimeData</button>
-				</div>
-			</div>
-			
-			
-			
-			
+
 			
 			
 			
 			<!--  result  -->
+	<div class="well bs-component">
 		<table class="table" margin: 20px;>
         <thead>
             <tr>
@@ -67,22 +99,36 @@
             </tr>
         </thead>
 		<tbody>
+			{% for item in sensorlist %}	
 
-			{% for key, item in sensordatadict.items() %}	
-            <tr>			
-					<td >{{ key }}</td>
-
-					<td>{{ item }}</td>
-					
-					<td>{{ unitdict[key] }}</td>
-			 </tr>			
-			{% endfor %}
-
-        </tbody>
-    </table>
 			
+			 <tr>			
+					<td >{{ item }}</td>
+
+					<td id="{{ item }}"></td>
+					
+										
+					<td>{{ unitdict[item] }}</td>
+					
+			 </tr>	
+			
+			
+			
+			{% endfor %}
+		
+        </tbody>
+    </table> 
+    			<div class="row">
+				<div class="col-xs-2">
+				<!-- Sensor button -->
+					<button id="realtimebtn" class="btn-sm btn btn-default" name="realtimebtn" value="" type="submit">ShowRealTimeData</button>
+				</div>
 			</div>
+    			</div>
 		</form>
+    
+	<!-- end new table -->		
+
 		
 
   
@@ -282,7 +328,7 @@
   
 		<!-- Photocam test -->
 		
-		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="PHform" method="post" >
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="abcd" method="post" >
 
 
 			<div class="page-header">
@@ -322,25 +368,103 @@
 			</div>	
 			</div>	
 			
-			<div class="form-group">	
-			<div class="row">
-				<div class="col-xs-12">			
-				{% for video in videolist %}	
+			<!--  list of cameras  -->
+			
+			<div class="well bs-component well-sm">
+			
+						<!--  Actuator table   -->
+			<table class="table" margin: 10px;>
+			<thead>
+				<tr>
+					<th>Device</th>
+					<th>Resol</th>
+					<th>Position%</th>
+					<th>Servo</th>
+					<th>CTRL</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
 
-					<button class="startphoto btn-sm btn btn-default" type="button" name="photo" video="{{video}}">Test Webcam {{video}}</button>
+			{% for dict_item in camerasettinglist %}	
+			{% set item = dict_item['camname'] %}
+			{% set resolution = dict_item['resolution'] %}
+			{% set position = dict_item['position'] %}
+			{% set servo = dict_item['servo'] %}
+			<tr>
 
-				{% endfor %}	
+				<td>
+					<label>{{ item }}</label>
+				</td>
+
+
+				  <td>
+		  					  				
+				  <select class="form-control input-sm dontwantgap" id="selsettingres_{{ item }}">
+					<option {% if resolution=="320x240" %} selected="selected"{% endif %}>320x240</option>
+					<option {% if resolution=="640x480" %} selected="selected"{% endif %}>640x480</option>
+					<option {% if resolution=="1024x768" %} selected="selected"{% endif %}>1024x768</option>
+					<option {% if resolution=="1920x1080" %} selected="selected"{% endif %}>1920x1080</option>
+					<option {% if resolution=="1920x1440" %} selected="selected"{% endif %}>1920x1440</option>
+					<option {% if resolution=="2592×1944" %} selected="selected"{% endif %}>2592×1944</option>
+				  </select>
+				  
+				  </td>	
+				  		
+							
+				<td>		
+				  
+				  <input value="{{position}}" class="form-control input-sm dontwantgap" id="selsettingpos_{{ item }}" name="position" type="text">
+
+				 </td>	 	
+
+				<td>		
+				  <select class="form-control input-sm dontwantgap" id="selsettingservo_{{ item }}">
+					{% for servoitem in servolist %}
+					<option {% if servoitem==servo %} selected="selected"{% endif %}>{{servoitem}}</option>
+					{% endfor %}
+				  </select>
+				 </td>	 
+
+							
+				<td>
+					<!-- start/stop button-->										
+					<button class="startphoto btn-sm btn btn-default" type="button" name="photo" video="{{item}}">Test</button>
+
+				</td>
+
+
+			</tr>
+
+			
+			{% endfor %}				
+
+					
+
+
+        </tbody>
+			</table>
+	<div class="small">Multiple positions separated by comma (,) numbers from 0 to 100</div>
+	<table class="table" margin: 10px;>
+		<tbody>
+		<tr>
+			<td>
+				   <!-- status-->
+			   
+				<div class="col-xs-4">
+					<label>Status:</label>
 				</div>
-			</div>				
-			</div>	
-						
-			<div class="row">
-				<div class="col-xs-12">			
-				<img id="imgtest" class="img-responsive" src="{{ url_for('static', filename="cameratest/testimage1.jpg")}}">
-				</div>
-			</div>	
-			<div class="row">
-				<!--  progress bar bootstrap-->
+				<div class="col-xs-8">
+					<label id="phototeststatus" for="input_3">Status</label>
+				</div>				
+			</td>
+		</tr>
+		<tr>
+			<td>
+				   
+				   <!--  progress bar bootstrap-->
 					<div class="col-xs-12">			
 					<div class="progress">
 					  <div id="photoprogressbar1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
@@ -348,17 +472,49 @@
 					</div>
 					</div>
 				<!-- progress-->
-			</div>	
+			
+			</td>
+		</tr>
+		<tr>
+			<td>
+						<label>Adapt video to the screen
+						<input id="toggle-event" checked="checked" type="checkbox">
+						</label>
+						<script>
+						  $(function() {
+							$('#toggle-event').change(function() {
+								var togglevalue=$(this).prop('checked');
+					
+								if (togglevalue==true) {
+									$("#imgtest").addClass("img-responsive");										
+								} else {
+									$("#imgtest").removeClass("img-responsive");	
+								}
+							})
+						  })
+						</script>
+						
 
-			<div class="row">
-				<div class="col-xs-4">
-					<label>Status:</label>
-				</div>
-				<div class="col-xs-4">
-					<label id="phototeststatus" for="input_3">Status</label>
-				</div>
-			</div>	
+			</td>
+		</tr>
+		</tbody>
+	</table>
 
+
+
+
+
+			
+			<!-- end of camera list -->
+						
+
+				<div style="width: 100%; overflow: auto;">		
+				<img id="imgtest" class="img-responsive" src="{{ url_for('static', filename='cameratest/testimage1.jpg')}}" />
+				</div>
+
+
+	</div> 
+	<!-- end wells -->
 
 
 
@@ -371,10 +527,11 @@
 				$('#phototeststatus').text("Started ...");
 
 					var prid=$(this).attr('name');
-					var value = $(this).attr('video');
+					var elem = $(this).attr('video');
 					$.ajax({
 								type: "GET",
-								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + value ,
+								// url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + value ,
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val(),
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
@@ -416,27 +573,43 @@
 
 					
 				});
+				
 				$("#savesettingphoto").click(function() {
 				// send ajax interrupt to flask to save parameters
 				$('#phototeststatus').text("Saving");
 					var prid=$(this).attr('name');
-					$.ajax({
-								type: "GET",
-								url: $SCRIPT_ROOT + "/saveit/?name=" + prid + "&time=" + $('#SelTime1').val(),
-								contentType: "application/json; charset=utf-8",
-								data: { echoValue: "requestfordata" },
-								success: function(data) {
-									$('#phototeststatus').text(data.answer);
-									if (data.answer=="saved"){
-										$('#phototeststatus').text("Saved");
-									}
-								},
-								//error: function(jqXHR, textStatus, errorThrown) {
-								//    alert(errorThrown);
-								//}
-							});    			
+					var Array = {{ videolist|tojson }};
+					var arrayLength = Array.length;
+					for (var i = 0; i < arrayLength; i++) {
+						var elem=Array[i];
+
+					
+					
+					
+						$.ajax({
+									type: "GET",
+									url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val(),
+									contentType: "application/json; charset=utf-8",
+									data: { echoValue: "requestfordata" },
+									success: function(data) {
+										$('#phototeststatus').text(data.answer);
+										if (data.answer=="saved"){
+											$('#phototeststatus').text("Saved");
+										}
+									},
+									//error: function(jqXHR, textStatus, errorThrown) {
+									//    alert(errorThrown);
+									//}
+								});    	
+						}
+		
 				});
 			  });
+			  
+			  
+			  
+
+
 			</script>
 
 		</form>

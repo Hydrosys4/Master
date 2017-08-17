@@ -1,0 +1,294 @@
+14:54:10          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 14:54:10
+14:54:10          hydrosys4 - DEBUG    This is a sample DEBUG message
+14:54:10          hydrosys4 - INFO     This is a sample INFO message
+14:54:10          hydrosys4 - WARNING  This is a sample WARNING message
+14:54:10          hydrosys4 - ERROR    This is a sample ERROR message
+14:54:11 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+14:54:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 14:54:16
+14:54:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 14:54:16
+14:54:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 14:54:16
+14:54:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 14:54:18
+14:54:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 14:54:20
+14:54:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 14:54:22
+14:54:23 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:28 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:30 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+14:54:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:46 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+14:54:46 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+14:55:09 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+14:55:09 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+14:55:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:25 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+14:55:33 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:36 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:38 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:40 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+14:59:11 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 14:59:11
+14:59:12 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+14:59:33 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+14:59:33 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+14:59:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:59:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:59:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:59:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:00:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:00:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:00:06 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:00:07 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:00:07 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+15:00:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+15:00:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 15:00 
+15:00:07 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+15:09:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:09:16
+15:09:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:09:16
+15:09:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:09:16
+15:09:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:09:18
+15:09:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:09:20
+15:09:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:09:22
+15:14:11 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 15:14:11
+15:14:12 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+15:14:33 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:14:33 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:14:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:14:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:14:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:14:49 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:14:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:15:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:15:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:15:04 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:15:19 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+15:24:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:24:16
+15:24:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:24:16
+15:24:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:24:16
+15:24:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:24:18
+15:24:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:24:20
+15:24:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:24:22
+15:29:11 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 15:29:11
+15:29:12 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+15:29:33 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:29:33 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:29:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:29:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:29:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:29:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:30:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:30:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:30:06 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:30:07 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:30:07 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+15:30:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+15:30:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 15:30 
+15:30:07 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+15:39:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:39:16
+15:39:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:39:16
+15:39:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:39:16
+15:39:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:39:18
+15:39:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:39:20
+15:39:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:39:22
+15:50:19          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 15:50:19
+15:50:19          hydrosys4 - DEBUG    This is a sample DEBUG message
+15:50:19          hydrosys4 - INFO     This is a sample INFO message
+15:50:19          hydrosys4 - WARNING  This is a sample WARNING message
+15:50:19          hydrosys4 - ERROR    This is a sample ERROR message
+15:50:20 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:50:25 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:50:25
+15:50:25 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:50:25
+15:50:25 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:50:25
+15:50:27 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:50:27
+15:50:29 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:50:29
+15:50:31 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:50:31
+15:50:32 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:35 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:39 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:50:48 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:50 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:53 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:54 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:50:54 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+15:51:17 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:51:17 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:51:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:32 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:33 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:51:41 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:46 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:48 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:54:00          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 15:54:00
+15:54:00          hydrosys4 - DEBUG    This is a sample DEBUG message
+15:54:00          hydrosys4 - INFO     This is a sample INFO message
+15:54:00          hydrosys4 - WARNING  This is a sample WARNING message
+15:54:00          hydrosys4 - ERROR    This is a sample ERROR message
+15:54:00 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:54:05 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:54:05
+15:54:05 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:54:05
+15:54:05 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:54:05
+15:54:07 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:54:07
+15:54:09 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:54:09
+15:54:11 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:54:11
+15:54:11 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:14 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:18 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:54:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:31 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:34 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:35 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:54:35 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+15:54:58 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:54:58 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:55:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:13 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:14 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:55:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:25 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:29 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:56:59          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 15:56:59
+15:56:59          hydrosys4 - DEBUG    This is a sample DEBUG message
+15:56:59          hydrosys4 - INFO     This is a sample INFO message
+15:56:59          hydrosys4 - WARNING  This is a sample WARNING message
+15:56:59          hydrosys4 - ERROR    This is a sample ERROR message
+15:56:59 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:57:04 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:57:04
+15:57:04 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:57:04
+15:57:04 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:57:04
+15:57:06 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:57:06
+15:57:08 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:57:08
+15:57:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:10 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:57:10
+15:57:11 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:13 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:15 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:57:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:30 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:57:30 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+15:57:53 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:57:53 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:58:04 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:07 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:09 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:11 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:58:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:23 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:27 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:01:59 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:01:59
+16:02:00 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:02:20 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:02:20 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:02:32 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:34 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:38 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:02:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:51 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:54 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:55 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:02:55 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+16:02:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+16:02:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 16:02 
+16:02:55 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+16:03:09          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 16:03:09
+16:03:09          hydrosys4 - DEBUG    This is a sample DEBUG message
+16:03:09          hydrosys4 - INFO     This is a sample INFO message
+16:03:09          hydrosys4 - WARNING  This is a sample WARNING message
+16:03:09          hydrosys4 - ERROR    This is a sample ERROR message
+16:03:09 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:03:14 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:03:14
+16:03:14 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:03:14
+16:03:14 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:03:14
+16:03:16 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:03:16
+16:03:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:03:18
+16:03:20 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:03:20
+16:03:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:28 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:03:38 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:43 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:44 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:03:44 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+16:04:07 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:04:07 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:04:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:23 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:04:31 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:34 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:36 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:38 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:08:09 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:08:09
+16:08:11 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:08:31 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:08:31 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:08:43 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:08:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:08:48 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:08:49 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:09:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:09:02 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:09:05 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:09:06 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:09:06 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+16:09:06 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+16:09:06 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 16:09 
+16:09:06 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+16:10:48          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 16:10:48
+16:10:48          hydrosys4 - DEBUG    This is a sample DEBUG message
+16:10:48          hydrosys4 - INFO     This is a sample INFO message
+16:10:48          hydrosys4 - WARNING  This is a sample WARNING message
+16:10:48          hydrosys4 - ERROR    This is a sample ERROR message
+16:10:48 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:10:53 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:10:53
+16:10:53 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:10:53
+16:10:53 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:10:53
+16:10:55 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:10:55
+16:10:57 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:10:57
+16:10:59 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:10:59 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:10:59
+16:11:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:04 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:05 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:11:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:23 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:11:23 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+16:11:46 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:11:46 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:11:55 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:02 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:12:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:12 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:15 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:16 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:15:48 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:15:48
+16:15:50 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:16:10 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:16:10 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:16:20 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:25 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:26 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:16:35 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:41 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:16:57 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax

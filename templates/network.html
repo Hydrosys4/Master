@@ -56,9 +56,11 @@
 						
 						
 						{% if localwifisystem==connectedssid %}
-						<a>IP address of the WiFi Acces point of this system {{iplocal}}</a>
+						<p></p><a>Connected IP address {{iplocal}}</a>					
+						<p></p><a>IP address of the WiFi Acces point of this system {{iplocalwifi}}</a>
+						<a>IP PORT {{ipport}}</a>	
 						{% else %}
-						<p></p><a>Local IP address for router setting {{iplocal}}</a></p>
+						<p></p><a>Local IP address for router setting {{iplocal}}</a>
 						<a>IP PORT for router setting {{ipport}}</a>						
 						{% endif %}
 					

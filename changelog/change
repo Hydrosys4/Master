@@ -1,0 +1,97 @@
+
+Change 49-> 50
+
+upgrade to latest jessie lite
+
+the network interfaces are not editable in the file /etc/network/interfaces
+
+now it is required to use wpa_supplicant file starting from Weezy jessie.
+
+The wifi network modules should go and write on wpa_supplicant file
+
+introduced wpa_cli_mod
+
+Change 50->51
+
+introducing the APscheduler 3.0
+
+2016-09-20 -> release 51.01
+
+fix the power pin enable/disable to support multithread
+
+fix the "hydropicture" folder issue in case folder is not present (Hardwaremod.py)
+
+introduced the bash file to autoinstall dependencies and program on jessie lite OS. (install_hydrosys4.sh)
+
+
+2016-11-5 -> release 52
+
+Introduce video page in the menu
+video provided by using the mjpeg-sreamer
+
+Fixed BUG on the mail wihtout any picture in the image folder
+
+2016-11-12 
+
+update install.sh including the installation of mjpeg-streamer (not tested)
+
+update video page
+
+tested the video quality with different setups (only trouble is direct connection with smartphone, direct connection with PC is ok
+
+included the raspicam input for resolutions higher than 1024 only on video0
+
+Check the result with Edimax EW-7811UN wifi dongle on raspberry Zero
+
+2016-11-26 -> release 53
+
+using NGINX as reverse proxy server to route video and hydrosys server on single port
+
+                  	+--- host --------> (Tornado) localhost:5020
+users --> nginx 5012 --	|
+			+--- host/stream ---> (mjpeg-streamer) localhost:5022
+
+using the Tornado for make flask more reliable server.
+
+--
+
+Error using the RPI0, the adafruit library does not contain the Raspberry_Pi_Driver but only the Raspberry_Pi2_Driver
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.2.0-py2.7-linux-armv7l.egg/Adafruit_DHT/Raspberry_Pi.py", line 22, in <module>
+ImportError: cannot import name Raspberry_Pi_Driver
+
+This can be easily fixed later.
+
+
+-----
+the connection stuck in undefined state when try to move to wifi was fixed simply by removing the wifi network from GUI and recreate it.
+--
+
+Now the installer .sh to be updated.
+
+
+2016-11-26 -> release 54
+
+updated data visualization
+
+try to fix the DHT22 problem with rpi0, library moved to local
+
+fixed, now working for the rpi0 also.
+
+2017-08-14 -> release 61
+
+update with new setting interface for camera and servo motor for camera
+
+2017-08-16 -> release 62
+
+major update, changed the reverse proxy NGINX with Squid3.
+
+This should improve the performance of the video streaming.
+
+Still open To be investigated problem with rpi0 where the log and scheduling failed after some days
+
+
+
+
+
+
+

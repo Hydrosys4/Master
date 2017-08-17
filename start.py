@@ -9,7 +9,13 @@ Flask and sqlite3.
 :copyright: (c) 2010 by Armin Ronacher.
 :license: BSD, see LICENSE for more details.
 """
-import logging
+from loggerconfig import LOG_SETTINGS
+import logging, logging.config, logging.handlers
+logging.config.dictConfig(LOG_SETTINGS)
+logger = logging.getLogger('hydrosys4')
+exc_logger = logging.getLogger('exception')
+
+
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, _app_ctx_stack, jsonify , Response
 
@@ -38,6 +44,7 @@ import logindbmod
 import clockmod
 import clockdbmod
 import countryinfo
+import cameradbmod
 
 # Raspberry Pi camera module (requires picamera package)
 from camera_pi import Camera
@@ -57,7 +64,29 @@ MYPATH=""
 # ///////////////// --- END GLOBAL VARIABLES ------
 
 
+
 # ///////////////// -- MODULE INIZIALIZATION --- //////////////////////////////////////////
+
+
+#-- start LOGGING utility--------////////////////////////////////////////////////////////////////////////////////////
+
+
+#setup log file ---------------------------------------
+
+print "starting new log session", datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
+logger.info('Start logging -------------------------------------------- %s' , datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+logger.debug('This is a sample DEBUG message')
+logger.info('This is a sample INFO message')
+logger.warning('This is a sample WARNING message')
+logger.error('This is a sample ERROR message')
+
+
+# finish logging init
+
+
+
+
+
 
 # Setup mode of operation------------------------------
 DEBUGMODE=True
@@ -115,6 +144,8 @@ def close_db_connection(exception):
 
 @application.route('/')
 def show_entries():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	print "preparing home page"
 	currentday=date.today()
 			
@@ -340,12 +371,15 @@ def show_entries():
 
 	networklink=url_for('network')
 	settinglink=url_for('show_Calibration')
+	videolink=url_for('videostream')
 
-	return render_template('homepage.html',panelinfolist=panelinfolist,photopanellist=photopanellist,currentday=currentday, networklink=networklink, settinglink=settinglink)
+	return render_template('homepage.html',panelinfolist=panelinfolist,photopanellist=photopanellist,currentday=currentday, networklink=networklink, settinglink=settinglink , videolink=videolink)
 
 
 @application.route('/network/', methods=['GET', 'POST'])
 def network():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	wifilist=[]
 	savedssid=[]	
 	filenamelist="wifi networks"
@@ -356,6 +390,7 @@ def network():
 	wifilistencr=["s","a","d"]
 	wifilist=networkmod.wifilist_ssid()
 	iplocal=networkmod.get_local_ip()
+	iplocalwifi=networkmod.IPADDRESS
 	ipport=networkmod.PUBLICPORT
 	connectedssidlist=networkmod.connectedssid()
 	if len(connectedssidlist)>0:
@@ -377,12 +412,14 @@ def network():
 	localwifisystem=networkmod.localwifisystem
 
 
-	return render_template('network.html',filenamelist=filenamelist, connectedssid=connectedssid,localwifisystem=localwifisystem, wifilist=wifilist, wifilistencr=wifilistencr,savedwifilist=savedwifilist, iplocal=iplocal, ipport=ipport)
+	return render_template('network.html',filenamelist=filenamelist, connectedssid=connectedssid,localwifisystem=localwifisystem, wifilist=wifilist, wifilistencr=wifilistencr,savedwifilist=savedwifilist, iplocal=iplocal, iplocalwifi=iplocalwifi , ipport=ipport)
 
 
 
 @application.route('/wificonfig/', methods=['GET', 'POST'])
 def wificonfig():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	print "method " , request.method
 	if request.method == 'GET':
 		ssid = request.args.get('ssid')
@@ -393,24 +430,29 @@ def wificonfig():
 		if request.form['buttonsub'] == "Save":
 			password=request.form['password']
 			networkmod.savewifi(ssid, password)
-			networkmod.waitandconnect(5)
+			networkmod.waitandconnect(7)
 			print "Save"
+			return redirect(url_for('show_entries'))
+			
 		elif request.form['buttonsub'] == "Forget":
 			print "forget"		
 			networkmod.removewifi(ssid)
 			print "remove network ", ssid
 			print "Try to connect AP"
-			networkmod.connect_AP()
-
+			networkmod.waitandconnect_AP(7)
+			return redirect(url_for('show_entries'))
+			
 		else:
 			print "cancel"
-		return redirect(url_for('network'))
+			return redirect(url_for('network'))
 
 	return render_template('wificonfig.html', ssid=ssid)
 
 
 @application.route('/Imageshow/', methods=['GET', 'POST'])
 def imageshow():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	monthdict= {1: "jan", 10: "oct", 11: "nov", 12: "dec", 2: "feb", 3: "mar", 4: "apr", 5: "may", 6: "jun", 7: "jul", 8: "aug", 9: "sep"}
 	monthlist=[]
 	for i in range(12):
@@ -426,7 +468,7 @@ def imageshow():
 			# delete all files in the folder
 			deletedfilenumber=hardwaremod.deleteallpictures(MYPATH)
 			print " picture files deleted " , deletedfilenumber
-			logging.info(' all image files deleted ')
+			logger.info(' all image files deleted ')
 			
 		else:
 			monthtoshow=monthlist.index(actiontype)+1
@@ -503,6 +545,17 @@ def doit():
 		answer=hardwaremod.makepulse(element,testpulsetime)
 		ret_data = {"answer": answer}
 
+	elif name=="servo":
+		print "want to test servo"
+		idx=1
+		if idx < len(argumentlist):
+			position=argumentlist[idx]
+		servo=request.args.getlist('servo')[0]		
+		print "Servo ", servo , " position ", position
+		# move servo
+		delay=0.1
+		hardwaremod.servoangle(servo,position,delay)
+		ret_data = {"answer": position}
 
 
 	elif name=="photo":
@@ -510,7 +563,16 @@ def doit():
 		idx=1
 		if idx < len(argumentlist):
 			video=argumentlist[idx]
-		ret_data=hardwaremod.shotit(video,True)
+		resolution=request.args.getlist('resolution')[0]
+		position=request.args.getlist('position')[0]
+		servo=request.args.getlist('servo')[0]
+		print "resolution ", resolution , " position ", position
+		positionlist=position.split(",")
+		print "oly use the first position for testing " , positionlist[0]
+		# move servo
+		hardwaremod.servoangle(servo,positionlist[0],1)
+		# take picture
+		ret_data=hardwaremod.shotit(video,True,resolution,positionlist[0])
 		
 	elif name=="mail":
 		mailaname=request.args['element']
@@ -518,7 +580,7 @@ def doit():
 		mailtitle=request.args['title']
 		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,mailaname,hardwaremod.HW_CTRL_CMD)
 		print "want to test mail, address=" , mailaddress , " Title=" , mailtitle
-		issent=emailmod.send_email_main(mailaddress,mailtitle,cmd)
+		issent=emailmod.send_email_main(mailaddress,mailtitle,cmd,"report","Periodic system report generated automatically")
 		if issent:
 			ret_data = {"answer": "Mail sent"}
 		else:	
@@ -573,11 +635,27 @@ def saveit():
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_MAILADDR,mailaddress)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_MAILTITLE,mailtitle)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_FUNC_TIME,mailtime)
+		
 	elif name=="photo":
+		
+		# save photo time
 		phototime=""
 		phototime=request.args['time']
 		print "save photo setting, time=" , phototime
 		hardwaremod.changesavecalibartion(name,hardwaremod.HW_FUNC_TIME,phototime)
+		
+		camname=request.args['element']
+		resolution=request.args['resolution']
+		position=request.args['position']
+		servo=request.args['servo']
+		print "save camera name " ,camname , " resolution=" , resolution , " position=" , position , " servo=" , servo ," time=", phototime
+		cameradbmod.changecreatesetting("camera",camname,"resolution",resolution)
+		cameradbmod.changecreatesetting("camera",camname,"position",position)
+		cameradbmod.changecreatesetting("camera",camname,"servo",servo)
+		cameradbmod.changecreatesetting("camera",camname,"time",phototime)
+		cameradbmod.savesetting()
+		
+		
 	elif name=="light1":
 		lighttime=""
 		lighttime=request.args['time']
@@ -599,7 +677,7 @@ def downloadit():
 	name=request.args['name']
 	if name=="downloadlog":
 		dstfilename="log"+datetime.now().strftime("%Y-%m-%d-time:%H:%M")+".log"
-		filename=hardwaremod.LOGFILENAME
+		filename=LOG_SETTINGS['handlers']['access_file_handler']['filename']
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
 		dst=os.path.join(folderpath, dstfilename)
@@ -609,18 +687,31 @@ def downloadit():
 			answer="ready"
 		except:
 			answer="problem copying file"
+		dstfilenamelist=[]
+		dstfilenamelist.append("download/"+dstfilename)	
+		
 	elif name=="downloadprevlog":
-		dstfilename="log"+datetime.now().strftime("%Y-%m-%d-time:%H:%M")+"-prev.log"
-		filename=hardwaremod.LOGFILENAME + ".txt"
+		dstfilename="log"+datetime.now().strftime("%Y-%m-%d-time:%H:%M")+".log.txt"
+		filenamestring=LOG_SETTINGS['handlers']['access_file_handler']['filename']		
+		logfolder=filenamestring.split('/')[0]
+		filename=filenamestring.split('/')[1]
+		sortedlist=hardwaremod.loglist(MYPATH,logfolder,filename)
+
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
-		dst=os.path.join(folderpath, dstfilename)
-		print "prepare file for download, address=" , filename, "destination " , dst
-		try:
-			shutil.copyfile(filename, dst)
-			answer="ready"
-		except:
-			answer="problem copying file"
+		
+		answer="files not available"
+		dstfilenamelist=[]
+		for dstfilename in sortedlist:
+			dst=os.path.join(folderpath, dstfilename)
+			source=os.path.join(logfolder, dstfilename)
+			print "prepare file for download, address=" , source, "destination " , dst
+			try:
+				shutil.copyfile(source, dst)
+				answer="ready"
+			except:
+				answer="problem copying file"
+			dstfilenamelist.append("download/"+dstfilename)
 			
 	elif name=="downloadHW":
 		dstfilename=hardwaremod.HWDATAFILENAME
@@ -634,9 +725,11 @@ def downloadit():
 			answer="ready"
 		except:
 			answer="problem copying file"
+		dstfilenamelist=[]
+		dstfilenamelist.append("download/"+dstfilename)	
 
 
-	ret_data = {"answer": answer, "filename": "download/"+dstfilename}
+	ret_data = {"answer": answer, "filename": dstfilenamelist}
 	print "The actuator ", ret_data
 	return jsonify(ret_data)
 	
@@ -660,6 +753,8 @@ def testit():
 		
 @application.route('/ShowRealTimeData/', methods=['GET', 'POST'])
 def show_realtimedata():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	sensorlist=sensordbmod.gettablelist()
 	unitdict={}
 	for item in sensorlist:
@@ -669,6 +764,8 @@ def show_realtimedata():
 	
 @application.route('/systemmailsetting/', methods=['GET', 'POST'])
 def systemmailsetting():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	error = None
 	
 	if request.method == 'POST':
@@ -693,11 +790,15 @@ def systemmailsetting():
 
 @application.route('/About/', methods=['GET', 'POST'])
 def show_about():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	return render_template('About.html')
 	
 	
 @application.route('/ShowCalibration/', methods=['GET', 'POST'])
 def show_Calibration():  #on the contrary of the name, this show the setting menu
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	print "visualizzazione menu Setting:"
 	if request.method == 'POST':
 		requesttype=request.form['buttonsub']
@@ -731,7 +832,16 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_MAILTITLE))
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD))
 		mailsettinglist.append(mailsetting)
+	
+	servolist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"servo",hardwaremod.HW_INFO_NAME)
+	servolist.insert(0, "none")
 	videolist=hardwaremod.videodevlist()
+	camerasettinglist=cameradbmod.getcameradata(videolist)
+	print camerasettinglist
+	
+	
+	sensorlist = []
+	sensorlist=sensordbmod.gettablelist()
 	
 	#read the sensors data
 	print "read sensor data " 
@@ -749,64 +859,69 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	print "Current timezone ->", timezone
 	
 	
-	return render_template('ShowCalibration.html',videolist=videolist,actuatorlist=actuatorlist,lightsetting=lightsetting,photosetting=photosetting,mailsettinglist=mailsettinglist,sensordatadict=sensordatadict, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
+	return render_template('ShowCalibration.html',servolist=servolist , videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist,sensordatadict=sensordatadict, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
 	
 @application.route('/Sensordata/', methods=['GET', 'POST'])
 def show_sensordata():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	#----------------
-	datatypelist=["sensor","actuator"]
 	periodlist=["Day","Week","Month","Year"]
 	perioddaysdict={"Day":1,"Week":7,"Month":31,"Year":365}	
 
+	periodtype=periodlist[0]
+	actiontype="show"
+	
 	if request.method == 'POST':
-		sensortype=request.form['elementtype']
 		periodtype=request.form['period']	
 		actiontype=request.form['actionbtn']
 	elif request.method == 'GET':
-		sensortype = request.args.get('elementtype')
-		periodtype = request.args.get('period')
-		actiontype = request.args.get('actionbtn')		
-		if sensortype==None:
-			actiontype="sensor"
+		periodtype = request.args.get('period')	
+		actiontype = request.args.get('actionbtn')	
+		if periodtype==None:
+			actiontype="show"
 			periodtype=periodlist[0]
-			sensorlist=sensordbmod.gettablelist()
-			sensortype=sensorlist[0]
 
 	sensordata=[]
 	if actiontype=="delete":
 		print "delete all records"
 		sensordbmod.deleteallrow()
 		actuatordbmod.deleteallrow()
-		actiontype="sensor"
+		actiontype="show"
 		periodtype=periodlist[0]
+		usedsensorlist=[]
+		usedactuatorlist=[]
+		sensordata=[]
+		actuatordata=[]
+		
+	else:
+	#if actiontype=="sensor":
 		sensorlist=sensordbmod.gettablelist()
-		sensortype=sensorlist[0]
-	if actiontype=="sensor":
-		sensorlist=sensordbmod.gettablelist()
-		if not (sensortype in sensorlist) :
-			sensortype=sensorlist[0]
 		startdate=datetime.now()
-		sensordbmod.getSensorDataPeriod(sensortype,sensordata,startdate,perioddaysdict[periodtype])
-	if actiontype=="actuator":
-		sensorlist=actuatordbmod.gettablelist()
-		if not (sensortype in sensorlist) :
-			sensortype=sensorlist[0]
-		startdate=datetime.now()
-		actuatordbmod.getActuatorDataPeriod(sensortype,sensordata,startdate,perioddaysdict[periodtype])
+		#sensordbmod.getSensorDataPeriod(sensortype,sensordata,startdate,perioddaysdict[periodtype])
+		sensordata, usedsensorlist, mintime, maxtime = sensordbmod.getAllSensorsDataPeriodv2(startdate,perioddaysdict[periodtype])		
 
-	print "period", periodtype, "sensortype ", sensortype, " actiontype " , actiontype
-	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,sensortype=sensortype,sensorlist=sensorlist,sensordata=json.dumps(sensordata))
+	#if actiontype=="actuator":
+		actuatorlist=actuatordbmod.gettablelist()
+		startdate=datetime.now()
+		#actuatordbmod.getActuatorDataPeriod(sensortype,sensordata,startdate,perioddaysdict[periodtype])
+		actuatordata,usedactuatorlist=actuatordbmod.getAllActuatorDataPeriodv2(startdate,perioddaysdict[periodtype])
+
+
+	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,usedsensorlist=usedsensorlist,sensordata=json.dumps(sensordata),usedactuatorlist=usedactuatorlist,actuatordata=json.dumps(actuatordata))
 
 
 @application.route('/wateringplan/' , methods=['GET', 'POST'])
 def wateringplan():
-
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	title = "Watering Schedule"
 	elementlist= wateringdbmod.getelementlist()	
 	paramlist= wateringdbmod.getparamlist()
 	table=wateringdbmod.gettable(1) # watering time multiplieer
 	table1=wateringdbmod.gettable(0) # watering schema
+	table2=wateringdbmod.gettable(2) # watering time delay
 	
 	#advparamlist= advancedmod.getparamlist()
 	schemaementlist= advancedmod.getelementlist()
@@ -814,6 +929,7 @@ def wateringplan():
 	
 	print "table  --------------------------------------------------- > ",  table
 	print "table1  --------------------------------------------------- > ",  table1
+	print "table2  --------------------------------------------------- > ",  table2
 		
 	selectedelement = request.args.get('selectedelement')
 	if selectedelement==None:
@@ -840,6 +956,7 @@ def wateringplan():
 				schemaindex=schemaementlist.index(selectedschema)+1			
 				thelist.append(schemaindex)
 				thelist.append(request.form[element+ "_" + str(j)])
+				thelist.append(request.form[element+ "_" + str(j) + "_1"]) #name of the time delay input filed
 				param=paramlist[j]
 				dicttemp[param]=thelist	
 				
@@ -847,6 +964,7 @@ def wateringplan():
 			flash('Table as been saved')
 			table=wateringdbmod.gettable(1) # watering time multiplieer
 			table1=wateringdbmod.gettable(0) # watering schema
+			table2=wateringdbmod.gettable(2) # watering schema
 			#print "after",table
 			selectedplanmod.startnewselectionplan()
 			
@@ -855,11 +973,12 @@ def wateringplan():
 			return redirect('/Advanced/')
 			
 		
-	return render_template("wateringplan.html", title=title,paramlist=paramlist,elementlist=elementlist,schemaementlist=schemaementlist,table=table,table1=table1,selectedelement=selectedelement)
+	return render_template("wateringplan.html", title=title,paramlist=paramlist,elementlist=elementlist,schemaementlist=schemaementlist,table=table,table1=table1,table2=table2,selectedelement=selectedelement)
 
 @application.route('/fertilizerplan/' , methods=['GET', 'POST'])
 def fertilizerplan():
-
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	title = "Fertilizer Schedule"
 	elementlist= fertilizerdbmod.getelementlist()	
 	paramlist= fertilizerdbmod.getparamlist()
@@ -907,6 +1026,8 @@ def fertilizerplan():
 
 @application.route('/Advanced/', methods=['GET', 'POST'])
 def advanced():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	title = "Advanced Watering Schedule"
 	paramlist= advancedmod.getparamlist()
 	elementlist= advancedmod.getelementlist()
@@ -925,8 +1046,7 @@ def advanced():
 		
 		if actiontype == "save":
 
-			if not session.get('logged_in'):
-				abort(401)
+
 			element=request.form['element']
 			print "save advanced form...:" , element
 			selectedelement=element	
@@ -1042,6 +1162,8 @@ def logout():
 
 @application.route('/HardwareSetting/', methods=['GET', 'POST'])
 def hardwaresetting():  #on the contrary of the name, this show the setting menu
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	print "visualizzazione menu hardwareSetting:"
 	
 	fields=hardwaremod.HWdataKEYWORDS
@@ -1120,16 +1242,9 @@ def currentpath(filename):
 
 def functiontest():
 	print " testing "
-	selectedplanmod.startpump("water1","10","20","")
+	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
+	hardwaremod.takephoto()
 
-	#done=networkmod.connect_AP()
-	#done=selectedplanmod.heartbeat()
-	#if done:
-	#	answer="executed"
-	#else:
-	#	answer="error"
-	
-	#reachgoogle=networkmod.check_internet_connection(10)
 
 	return True
 
@@ -1139,11 +1254,15 @@ import videocontrolmod
 
 @application.route('/videostream/')
 def videostream():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
 	itemlist=['video0','b']
 	"""Video streaming home page."""
 	ipaddress=networkmod.get_local_ip()
 	videolist=hardwaremod.videodevlist()
-	return render_template('videostream.html',itemlist=itemlist, ipaddress=ipaddress, videolist=videolist)
+	servolist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"servo",hardwaremod.HW_INFO_NAME)
+	initposition=50
+	return render_template('videostream.html',initposition=initposition, itemlist=itemlist, ipaddress=ipaddress, videolist=videolist, servolist=servolist)
 
 
 @application.route('/videocontrol/', methods=['GET'])
@@ -1160,7 +1279,7 @@ def videocontrol():
 		answer="done"		
 		answer=videocontrolmod.stream_video()
 		
-	if name=="setting":
+	if name=="start":
 		idx=1
 		data=""
 		print "argument list ", argumentlist
@@ -1211,7 +1330,7 @@ if __name__ == '__main__':
 	print "start web server"	
 	global PUBLICPORT
 	if PUBLICMODE:
-		application.run(debug=DEBUGMODE,use_reloader=False,host= '0.0.0.0',port=networkmod.PUBLICPORT)
+		application.run(debug=DEBUGMODE,use_reloader=False,host= '0.0.0.0',port=networkmod.LOCALPORT)
 		#application.run(host='0.0.0.0', debug=True, port=12345, use_reloader=True)
 	else:
 		application.run(debug=DEBUGMODE,use_reloader=False,port=80)	

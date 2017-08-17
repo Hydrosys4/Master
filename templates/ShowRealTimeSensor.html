@@ -4,8 +4,10 @@
   
   <div class="container-fluid">
 		<script type=text/javascript>
-			setInterval(                               //Periodically 
-			  function() {
+
+
+			  (function worker() {
+
 				$.ajax({
 							type: "GET",
 							url: $SCRIPT_ROOT + "/echo/",
@@ -15,17 +17,25 @@
 								var data = eval(s); // this will convert your json string to a javascript object
 								for (var key in data) {
 									//alert(key+': '+data[key]); // this will show each key with it's value
-									$('#' +key).text(data[key]);								
+									$('#' +key).text(data[key]);	
+						
 								}
+							},								
+							complete: function() {
+							  // Schedule the next request when the current one's complete
+							  setTimeout(worker, 1500);
+							}
 
-							},
+
 							//error: function(jqXHR, textStatus, errorThrown) {
 							//    alert(errorThrown);
 							//}
-						});    
-			  }
-			  ,
-			  1500);                                    // And do it every 500ms
+						});
+			  
+			  })();
+
+	
+	
 	
 									
 			$(function() {

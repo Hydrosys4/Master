@@ -5,5 +5,5 @@ from start import application
 import networkmod
 
 http_server = HTTPServer(WSGIContainer(application))
-http_server.listen(networkmod.PUBLICPORT)
+http_server.listen(networkmod.LOCALPORT)
 IOLoop.instance().start()

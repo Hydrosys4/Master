@@ -14,18 +14,142 @@
 		
 		<script type="text/javascript">	
 
-		
-		
-		$(document).ready(function(){
-			$.jqplot.config.enablePlugins = true;
-			var line1={{sensordata|safe}};
+			var sensorchartdata={{sensordata|safe}};
+			var actuatorchartdata={{actuatordata|safe}};
 			var datatype="{{actiontype}}";
-			if (( line1.length > 0)&&(datatype=="sensor")) { 
-			var plot1 = $.jqplot('chart', [line1], {
-				title:'{{sensortype}} - {{periodtype}}',
-				autoscale:true,
-				gridPadding:{left:40,right:35},
-				axes:{
+
+			var sensorlist={{usedsensorlist|safe}};			
+			var actuatorlist={{usedactuatorlist|safe}};	
+			
+
+
+
+
+			var shapes=["diamond", "circle", "square", "x", "plus", "dash", "filledDiamond", "filledCircle", "filledSquare"];
+
+			var fLen, i, seriedict;
+			var sensorseries=[];
+			fLen = sensorlist.length;
+			for (i = 0; i < fLen; i++) {
+				seriedict={"label": sensorlist[i], "showLine":true, "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 4 }};
+				sensorseries.push(seriedict);		
+			} 
+		
+			var fLen, i, seriedict;
+			var actuatorseries=[];
+			fLen = actuatorlist.length;
+			for (i = 0; i < fLen; i++) {
+				seriedict={"label": actuatorlist[i], "showLine":false, "yaxis" : 'y2axis', "markerOptions" : { "style": shapes[i % shapes.length] , "size": 12  }};
+				actuatorseries.push(seriedict);		
+			} 
+
+
+//combochartdata
+
+var combochartseries = actuatorseries.concat(sensorseries); 
+var combochartdata = actuatorchartdata.concat(sensorchartdata); 
+
+
+		$(document).ready(function(){
+		// label text with same color of the series		
+			$.jqplot.postDrawHooks.push(function() {
+				var swatches = $('table.jqplot-table-legend tr td.jqplot-table-legend-swatch');
+				var labels = $('table.jqplot-table-legend tr td.jqplot-table-legend-label');
+				labels.each(function(index) {
+					//turn the label's text color to the swatch's color
+					var color = $(swatches[index]).find("div div").css('background-color');
+					$(this).css('color',color );
+					$(this).css('font-weight',"bold" );
+				});
+			});
+
+
+		// COMMON VARIABLES
+		
+		
+		
+
+		var	gridvar=                 
+                {
+                    drawGridLines: true,        // wether to draw lines across the grid or not.
+                    gridLineColor: '#e2e2e2',   // Color of the grid lines.
+                    backgroundColor: "#eee",
+                    borderColor: 'white',     // CSS color spec for border around grid.
+                    borderWidth: 2.0,           // pixel width of border around grid.
+                    shadow: false,               // draw a shadow for grid.
+                    drawBorder: true,
+					gridLineWidth: 1	//width of the grid lines.
+					//background	//css spec for the background color.
+					//borderWidth	width of the border in pixels.            
+                  
+                    
+                };
+
+		var	seriesDefaultsvar=
+					{
+						shadow: false,
+						markerRenderer: $.jqplot.MarkerRenderer,
+						markerOptions: {
+							show: true,
+							style: 'circle',
+							size: 4,
+							shadow: false,
+						}
+					};
+
+
+		var	highlightervar= {
+				show: true,
+				sizeAdjust: 7.5,
+				tooltipLocation:"n",
+				formatString:'<table class="jqplot-highlighter"><tr><td>%s</td></tr><tr><td>Value:%s</td></tr><tr></tr></table>'
+			  };
+
+
+
+		// END VARIABLES
+
+
+
+	// COMBO new graph 	 
+
+		  $.jqplot._noToImageButton = true;
+		 	  
+		  var options = {
+			
+			//title: "COMBO chart",
+			
+			grid:gridvar,             
+
+			gridPadding: {top:80, left:30, right:30, bottom:70},
+
+			
+		   legend:{
+			   renderer: $.jqplot.EnhancedLegendRenderer,
+			   show:true,
+			   location: 'n', 
+				placement: 'outside',
+				   rendererOptions: {
+					   numberRows: 4,
+						// set to true to replot when toggling series on/off
+						// set to an options object to pass in replot options.
+						seriesToggle: 'normal',
+						seriesToggleReplot: {resetAxes: true}
+					}
+						
+				
+			},
+			
+			series: combochartseries,
+			seriesDefaults:seriesDefaultsvar,
+			
+			highlighter: highlightervar,
+			
+			cursor: {
+				show: false
+			  },
+			axes:{
+				
 					xaxis:{
 						renderer:$.jqplot.DateAxisRenderer,
 						rendererOptions:{
@@ -38,6 +162,7 @@
 							formatString:'%b %#d, %H:%M'
 						}
 					},
+					
 					yaxis:{
 						rendererOptions:{
 							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
@@ -45,49 +170,252 @@
 								fontSize:'8pt',
 								angle:0
 							}
+					},
+					
+					
+					y2axis:{
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							},
+							
+							
+							
+							
+					pointLabels:{
+								show: false
+							}
+					}  
+			  
+			  
+			}
+		  };
+		  
+		  if ((combochartdata.length) > 0) {
+		  var plot3 = $.jqplot('chart3', combochartdata,  options);
+   
+		 //responsive part
+		  $(window).bind('resize', function(event, ui) {
+			  // pass in resetAxes: true option to get rid of old ticks and axis properties
+			  // which should be recomputed based on new plot size.
+			  plot3.replot( { resetAxes: true } );
+		  });
+		}
+
+
+
+
+// COMBO graph END
+
+
+
+
+
+
+
+
+		// SENSOR graph 
+		  $.jqplot._noToImageButton = true;
+		 
+		  var datachart=[
+		  [["2017-02-05 11:25:21", 66], ["2017-02-05 12:25:21", 12], ["2017-02-05 13:25:21",14]],
+		  [["2017-02-05 11:25:21", 16], ["2017-02-05 12:25:21", 46], ["2017-02-05 13:25:21",34]],
+		  [["2017-02-05 11:35:21", 7], ["2017-02-05 12:35:21", 22], ["2017-02-05 13:35:21", 37], ["2017-02-05 14:35:21", 95]],
+		  [["2017-02-05 11:35:21", 8], ["2017-02-05 12:35:21", 23], ["2017-02-05 13:35:21", 36], ["2017-02-05 14:35:21", 92]],
+		  [["2017-02-05 11:35:21", 9], ["2017-02-05 12:35:21", 27], ["2017-02-05 13:35:21", 38], ["2017-02-05 14:35:21", 91]]
+		  ];
+		  
+		  var options = {
+			
+			grid:gridvar,             
+
+			
+			
+			gridPadding: {top:60, left:30, right:15, bottom:70},
+
+			
+		   legend:{
+			   renderer: $.jqplot.EnhancedLegendRenderer,
+			   show:true,
+			   location: 'n', 
+				placement: 'outside',
+				   rendererOptions: {
+					   numberRows: 2,
+						// set to true to replot when toggling series on/off
+						// set to an options object to pass in replot options.
+						seriesToggle: 'normal',
+						seriesToggleReplot: {resetAxes: true}
 					}
-				},
-				series:[{ lineWidth:4}],
-				cursor:{
-					//show: true,
-					zoom:true,
-					looseZoom: true
-				}
-			});
-		   }
-		});		
-		
-		$(document).ready(function(){
-			$.jqplot.config.enablePlugins = true;
-			var line1={{sensordata|safe}};
-			var datatype="{{actiontype}}";
-			if (( line1.length > 0)&&(datatype=="actuator")) { 
-			var plot1 = $.jqplot('chart', [line1], {
-				title:'{{sensortype}} - {{periodtype}}',
-				autoscale:true,
+						
 				
-				seriesDefaults: {
-				  renderer:$.jqplot.BarRenderer,
-				  rendererOptions: { barWidth: 3 }
-				},
-				axes: {
-				  xaxis: {
-					renderer: $.jqplot.CategoryAxisRenderer,
+			},
+			
+			series: sensorseries,
+			seriesDefaults:seriesDefaultsvar,
+			
+			highlighter: highlightervar,
+			
+			cursor: {
+				show: false
+			  },
+			axes:{
+				
+					xaxis:{
+						renderer:$.jqplot.DateAxisRenderer,
 						rendererOptions:{
 							tickRenderer:$.jqplot.CanvasAxisTickRenderer
-							
+							// above is necessary to make the text rotate effect
 						},
 						tickOptions:{
 							fontSize:'8pt',
-							angle:-60
+							angle:-60,
+							formatString:'%b %#d, %H:%M'
 						}
-				  }
-				}
+					},
+					
+					yaxis:{
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							}
+					},
+					
+					
+					y2axis:{
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							},
+							
+							
+							
+							
+					pointLabels:{
+								show: false
+							}
+					}  
+			  
+			  
+			}
+		  };
+		  
+		  
+		if (sensorchartdata.length > 0) {
+		  var plot1 = $.jqplot('chart1', sensorchartdata,  options);
+   
+		 //responsive part
+		  $(window).bind('resize', function(event, ui) {
+			  // pass in resetAxes: true option to get rid of old ticks and axis properties
+			  // which should be recomputed based on new plot size.
+			  plot1.replot( { resetAxes: true } );
+		  });
+		}
 
 
-			});
-		   }
-		});		
+		// SENSOR graph END
+
+
+
+	// ACTUATOR new graph 	 
+		  $.jqplot._noToImageButton = true;
+		 
+		  var l1 = [["2017-02-05 11:25:21", 66], ["2017-02-05 12:25:21", 12], ["2017-02-05 13:25:21",14]];
+		  var l2 = [["2017-02-05 11:25:21", 16], ["2017-02-05 12:25:21", 46], ["2017-02-05 13:25:21",34]];
+		  var l3 = [["2017-02-05 11:35:21", 7], ["2017-02-05 12:35:21", 22], ["2017-02-05 13:35:21", 37], ["2017-02-05 14:35:21", 95]];
+		  
+		  var options = {
+			
+			grid:gridvar,  
+			gridPadding: {top:60, left:20, right:30, bottom:70},
+
+			
+		   legend:{
+			   renderer: $.jqplot.EnhancedLegendRenderer,
+			   show:true,
+			   location: 'n', 
+				placement: 'outside',
+				   rendererOptions: {
+					   numberRows: 2,
+						// set to true to replot when toggling series on/off
+						// set to an options object to pass in replot options.
+						seriesToggle: 'normal',
+						seriesToggleReplot: {resetAxes: true}
+					}
+						
+				
+			},
+			
+			series: actuatorseries,
+			seriesDefaults:seriesDefaultsvar,
+			
+			highlighter: highlightervar,
+
+			cursor: {
+				show: false
+			  },
+			axes:{
+				
+					xaxis:{
+						renderer:$.jqplot.DateAxisRenderer,
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer
+							// above is necessary to make the text rotate effect
+						},
+						//ticks: [["2017-02-05 11:35:21", "Feb 5 11:35"], ["2017-02-05 12:35:21", "Feb 5 11:35"], 
+						//["2017-02-05 13:35:21", 37], ["2017-02-05 14:35:21", 95]],
+						//numberTicks: 2,		
+						tickOptions:{
+							fontSize:'8pt',
+							angle:-60,
+							formatString:'%b %#d, %H:%M',
+							markSize: 12,
+							size: 12
+						},
+						//min: null,
+						//max: null,
+						//numberTicks: 6,  
+
+					},
+					
+					yaxis:{
+						renderer:$.jqplot.LinearAxisRenderer,
+						pad: 1.1,
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							}
+					},
+					 
+			  
+			  
+			}
+		  };
+		  
+		if (actuatorchartdata.length > 0) {
+		  var plot2 = $.jqplot('chart2', actuatorchartdata,  options);
+		 //responsive part
+		  $(window).bind('resize', function(event, ui) {
+			  // pass in resetAxes: true option to get rid of old ticks and axis properties
+			  // which should be recomputed based on new plot size.
+			  plot2.replot( { resetAxes: true } );
+		  });
+		}
+		 
+		});
+
+// ACTUATOR graph END
+
+
+
+	
 		
 		$(function() {
 				$(".thebutton").click(function() {
@@ -99,13 +427,7 @@
 		
 
 		
-		$(function() {
-				$(".elembutton").click(function() {
-					var selvalue=$(this).attr('name');
-					//alert(selvalue);
-					$('#elementtype').attr("value", selvalue);
-				});  
-			});  
+
 		
 		</script>
 		<!-- The contents of myscript.js will be loaded inside the script tag -->
@@ -119,75 +441,14 @@
 		<form novalidate="true" action="{{ url_for('show_sensordata') }}" id="menuForm" method="post" >
 	
 			<div class="page-header">
-	
-							<div class="row">
-							<div class="col-xs-4">
-								<button class="thebutton btn-block btn btn-{% if actiontype=="sensor" %}primary{% else %}default{% endif %}" type="submit" name="sensor">sensor</button>
-							</div>
-							<div class="col-xs-4">
-								<button class="thebutton btn-block btn btn-{% if actiontype=="actuator" %}primary{% else %}default{% endif %}" type="submit" name="actuator">actuator</button>
 
-							</div>
-							</div>
-							<input value={{actiontype}} id="actionbtn" name="actionbtn" type="hidden">
-						
-			</div>
-
-			<div class="well bs-component">
-
-							<div class="row top-buffer">
-									<div class="form-group col-xs-12">
-												<!-- BUTTONS -->
-												<div class="col-xs-12">
-												<div class="row">
-											{% for sensorname in sensorlist %}														
-											<button class="smallgap elembutton btn-sm btn btn-{% if sensorname==sensortype %}warning{% else %}default{% endif %}" type="submit" name="{{sensorname}}">{{sensorname}}</button>
-											
-											{% endfor %}													
-												</div>
-												</div>
-												<input value="{{sensortype}}" id="elementtype" name="elementtype" type="hidden">
-										
-
-
-								
-										
-										
-										
-										
-										
-										
-									</div>	
-							</div>
-
-
-							{% if (sensordata|length)>2 %}
-							
-							<!-- graph here-->
-							<div class="row">
-								<div class="col-xs-12">
-								<div id="chart" name="chart"></div>
-								</div>
-							</div>
-
-							{% else %}
-
-							<div class="row">
-								<div class="col-xs-12">
-									<div style="height:400px"><h4>Data not available</h4></div>
-								
-								</div>
-							</div>
-
-							{% endif %}
-
-
-
+				<input value={{actiontype}} id="actionbtn" name="actionbtn" type="hidden">
+				
 							<div class="row">
 								<div class="col-xs-12">
 
 								<div class="form-group">
-									<label>Period</label>									
+									<label></label>									
 							    {% for period in periodlist %}									
 									<label class="radio-inline">
 										<input onclick="this.form.submit()" type="radio" name="period" id="period" value="{{period}}" {% if period == periodtype %}checked{% endif %}>{{period}}
@@ -197,6 +458,82 @@
 								</div>
 
 							</div>
+							
+						
+			</div>
+
+
+			<div class="well bs-component">
+							<!-- graph here-->
+							{% if (usedsensorlist|length)>0 %}
+							<div  class="row">
+								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Sensor Chart</div>
+							</div>
+							
+							<div  class="row">
+								<div id="chart1" style="height:100%; width:100%;"></div>
+							</div>
+							
+							{% else %}
+
+							<div class="row">
+									<div style="height:100px"><h4>Sensor data not available</h4></div>
+							</div>
+
+							{% endif %}
+
+
+                </div>
+
+
+
+
+			<div class="well bs-component">
+
+							<!-- graph here-->
+
+							{% if (usedactuatorlist|length)>0 %}	
+							<div  class="row">
+								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Actuator Chart</div>
+							</div>						
+							<div  class="row">
+								<div id="chart2" style="height:100%; width:100%;"></div>
+							</div>
+							{% else %}
+
+							<div class="row">
+									<div style="height:100px"><h4>Actuator data not available</h4></div>
+							</div>
+
+							{% endif %}		
+							
+			</div>
+
+
+			<div class="well bs-component">					
+							
+							{% if (usedsensorlist|length+usedactuatorlist|length)>0 %}
+							<div  class="row">
+								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Combined Chart</div>
+							</div>						
+							<div  class="row">
+								<div id="chart3" style="height:100%; width:100%;"></div>
+							</div>
+
+							{% else %}
+
+							<div class="row">
+								<div class="col-xs-12">
+									<div style="height:100px"><h4>Data not available</h4></div>
+								
+								</div>
+							</div>
+
+							{% endif %}
+
+
+
+
 
       </div>
 

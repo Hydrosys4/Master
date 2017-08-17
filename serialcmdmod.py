@@ -205,7 +205,6 @@ class slavecontroller(object):
 			self.exit()
 			self.initserial()
 			self.laststart=currenttime
-			logging.info('try to restart serial connection --------------------------------------')
 			
 
 		

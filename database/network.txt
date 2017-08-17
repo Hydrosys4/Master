@@ -1,0 +1,1 @@
+{"LocalAPSSID": "Hydrosys4quad", "LocalIPaddress": "192.168.0.192", "LocalPORT": "5042", "name": "IPsetting"}

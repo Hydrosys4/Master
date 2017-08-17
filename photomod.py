@@ -15,13 +15,13 @@ def videodevlist():
 			videolist.append(files)
 	return videolist # item1 (path) item2 (name) item3 (datetime)
  
-def saveshot(filepath, video, realshot=True):
+def saveshot(filepath, video, realshot, resolution, positionvalue):
 	shottaken=False
 	i=0
 	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
 	print "Current date and time: " , currentdate
 	if realshot:
-		filepath=os.path.join(filepath, currentdate+"@"+video+".jpg")
+		filepath=os.path.join(filepath, currentdate+"@"+video+"@"+positionvalue+".jpg")
 	else:
 		filepath=os.path.join(filepath, "testimage.jpg")
 	print "FILE : ", filepath		
@@ -42,9 +42,9 @@ def saveshot(filepath, video, realshot=True):
 
 			#myproc = subprocess.check_output("fswebcam -d "+ cam_list +" -r 1280x720 -S 15 --jpeg 95" + filepath, shell=True)
 			if i==1:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r 1280x720 -S 35 --jpeg 95 " + filepath, shell=True, stderr=subprocess.STDOUT)				
+				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 35 --jpeg 95 " + filepath, shell=True, stderr=subprocess.STDOUT)				
 			else:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r 1280x720 -S 5 --jpeg 95 " + filepath, shell=True, stderr=subprocess.STDOUT)
+				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 5 --jpeg 95 " + filepath, shell=True, stderr=subprocess.STDOUT)
 			# -R use read() method -- NOT WORKING ---
 			# -D delay before taking frames
 			# -S skip the first frames

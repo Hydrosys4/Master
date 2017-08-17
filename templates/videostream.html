@@ -28,10 +28,16 @@
    id="videoimg" src="/static/waiting.jpg">
 </iframe>-->
 
-<!-- Scroll bar present but disabled -->
-<div style="width: 100%; overflow: auto;">
-<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" />    
-    </div>
+<!-- Image and Video -->
+	<div style="width: 100%; overflow: auto;">
+	<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" />    
+	</div>
+
+
+
+	<div class="hidden">
+	<img class="img-responsive" src="/static/loading-animation.gif"/>    
+	</div>
 
 
 
@@ -40,21 +46,112 @@
 		<!--  boo -->
   
  
-			<div class="page-header">
-					  <h3>Setup</h3>   
-			</div>
+
 			
-			<div class="well bs-component">
+<div class="well bs-component">
 			
-						<!--  Actuator table   -->
+			
+		<!--  Servo table   -->
+			<table class="table" margin: 20px;>
+
+			<tbody>
+			
+			
+			
+
+			<tr>
+
+				<td>
+				  <select class="form-control input-sm dontwantgap" id="selsettingservo">
+					{% for servoitem in servolist %}
+					<option>{{servoitem}}</option>
+					{% endfor %}
+				  </select>					
+				</td>
+				<td>
+
+					<!-- go left button-->										
+					<button class="moveservo btn-sm btn btn-default btn-block" type="button" name="servo" item="-5"><<<<</button>
+				</td>
+
+
+				  <td>
+		  					  				
+
+					
+					<input value="{{initposition}}"  id="servoteststatus" class="form-control input-sm" style="text-align:center;" readonly />
+
+				  
+				  </td>	
+				  		
+	
+							
+				<td>
+					<!-- go right button-->										
+					<button class="moveservo btn-sm btn btn-default btn-block" type="button" name="servo" item="+5">>>>></button>
+
+				</td>
+
+
+	
+
+			</tr>
+
+
+
+        </tbody>
+		</table>
+			
+			
+			
+			<script type=text/javascript>
+			var position=Number({{initposition}});
+				
+
+			$(".moveservo").click(function() {
+			
+			// send ajax interrupt to flask to initiate the actuator test
+
+				var prid=$(this).attr('name');
+				var elem = $(this).attr('item');
+				position=Number(position)+Number(elem);
+				$('#servoteststatus').val("---");
+				$.ajax({
+							type: "GET",
+							url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + position + "&servo=" + $('#selsettingservo').val(),
+							//url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val(),
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" },
+							success: function(data) {
+								$('#servoteststatus').val(data.answer);
+
+							},
+							//error: function(jqXHR, textStatus, errorThrown) {
+							//    alert(errorThrown);
+							//}
+						});    
+
+				
+			});
+
+
+			  
+			  
+			  
+
+
+			</script>
+
+		<!--  end servo part   -->
+			
+		<!--  video camera table   -->
 			<table class="table" margin: 20px;>
 			<thead>
 				<tr>
 					<th>Device</th>
 					<th>WidthxHeight</th>
 					<th>FPS</th>
-					<th>Button</th>
-					<th>Bar</th>
+					<th>CTRL</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -72,7 +169,8 @@
 
 				  <td>
 		  					  				
-				  <select class="form-control input-sm" id="selsettingres_{{ item }}">
+				  <select class="form-control input-sm dontwantgap" id="selsettingres_{{ item }}">
+					<option>320x240</option>
 					<option>640x480</option>
 					<option>1024x768</option>
 					<option>1280x720</option>
@@ -84,35 +182,22 @@
 				  		
 							
 				<td>		
-				  <select class="form-control input-sm" id="selsettingfps_{{ item }}">
-					<option>2</option>
+				  <select class="form-control input-sm dontwantgap" id="selsettingfps_{{ item }}">
 					<option>5</option>
 					<option>10</option>
-					<option>20</option>
+					<option selected="selected">20</option>
 					<option>25</option>
 					<option>30</option>
 					<option>60</option>
 
 				  </select>
-				 </td>	 		
+				 </td>	 	
 							
 				<td>
-					
-					
-					
-					<button class="thebutton btn-sm btn btn-default" type="button" name="setting" element="{{item}}">Start</button>
+					<!-- start/stop button-->										
+					<button id="button-{{item}}" class="thebutton btn-sm btn btn-primary" type="button" name="start" element="{{item}}">Start</button>
 				</td>
-				<td>
-					<!--  progress bar bootstrap-->
-		
-					<div class="progress">
-					  <div id="{{ item }}progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-					  </div>
-					</div>
 
-					<!-- progress-->
-
-				</td>
 
 	
 
@@ -122,14 +207,11 @@
 
 
         </tbody>
-    </table>
+			</table>
 	
 	<table class="table" margin: 20px;>
 		<tbody>
 		<tr>
-			<td>
-					<button class="thebutton btn-sm btn btn-default" type="button" name="stop" element="stop">Stop Streaming</button>
-			</td>
 			<td>
 					<label>Status:</label>
 					<label class="form-label-left" id="actuatorstatus" for="input_3"></label>					
@@ -169,11 +251,14 @@
 				$(".thebutton").click(function() {
 				
 				// send ajax interrupt to flask to initiate the actuator test
-				
+					var butid=$(this).attr('id');				
 					var prid=$(this).attr('name');
 					var elem=$(this).attr('element');
 					var res = $("#selsettingres_" + elem).val();					
-					var fps = $("#selsettingfps_" + elem).val();	
+					var fps = $("#selsettingfps_" + elem).val();
+					if (prid != "stop") {
+						$("#videoimg").attr("src", "/static/loading-animation.gif");					
+						}
 					$.ajax({
 								type: "GET",
 								url: $SCRIPT_ROOT + "/videocontrol/?name=" + prid + "&name=" + res + "&name=" + fps + "&element=" + elem,
@@ -181,19 +266,27 @@
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
 									$('#actuatorstatus').text(data.answer);
+									$('button[name=stop]').text('Start');
+									$('button[name=stop]').removeClass('btn-danger');
+									$('button[name=stop]').addClass('btn-primary');
+									$('button[name=stop]').attr("name", "start"); // this should b the last of the commands series																	
 									if (prid != "stop") {
 										var d = new Date();
-										var linksrc="/stream?action=stream";
+										var linksrc="/?action=stream";
 										$("#videoimg").attr("src", linksrc+"?"+d.getTime());
+										$('#'+butid).text('Stop');										
+										$('#'+butid).attr("name", "stop");
+										$('#'+butid).removeClass('btn-primary');
+										$('#'+butid).addClass('btn-danger');
 										}
+
+										
 								},
 								//error: function(jqXHR, textStatus, errorThrown) {
-								//    alert(errorThrown); $("#thebutton").attr('name')
+								//	$('#actuatorstatus').text(errorThrown);
 								//}
 							});    
 				  
-										
-
 					
 				});
 			  });
@@ -241,9 +334,7 @@
 		<h1>Please log in</h1>
   
   {% endif %}
-  <ul class=entries>
 
-  </ul>
 {% endblock %}
 
 

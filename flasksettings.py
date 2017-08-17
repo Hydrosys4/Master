@@ -17,3 +17,7 @@ FILELOG='hydrosystem.log'
 FILECALIBRATE='CalibrateSys.txt'
 DEFFILECALIBRATE='DefCalibrateSys.txt'
 
+#START IP address and PORT Section
+IPADDRESS='192.168.0.172'
+PORT='5012'
+#END IP address and PORT Section

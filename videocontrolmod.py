@@ -3,7 +3,7 @@ import sys
 import time 
 import logindbmod 
 
-videostreamport="5022"
+videostreamport="5022" #previous setting 5022
 
 
 ################## ------- VLC section
@@ -54,10 +54,15 @@ def streamedit(dictdata):
 	if (video=="video0")and(int(width)>1024):
 
 		print "try using the raspicam"
-		stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+width+" -y "+height+" -fps "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+" -c "+username+":"+password+"' &"
+		stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+width+" -y "+height+" -fps "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+"' &"
 	
+		#stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+width+" -y "+height+" -fps "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+" -c "+username+":"+password+"' &"
+
 	else:
-		stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_uvc.so -d /dev/"+video+" -r "+width+"x"+height+" -f "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+" -c "+username+":"+password+"' &"
+		stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_uvc.so -d /dev/"+video+" -r "+width+"x"+height+" -f "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+"' &"
+
+
+		#stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_uvc.so -d /dev/"+video+" -r "+width+"x"+height+" -f "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+" -c "+username+":"+password+"' &"
 
 		#mjpg_streamer -i "/usr/local/lib/mjpg-streamer/input_uvc.so -d /dev/video0 -r 1920x1080" -o "/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p 8090"
 							

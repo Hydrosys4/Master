@@ -140,6 +140,47 @@ def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 				print "Error in database reading ",rowdata
 	# sensor data --------------------------------------------
 
+
+def getAllSensorsDataPeriodv2(enddate,pastdays):
+	usedsensorlist=[]
+	num = int(pastdays)
+	tdelta=timedelta(days=num)
+	startdate=enddate-tdelta
+	print " stratdate " ,startdate
+	print " enddate ", enddate
+	outputallsensordata=[]
+	sensorlist=gettablelist()
+	mintime=(enddate - datetime(1970,1,1)).total_seconds()
+	maxtime=0
+	for selsensor in sensorlist:
+		allsensordata=[]
+		#getsensordbdata(selsensor,allsensordata)
+		getsensordbdatadays(selsensor,allsensordata,num)
+		sensordata=[]
+		# fetch raw data from database
+		for rowdata in allsensordata:
+			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			if (dateref>=startdate)and(dateref<=enddate):
+				try:
+					value=float(rowdata[1])
+					dateinsecepoch=(dateref - datetime(1970,1,1)).total_seconds()
+					templist=[rowdata[0], value]
+					sensordata.append(templist)
+					if mintime>dateinsecepoch:
+						mintime=dateinsecepoch
+					if maxtime<dateinsecepoch:
+						maxtime=dateinsecepoch					
+				except ValueError:
+					print "Error in database reading ",rowdata
+		if len(sensordata)>0:
+			outputallsensordata.append(sensordata)
+			usedsensorlist.append(selsensor)
+	return outputallsensordata,usedsensorlist,mintime,maxtime
+	# sensor data --------------------------------------------
+
+
+
+
 def RemoveSensorDataPeriod(removebeforedays):
 	sensordata=[]
 	field=TIMEFIELD

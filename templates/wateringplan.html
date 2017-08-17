@@ -48,11 +48,12 @@
 				<table class="table table-condensed">
 				<thead>
 				  <tr>
-					<th class="col-xs-2">month</th>
-					<th class="col-xs-2">schema</th>
-					<th class="col-xs-1">++++</th>
-					<th class="col-xs-6">quantity___________</th>
-					<th class="col-xs-1">++++</th>
+					<th class="col-xs-2">Month</th>
+					<th class="col-xs-2">Schema</th>
+					<th class="col-xs-1">+++</th>
+					<th class="col-xs-5">Multiplier____</th>
+					<th class="col-xs-1">+++</th>
+					<th class="col-xs-1">delay (Min)</th>
 				  </tr>
 				</thead>
 				<tbody>
@@ -70,6 +71,7 @@
 							<td><strong class="text-uppercase lead">{{ name }}</strong></td>
 							
 							<td>
+									<!--watering schema column (table1)-->
 
 									<div class="form-group">
 										
@@ -96,6 +98,7 @@
 						
 							</td>
 							<td>
+								<!--Time multiplier column (table)-->
 									<div class="col-xs-12">
 									<div class="drop" id="{{ elem }}{{ name }}">
 										<!--{% for n in range(table[row_i.index0][col_i.index0]) %}
@@ -115,6 +118,14 @@
 							
 							
 							</td>
+
+							<td>
+										<!--Delay column (table2)-->
+
+								<input value="{% if (table2|length)>0 %}{{ table2[row_i.index0][col_i.index0]}}{% endif %}" name="{{elem}}_{{col_i.index0}}_1" class="form-control dontwantgap input-sm" />
+
+							</td>
+
 
 						  </tr>
 
@@ -179,7 +190,7 @@
 				});	
 
 				
-				$('.qtybutton').click(function(){ // quantity button pressed, ad or remove water drop image
+				$('.qtybutton').click(function(){ // quantity button pressed, add or remove water drop image
 					var idbut=$(this).attr('id');
 					var idimg=idbut.split("_")[0];
 					var action=idbut.split("_")[1];
@@ -188,7 +199,7 @@
 					var val = $('#' + idimg +"_input").val();
 					var num = parseInt(val)+1;						
 						
-						if (num<5) {
+						if (num<7) {
 								$('#' + idimg).append(imgtext);
 								$('#' + idimg +"_input").val(num.toString());
 						} 

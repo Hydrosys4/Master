@@ -44,7 +44,26 @@ def readfiledata(filename,filedata):
 		print "----------------------------------------------------------------------> warning no file ", filename 
 		return False
 		
-
+def readfiledata_spec(filename,filedata): 
+	if os.path.isfile(dbpath(filename)): #file is there
+		# read the selected table file
+		in_file = open(dbpath(filename),"r")
+		lines = in_file.readlines()
+		in_file.close()
+		del filedata[:]
+		#print " ln " , lines
+		identifier="# HERE->"
+		for ln in lines:
+			if identifier in ln:
+				theline=ln[ln.find("{"):ln.find("}")+1]
+				filedata.append(json.loads(theline))
+				return True
+		#print IOdata[0]["name"]
+		return False
+	else:
+		print "----------------------------------------------------------------------> warning no file ", filename 
+		return False
+		
 
 def savefiledata(filename,filedata):
 # questo possibile lista di dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario

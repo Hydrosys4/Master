@@ -198,7 +198,7 @@
 					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlog">Prepare File</button>
 				</div>
 				<div class="col-xs-4">
-					<a id="downloadlinkdownloadlog" href="" ></a>
+					<a id="downloadlinkdownloadlog0" href="" ></a>
 				</div>
 			</div>	
 			<!--  file 1b -->
@@ -210,7 +210,11 @@
 					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadprevlog">Prepare File</button>
 				</div>
 				<div class="col-xs-4">
-					<a id="downloadlinkdownloadprevlog" href="" ></a>
+					<a id="downloadlinkdownloadprevlog0" href="" ></a>
+					<a id="downloadlinkdownloadprevlog1" href="" ></a>
+					<a id="downloadlinkdownloadprevlog2" href="" ></a>
+					<a id="downloadlinkdownloadprevlog3" href="" ></a>
+					<a id="downloadlinkdownloadprevlog4" href="" ></a>
 				</div>
 			</div>	
 			<!--  file 2 -->
@@ -222,7 +226,7 @@
 					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadHW">Prepare File</button>
 				</div>
 				<div class="col-xs-4">
-					<a id="downloadlinkdownloadHW" href="" ></a>
+					<a id="downloadlinkdownloadHW0" href="" ></a>
 				</div>
 			</div>		
 
@@ -256,9 +260,21 @@
 													d = new Date();
 													var filename=data.filename;
 													//var fileurl="{{ url_for('static', filename=filename)}}"+"?"+d.getTime();
-													var fileurl="{{ url_for('static', filename="")}}"+filename+"?"+d.getTime();
-													$('#downloadlink'+prid).text("Download Ready");
-													$('#downloadlink'+prid).attr("href", fileurl);
+													
+													fLen = filename.length;
+													for (i = 0; i < fLen; i++) {
+														var fileurl="{{ url_for('static', filename="")}}"+filename[i]+"?"+d.getTime();
+														$('#downloadlink'+prid+i.toString()).text("Download Ready");
+														$('#downloadlink'+prid+i.toString()).attr("href", fileurl);
+
+
+													}
+													
+													
+													
+													
+													
+
 											}, 200);
 									}
 

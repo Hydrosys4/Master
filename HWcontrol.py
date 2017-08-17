@@ -9,6 +9,10 @@ import threading
 #import serial
 import logging
 
+logger = logging.getLogger("hydrosys4."+__name__)
+
+
+
 global ISRPI
 
 try:
@@ -25,7 +29,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","photo","mail+info+link","mail+info"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","photo","mail+info+link","mail+info"]
 RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
@@ -38,6 +42,8 @@ GPIO_data=[{"level":None, "state":None} for k in range(40)]
 #" PowerPIN_Status is an array of dictionary, total 40 items in the array, the array is used to avoid comflict between tasks using same PIN 
 # each time the pin is activated the level is increased by 1 unit.
 PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
+
+MCP3008_busy_flag=False
 
 def execute_task(cmd, message, recdata):
 	if cmd==HWCONTROLLIST[0]:
@@ -61,6 +67,9 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[6]:	
 		return gpio_pin_level(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[7]:	
+		return gpio_set_servo(cmd, message, recdata)
 
 	else:
 		print "Command not found"
@@ -119,12 +128,17 @@ def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
 	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
 	if deltat.total_seconds()>2:
 		
+		humidity=None
+		temperature=None
+		
 		try:
 			sensor = Adafruit_DHT.DHT22
 			humidity, temperature = Adafruit_DHT.read(sensor, pin)
 		except:
 			print "error reading the DHT sensor (Humidity,Temperature)"
-		
+			logger.error("error reading the DHT sensor (Humidity,Temperature)")
+			logger.exception("message")
+
 
 		if (humidity is not None) and (temperature is not None):
 			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
@@ -134,6 +148,7 @@ def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
 			successflag=1
 		else:
 			print 'Failed to get DHT22 reading'
+
 	else:
 		successflag=1 # use the data in memory, reading less than 2 sec ago
 		
@@ -149,11 +164,15 @@ def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
 	pin=int(msgarray[1])
 	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
 	if deltat.total_seconds()>2:
+		
+		humidity=None
+		temperature=None
 		try:
 			sensor = Adafruit_DHT.DHT22
 			humidity, temperature = Adafruit_DHT.read(sensor, pin)
 		except:
 			print "error reading the DHT sensor (Humidity,Temperature)"
+			logger.exception("message")
 
 		if (humidity is not None) and (temperature is not None):
 			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
@@ -231,6 +250,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 	successflag=0
 	volts=0
 	
+	
 	msgarray=message.split(":")
 	
 	messagelen=len(msgarray)
@@ -244,24 +264,58 @@ def get_MCP3008_channel(cmd, message, recdata):
 	if messagelen>3:	
 		POWERPIN=int(msgarray[3])
 	
-	powerPIN_start(POWERPIN,"pos",0.2)
+	global MCP3008_busy_flag
+	waitstep=0.1
+	waittime=0
+	maxwait=2.5
+	while (MCP3008_busy_flag==True)and(waittime<maxwait):
+		time.sleep(waitstep)
+		waittime=waittime+waitstep
 	
+	print "MCP3008 wait time -----> ", waittime
+		
+	if (waittime>=maxwait):
+		#something wrog, wait too long, avoid initiate further processing
+		MCP3008_busy_flag=False
+		return False
+
+	MCP3008_busy_flag=True		
+
+	
+	powerPIN_start(POWERPIN,"pos",0.05)
 	
 	try:
 		# Open SPI bus
+
+		spi_speed = 1000000 # 1 MHz
 		spi = spidev.SpiDev()
 		spi.open(0,0)
+		spi.max_speed_hz=spi_speed
 
 		# Function to read SPI data from MCP3008 chip
 		# Channel must be an integer 0-7
+		
+		dataaverage=0.0
+		inde =0
+		for x in range(0, 5):
 
-		adc = spi.xfer2([1,(8+channel)<<4,0])
-	
-		data = ((adc[1]&3) << 8) + adc[2]
+			adc = spi.xfer2([1,(8+channel)<<4,0])
+
+			data = ((adc[1]&3) << 8) + adc[2]
+			
+			dataaverage=dataaverage+data
+			
+			inde=inde+1
+			
+			print "MCP3008 chennel ", channel, " data:",data
+			
+		dataaverage=dataaverage/inde
+
+		print "MCP3008 chennel ", channel, " data Average:",dataaverage
 
 		# Function to convert data to voltage level,
 		# rounded to specified number of decimal places.
-		volts = (data * 5) / float(1023)
+		volts = (dataaverage * 5) / float(1023)
 		volts = round(volts,2)
 
 		spi.close()
@@ -275,6 +329,10 @@ def get_MCP3008_channel(cmd, message, recdata):
 
 
 	powerPIN_stop(POWERPIN,0)
+	
+	time.sleep(1.3) # wait after the power pin has been set to LOW
+	
+	MCP3008_busy_flag=False
 
 	return True	
 
@@ -390,6 +448,28 @@ def gpio_pin_level(cmd, message, recdata):
 	else:
 		recdata.append("e")
 		return False	
+
+
+
+def gpio_set_servo(cmd, message, recdata):
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN=int(msgarray[1])
+	frequency=int(msgarray[2])
+	duty=float(msgarray[3])
+	delay=float(msgarray[4])
+			
+	GPIO_setup(PIN, "out")
+	pwm = GPIO.PWM(PIN, frequency) # set the frequency
+	pwm.start(duty)
+	time.sleep(0.1+delay)
+	#pwm.ChangeDutyCycle(duty)
+	pwm.stop()
+			
+	print "servo set to frequency", frequency , " PIN=", PIN , " Duty cycle=", duty 
+	recdata.append(cmd)
+	recdata.append(PIN)
+	return True	
 
 
 

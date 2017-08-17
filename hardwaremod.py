@@ -15,6 +15,7 @@ import filestoragemod
 import plandbmod
 import HWcontrol
 import photomod
+import cameradbmod
 import struct
 import imghdr
 
@@ -28,8 +29,9 @@ global HWDATAFILENAME
 HWDATAFILENAME="hwdata.txt"
 global DEFHWDATAFILENAME
 DEFHWDATAFILENAME="default/defhwdata.txt"
-global LOGFILENAME
-LOGFILENAME='hydrosystem.log'
+
+logger = logging.getLogger("hydrosys4."+__name__)
+print "logger name ", __name__
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
 #important this data is used almost everywhere
@@ -52,6 +54,12 @@ HW_CTRL_LOGIC="logic"  # HW control  group , optional, in case the relay works i
 #"settingaction", # HW control  group , use the controllercmd instead -> to be removed
 HW_CTRL_MAILADDR="mailaddress" # HW control  group , optional, specify this info for the HWControl if needed -> mailaddress
 HW_CTRL_MAILTITLE="mailtitle" # HW control  group , optional, specify this info for the HWControl if needed (mail title) -> "mailtitle"
+
+#servo
+HW_CTRL_FREQ="frequency" # HW control  group , optional, working frequency of the servo
+HW_CTRL_MIN="min"  # HW control  group , optional, minimum of the duty cycle
+HW_CTRL_MAX="max"  # HW control  group , optional, maximum of the duty cycle
+
 
 HW_FUNC_USEDFOR="usefor" # function group , optional, description of main usage of the item and the actions associated with the plan "selectedplanmod"
 HW_FUNC_SCHEDTYPE="schedulingtype" # function group , optional, between "oneshot" and "periodic" 
@@ -77,6 +85,9 @@ HWdataKEYWORDS[HW_FUNC_USEDFOR]=USAGELIST #used for
 HWdataKEYWORDS[HW_FUNC_SCHEDTYPE]=["oneshot", "periodic"] #scheduling type
 HWdataKEYWORDS[HW_FUNC_TIME]=[] #time in format hh:mm:ss
 
+HWdataKEYWORDS[HW_CTRL_FREQ]=[]
+HWdataKEYWORDS[HW_CTRL_MIN]=[]
+HWdataKEYWORDS[HW_CTRL_MAX]=[]
 
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
@@ -243,7 +254,44 @@ def makepulse(target,duration):
 			
 	return "error"
 
+def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
+	#search the data in IOdata
+	
+	print "Move Servo - ", target #normally is servo1
+	
+	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
 
+
+	try:
+
+		FREQ=searchdata(HW_INFO_NAME,target,HW_CTRL_FREQ)	
+		MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
+		MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+
+		dutycycle= str(int(MIN)+(int(MAX)-int(MIN))*int(percentage)/float(100))
+
+
+	except ValueError:
+		print " No valid data or zero for Doser ", target
+		return "error"
+
+
+	sendstring="servo:"+PIN+":"+FREQ+":"+dutycycle+":"+str(delay)
+	print " sendstring " , sendstring
+
+	isok=False
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= HWcontrol.sendcommand("servo",sendstring,recdata) #11 is the command to activate relay, 12 is the PIN to activate, 1000 is the ms the pulse is lasting
+		print "returned data " , recdata
+		if ack and recdata[1]!="e":
+			print target, "correctly activated"
+			isok=True
+			return "Servo angle set"
+			
+	return "error"
 
 def getpinstate(target):
 	#search the data in IOdata
@@ -382,7 +430,7 @@ def separatetimestringint(timestr):
 			else:
 				outlist.append(0)	
 		else:
-			outlist.append(0)
+			outlist.append(0)		
 	return outlist
 		
 def tonumber(thestring, outwhenfail):
@@ -407,7 +455,7 @@ def searchdatalist(recordkey,recordvalue,keytosearch):
 		if recordkey in ln:
 			if ln[recordkey]==recordvalue:
 				if keytosearch in ln:
-					datalist.append(ln[keytosearch])	
+					datalist.append(str(ln[keytosearch]))	
 	return datalist
 
 def getfieldvaluelist(fielditem,valuelist):
@@ -451,6 +499,22 @@ def photolist(apprunningpath):
 			except:
 				print "file name format not compatible with date"
 	return filenamelist # item1 (path) item2 (name) item3 (datetime)
+
+def loglist(apprunningpath,logfolder,searchstring):
+
+	folderpath=os.path.join(apprunningpath,logfolder)
+	# control if the folder  exist otherwise exit
+	if not os.path.exists(folderpath):
+		print "log folder does not exist"
+		return False
+	filenamelist=[]
+	sortedlist=sorted(os.listdir(folderpath))
+	sortedlist.reverse()
+	templist=[]	
+	for files in sortedlist:
+		if (searchstring in files):
+			templist.append(files)
+	return templist 
 
 def deleteallpictures(apprunningpath):
 	folderpath=os.path.join(apprunningpath, "static")
@@ -508,18 +572,18 @@ def removephotodataperiod(removebeforedays):
 
 			
 	
-def shotit(video,istest):
+def shotit(video,istest,resolution,positionvalue):
     # send command to the actuator for test
 	if istest:
 		filepath=os.path.join(get_path(), "static")
 		filepath=os.path.join(filepath, "cameratest")
 		filedelete=os.path.join(filepath, "testimage.png")
 		filestoragemod.deletefile(filedelete)		
-		shottaken=photomod.saveshot(filepath,video,False)       
+		shottaken=photomod.saveshot(filepath,video,False,resolution,positionvalue)       
 	else:
 		filepath=os.path.join(get_path(), "static")
 		filepath=os.path.join(filepath, "hydropicture")
-		shottaken=photomod.saveshot(filepath,video,True)			
+		shottaken=photomod.saveshot(filepath,video,True,resolution,positionvalue)			
 	if shottaken:
 		ret_data = {"answer": "photo taken"}
 	else:
@@ -535,13 +599,20 @@ def takephoto():
 	print "take photo", " " , datetime.now()
 	videolist=videodevlist()
 	for video in videolist:
-		ret_data={}
-		ret_data=shotit(video,False)
-		logging.info(ret_data["answer"])
+		resolution=cameradbmod.searchdatalist("camname",video,"resolution")[0]
+		position=cameradbmod.searchdatalist("camname",video,"position")[0]
+		servo=cameradbmod.searchdatalist("camname",video,"servo")[0]
+		positionlist=position.split(",")
+		for positionvalue in positionlist:
+		# move servo
+			servoangle(servo,positionvalue,2)
+			ret_data={}
+			ret_data=shotit(video,False,resolution,positionvalue)
+		logger.info(ret_data["answer"])
 
 #-- start LOGGING utility--------////////////////////////////////////////////////////////////////////////////////////
 
-def resetandbackuplog():
+def resetandbackuplog_bak():
 	#setup log file ---------------------------------------
 	mainpath=get_path()
 	filename=LOGFILENAME
@@ -552,24 +623,17 @@ def resetandbackuplog():
 	except:
 		print "No log file"
 
-	logging.FileHandler(filename=os.path.join(mainpath,filename), mode='w')	
-	#logging.basicConfig(filename=os.path.join(mainpath,filename),level=logging.INFO)
-	#logging.basicConfig(format='%(asctime)s %(message)s')
-	#logging.basicConfig(format='%(levelname)s %(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+	logger.FileHandler(filename=os.path.join(mainpath,filename), mode='w')	
+	#logger.basicConfig(filename=os.path.join(mainpath,filename),level=logger.INFO)
+	#logger.basicConfig(format='%(asctime)s %(message)s')
+	#logger.basicConfig(format='%(levelname)s %(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 	
 	# set up logging to file - see previous section for more details
-	logging.basicConfig(level=logging.INFO,
+	logger.basicConfig(level=logging.INFO,
 						format='%(asctime)-2s %(levelname)-8s %(message)s',
 						datefmt='%H:%M:%S',
 						filename=os.path.join(mainpath,filename))
 
-	
-	print "starting new log session", datetime.now().strftime("%Y-%m-%d %H:%M:%S") , " file name = " , os.path.join(mainpath,filename)
-	logging.info('Start logging -------------------------------------------- %s' , datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-	logging.debug('This is a sample DEBUG message')
-	logging.info('This is a sample INFO message')
-	logging.warning('This is a sample WARNING message')
-	logging.error('This is a sample ERROR message')
 
 def get_path():
     '''Get the path to this script no matter how it's run.'''
@@ -645,4 +709,4 @@ def deleterow(element):
 if __name__ == '__main__':
 	# comment
 	a=10
-	resetandbackuplog()
+	

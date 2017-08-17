@@ -1,0 +1,1730 @@
+14:54:10          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 14:54:10
+14:54:10          hydrosys4 - DEBUG    This is a sample DEBUG message
+14:54:10          hydrosys4 - INFO     This is a sample INFO message
+14:54:10          hydrosys4 - WARNING  This is a sample WARNING message
+14:54:10          hydrosys4 - ERROR    This is a sample ERROR message
+14:54:11 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+14:54:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 14:54:16
+14:54:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 14:54:16
+14:54:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 14:54:16
+14:54:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 14:54:18
+14:54:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 14:54:20
+14:54:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 14:54:22
+14:54:23 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:28 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:30 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+14:54:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:54:46 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+14:54:46 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+14:55:09 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+14:55:09 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+14:55:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:25 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+14:55:33 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:36 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:38 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:55:40 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+14:59:11 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 14:59:11
+14:59:12 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+14:59:33 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+14:59:33 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+14:59:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:59:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:59:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+14:59:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:00:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:00:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:00:06 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:00:07 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:00:07 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+15:00:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+15:00:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 15:00 
+15:00:07 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+15:09:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:09:16
+15:09:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:09:16
+15:09:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:09:16
+15:09:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:09:18
+15:09:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:09:20
+15:09:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:09:22
+15:14:11 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 15:14:11
+15:14:12 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+15:14:33 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:14:33 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:14:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:14:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:14:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:14:49 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:14:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:15:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:15:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:15:04 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:15:19 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+15:24:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:24:16
+15:24:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:24:16
+15:24:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:24:16
+15:24:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:24:18
+15:24:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:24:20
+15:24:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:24:22
+15:29:11 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 15:29:11
+15:29:12 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+15:29:33 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:29:33 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:29:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:29:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:29:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:29:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:30:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:30:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:30:06 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:30:07 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:30:07 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+15:30:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+15:30:07 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 15:30 
+15:30:07 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+15:39:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:39:16
+15:39:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:39:16
+15:39:16 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:39:16
+15:39:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:39:18
+15:39:20 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:39:20
+15:39:22 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:39:22
+15:50:19          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 15:50:19
+15:50:19          hydrosys4 - DEBUG    This is a sample DEBUG message
+15:50:19          hydrosys4 - INFO     This is a sample INFO message
+15:50:19          hydrosys4 - WARNING  This is a sample WARNING message
+15:50:19          hydrosys4 - ERROR    This is a sample ERROR message
+15:50:20 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:50:25 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:50:25
+15:50:25 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:50:25
+15:50:25 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:50:25
+15:50:27 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:50:27
+15:50:29 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:50:29
+15:50:31 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:50:31
+15:50:32 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:35 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:39 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:50:48 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:50 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:53 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:50:54 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:50:54 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+15:51:17 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:51:17 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:51:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:32 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:33 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:51:41 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:46 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:51:48 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:54:00          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 15:54:00
+15:54:00          hydrosys4 - DEBUG    This is a sample DEBUG message
+15:54:00          hydrosys4 - INFO     This is a sample INFO message
+15:54:00          hydrosys4 - WARNING  This is a sample WARNING message
+15:54:00          hydrosys4 - ERROR    This is a sample ERROR message
+15:54:00 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:54:05 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:54:05
+15:54:05 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:54:05
+15:54:05 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:54:05
+15:54:07 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:54:07
+15:54:09 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:54:09
+15:54:11 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:54:11
+15:54:11 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:14 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:18 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:54:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:31 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:34 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:54:35 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:54:35 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+15:54:58 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:54:58 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:55:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:13 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:14 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:55:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:25 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:55:29 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:56:59          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 15:56:59
+15:56:59          hydrosys4 - DEBUG    This is a sample DEBUG message
+15:56:59          hydrosys4 - INFO     This is a sample INFO message
+15:56:59          hydrosys4 - WARNING  This is a sample WARNING message
+15:56:59          hydrosys4 - ERROR    This is a sample ERROR message
+15:56:59 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:57:04 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 15:57:04
+15:57:04 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 15:57:04
+15:57:04 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 15:57:04
+15:57:06 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 15:57:06
+15:57:08 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 15:57:08
+15:57:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:10 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 15:57:10
+15:57:11 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:13 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:15 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:57:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:57:30 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+15:57:30 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+15:57:53 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+15:57:53 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+15:58:04 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:07 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:09 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:11 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+15:58:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:23 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+15:58:27 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:01:59 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:01:59
+16:02:00 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:02:20 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:02:20 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:02:32 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:34 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:38 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:02:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:51 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:54 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:02:55 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:02:55 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+16:02:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+16:02:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 16:02 
+16:02:55 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+16:03:09          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 16:03:09
+16:03:09          hydrosys4 - DEBUG    This is a sample DEBUG message
+16:03:09          hydrosys4 - INFO     This is a sample INFO message
+16:03:09          hydrosys4 - WARNING  This is a sample WARNING message
+16:03:09          hydrosys4 - ERROR    This is a sample ERROR message
+16:03:09 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:03:14 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:03:14
+16:03:14 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:03:14
+16:03:14 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:03:14
+16:03:16 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:03:16
+16:03:18 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:03:18
+16:03:20 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:03:20
+16:03:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:28 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:03:38 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:43 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:03:44 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:03:44 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+16:04:07 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:04:07 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:04:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:23 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:04:31 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:34 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:36 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:04:38 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:08:09 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:08:09
+16:08:11 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:08:31 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:08:31 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:08:43 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:08:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:08:48 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:08:49 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:09:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:09:02 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:09:05 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:09:06 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:09:06 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+16:09:06 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+16:09:06 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 16:09 
+16:09:06 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+16:10:48          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 16:10:48
+16:10:48          hydrosys4 - DEBUG    This is a sample DEBUG message
+16:10:48          hydrosys4 - INFO     This is a sample INFO message
+16:10:48          hydrosys4 - WARNING  This is a sample WARNING message
+16:10:48          hydrosys4 - ERROR    This is a sample ERROR message
+16:10:48 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:10:53 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:10:53
+16:10:53 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:10:53
+16:10:53 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:10:53
+16:10:55 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:10:55
+16:10:57 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:10:57
+16:10:59 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:10:59 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:10:59
+16:11:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:04 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:05 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:11:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:23 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:11:23 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+16:11:46 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:11:46 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:11:55 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:11:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:02 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:12:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:12 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:15 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:12:16 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:15:48 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:15:48
+16:15:50 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:16:10 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:16:10 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:16:20 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:25 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:26 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:16:35 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:16:41 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:16:57 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+16:25:53 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:25:53
+16:25:53 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:25:53
+16:25:53 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:25:53
+16:25:55 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:25:55
+16:25:57 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:25:57
+16:25:59 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:25:59
+16:29:49          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 16:29:49
+16:29:49          hydrosys4 - DEBUG    This is a sample DEBUG message
+16:29:49          hydrosys4 - INFO     This is a sample INFO message
+16:29:49          hydrosys4 - WARNING  This is a sample WARNING message
+16:29:49          hydrosys4 - ERROR    This is a sample ERROR message
+16:29:49 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:29:54 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:29:54
+16:29:54 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:29:54
+16:29:54 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:29:54
+16:29:56 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:29:56
+16:29:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:29:58
+16:29:59 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:00 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:30:00
+16:30:01 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:04 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:05 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:30:14 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:21 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:30:21 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+16:30:43 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:30:43 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:30:52 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:55 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:57 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:30:59 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:31:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:31:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:31:13 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:31:14 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:34:49 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:34:49
+16:34:51 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:35:11 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:35:11 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:35:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:35:25 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:35:28 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:35:29 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:35:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:35:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:35:45 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:35:46 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:35:46 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+16:35:46 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+16:35:46 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 16:35 
+16:35:46 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+16:39:51          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-06-24 16:39:51
+16:39:51          hydrosys4 - DEBUG    This is a sample DEBUG message
+16:39:51          hydrosys4 - INFO     This is a sample INFO message
+16:39:51          hydrosys4 - WARNING  This is a sample WARNING message
+16:39:51          hydrosys4 - ERROR    This is a sample ERROR message
+16:39:51 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:39:56 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:39:56
+16:39:56 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:39:56
+16:39:56 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:39:56
+16:39:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:39:58
+16:40:00 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:40:00
+16:40:02 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:40:02
+16:40:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:40:06 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:40:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:40:10 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:40:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:40:21 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:40:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:40:25 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:40:25 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+16:40:48 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:40:48 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:40:57 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:41:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:41:02 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:41:04 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:41:12 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:41:14 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:41:17 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:41:18 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:44:51 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:44:51
+16:44:52 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+16:45:12 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+16:45:12 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+16:45:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:45:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:45:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:45:28 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+16:45:37 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:45:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:45:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+16:45:44 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+16:45:44 hydrosys4.selectedplanmod - INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+16:45:52 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 24/06/2017 16:45 
+16:45:52 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 16:45 
+16:45:52 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+16:54:56 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-06-24 16:54:56
+16:54:56 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-06-24 16:54:56
+16:54:56 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-06-24 16:54:56
+16:54:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-06-24 16:54:58
+16:55:00 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-06-24 16:55:00
+16:55:02 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-06-24 16:55:02
+16:59:51 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-06-24 16:59:51
+16:59:52 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+17:00:13 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+17:00:13 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+17:00:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:00:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:00:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:00:31 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+17:00:41 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:00:43 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:00:46 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:00:47 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+17:00:47 hydrosys4.networkmod - ERROR    Error to get external IP , wrong syntax
+17:00:47 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP:  
+17:00:47 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 24/06/2017 17:00 
+17:00:47 hydrosys4.selectedplanmod - WARNING  Heartbeat check , not able to get network time
+12:12:27          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-16 12:12:27
+12:12:27          hydrosys4 - DEBUG    This is a sample DEBUG message
+12:12:27          hydrosys4 - INFO     This is a sample INFO message
+12:12:27          hydrosys4 - WARNING  This is a sample WARNING message
+12:12:27          hydrosys4 - ERROR    This is a sample ERROR message
+12:12:28 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+12:12:33 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 12:12:33
+12:12:33 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 12:12:33
+12:12:33 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 12:12:33
+12:12:35 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 12:12:35
+12:12:37 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 12:12:37
+12:12:39 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 12:12:39
+12:12:41 hydrosys4.networkmod - INFO     Access point established: Hydrosys4
+12:12:41 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+12:15:55 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+12:15:56 hydrosys4.networkmod - INFO     Internet status ON
+12:15:56 hydrosys4.networkmod - INFO     Google is reacheable ! 
+12:55:54          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-16 12:55:54
+12:55:54          hydrosys4 - DEBUG    This is a sample DEBUG message
+12:55:54          hydrosys4 - INFO     This is a sample INFO message
+12:55:54          hydrosys4 - WARNING  This is a sample WARNING message
+12:55:54          hydrosys4 - ERROR    This is a sample ERROR message
+12:55:55 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+12:56:00 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 12:56:00
+12:56:00 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 12:56:00
+12:56:00 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 12:56:00
+12:56:02 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 12:56:02
+12:56:04 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 12:56:04
+12:56:06 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 12:56:06
+12:56:08 hydrosys4.networkmod - INFO     Access point established: Hydrosys4
+12:56:08 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+12:58:03          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-16 12:58:03
+12:58:03          hydrosys4 - DEBUG    This is a sample DEBUG message
+12:58:03          hydrosys4 - INFO     This is a sample INFO message
+12:58:03          hydrosys4 - WARNING  This is a sample WARNING message
+12:58:03          hydrosys4 - ERROR    This is a sample ERROR message
+12:58:04 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+12:58:06 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4
+12:58:06 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+12:58:09 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 12:58:09
+12:58:09 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 12:58:09
+12:58:10 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 12:58:10
+12:58:12 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 12:58:12
+12:58:13 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 12:58:13
+12:58:15 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 12:58:15
+13:00:31          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-16 13:00:31
+13:00:31          hydrosys4 - DEBUG    This is a sample DEBUG message
+13:00:31          hydrosys4 - INFO     This is a sample INFO message
+13:00:31          hydrosys4 - WARNING  This is a sample WARNING message
+13:00:31          hydrosys4 - ERROR    This is a sample ERROR message
+13:00:31 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+13:00:33 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4
+13:00:33 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+13:00:36 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 13:00:36
+13:00:36 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 13:00:36
+13:00:36 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 13:00:36
+13:00:38 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 13:00:38
+13:00:40 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 13:00:40
+13:00:42 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 13:00:42
+13:03:47 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+13:03:48 hydrosys4.networkmod - INFO     Internet status ON
+13:03:48 hydrosys4.networkmod - INFO     Google is reacheable ! 
+13:04:40          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-16 13:04:40
+13:04:40          hydrosys4 - DEBUG    This is a sample DEBUG message
+13:04:40          hydrosys4 - INFO     This is a sample INFO message
+13:04:40          hydrosys4 - WARNING  This is a sample WARNING message
+13:04:40          hydrosys4 - ERROR    This is a sample ERROR message
+13:04:41 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+13:04:46 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 13:04:46
+13:04:46 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 13:04:46
+13:04:46 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 13:04:46
+13:04:48 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 13:04:48
+13:04:50 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 13:04:50
+13:04:52 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 13:04:52
+13:04:53 hydrosys4.networkmod - INFO     Access point established: Hydrosys4
+13:04:53 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+13:08:07 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+13:08:07 hydrosys4.networkmod - INFO     Internet status ON
+13:08:07 hydrosys4.networkmod - INFO     Google is reacheable ! 
+13:23:46          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-16 13:23:46
+13:23:46          hydrosys4 - DEBUG    This is a sample DEBUG message
+13:23:46          hydrosys4 - INFO     This is a sample INFO message
+13:23:46          hydrosys4 - WARNING  This is a sample WARNING message
+13:23:46          hydrosys4 - ERROR    This is a sample ERROR message
+13:23:47 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+13:23:58 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 13:23:58
+13:23:58 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 13:23:58
+13:23:58 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 13:23:58
+13:23:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 13:23:58
+13:23:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 13:23:58
+13:23:58 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 13:23:58
+13:24:09 hydrosys4.networkmod - INFO     Access point established: Hydrosys4
+13:24:09 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+13:25:40 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+13:25:41 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4
+13:27:12 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+13:28:47 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-16 13:28:47
+13:28:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: HydroSys4 
+13:28:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+13:28:51 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+13:28:53 hydrosys4.selectedplanmod - INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+13:28:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 16/07/2017 13:28 
+13:28:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 16/07/2017 13:28 
+13:28:55 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+13:38:52 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-16 13:38:52
+13:38:52 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-16 13:38:52
+13:38:52 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-16 13:38:52
+13:38:55 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-16 13:38:55
+13:38:56 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-16 13:38:56
+13:38:58 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-16 13:38:58
+13:43:47 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-16 13:43:47
+13:43:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: HydroSys4 
+13:43:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+13:43:51 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+13:43:53 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 16/07/2017 13:43 
+13:43:53 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 16/07/2017 13:43 
+13:43:53 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+20:41:44          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 20:41:44
+20:41:44          hydrosys4 - DEBUG    This is a sample DEBUG message
+20:41:44          hydrosys4 - INFO     This is a sample INFO message
+20:41:44          hydrosys4 - WARNING  This is a sample WARNING message
+20:41:44          hydrosys4 - ERROR    This is a sample ERROR message
+20:41:45 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+20:42:07 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 20:42:07
+20:42:07 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 20:42:07
+20:42:07 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 20:42:07
+20:42:07 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 20:42:07
+20:42:07 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 20:42:07
+20:42:07 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 20:42:07
+20:42:17 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:42:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:42:22 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:42:23 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+20:42:34 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+20:42:34 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+20:42:40 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+20:43:18          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 20:43:18
+20:43:18          hydrosys4 - DEBUG    This is a sample DEBUG message
+20:43:18          hydrosys4 - INFO     This is a sample INFO message
+20:43:18          hydrosys4 - WARNING  This is a sample WARNING message
+20:43:18          hydrosys4 - ERROR    This is a sample ERROR message
+20:43:19 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+20:43:23 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+20:43:24 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 20:43:24
+20:43:24 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 20:43:24
+20:43:24 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 20:43:24
+20:43:26 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 20:43:26
+20:43:27 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+20:43:27 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+20:43:28 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 20:43:28
+20:43:30 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 20:43:30
+20:43:36          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 20:43:36
+20:43:36          hydrosys4 - DEBUG    This is a sample DEBUG message
+20:43:36          hydrosys4 - INFO     This is a sample INFO message
+20:43:36          hydrosys4 - WARNING  This is a sample WARNING message
+20:43:36          hydrosys4 - ERROR    This is a sample ERROR message
+20:43:36 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+20:43:41 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 20:43:41
+20:43:41 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 20:43:41
+20:43:41 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 20:43:41
+20:43:43 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 20:43:43
+20:43:45 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 20:43:45
+20:43:47 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 20:43:47
+20:43:50 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:43:52 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:43:55 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:43:56 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+20:44:07 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+20:44:07 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+20:44:12 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+20:46:45 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-17 20:46:45
+20:46:46 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4ter 
+20:46:46 hydrosys4.networkmod - INFO     Internet status ON
+20:46:46 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+20:46:46 hydrosys4.networkmod - ERROR    Error to get External IP
+20:46:47 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 17/07/2017 20:46 
+20:46:47 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 17/07/2017 20:46 
+20:46:47 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+20:47:21          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 20:47:21
+20:47:21          hydrosys4 - DEBUG    This is a sample DEBUG message
+20:47:21          hydrosys4 - INFO     This is a sample INFO message
+20:47:21          hydrosys4 - WARNING  This is a sample WARNING message
+20:47:21          hydrosys4 - ERROR    This is a sample ERROR message
+20:47:21 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+20:47:26 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 20:47:26
+20:47:26 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 20:47:26
+20:47:26 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 20:47:26
+20:47:35 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 20:47:35
+20:47:35 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 20:47:35
+20:47:35 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 20:47:35
+20:47:44 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:47:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:47:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:47:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+20:48:02 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+20:48:02 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+20:48:08 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+20:52:21 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-17 20:52:21
+20:52:23 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4ter 
+20:52:23 hydrosys4.networkmod - INFO     Internet status ON
+20:52:23 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+20:52:23 hydrosys4.networkmod - ERROR    Error to get External IP
+20:52:23 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 17/07/2017 20:52 
+20:52:23 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 17/07/2017 20:52 
+20:52:23 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+20:58:48          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 20:58:48
+20:58:48          hydrosys4 - DEBUG    This is a sample DEBUG message
+20:58:48          hydrosys4 - INFO     This is a sample INFO message
+20:58:48          hydrosys4 - WARNING  This is a sample WARNING message
+20:58:48          hydrosys4 - ERROR    This is a sample ERROR message
+20:58:49 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+20:58:54 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 20:58:54
+20:58:54 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 20:58:54
+20:58:54 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 20:58:54
+20:58:56 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 20:58:56
+20:58:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 20:58:58
+20:59:00 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 20:59:00
+20:59:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:59:06 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:59:08 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:59:10 hydrosys4.networkmod - INFO     Access point established: Hydrosys4
+20:59:10 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:02:12 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:02:13 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:02:13 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:02:15 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4
+21:03:49 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-17 21:03:49
+21:03:50 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+21:03:52 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:03:54 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:03:55 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:03:56 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4
+21:03:56 hydrosys4.networkmod - ERROR    Error to get External IP
+21:03:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 17/07/2017 21:03 
+21:03:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 17/07/2017 21:03 
+21:03:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+21:13:54 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 21:13:54
+21:13:54 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 21:13:54
+21:13:54 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 21:13:54
+21:13:56 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 21:13:56
+21:13:58 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 21:13:58
+21:14:00 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 21:14:00
+21:18:49 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-17 21:18:49
+21:18:50 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+21:18:52 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:18:54 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:18:54 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:18:56 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4
+21:18:56 hydrosys4.networkmod - ERROR    Error to get External IP
+21:18:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 17/07/2017 21:18 
+21:18:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 17/07/2017 21:18 
+21:18:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+21:22:44          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 21:22:44
+21:22:44          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:22:44          hydrosys4 - INFO     This is a sample INFO message
+21:22:44          hydrosys4 - WARNING  This is a sample WARNING message
+21:22:44          hydrosys4 - ERROR    This is a sample ERROR message
+21:22:45 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:22:46 hydrosys4.networkmod - INFO     Already working as access poin 
+21:22:46 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:22:50 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 21:22:50
+21:22:50 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 21:22:50
+21:22:50 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 21:22:50
+21:22:52 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 21:22:52
+21:22:54 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 21:22:54
+21:22:56 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 21:22:56
+21:25:49 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:25:50 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:25:50 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:25:52 hydrosys4.networkmod - INFO     Already working as access poin 
+21:27:45 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-17 21:27:45
+21:27:46 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+21:27:48 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:27:50 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:27:50 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:27:52 hydrosys4.networkmod - INFO     Already working as access poin 
+21:27:52 hydrosys4.networkmod - ERROR    Error to get External IP
+21:27:52 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 17/07/2017 21:27 
+21:27:52 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 17/07/2017 21:27 
+21:27:52 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+21:30:52          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-17 21:30:52
+21:30:52          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:30:52          hydrosys4 - INFO     This is a sample INFO message
+21:30:52          hydrosys4 - WARNING  This is a sample WARNING message
+21:30:52          hydrosys4 - ERROR    This is a sample ERROR message
+21:30:53 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:30:58 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-17 21:30:58
+21:30:58 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-17 21:30:58
+21:30:58 hydrosys4.selectedplanmod - INFO     Read sensor data: pressuresensor - 2017-07-17 21:30:58
+21:31:00 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer1 - 2017-07-17 21:31:00
+21:31:02 hydrosys4.selectedplanmod - INFO     Read sensor data: hygrometer2 - 2017-07-17 21:31:02
+21:31:04 hydrosys4.selectedplanmod - INFO     Read sensor data: lightsensor - 2017-07-17 21:31:04
+21:31:05 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+21:31:05 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+20:56:38          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 20:56:38
+20:56:38          hydrosys4 - DEBUG    This is a sample DEBUG message
+20:56:38          hydrosys4 - INFO     This is a sample INFO message
+20:56:38          hydrosys4 - WARNING  This is a sample WARNING message
+20:56:38          hydrosys4 - ERROR    This is a sample ERROR message
+20:56:39 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+20:56:44 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 20:56:44
+20:56:44 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 20:56:44
+20:56:54 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:57:05 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:57:25 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+20:57:26 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+20:57:37 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+20:57:37 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+20:57:37 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+20:57:37 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+20:57:37 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+20:57:43 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:01:39 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 21:01:39
+21:01:40 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4ter 
+21:01:40 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+21:01:41 hydrosys4.selectedplanmod - INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+21:01:43 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 20/07/2017 21:01 
+21:01:43 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 20/07/2017 21:01 
+21:01:43 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+21:06:25          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 21:06:25
+21:06:25          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:06:25          hydrosys4 - INFO     This is a sample INFO message
+21:06:25          hydrosys4 - WARNING  This is a sample WARNING message
+21:06:25          hydrosys4 - ERROR    This is a sample ERROR message
+21:06:26 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:06:27 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+21:06:28 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:06:37 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:06:37
+21:06:37 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:06:37
+21:06:37 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:06:37 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:06:37 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:09:31 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:09:55          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 21:09:55
+21:09:55          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:09:55          hydrosys4 - INFO     This is a sample INFO message
+21:09:55          hydrosys4 - WARNING  This is a sample WARNING message
+21:09:55          hydrosys4 - ERROR    This is a sample ERROR message
+21:09:55 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:09:56 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+21:09:56 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:10:00 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:10:00
+21:10:00 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:10:00
+21:10:00 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:10:00 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:10:00 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:11:29 hydrosys4.networkmod - INFO     check if the connected SSID is correct
+21:11:31 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+21:11:31 hydrosys4.networkmod - INFO     Google is reacheable ! 
+21:11:31 hydrosys4.networkmod - INFO     Send first mail ! 
+21:13:00 hydrosys4.networkmod - INFO     check if the connected SSID is correct
+21:13:02 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+21:13:04 hydrosys4.networkmod - INFO     Google is reacheable ! 
+21:13:04 hydrosys4.networkmod - INFO     Send first mail ! 
+21:14:55 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 21:14:55
+21:14:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: AngeloAnnie 
+21:14:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+21:14:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 20/07/2017 21:14 
+21:14:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 20/07/2017 21:14 
+21:14:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+21:25:00 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:25:00
+21:25:00 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:25:00 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:25:00 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:25:00
+21:25:00 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:29:55 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 21:29:55
+21:29:56 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: AngeloAnnie 
+21:29:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+21:29:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 20/07/2017 21:29 
+21:29:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 20/07/2017 21:29 
+21:29:57 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+21:35:04 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:35:18 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:35:30 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:35:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:35:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+21:36:01 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+21:40:00 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:40:00
+21:40:00 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:40:00 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:40:00 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:40:00
+21:40:00 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:44:06          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 21:44:06
+21:44:06          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:44:06          hydrosys4 - INFO     This is a sample INFO message
+21:44:06          hydrosys4 - WARNING  This is a sample WARNING message
+21:44:06          hydrosys4 - ERROR    This is a sample ERROR message
+21:44:07 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:44:08 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+21:44:08 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:44:08 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:44:08 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:44:12 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:44:12
+21:44:12 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:44:12
+21:44:12 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:44:12 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:44:12 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:45:37 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:45:45 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+21:45:47 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+21:45:47 hydrosys4.networkmod - INFO     Google is reacheable ! 
+21:45:47 hydrosys4.networkmod - INFO     Send first mail ! 
+21:46:21 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:46:33 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:46:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:46:53 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:47:10 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:47:12 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:47:12 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:47:13 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:47:14 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+21:47:24 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:47:24 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:47:30 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+21:47:30 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+21:47:51          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 21:47:51
+21:47:51          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:47:51          hydrosys4 - INFO     This is a sample INFO message
+21:47:51          hydrosys4 - WARNING  This is a sample WARNING message
+21:47:51          hydrosys4 - ERROR    This is a sample ERROR message
+21:47:51 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:47:52 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+21:47:52 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:47:52 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:47:52 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:47:56 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:47:56
+21:47:56 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:47:56 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:47:56 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:47:56
+21:47:56 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:48:06 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:48:08 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+21:48:38 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:48:46 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+21:48:48 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+21:48:48 hydrosys4.networkmod - INFO     Google is reacheable ! 
+21:48:48 hydrosys4.networkmod - INFO     Send first mail ! 
+21:49:14 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:49:21 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+21:49:23 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+21:49:23 hydrosys4.networkmod - INFO     Google is reacheable ! 
+21:49:23 hydrosys4.networkmod - INFO     Send first mail ! 
+21:49:46 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:49:57 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:50:12 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:50:16 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:50:28 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:50:47 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:50:49 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+21:50:56 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:50:57 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:50:57 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:50:59 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:51:09 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:51:15 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:51:18 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:51:23 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:51:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:51:30 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:51:39 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:51:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:51:51 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+21:51:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:52:00 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+21:52:10 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:52:26 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:52:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:52:41 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:52:51 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 21:52:51
+21:52:52 hydrosys4.selectedplanmod - WARNING  Heartbeat check , no network connected -------------- try to connect
+21:52:55 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:52:56 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+21:52:56 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:53:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:53:02 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+21:53:08 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:53:23 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:53:26 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:53:38 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:53:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:53:59 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+21:54:09 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:54:25 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:54:29 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:54:40 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:55:00 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+21:55:01 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+21:55:01 hydrosys4.selectedplanmod - WARNING  not able to establish an internet connection
+21:56:16          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 21:56:16
+21:56:16          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:56:16          hydrosys4 - INFO     This is a sample INFO message
+21:56:16          hydrosys4 - WARNING  This is a sample WARNING message
+21:56:16          hydrosys4 - ERROR    This is a sample ERROR message
+21:56:16 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:56:21 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 21:56:21
+21:56:21 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 21:56:21
+21:56:22 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:56:29 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:56:35 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+21:56:35 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:56:35 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:56:35 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+21:56:35 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:56:35 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+21:56:35 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:56:58 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+21:57:06 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+21:57:08 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+21:57:08 hydrosys4.networkmod - INFO     Google is reacheable ! 
+21:57:08 hydrosys4.networkmod - INFO     Send first mail ! 
+21:57:57 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:58:03 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:58:10 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:58:15 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+21:59:37 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:00:40          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:00:40
+22:00:40          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:00:40          hydrosys4 - INFO     This is a sample INFO message
+22:00:40          hydrosys4 - WARNING  This is a sample WARNING message
+22:00:40          hydrosys4 - ERROR    This is a sample ERROR message
+22:00:40 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:00:42 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+22:00:45 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:00:45
+22:00:45 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:00:45
+22:00:57 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:00:57 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+22:00:57 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:00:57 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:00:57 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:00:57 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:03:59 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:04:00 hydrosys4.networkmod - INFO     No Wifi Network connected, no AP connected, going back to Access Point mode
+22:04:00 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:04:20 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:04:27 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+22:04:38 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+22:04:58 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+22:04:59 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+22:05:03 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:05:09 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:05:35          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:05:35
+22:05:35          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:05:35          hydrosys4 - INFO     This is a sample INFO message
+22:05:35          hydrosys4 - WARNING  This is a sample WARNING message
+22:05:35          hydrosys4 - ERROR    This is a sample ERROR message
+22:05:36 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:05:37 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+22:05:37 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:05:37 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:05:37 hydrosys4.networkmod - INFO     try to connect to wifi after first wifi setting (in 5 sec)
+22:05:37 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:05:41 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:05:41
+22:05:41 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:05:41 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:05:41 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:05:41
+22:05:41 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:08:40 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:08:56          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:08:56
+22:08:56          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:08:56          hydrosys4 - INFO     This is a sample INFO message
+22:08:56          hydrosys4 - WARNING  This is a sample WARNING message
+22:08:56          hydrosys4 - ERROR    This is a sample ERROR message
+22:08:56 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:08:58 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+22:08:58 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:08:58 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:08:58 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:09:01 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:09:01
+22:09:01 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:09:01
+22:09:01 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:09:01 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:09:01 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:09:52 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:10:30 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:10:31 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:10:31 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:10:31 hydrosys4.networkmod - INFO     Send first mail ! 
+22:11:31 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:11:45 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:11:51 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:12:00 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:13:56 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 22:13:56
+22:13:58 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4ter 
+22:13:58 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+22:14:00 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:14:02 hydrosys4.selectedplanmod - WARNING  not able to establish an internet connection
+22:16:17 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:16:19 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:16:19 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:16:19 hydrosys4.networkmod - INFO     Send first mail ! 
+22:21:50          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:21:50
+22:21:50          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:21:50          hydrosys4 - INFO     This is a sample INFO message
+22:21:50          hydrosys4 - WARNING  This is a sample WARNING message
+22:21:50          hydrosys4 - ERROR    This is a sample ERROR message
+22:21:50 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:21:55 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:21:55
+22:21:55 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:21:55
+22:22:05 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:22:10 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:22:10 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:22:10 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:22:10 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:22:10 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:22:10 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:25:13 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:25:22 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:25:22 hydrosys4.networkmod - INFO     check connected SSID 
+22:25:24 hydrosys4.networkmod - INFO     connected SSID AngeloAnnie 
+22:25:24 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:25:24 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:25:24 hydrosys4.networkmod - INFO     Send first mail ! 
+22:26:09          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:26:09
+22:26:09          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:26:09          hydrosys4 - INFO     This is a sample INFO message
+22:26:09          hydrosys4 - WARNING  This is a sample WARNING message
+22:26:09          hydrosys4 - ERROR    This is a sample ERROR message
+22:26:09 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:26:14 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:26:14
+22:26:14 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:26:14
+22:26:24 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:26:31 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+22:26:42 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+22:27:02 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+22:27:03 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+22:27:07 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:27:12 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:27:12 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:27:12 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:27:13 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:27:13 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:27:13 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:28:07 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:28:09 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+22:28:09 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:28:45 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:28:47 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:28:47 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:28:47 hydrosys4.networkmod - INFO     Send first mail ! 
+22:29:07 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:29:21 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:29:26 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:30:15 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:31:09 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 22:31:09
+22:31:10 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4ter 
+22:31:10 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+22:31:13 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:31:14 hydrosys4.selectedplanmod - WARNING  not able to establish an internet connection
+22:31:25          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:31:25
+22:31:25          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:31:25          hydrosys4 - INFO     This is a sample INFO message
+22:31:25          hydrosys4 - WARNING  This is a sample WARNING message
+22:31:25          hydrosys4 - ERROR    This is a sample ERROR message
+22:31:25 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:31:27 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+22:31:27 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:31:27 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:31:27 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:31:30 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:31:30
+22:31:30 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:31:30 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:31:30 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:31:30
+22:31:30 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:32:26 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:32:28 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:32:28 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:32:28 hydrosys4.networkmod - INFO     Send first mail ! 
+22:32:58 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:33:12 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:33:17 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:34:29 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:36:25 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 22:36:25
+22:36:27 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4ter 
+22:36:27 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+22:36:29 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:36:31 hydrosys4.selectedplanmod - WARNING  not able to establish an internet connection
+22:39:02          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:39:02
+22:39:02          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:39:02          hydrosys4 - INFO     This is a sample INFO message
+22:39:02          hydrosys4 - WARNING  This is a sample WARNING message
+22:39:02          hydrosys4 - ERROR    This is a sample ERROR message
+22:39:02 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:39:04 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4ter
+22:39:04 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:39:04 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:39:07 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:39:07
+22:39:07 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:39:07 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:39:07 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:39:07
+22:39:07 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:39:45 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:39:47 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:39:47 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:39:47 hydrosys4.networkmod - INFO     Send first mail ! 
+22:39:59          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 22:39:59
+22:39:59          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:39:59          hydrosys4 - INFO     This is a sample INFO message
+22:39:59          hydrosys4 - WARNING  This is a sample WARNING message
+22:39:59          hydrosys4 - ERROR    This is a sample ERROR message
+22:40:00 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:40:05 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:40:05
+22:40:05 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:40:05
+22:40:14 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:40:19 hydrosys4.networkmod - INFO     Access point established: Hydrosys4ter
+22:40:19 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:40:22 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+22:40:22 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:40:22 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:40:22 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:43:24 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+22:43:34 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:43:34 hydrosys4.networkmod - INFO     check connected SSID 
+22:43:35 hydrosys4.networkmod - INFO     connected SSID AngeloAnnie 
+22:43:35 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+22:43:35 hydrosys4.networkmod - INFO     Google is reacheable ! 
+22:43:35 hydrosys4.networkmod - INFO     Send first mail ! 
+22:45:00 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 22:45:00
+22:45:01 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: AngeloAnnie 
+22:45:01 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+22:45:02 hydrosys4.selectedplanmod - INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+22:45:02 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 20/07/2017 22:45 
+22:45:02 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 20/07/2017 22:45 
+22:45:02 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+22:55:05 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 22:55:05
+22:55:05 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 22:55:05
+22:55:05 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+22:55:05 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+22:55:05 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+23:00:00 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 23:00:00
+23:00:01 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: AngeloAnnie 
+23:00:01 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+23:00:02 hydrosys4.selectedplanmod - INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+23:00:02 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 20/07/2017 23:00 
+23:00:02 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 20/07/2017 23:00 
+23:00:02 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+23:10:05 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 23:10:05
+23:10:05 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 23:10:05
+23:10:05 hydrosys4.HWcontrol - ERROR    error reading the DHT sensor (Humidity,Temperature)
+23:10:05 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 133, in get_DHT22_temperature
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+23:10:05 hydrosys4.HWcontrol - ERROR    message
+Traceback (most recent call last):
+  File "/home/pi/env/autonom/HWcontrol.py", line 169, in get_DHT22_humidity
+    humidity, temperature = Adafruit_DHT.read(sensor, pin)
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 76, in read
+    platform = get_platform()
+  File "build/bdist.linux-armv7l/egg/Adafruit_DHT/common.py", line 56, in get_platform
+    from . import Beaglebone_Black
+  File "/usr/local/lib/python2.7/dist-packages/Adafruit_DHT-1.3.1-py2.7-linux-armv7l.egg/Adafruit_DHT/Beaglebone_Black.py", line 24, in <module>
+ImportError: cannot import name Beaglebone_Black_Driver
+21:19:57 hydrosys4.networkdbmod - INFO     Basic network data acquired
+23:19:57          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 23:19:57
+23:19:57          hydrosys4 - DEBUG    This is a sample DEBUG message
+23:19:57          hydrosys4 - INFO     This is a sample INFO message
+23:19:57          hydrosys4 - WARNING  This is a sample WARNING message
+23:19:57          hydrosys4 - ERROR    This is a sample ERROR message
+23:19:57 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+23:20:02 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 23:20:02
+23:20:02 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 23:20:02
+23:20:12 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:20:19 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:20:31 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:20:50 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:20:52 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+23:20:55 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:21:01 hydrosys4.networkmod - INFO     Access point established: Hydrosys4quad
+23:21:01 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:21:04 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+23:24:07 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+23:24:16 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:24:16 hydrosys4.networkmod - INFO     check connected SSID 
+23:24:18 hydrosys4.networkmod - INFO     connected SSID AngeloAnnie 
+23:24:18 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+23:24:18 hydrosys4.networkmod - INFO     Google is reacheable ! 
+23:24:18 hydrosys4.networkmod - INFO     Send first mail ! 
+21:24:29 hydrosys4.networkdbmod - INFO     Basic network data acquired
+23:24:29          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 23:24:29
+23:24:29          hydrosys4 - DEBUG    This is a sample DEBUG message
+23:24:29          hydrosys4 - INFO     This is a sample INFO message
+23:24:29          hydrosys4 - WARNING  This is a sample WARNING message
+23:24:29          hydrosys4 - ERROR    This is a sample ERROR message
+23:24:30 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+23:24:35 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 23:24:35
+23:24:35 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 23:24:35
+23:24:44 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:24:52 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:25:03 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:25:05 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+23:25:08 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:25:14 hydrosys4.networkmod - INFO     Access point established: Hydrosys4quad
+23:25:14 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:25:17 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+23:28:20 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+23:28:29 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:28:29 hydrosys4.networkmod - INFO     check connected SSID 
+23:28:31 hydrosys4.networkmod - INFO     connected SSID AngeloAnnie 
+23:28:31 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+23:28:31 hydrosys4.networkmod - INFO     Google is reacheable ! 
+23:28:31 hydrosys4.networkmod - INFO     Send first mail ! 
+21:28:45 hydrosys4.networkdbmod - INFO     Basic network data acquired
+23:28:45          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-07-20 23:28:45
+23:28:45          hydrosys4 - DEBUG    This is a sample DEBUG message
+23:28:45          hydrosys4 - INFO     This is a sample INFO message
+23:28:45          hydrosys4 - WARNING  This is a sample WARNING message
+23:28:45          hydrosys4 - ERROR    This is a sample ERROR message
+23:28:46 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+23:28:51 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-07-20 23:28:51
+23:28:51 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-07-20 23:28:51
+23:29:02 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:29:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:29:15 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+23:29:17 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+23:29:20 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:29:26 hydrosys4.networkmod - INFO     Access point established: Hydrosys4quad
+23:29:26 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:29:29 hydrosys4.networkmod - WARNING  wifi access point up, wait 180 sec before try to connect to wifi network
+23:32:32 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+23:32:41 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:32:41 hydrosys4.networkmod - INFO     check connected SSID 
+23:32:43 hydrosys4.networkmod - INFO     connected SSID AngeloAnnie 
+23:32:43 hydrosys4.networkmod - INFO     Connected to Wifi Network AngeloAnnie, now testing connectivity
+23:32:43 hydrosys4.networkmod - INFO     Google is reacheable ! 
+23:32:43 hydrosys4.networkmod - INFO     Send first mail ! 
+23:33:46 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-07-20 23:33:46
+23:33:47 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: AngeloAnnie 
+23:33:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , wifi connection OK
+23:33:48 hydrosys4.selectedplanmod - INFO     Heartbeat check, IP address change detected. Send email with updated IP address
+23:33:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , Network time NTP: 20/07/2017 23:33 
+23:33:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , System time NTP: 20/07/2017 23:33 
+23:33:48 hydrosys4.selectedplanmod - INFO     Heartbeat check , Clock OK
+19:11:14 hydrosys4.networkdbmod - INFO     Basic network data acquired
+21:11:14          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 21:11:14
+21:11:14          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:11:14          hydrosys4 - INFO     This is a sample INFO message
+21:11:14          hydrosys4 - WARNING  This is a sample WARNING message
+21:11:14          hydrosys4 - ERROR    This is a sample ERROR message
+21:11:15 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:11:16 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+21:11:16 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:11:16 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+19:13:57 hydrosys4.networkdbmod - INFO     Basic network data acquired
+21:13:57          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 21:13:57
+21:13:57          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:13:57          hydrosys4 - INFO     This is a sample INFO message
+21:13:57          hydrosys4 - WARNING  This is a sample WARNING message
+21:13:57          hydrosys4 - ERROR    This is a sample ERROR message
+21:13:57 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:13:59 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+21:13:59 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:13:59 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:19:02 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 21:19:02
+21:19:02 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 21:19:02
+21:28:57 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-08-10 21:28:57
+21:28:59 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4quad 
+21:28:59 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+21:29:01 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+21:29:03 hydrosys4.selectedplanmod - WARNING  not able to establish an internet connection
+21:34:02 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 21:34:02
+21:34:03 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 21:34:03
+19:36:06 hydrosys4.networkdbmod - INFO     Basic network data acquired
+21:36:06          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 21:36:06
+21:36:06          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:36:06          hydrosys4 - INFO     This is a sample INFO message
+21:36:06          hydrosys4 - WARNING  This is a sample WARNING message
+21:36:06          hydrosys4 - ERROR    This is a sample ERROR message
+21:36:07 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:36:08 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+21:36:08 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:36:09 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:43:05 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 21:43:05
+21:43:05 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 21:43:05
+19:44:14 hydrosys4.networkdbmod - INFO     Basic network data acquired
+21:44:14          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 21:44:14
+21:44:14          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:44:14          hydrosys4 - INFO     This is a sample INFO message
+21:44:14          hydrosys4 - WARNING  This is a sample WARNING message
+21:44:14          hydrosys4 - ERROR    This is a sample ERROR message
+21:44:15 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:44:16 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+21:44:16 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:44:16 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:49:20 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 21:49:20
+21:49:20 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 21:49:20
+19:50:53 hydrosys4.networkdbmod - INFO     Basic network data acquired
+21:50:53          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 21:50:53
+21:50:53          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:50:53          hydrosys4 - INFO     This is a sample INFO message
+21:50:53          hydrosys4 - WARNING  This is a sample WARNING message
+21:50:53          hydrosys4 - ERROR    This is a sample ERROR message
+21:50:54 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:50:55 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+21:50:55 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:50:55 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:55:59 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 21:55:59
+21:55:59 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 21:55:59
+19:56:41 hydrosys4.networkdbmod - INFO     Basic network data acquired
+21:56:41          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 21:56:41
+21:56:41          hydrosys4 - DEBUG    This is a sample DEBUG message
+21:56:41          hydrosys4 - INFO     This is a sample INFO message
+21:56:41          hydrosys4 - WARNING  This is a sample WARNING message
+21:56:41          hydrosys4 - ERROR    This is a sample ERROR message
+21:56:41 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+21:56:42 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+21:56:42 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+21:56:42 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:01:46 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 22:01:46
+22:01:46 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 22:01:46
+20:03:41 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:03:41          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:03:41
+22:03:41          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:03:41          hydrosys4 - INFO     This is a sample INFO message
+22:03:41          hydrosys4 - WARNING  This is a sample WARNING message
+22:03:41          hydrosys4 - ERROR    This is a sample ERROR message
+22:03:41 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:03:42 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:03:42 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:03:42 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:08:46 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 22:08:46
+22:08:46 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 22:08:46
+22:18:41 hydrosys4.selectedplanmod - INFO     Start heartbeat routine 2017-08-10 22:18:41
+22:18:42 hydrosys4.selectedplanmod - INFO     Heartbeat check , Connected Wifi Network: Hydrosys4quad 
+22:18:42 hydrosys4.selectedplanmod - INFO     Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network
+22:18:45 hydrosys4.networkmod - INFO     No Saved Wifi Network available
+22:18:46 hydrosys4.selectedplanmod - WARNING  not able to establish an internet connection
+22:23:46 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 22:23:46
+22:23:46 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 22:23:46
+20:31:56 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:31:56          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:31:56
+22:31:56          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:31:56          hydrosys4 - INFO     This is a sample INFO message
+22:31:56          hydrosys4 - WARNING  This is a sample WARNING message
+22:31:56          hydrosys4 - ERROR    This is a sample ERROR message
+22:31:56 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:31:58 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:31:58 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:31:58 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+20:34:10 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:34:10          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:34:10
+22:34:10          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:34:10          hydrosys4 - INFO     This is a sample INFO message
+22:34:10          hydrosys4 - WARNING  This is a sample WARNING message
+22:34:10          hydrosys4 - ERROR    This is a sample ERROR message
+22:34:10 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:34:11 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:34:11 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:34:11 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+20:35:55 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:35:55          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:35:55
+22:35:55          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:35:55          hydrosys4 - INFO     This is a sample INFO message
+22:35:55          hydrosys4 - WARNING  This is a sample WARNING message
+22:35:55          hydrosys4 - ERROR    This is a sample ERROR message
+22:35:56 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:35:57 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:35:57 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:35:57 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+20:37:10 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:37:10          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:37:10
+22:37:10          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:37:10          hydrosys4 - INFO     This is a sample INFO message
+22:37:10          hydrosys4 - WARNING  This is a sample WARNING message
+22:37:10          hydrosys4 - ERROR    This is a sample ERROR message
+22:37:11 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:37:12 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:37:12 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:37:12 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:42:16 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 22:42:16
+22:42:16 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 22:42:16
+20:42:34 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:42:34          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:42:34
+22:42:34          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:42:34          hydrosys4 - INFO     This is a sample INFO message
+22:42:34          hydrosys4 - WARNING  This is a sample WARNING message
+22:42:34          hydrosys4 - ERROR    This is a sample ERROR message
+22:42:34 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:42:36 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:42:36 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:42:36 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+20:44:56 hydrosys4.networkdbmod - INFO     Basic network data acquired
+22:44:56          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 22:44:56
+22:44:56          hydrosys4 - DEBUG    This is a sample DEBUG message
+22:44:56          hydrosys4 - INFO     This is a sample INFO message
+22:44:56          hydrosys4 - WARNING  This is a sample WARNING message
+22:44:56          hydrosys4 - ERROR    This is a sample ERROR message
+22:44:57 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+22:44:58 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+22:44:58 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:44:58 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+22:50:02 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-10 22:50:02
+22:50:02 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-10 22:50:02
+21:00:06 hydrosys4.networkdbmod - INFO     Basic network data acquired
+23:00:06          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-10 23:00:06
+23:00:06          hydrosys4 - DEBUG    This is a sample DEBUG message
+23:00:06          hydrosys4 - INFO     This is a sample INFO message
+23:00:06          hydrosys4 - WARNING  This is a sample WARNING message
+23:00:06          hydrosys4 - ERROR    This is a sample ERROR message
+23:00:06 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+23:00:08 hydrosys4.networkmod - INFO     Already working as access poin Hydrosys4quad
+23:00:08 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+23:00:09 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192

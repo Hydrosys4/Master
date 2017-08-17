@@ -107,6 +107,42 @@ def getActuatorDataPeriod(selsensor,sensordata,enddate,pastdays):
 				print "Error in database reading ",rowdata
 
 	# sensor data --------------------------------------------
+	
+def getAllActuatorDataPeriodv2(enddate,pastdays):
+	usedsensorlist=[]
+	num = int(pastdays)
+	tdelta=timedelta(days=num)
+	startdate=enddate-tdelta
+	print " stratdate " ,startdate
+	print " enddate ", enddate
+	outputallsensordata=[]
+	sensorlist=gettablelist()
+	for selsensor in sensorlist:
+		allsensordata=[]
+		getActuatordbdata(selsensor,allsensordata)
+		sensordata=[]
+		# fetch raw data from database
+		for rowdata in allsensordata:
+			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			if (dateref>=startdate)and(dateref<=enddate):
+				try:
+					value=float(rowdata[1])/1000
+					dateinsecepoch=(dateref - datetime(1970,1,1)).total_seconds()
+					templist=[rowdata[0], value]
+					sensordata.append(templist)
+				except ValueError:
+					print "Error in database reading ",rowdata
+		if len(sensordata)>0:
+			outputallsensordata.append(sensordata)
+			usedsensorlist.append(selsensor)
+	
+		
+	return outputallsensordata,usedsensorlist
+	# sensor data --------------------------------------------	
+	
+	
+	
+
 
 def RemoveActuatorDataPeriod(removebeforedays):
 	sensordata=[]

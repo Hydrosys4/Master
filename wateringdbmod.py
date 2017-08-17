@@ -152,7 +152,12 @@ def getrowdata(recordvalue,paramlist,index):
 		if recordkey in ln:
 			if ln[recordkey]==recordvalue:
 				for param in paramlist:
-						datalist.append(int(ln[param][index]))					
+					try:					
+						datalist.append(int(ln[param][index]))			
+					except Exception, e:
+						print 'Failed to load value, set value to zero. Error: '+ str(e)
+						datalist.append(0)							
+
 	return datalist
 
 def gettable(index):
