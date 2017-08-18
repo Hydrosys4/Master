@@ -9,7 +9,8 @@ For the designed applications the supporting hardware platform and sensors are c
 More details can be found on my webpage https://hydrosysblog.wordpress.com/
 #
 
-For installation please download the installer in the bash folder and run it on the fresh installation of the raspbian jessie lite.
+For installation please download the installer in the bash folder and run it on the fresh installation of the raspbian jessie lite. Before installation please remember to enable the camera (if you are using the raspicam). Camera canbe enables using the raspi-config command and searching for camera.
+Below the required steps to install the hydrosys4 on you jessie raspbian lite:
 
 wget https://raw.githubusercontent.com/Hydrosys4/Master/master/bash/install_hydrosys4.sh
 
