@@ -23,7 +23,7 @@ DATABASEPATH="database"
 global DATAFILENAME
 DATAFILENAME="network.txt"
 global DEFDATAFILENAME
-DEFDATAFILENAME="default/defftdata.txt"
+DEFDATAFILENAME="" # not neded, default read from the hpstapd config file
 
 BASICDATAFILENAME="/etc/hostapd/hostapd.conf"
 

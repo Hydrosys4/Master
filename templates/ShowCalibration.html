@@ -3,6 +3,10 @@
 {% block body %}
   {% if session.logged_in %}
   <div class="container-fluid">
+	  
+	  
+
+	  
 		<script type=text/javascript>
 
 			
@@ -699,18 +703,20 @@
 
 				</div>
 			</div>	
-			</div>
-			{% endfor %}
-
-
 			<div class="row">
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
 				<div class="col-xs-4">
-					<label id="mailteststatus" for="input_3">Status</label>
+					<label id="mailteststatus" class="mailteststatus" for="input_3">Status</label>
 				</div>
-			</div>	
+			</div>				
+			
+			</div>
+			{% endfor %}
+
+
+
 
 
 			
@@ -720,7 +726,7 @@
 				$(".testmailbutton").click(function() {
 				//alert("test button pressed");
 				// send ajax interrupt to flask to initiate the actuator test
-				$('#mailteststatus').text("Started ...");
+				$('.mailteststatus').text("Started ...");
 				var prid=$(this).attr('name');
 				var elem=$(this).attr('element');
 					$.ajax({
@@ -729,7 +735,7 @@
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
-									$('#mailteststatus').text(data.answer);
+									$('.mailteststatus').text(data.answer);
 								},
 								//error: function(jqXHR, textStatus, errorThrown) {
 								//    alert(errorThrown);
@@ -739,7 +745,7 @@
 				
 				$(".savemailbutton").click(function() {
 				// send ajax interrupt to flask to save parameters
-				$('#mailteststatus').text("Saving");
+				$('.mailteststatus').text("Saving");
 				var prid=$(this).attr('name');
 				var elem=$(this).attr('element');
 					$.ajax({
@@ -748,10 +754,7 @@
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
-									$('#mailteststatus').text(data.answer);
-									if (data.answer=="saved"){
-										$('#mailteststatus').text("Saved");
-									}
+									$('.mailteststatus').text(data.answer);
 								},
 								//error: function(jqXHR, textStatus, errorThrown) {
 								//    alert(errorThrown);
@@ -808,11 +811,10 @@
 
 				<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Select Country</label>
+					<label>Select Country:</label>
 				</div>
-				</div>
-				<div class="row">			
-				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+		
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 					<select class="selectpicker settimezone" data-live-search="true">
 					{% for country in countries %}
 
@@ -827,10 +829,8 @@
 
 					</select>
 
-				</div>
-			
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<button id="settimezone" class="timezonebutton btn btn-default"  type="button" name="timezone" element="settimezone">SetTimeZone</button>
+
+					<button id="settimezone" class="timezonebutton btn btn-default"  type="button" name="timezone" element="settimezone">SaveTimeZone</button>
 				</div>
 				</div>			
 			</div>				
@@ -846,17 +846,12 @@
 
 				<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Read System Time</label>
+					<label>Read System Time:</label>
 				</div>
-				</div>	
-
-			
-				<div class="row">
-					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 						<button id="readsystemdate" class="clockbutton btn btn-default" type="button" name="clock" element="system">Readsystemclock</button>
 		
-					</div>
-					<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
 						<label id="clockvalue_system" for="input_3"></label>
 					</div>
 				</div>	
@@ -866,16 +861,13 @@
 
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Read Network Time</label>
+					<label>Read Network Time:</label>
 				</div>
 
-			</div>	
-						
-			<div class="row">				
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+			
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 					<button id="readnetworkclock" class="clockbutton btn btn-default"  type="button" name="clock" element="network">Readnetworkclock</button>
-				</div>
-				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+
 					<label id="clockvalue_network" for="input_3"></label>
 				</div>
 			</div>	
@@ -886,29 +878,20 @@
 			
 				<div class="row">
 					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-						<label>Set system time</label>
+						<label>Set system time:</label>
 					</div>
-
-				</div>	
-
-			
-
-				<div class="row">
-					<div class='col-lg-6 col-md-6 col-sm-6 col-xs-12'>
-						<div class="form-group">
-							<div class='input-group date datetimepicker'>
-								<input readonly="readonly" name="setclock" type='text' class="setclock form-control" value="{{initdatetime}}" >
-								<span class="input-group-addon">
-									<span class="glyphicon glyphicon-calendar"></span>
-								</span>
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+							<div class="form-group">
+								<div class='input-group date datetimepicker'>
+									<input readonly="readonly" name="setclock" type='text' class="setclock form-control" value="{{initdatetime}}" >
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+								</div>
 							</div>
-						</div>
-					</div>
-					
-					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-						<button id="setHWClock" class="clockbutton btn btn-default"  type="button" name="clock" element="setHWClock">SetHWClock</button>
-					</div>
-					
+						
+							<button id="setHWClock" class="clockbutton btn btn-default"  type="button" name="clock" element="setHWClock">SetHWClock</button>
+					</div>					
 					<script type="text/javascript">
 						$(function () {
 							$('.datetimepicker').datetimepicker({
@@ -926,7 +909,7 @@
 
 			
 			
-			</div> <!-- end well -->
+
 
 
 
@@ -938,7 +921,7 @@
 					<label id="clockteststatus" for="input_3">Status</label>
 				</div>
 			</div>	
-
+			</div> <!-- end well -->
 			<script type=text/javascript> <!-- timezone -->
 			  $(function() {
 				$(".timezonebutton").click(function() {
@@ -953,7 +936,7 @@
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
-									$('#clockteststatus').text(data.answer);							
+									$('#clockteststatus').text(data.answer);		
 								},
 								//error: function(jqXHR, textStatus, errorThrown) {
 								//    alert(errorThrown);

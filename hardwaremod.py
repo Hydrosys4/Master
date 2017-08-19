@@ -66,7 +66,7 @@ HW_FUNC_SCHEDTYPE="schedulingtype" # function group , optional, between "oneshot
 HW_FUNC_TIME="time"  #function group , optional, description of time or interval to activate the item depending on the "schedulingtype" item, in case of interval information the minutes are used for the period, seconds are used for start offset
 
 USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "powercontrol", "N/A"]
-MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture"]
+MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture","Percentage"]
 MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs", "Volt"]
 
 
@@ -257,6 +257,7 @@ def makepulse(target,duration):
 def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
 	#search the data in IOdata
 	
+	
 	print "Move Servo - ", target #normally is servo1
 	
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
@@ -270,9 +271,14 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 
 		dutycycle= str(int(MIN)+(int(MAX)-int(MIN))*int(percentage)/float(100))
 
+		if 0<=int(percentage)<=100:
+			print "range OK"
+		else:
+			print " No valid data for Servo ", target
+			return "error"
 
 	except ValueError:
-		print " No valid data or zero for Doser ", target
+		print " No valid data for Servo", target
 		return "error"
 
 
@@ -371,10 +377,11 @@ def initallGPIOoutput():
 					HWcontrol.GPIO_output(int(ln[HW_CTRL_PIN]), 1)
 					
 			if (HW_CTRL_PWRPIN in ln):
-				if (ln[HW_CTRL_PWRPIN]!=""):
+				try: 
 					HWcontrol.GPIO_setup(int(ln[HW_CTRL_PWRPIN]), "out")
 					HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0)
-
+				except ValueError:
+					print "powerpin not se because is not a number"
 	print HWcontrol.GPIO_data
 	return True
 

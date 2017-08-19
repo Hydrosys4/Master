@@ -521,6 +521,8 @@ def echo():
 	
 @application.route('/doit/', methods=['GET'])
 def doit():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
     # send command to the actuator for test
 	cmd=""
 	sendstring=""
@@ -603,7 +605,7 @@ def doit():
 			print "datetime Local ->" ,datetime
 			answer=clockmod.setsystemclock(datetime)
 			answer=clockmod.setHWclock(datetime)
-					
+
 		ret_data = {"answer":answer, "value":datetime}
 
 	elif name=="timezone":
@@ -613,12 +615,14 @@ def doit():
 			print "Set timezone ->" ,timezone
 			answer=clockmod.settimezone(timezone)
 			clockdbmod.changesavesetting("timezone",timezone)
-		ret_data = {"answer":"ready"}
+		ret_data = {"answer":"Saved"}
 
 	return jsonify(ret_data)
 
 @application.route('/saveit/', methods=['GET'])
 def saveit():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
     # send command to the actuator for test
 	cmd=""
 	sendstring=""
@@ -670,6 +674,8 @@ def saveit():
 	
 @application.route('/downloadit/', methods=['GET'])
 def downloadit():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
     # send command to the actuator for test
 	recdata=[]
 	ret_data={}
@@ -735,6 +741,8 @@ def downloadit():
 	
 @application.route('/testit/', methods=['GET'])
 def testit():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
     # this is used for debugging purposes, activate the functiontest from web button
 	recdata=[]
 	ret_data={}
@@ -812,7 +820,14 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 			emaildbmod.restoredefault()
 			networkmod.restoredefault()
 			logindbmod.restoredefault()
-
+			cameradbmod.restoredefault()
+			# try to align the config to new setting (this is not tested properly, better reboot in this case)
+			wateringdbmod.consitencycheck()
+			fertilizerdbmod.consitencycheck()
+			#scheduler setup---------------------
+			selectedplanmod.setmastercallback()
+			#initiate the GPIO OUT pins
+			hardwaremod.initallGPIOoutput()		
 
 	actuatorlist=[]
 	actuatorlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"pulse",hardwaremod.HW_INFO_NAME)
@@ -1200,6 +1215,11 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 			if isok:
 				hardwaremod.addrow(dictrow)		
 				flash('Table has been saved')
+				# apply changes to the system (this is not best way, should be system reset indeed
+				wateringdbmod.consitencycheck()
+				fertilizerdbmod.consitencycheck()
+				hardwaremod.initallGPIOoutput()	
+				
 			else:
 				print "problem ", message
 				flash(message, 'danger')				
@@ -1214,22 +1234,31 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 
 			
 			# copy file to the default HWdata
-			dstfilename=hardwaremod.DEFHWDATAFILENAME
 			filename=os.path.join(MYPATH, selectedpath)
-
 			folderpath=os.path.join(MYPATH, hardwaremod.DATABASEPATH)
-			dst=os.path.join(folderpath, dstfilename)
-			print "Source selected path ", filename , " Destination ", dst
+			dstdef=os.path.join(folderpath, hardwaremod.DEFHWDATAFILENAME)
+			print "Source selected path ", filename , " Destination ", dstdef
 
+			isdone=False
 			try:
-				shutil.copyfile(filename, dst)
+				shutil.copyfile(filename, dstdef) #this is the default HW file
 				answer="ready"
+				isdone=True
 			except:
 				answer="problem copying file"
+				
+				
+			# apply changes to the system
+			if isdone:
+				hardwaremod.restoredefault() # copy default to normal file and reload HWdata
+				wateringdbmod.consitencycheck()
+				fertilizerdbmod.consitencycheck()
+				#scheduler setup---------------------
+				selectedplanmod.setmastercallback()
+				#initiate the GPIO OUT pins
+				hardwaremod.initallGPIOoutput()			
 			
-			print answer
-			if answer=="ready":
-				hardwaremod.restoredefault()
+				
 
 
 	return render_template('hardwaresetting.html',fields=fields, hwdata=hwdata, tablehead=tablehead , HWfilelist=HWfilelist)
@@ -1267,6 +1296,8 @@ def videostream():
 
 @application.route('/videocontrol/', methods=['GET'])
 def videocontrol():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
     # this is used for debugging purposes, activate the functiontest from web button
 	ret_data={}
 	cmd=""

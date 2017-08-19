@@ -14,4 +14,5 @@
 {"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "empty3", "pin": "16", "usefor": "N/A", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
 {"IOtype": "output" ,"usefor": "mailcontrol", "mailaddress": "", "controllercmd": "mail+info+link","name": "mail1", "time": "10:00", "mailtitle": "Hydrosys today report", "measure" : "Mail"  , "unit" : "pcs" , "schedulingtype":"oneshot"}
 {"IOtype": "output" ,"usefor": "mailcontrol", "mailaddress": "", "controllercmd": "mail+info","name": "mail2", "time": "10:00", "mailtitle": "Hydrosys today report", "measure" : "Mail"  , "unit" : "pcs" , "schedulingtype":"oneshot"}
-{"IOtype": "output" ,"usefor": "photocontrol", "controllercmd": "photo", "name": "photo", "time": "09:30", "measure" : "Photo"  , "unit" : "pcs", "schedulingtype":"oneshot"} 
+{"IOtype": "output" ,"usefor": "photocontrol", "controllercmd": "photo", "name": "photo", "time": "09:30", "measure" : "Photo"  , "unit" : "pcs", "schedulingtype":"oneshot"}
+{"ADCchannel": "0", "IOtype": "output", "controllercmd": "servo", "frequency": "50", "logic": "pos", "mailaddress": "", "mailtitle": "", "max": "12", "measure": "Percentage", "min": "2", "name": "servo1", "pin": "21", "powerpin": "N/A", "schedulingtype": "oneshot", "time": "", "unit": "C", "usefor": "N/A"}

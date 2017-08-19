@@ -86,11 +86,15 @@ def consitencycheck():
 	print "to remove " , tabletoremove
 	print "FTdata ", FTdata
 	
-	# get the line with element
-	for ln in FTdata:
+	# get the dictionary line with an element as reference (from default file)
+	defdata=[]
+	filestoragemod.readfiledata(DEFFTDATAFILENAME,defdata)
+	for ln in defdata:
 		if recordkey in ln:
 			referenceln=dict(ln)
 			break
+			
+			
 	for tablename in tabletoadd:
 		# add copying from element:"1"
 		print "adding table ", tablename

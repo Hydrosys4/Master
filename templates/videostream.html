@@ -115,6 +115,8 @@
 				var prid=$(this).attr('name');
 				var elem = $(this).attr('item');
 				position=Number(position)+Number(elem);
+				if (position<0) {position=0;}
+				if (position>100) {position=100;}
 				$('#servoteststatus').val("---");
 				$.ajax({
 							type: "GET",

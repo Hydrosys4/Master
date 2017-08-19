@@ -86,8 +86,10 @@ def consitencycheck():
 	print "to remove " , tabletoremove
 	print "WTdata ", WTdata
 	
-	# get the dictionary line with an element as reference
-	for ln in WTdata:
+	# get the dictionary line with an element as reference (from default file)
+	defWTdata=[]
+	filestoragemod.readfiledata(DEFWTDATAFILENAME,defWTdata)
+	for ln in defWTdata:
 		if recordkey in ln:
 			referenceln=dict(ln)
 			break
