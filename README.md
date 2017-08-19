@@ -54,3 +54,4 @@ The system will now stop its own wifi network and connect to selected wifi.
 Remark, in case the system lost the wifi connectivity it will restart its own wifi network.
 
 for other settings and more complete information please conside to visi the site https://hydrosysblog.wordpress.com/
+
