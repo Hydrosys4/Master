@@ -16,5 +16,5 @@ HYDROSYSTEM SW LEVEL:
 10) check port is set 5012-> go to networkmod.py and check around row 18, PUBLICPORT=5012
 11) check IP is set to 192.168.0.172 -> go to networkmod.py and check around row 18, IPADDRESS ='192.168.0.172'
 13) AP wifi to Network switch time to 180 sec (3 minutes) -> go to networkmod.py and check around row 18, WAITTOCONNECT=180
-
+14) bash, ensure the latest bash file is install_hydreosys4.sh
 

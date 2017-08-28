@@ -108,7 +108,17 @@ def connect_preconditions():
 
 	
 def connectedssid():
-	cmd = ['iw', 'wlan0', 'info']
+	cmd = ['iw', 'dev', 'wlan0', 'info']
+	wordtofind="ssid"
+	ssids=iwcommand(cmd,wordtofind)
+	if not ssids:
+		cmd = ['iw', 'dev', 'wlan0', 'link']
+		wordtofind="SSID"
+		ssids=iwcommand(cmd,wordtofind)
+	print "Connected to ", ssids
+	return ssids
+
+def iwcommand(cmd,wordtofind):
 	scanoutput = subprocess.check_output(cmd).decode('utf-8')
 	time.sleep(1.5)	
 	#scanoutput = subprocess.check_output('iw ' , 'wlan0 ' , 'info ', stderr=subprocess.STDOUT)
@@ -116,13 +126,15 @@ def connectedssid():
 	ssids=[]
 	for line in scanoutput.split('\n'):
 		#print " line ",line
-		strstart=line.find("ssid")
+		strstart=line.find(wordtofind)
 		if strstart>-1:
-			substr=line[(strstart+len("ssid")):]
+			substr=line[(strstart+len(wordtofind)):]
 			ssid=substr.strip()
+			ssid=ssid.strip(":")
+			ssid=ssid.strip()
 			ssids.append(ssid)
-	print "Connected to ", ssids
 	return ssids
+
 
 
 def start_hostapd():
@@ -530,17 +542,21 @@ def get_external_ip():
 	try:
 		proc=subprocess.Popen(shlex.split(cmd),stdout=subprocess.PIPE)
 		out,err=proc.communicate()
+		logger.info('Got reply from openDNS')
 	except:
 		print "External IP Error "
 		logger.error('Error to get External IP')
 		return ""
+
 	ipaddr=out.split('\n')[0]
 	if not is_ipv4(ipaddr):
 		print "External IP Error "
 		logger.error('Error to get external IP , wrong syntax')
 		return ""
 	
-	print ipaddr
+	
+	print "External IP address " , ipaddr
+	logger.info("External IP address %s" , ipaddr)
 	#myip = urllib2.urlopen("http://myip.dnsdynamic.org/").read()
 	#print myip
 	#cross check 
@@ -548,7 +564,7 @@ def get_external_ip():
 	#	print "same addresses"
 	#else:
 	#	print "check failed"
-	return out
+	return ipaddr
 
 def get_local_ip():
 	try:
