@@ -94,10 +94,10 @@ def getcameradata(videolist):
 		if (not found):
 			newline={}
 			newline["camname"]=video
-			newline["resolution"]=searchdatalist("name","default","resolution")
-			newline["position"]=searchdatalist("name","default","position")
-			newline["servo"]=searchdatalist("name","default","servo")
-			newline["time"]=searchdatalist("name","default","time")
+			newline["resolution"]=searchdata("name","default","resolution")
+			newline["position"]=searchdata("name","default","position")
+			newline["servo"]=searchdata("name","default","servo")
+			newline["time"]=searchdata("name","default","time")
 			exportdata.append(newline)			
 		
 	return exportdata
