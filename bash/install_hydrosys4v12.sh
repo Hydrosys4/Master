@@ -61,23 +61,23 @@ function install_dependencies()
 
 #--- start installing dependencies
 
-sudo apt-get -y install python-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo apt-get -y install python-pip || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install flask || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install apscheduler || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install pyserial || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install python-dev
+sudo apt-get -y install python-pip
+sudo pip install flask
+sudo pip install apscheduler
+sudo pip install pyserial
 
 #(for the webcam support)
-sudo apt-get -y install fswebcam || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install fswebcam 
 
 #(for external IP address, using DNS)
-sudo apt-get -y install dnsutils || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install dnsutils
 
 #(encryption)
-sudo pip install pbkdf2 || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip install pbkdf2 
 
 #(web server)
-sudo pip install tornado || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip install tornado
 
 }
 
@@ -112,8 +112,8 @@ sed -i -e "\$abcm2835-v4l2" $aconf
 
 
 # --- install I2C tools
-sudo apt-get -y install git build-essential python-dev python-smbus || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo apt-get -y install -y i2c-tools  || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install git build-essential python-dev python-smbus
+sudo apt-get -y install -y i2c-tools
 
 }
 
@@ -230,7 +230,7 @@ install_DHT22lib ()
 {
 
 # --- installing the DHT22 Sensor libraries	
-sudo apt-get -y install build-essential python-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install build-essential python-dev
 
 # check if file exist in local folder
 aconf="/home/pi/env/autonom/libraries/DHT22/master.zip"
@@ -262,7 +262,7 @@ install_SPIlib ()
 
 # --- INSTALL SPI library:
 
-sudo apt-get -y install python2.7-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install python2.7-dev 
 
 # check if file exist in local folder
 aconf="/home/pi/env/autonom/libraries/SPI/master.zip"
@@ -302,7 +302,7 @@ install_BMPlib ()
 
 # --- INSTALL BMP180 library (pressure sensor)
 
-sudo apt-get -y install build-essential python-dev python-smbus || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install build-essential python-dev python-smbus
 
 
 # check if file exist in local folder
@@ -333,7 +333,7 @@ fi
 install_hydrosys4 ()
 {
 # --- INSTALL Hydrosys4 software
-sudo apt-get -y install git || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install git
 
 
 # check if file exist in local folder
@@ -363,7 +363,7 @@ fi
 fn_hostapd ()
 {
 
-sudo apt-get -y install hostapd || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install hostapd	
 	
 	
 # create hostapd.conf file
@@ -405,7 +405,7 @@ sudo systemctl enable hostapd.service
 fn_dnsmasq ()
 {
 	
-sudo apt-get -y install dnsmasq || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install dnsmasq
 
 	
 # edit /etc/dnsmasq.conf file
@@ -519,7 +519,7 @@ install_squid3 ()
 # this function is used to install the squid3 program used as reverse proxy
 cd /home/pi
 
-sudo apt-get install squid3 -y || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get install squid3 -y
 
 # add configuration to squid.conf, the file should already exist if installation is succesful
 aconf="/etc/squid3/squid.conf"
@@ -535,9 +535,9 @@ sudo bash -c "cat >> $aconf" << EOF
 
 # hydrosys4 configurations
 
-http_port $PORT accel defaultsite=hydrosys4 vhost
+http_port 5012 accel defaultsite=hydrosys4 vhost
 
-acl Safe_ports port $PORT  # unregistered ports
+acl Safe_ports port 5012  # unregistered ports
 
 acl videostream urlpath_regex \?action=stream
 
@@ -571,6 +571,7 @@ http_access allow localhost manager
 http_access deny manager
 http_access allow localhost
 http_access deny all
+http_port 3128
 coredump_dir /var/spool/squid
 refresh_pattern ^ftp:		1440	20%	10080
 refresh_pattern ^gopher:	1440	0%	1440

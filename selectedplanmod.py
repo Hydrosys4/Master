@@ -178,6 +178,7 @@ def heartbeat():
 	if connected:
 		# Check if remote IP address is changed compared to previous communication and in such case resend the mail	
 		ipext=networkmod.get_external_ip()
+		logger.info('Heartbeat check , Check IP address change %s', ipext)
 		if ipext!="":
 			if ipext!=emailmod.IPEXTERNALSENT:
 				print "Heartbeat check, IP address change detected. Send email with updated IP address"
@@ -186,6 +187,8 @@ def heartbeat():
 
 		# Check current time is less than 60 second different from NTP information
 		# try to get the clock from network
+		print "check system clock"
+		logger.info('Heartbeat check, check clock')
 		networktime=clockmod.getNTPTime()
 		logger.info('Heartbeat check , Network time NTP: %s ', networktime)
 		systemtime=clockmod.readsystemdatetime()

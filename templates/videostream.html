@@ -274,6 +274,7 @@
 								contentType: "application/json",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
+									if (data.answer == "login") {document.location.href="/";}
 									$('#actuatorstatus').text(data.answer);
 									$('button[name=stop]').text('Start');
 									$('button[name=stop]').removeClass('btn-danger');

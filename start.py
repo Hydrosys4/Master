@@ -522,7 +522,8 @@ def echo():
 @application.route('/doit/', methods=['GET'])
 def doit():
 	if not session.get('logged_in'):
-		return render_template('login.html',error=None, change=False)
+		ret_data = {"answer":"Login Needed"}
+		return jsonify(ret_data)
     # send command to the actuator for test
 	cmd=""
 	sendstring=""
@@ -622,7 +623,8 @@ def doit():
 @application.route('/saveit/', methods=['GET'])
 def saveit():
 	if not session.get('logged_in'):
-		return render_template('login.html',error=None, change=False)
+		ret_data = {"answer":"Login needed"}
+		return jsonify(ret_data)
     # send command to the actuator for test
 	cmd=""
 	sendstring=""
@@ -675,7 +677,8 @@ def saveit():
 @application.route('/downloadit/', methods=['GET'])
 def downloadit():
 	if not session.get('logged_in'):
-		return render_template('login.html',error=None, change=False)
+		ret_data = {"answer":"Login Needed"}
+		return jsonify(ret_data)
     # send command to the actuator for test
 	recdata=[]
 	ret_data={}
@@ -742,8 +745,9 @@ def downloadit():
 @application.route('/testit/', methods=['GET'])
 def testit():
 	if not session.get('logged_in'):
-		return render_template('login.html',error=None, change=False)
-    # this is used for debugging purposes, activate the functiontest from web button
+		ret_data = {"answer":"Login Needed"}
+		return jsonify(ret_data)
+   # this is used for debugging purposes, activate the functiontest from web button
 	recdata=[]
 	ret_data={}
 	
@@ -1272,7 +1276,8 @@ def currentpath(filename):
 def functiontest():
 	print " testing "
 	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
-	hardwaremod.takephoto()
+	#hardwaremod.takephoto()
+	selectedplanmod.heartbeat()
 
 
 	return True
@@ -1297,7 +1302,9 @@ def videostream():
 @application.route('/videocontrol/', methods=['GET'])
 def videocontrol():
 	if not session.get('logged_in'):
-		return render_template('login.html',error=None, change=False)
+		ret_data = {"answer":"login"}
+		videocontrolmod.stop_stream()
+		return jsonify(ret_data)
     # this is used for debugging purposes, activate the functiontest from web button
 	ret_data={}
 	cmd=""

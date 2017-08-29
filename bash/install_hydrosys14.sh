@@ -535,9 +535,9 @@ sudo bash -c "cat >> $aconf" << EOF
 
 # hydrosys4 configurations
 
-http_port $PORT accel defaultsite=hydrosys4 vhost
+http_port 5012 accel defaultsite=hydrosys4 vhost
 
-acl Safe_ports port $PORT  # unregistered ports
+acl Safe_ports port 5012  # unregistered ports
 
 acl videostream urlpath_regex \?action=stream
 
@@ -571,6 +571,7 @@ http_access allow localhost manager
 http_access deny manager
 http_access allow localhost
 http_access deny all
+http_port 3128
 coredump_dir /var/spool/squid
 refresh_pattern ^ftp:		1440	20%	10080
 refresh_pattern ^gopher:	1440	0%	1440
