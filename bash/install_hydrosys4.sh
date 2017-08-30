@@ -239,8 +239,8 @@ if [ -f $aconf ]; then
 	cd /home/pi/env/autonom/libraries/DHT22
 	unzip master.zip
 	cd Adafruit_Python_DHT-master
-	# setup1+2 is file that try to make the DTH22 work with both RaspberryPi zero,1 and model 2,3 
-	sudo python setup1+2.py install
+	# setup1plus is file that try to make the DTH22 work with both RaspberryPi zero,1 and model 2,3 
+	sudo python setup1plus.py install
 	cd /home/pi
 else
 	cd /home/pi
