@@ -63,9 +63,9 @@ def changecreatesetting(name,camname,parameter,value):
 	for line in data:
 		if line["name"]==name:
 			if line["camname"]==camname:
-					line[parameter]=value #this change the parameter or create one if not existing
-			return True
-	# need to create append new dictionary
+				line[parameter]=value #this change the parameter or create one if not existing
+				return True
+	# need to create append new dictionary line
 	newline={}
 	newline["name"]=name
 	newline["camname"]=camname

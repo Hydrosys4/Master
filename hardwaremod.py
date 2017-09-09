@@ -606,15 +606,20 @@ def takephoto():
 	print "take photo", " " , datetime.now()
 	videolist=videodevlist()
 	for video in videolist:
-		resolution=cameradbmod.searchdatalist("camname",video,"resolution")[0]
-		position=cameradbmod.searchdatalist("camname",video,"position")[0]
-		servo=cameradbmod.searchdatalist("camname",video,"servo")[0]
+		resolution=cameradbmod.searchdata("camname",video,"resolution") # if not found return ""
+		position=cameradbmod.searchdata("camname",video,"position")
+		servo=cameradbmod.searchdata("camname",video,"servo")
+		print "Camera: ", video , " Resolution ", resolution , " Position " , position
 		positionlist=position.split(",")
-		for positionvalue in positionlist:
-		# move servo
-			servoangle(servo,positionvalue,2)
+		if (positionlist)and(servo!="none"):
+			for positionvalue in positionlist:
+			# move servo
+				servoangle(servo,positionvalue,2)
+				ret_data={}
+				ret_data=shotit(video,False,resolution,positionvalue)
+		else:
 			ret_data={}
-			ret_data=shotit(video,False,resolution,positionvalue)
+			ret_data=shotit(video,False,resolution,"0")			
 		logger.info(ret_data["answer"])
 
 #-- start LOGGING utility--------////////////////////////////////////////////////////////////////////////////////////

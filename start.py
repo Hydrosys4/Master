@@ -55,7 +55,7 @@ application.config.from_object('flasksettings') #read the configuration variable
 global SELTABLENAME
 SELTABLENAME=""
 global DEBUGMODE
-DEBUGMODE=False
+DEBUGMODE=True
 global PUBLICMODE
 PUBLICMODE=True
 MYPATH=""
@@ -1276,8 +1276,8 @@ def currentpath(filename):
 def functiontest():
 	print " testing "
 	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
-	#hardwaremod.takephoto()
-	selectedplanmod.heartbeat()
+	hardwaremod.takephoto()
+	#selectedplanmod.heartbeat()
 
 
 	return True
