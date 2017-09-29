@@ -85,9 +85,18 @@ update with new setting interface for camera and servo motor for camera
 
 major update, changed the reverse proxy NGINX with Squid3.
 
-This should improve the performance of the video streaming.
+This should improve the performance of the video streaming. (Actually test shows that there are no difference in performances)
 
 Still open To be investigated problem with rpi0 where the log and scheduling failed after some days
+
+2017-09-10 -> release 63
+
+Added support for servo motors to rotate the camera
+
+2017-09-29 -> release 64
+
+Found issue that stopped the scheduler when interrogating the server for the NTP time protocol, the socket request has now a timeout of 2 seconds
+
 
 
 

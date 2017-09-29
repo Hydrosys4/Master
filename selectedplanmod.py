@@ -195,6 +195,7 @@ def heartbeat():
 		logger.info('Heartbeat check , System time NTP: %s ', systemtime)
 		if not networktime=='':
 			diffsec=clockmod.timediffinsec(networktime, systemtime)
+			logger.info('Heartbeat check , difference between system time and network time, diffsec =  %d ', diffsec)
 			if diffsec>60:
 				print "Heartbeat check , warning difference between system time and network time >60 sec, diffsec = " , diffsec
 				logger.warning('Heartbeat check , warning difference between system time and network time >60 sec, diffsec =  %d ', diffsec)

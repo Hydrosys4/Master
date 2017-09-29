@@ -22,8 +22,12 @@ print "timezone set to ->", timezone
 # ///////////////// --- END GLOBAL VARIABLES AND INIT------
 
 def timediffinsec(timestr1, timestr2):
-	datetime1=datetime.strptime(timestr1, DATEFORMAT)
-	datetime2=datetime.strptime(timestr2, DATEFORMAT)	
+	try:
+		datetime1=datetime.strptime(timestr1, DATEFORMAT)
+		datetime2=datetime.strptime(timestr2, DATEFORMAT)	
+	except:
+		print "Time in wrong format, not able to make diffsec "
+		return 0	
 	delta=datetime2-datetime1
 	timediff=abs(delta.total_seconds())
 	return timediff
@@ -42,10 +46,19 @@ def getNTPTime(host = "pool.ntp.org"):
 	TIME1970 = 2208988800L # 1970-01-01 00:00:00
 
 	# connect to server
+	client = socket.socket( AF_INET, SOCK_DGRAM)
+	client.settimeout(2)
+	client.sendto(msg, address)
 	try:
-		client = socket.socket( AF_INET, SOCK_DGRAM)
-		client.sendto(msg, address)
 		msg, address = client.recvfrom( buf )
+	except socket.timeout, e:
+		print "server timeout"
+		return ""		
+	except socket.error, e:
+		print "connection error"
+		return ""		
+	
+	if msg:
 		t = struct.unpack( "!12I", msg )[10]
 		t -= TIME1970
 		#strvalue=time.ctime(t).replace("  "," ")
@@ -53,11 +66,10 @@ def getNTPTime(host = "pool.ntp.org"):
 		strvalueUTC=datetimevalue.strftime(DATEFORMAT)
 		strvalue=convertUTCtoLOC(strvalueUTC)
 		return strvalue
-	except:
-		print "Not able to retrieve Network Clock "
-		#logging.error('Not able to retrieve Network Clock ')
-		return ""	
-		
+	else:
+		print "No valid data in server answer "			
+		return ""				
+
 		
 def setHWclock(datetime_format):
 	
