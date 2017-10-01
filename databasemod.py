@@ -63,8 +63,8 @@ def aligndbtable(filename, endtablelist):
 		if not(found) :
 			tabletoremove.append(tablename1)
 
-	print "to add ", tabletoadd
-	print "to remove " , tabletoremove
+	#print "to add ", tabletoadd
+	#print "to remove " , tabletoremove
 	
 	for tablename in tabletoadd :
 		createtablefromreference(filename,tablename)
@@ -90,7 +90,7 @@ def tablenameninfo(filename):
 	with sqlite3.connect(dbpath(filename)) as conn:
 		cursor = conn.cursor()
 		cursor.execute('SELECT name FROM sqlite_master WHERE type=\'table\';')
-		print 'tables:'
+		#print 'tables:'
 		tablenamelist=cursor.fetchall()
 		tablenameout=[]
 		for table in tablenamelist:

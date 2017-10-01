@@ -13,14 +13,20 @@ import socket
 import time
 import wpa_cli_mod
 
+logger = logging.getLogger("hydrosys4."+__name__)
+
 CELLSLIST=[]
 localwifisystem=networkdbmod.getAPSSID()
+if localwifisystem=="":
+	localwifisystem="hydrosys4"
+	print "error the name of AP not found, double check the hostapd configuration"
+	logger.error("error the name of AP not found, double check the hostapd configuration")
 LOCALPORT=5020
 PUBLICPORT=networkdbmod.getPORT()
 WAITTOCONNECT=180 # should be 180 at least
 IPADDRESS =networkdbmod.getIPaddress()
 
-logger = logging.getLogger("hydrosys4."+__name__)
+
 
 
 
@@ -241,12 +247,29 @@ def ifup(interface):
 	try:
 		cmd = ['ip' , 'link' , 'set', interface, 'up']
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
-		time.sleep(2)		
-		print "ifup OK "
+		#isup=waituntilIFUP(interface,15) to be reevaluated
+		time.sleep(2)	
 		return True
 	except subprocess.CalledProcessError as e:
 		print "ifup failed: ", e
 		return False
+		
+def waituntilIFUP(interface,timeout): # not working properly, to be re-evaluated
+	i=0
+	done=False
+	while (i<timeout)and(not done):
+		cmd = ['ip' , 'link' , 'show', interface, 'up']
+		ifup_output = subprocess.check_output(cmd).decode('utf-8')
+		if not ifup_output:
+			print "interface ", interface , " still down, check again in one second"			
+			time.sleep(1)
+			i=i+1
+		else:
+			done=True
+			print "interface ", interface , " UP after seconds: ", i
+			print "output ", ifup_output
+	return done
+		
 
 def flushIP(interface): #-------------------
 	print "try flush IP"
@@ -321,7 +344,8 @@ def connect_AP():
 		ssid=""
 	if ssid==localwifisystem:
 		done=True
-		print "Already working as access point ",localwifisystem
+		addIP("wlan0")	
+		print "Already working as access point, only adding IP address ",localwifisystem
 		logger.info('Already working as access poin %s',localwifisystem)
 		addIP("wlan0")
 		return True
@@ -334,9 +358,11 @@ def connect_AP():
 			
 	ifdown("wlan0")
 	ifup("wlan0")			
-	start_dnsmasq()	
+	start_dnsmasq()	# it is recommended that the dnsmasq shoudl start after the wlan0 is up	
 	start_hostapd()
 	time.sleep(3)
+	
+	
 	
 	i=0	
 	while (i<2)and(not done):

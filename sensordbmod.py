@@ -123,8 +123,8 @@ def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	print " stratdate " ,startdate
-	print " enddate ", enddate
+	#print " stratdate " ,startdate
+	#print " enddate ", enddate
 	allsensordata=[]
 	#getsensordbdata(selsensor,allsensordata)
 	getsensordbdatadays(selsensor,allsensordata,num)
@@ -193,8 +193,8 @@ def RemoveSensorDataPeriod(removebeforedays):
 	sensorlist=gettablelist()
 	for selsensor in sensorlist:
 		getSensorDataPeriod(selsensor,sensordata,enddate,pastdays)
-		print "page ", selsensor
-		print sensordata
+		#print "page ", selsensor
+		#print sensordata
 		for data in sensordata:
 			deleterowwithfield(selsensor,field,data[0])
 

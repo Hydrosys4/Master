@@ -382,7 +382,7 @@ def initallGPIOoutput():
 					HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0)
 				except ValueError:
 					print "powerpin not se because is not a number"
-	print HWcontrol.GPIO_data
+	#print HWcontrol.GPIO_data
 	return True
 
 

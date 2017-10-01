@@ -81,10 +81,10 @@ def consitencycheck():
 		if not(found) :
 			tabletoremove.append(tablename1)
 
-	print " ---------------------------------------------------------------------<----------------<-----------______________"
-	print "to add ", tabletoadd
-	print "to remove " , tabletoremove
-	print "FTdata ", FTdata
+	#print " ---------------------------------------------------------------------<----------------<-----------______________"
+	#print "to add ", tabletoadd
+	#print "to remove " , tabletoremove
+	#print "FTdata ", FTdata
 	
 	# get the dictionary line with an element as reference (from default file)
 	defdata=[]
@@ -97,7 +97,7 @@ def consitencycheck():
 			
 	for tablename in tabletoadd:
 		# add copying from element:"1"
-		print "adding table ", tablename
+		#print "adding table ", tablename
 		ln=dict(referenceln)
 		ln[recordkey]=tablename
 		FTdata.append(ln)

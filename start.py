@@ -169,7 +169,7 @@ def show_entries():
 				photopanel["file"]=picturefile	
 				photopanel["link"]=url_for('imageshow')
 				photopanel["linktitle"]="Go to Gallery"		
-				print photopanel
+				#print photopanel
 				photopanellist.append(photopanel)
 
 	panelinfolist=[]
@@ -177,7 +177,7 @@ def show_entries():
 	# temperature panels -------------------------------------------- (new version)
 	MeasureType="Temperature"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/temperature-transp.png"
@@ -205,7 +205,7 @@ def show_entries():
 	# humidity panel --------------------------------------------
 	MeasureType="Humidity"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/humidity-transp.png"
@@ -233,7 +233,7 @@ def show_entries():
 	# pressure panel --------------------------------------------
 	MeasureType="Pressure"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/pressure-transp.png"	
@@ -262,7 +262,7 @@ def show_entries():
 	# light panel --------------------------------------------
 	MeasureType="Light"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/light-transp.png"		
@@ -290,7 +290,7 @@ def show_entries():
 	# Hygrometer panel --------------------------------------------
 	MeasureType="Moisture"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/moisture-transp.png"	
@@ -318,7 +318,7 @@ def show_entries():
 	# watertap panel --------------------------------------------
 	usedfor="watercontrol"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/watertap-transp.png"		
@@ -345,7 +345,7 @@ def show_entries():
 	# fertilizer panel --------------------------------------------
 	usedfor="fertilizercontrol"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
-	print "------------------------- namelist " , namelist
+	#print "------------------------- namelist " , namelist
 	for name in namelist:	
 		paneldict={}	
 		paneldict["icon"]="icons/fertilizer-transp.png"		

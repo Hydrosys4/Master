@@ -364,7 +364,7 @@ def mastercallback():
 	tabledrop=advancedmod.gettable() # table, each row is a schema number (drop number), each column is a weekday
 
 	for pumpnumber in range(len(elementlist)):
-		print "number =",pumpnumber
+		#print "number =",pumpnumber
 		pumpname=elementlist[pumpnumber]
 		todaydate = date.today()
 		# Monday is 0 and Sunday is 6
@@ -411,7 +411,7 @@ def mastercallback():
 	table1=fertilizerdbmod.gettable(0)# table, each row is a doser, each column is a month, value is pulse seconds	
 
 	for dosernumber in range(len(elementlist)):
-		print "number =",dosernumber
+		#print "number =",dosernumber
 		dosername=elementlist[dosernumber]
 		calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,dosername,hardwaremod.HW_FUNC_SCHEDTYPE)
 		todaydate = date.today()

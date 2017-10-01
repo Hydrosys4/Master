@@ -70,13 +70,6 @@ def getAPSSID():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 
-def getAPSSID():
-	recordkey="name"
-	recordvalue="IPsetting"
-	keytosearch="LocalAPSSID"
-	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
-	return dataitem
-
 
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
