@@ -552,7 +552,6 @@ if [ -d $adir ]; then
 	aconf="/etc/squid/squid.conf"
 fi
 
-aconf="/etc/squid3/squid.conf"
 if [ -f $aconf ]; then
    cp $aconf $aconf.1
    sudo rm $aconf
