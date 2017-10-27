@@ -543,6 +543,15 @@ cd /home/pi
 sudo apt-get install squid3 -y || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 # add configuration to squid.conf, the file should already exist if installation is succesful
+adir="/etc/squid3"
+if [ -d $adir ]; then
+	aconf="/etc/squid3/squid.conf"
+fi
+adir="/etc/squid"
+if [ -d $adir ]; then
+	aconf="/etc/squid/squid.conf"
+fi
+
 aconf="/etc/squid3/squid.conf"
 if [ -f $aconf ]; then
    cp $aconf $aconf.1
@@ -551,9 +560,8 @@ if [ -f $aconf ]; then
 fi
 
 
-sudo bash -c "cat >> $aconf" << EOF
-#	WELCOME TO SQUID 3.5.12
 
+sudo bash -c "cat >> $aconf" << EOF
 # hydrosys4 configurations
 
 http_port $PORT accel defaultsite=hydrosys4 vhost
