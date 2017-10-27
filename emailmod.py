@@ -16,6 +16,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.image import MIMEImage
 
+logger = logging.getLogger("hydrosys4."+__name__)
 
 # GET path ---------------------------------------------
 global MYPATH
@@ -149,21 +150,19 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 	if showpicture:
 		#retrieve last picture ------------------------------------
 		global MYPATH
-		folderpath=os.path.join(MYPATH, "static")
-		folderpath=os.path.join(folderpath, "hydropicture")
-		sortedlist=sorted(os.listdir(folderpath))
-		sortedlist.reverse()
-		
-		imgfiles=[]	
-		if sortedlist:
-			picturefile="static/hydropicture/"+sortedlist[0]
-			referencestr=sortedlist[0].split("@")[0]
-			for filelist in sortedlist:
-				if filelist.split("@")[0]==referencestr:
-					picturefile="static/hydropicture/"+filelist
-					imgfiles.append(picturefile)
 			
-		i=0
+						
+		photolist=hardwaremod.photolist(MYPATH)
+		imgfiles=[]	
+		if photolist:
+			referencestr=photolist[0][0].split("@")[0]
+			for items in photolist:
+				if items[0].split("@")[0]==referencestr:
+					folderpath=os.path.join(MYPATH, "static")
+					folderpath=os.path.join(folderpath, items[0])
+					imgfiles.append(folderpath)
+
+	
 		for filename in imgfiles:
 			# Open the files in binary mode.  Let the MIMEImage class automatically
 			# guess the specific image type.
@@ -171,8 +170,7 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 			fp = open(filename, 'rb')
 			img = MIMEImage(fp.read())
 			fp.close()
-			i=i+1
-			picturename="picture" + str(i)
+			picturename=os.path.basename(filename)
 			img.add_header('Content-Disposition','attachment; filename="%s"' % picturename)
 			msg.attach(img)
 
@@ -184,10 +182,10 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 		server.sendmail(me, you, msg.as_string())
 		server.quit()
 		print 'successfully sent the mail'
-		logging.info('mail sent succesfully ')
+		logger.info('mail sent succesfully ')
 		return True
 	except:
-		logging.error('failed to send mail')
+		logger.error('failed to send mail')
 		print "failed to send mail"
 		return False
 
@@ -219,18 +217,15 @@ def send_email_main(address,title,cmd,mailtype,intromessage):
 	pwd=emaildbmod.getpassword()
 	recipient=address
 
-	# check connectivity
+	# check IP address
+	iplocal=networkmod.get_local_ip()	
 	ipext=networkmod.get_external_ip()
-	global IPEXTERNALSENT
-	IPEXTERNALSENT=ipext
-	iplocal=networkmod.get_local_ip()
 	if ipext=="":
 		print "No external IP address, mail is not sent"
-		logging.error('Unable to get external IP address, mail is not sent')
+		logger.error('Unable to get external IP address, mail is not sent')
 		return False
 	else:
-		print "Try to send mail"
-		
+		print "Try to send mail"	
 		# subject of the mail
 		subject=starttitle +" " + title + "  " + currentdate
 		htmlbody=create_htmlopen()
@@ -247,6 +242,9 @@ def send_email_main(address,title,cmd,mailtype,intromessage):
 			htmlbody=htmlbody+create_htmlmatrix(matrixinfo)
 		htmlbody=htmlbody+create_htmlclose()
 		issent=send_email_html(user, pwd, recipient, subject, htmlbody, showpicture)
+		if issent:
+			global IPEXTERNALSENT
+			IPEXTERNALSENT=ipext
 	return issent
 	
 
@@ -270,7 +268,7 @@ def sendmail(hwname,mailtype,intromessage):
 		return issent
 	else:
 		print "No address specified"
-		logging.error('No address specified')
+		logger.error('No address specified')
 		return False
 
 

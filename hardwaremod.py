@@ -487,7 +487,7 @@ def photolist(apprunningpath):
 		print "Hydropicture folder has been created"
 	
 	filenamelist=[]
-	sortedlist=sorted(os.listdir(folderpath))
+	sortedlist=sorted([f for f in os.listdir(folderpath) if os.path.isfile(os.path.join(folderpath, f))])
 	sortedlist.reverse()
 	for files in sortedlist:
 		if (files.endswith(".jpg") or files.endswith(".png")):
@@ -502,35 +502,46 @@ def photolist(apprunningpath):
 			try:
 				dateref=datetime.strptime(datestr,'%y-%m-%d,%H:%M')
 				templist.append(dateref)
-				filenamelist.append(templist)
 			except:
 				print "file name format not compatible with date"
-	return filenamelist # item1 (path) item2 (name) item3 (datetime)
+				templist.append("")
+			templist.append("hydropicture/thumb/"+files)
+			filenamelist.append(templist)			
+	return filenamelist # item1 (path+filename) item2 (name for title) item3 (datetime) item4 (thumbpath + filename)
 
 def loglist(apprunningpath,logfolder,searchstring):
-
+	templist=[]	
 	folderpath=os.path.join(apprunningpath,logfolder)
 	# control if the folder  exist otherwise exit
 	if not os.path.exists(folderpath):
 		print "log folder does not exist"
-		return False
+		return templist
 	filenamelist=[]
 	sortedlist=sorted(os.listdir(folderpath))
 	sortedlist.reverse()
-	templist=[]	
 	for files in sortedlist:
 		if (searchstring in files):
 			templist.append(files)
 	return templist 
 
 def deleteallpictures(apprunningpath):
+	#delete pictures
 	folderpath=os.path.join(apprunningpath, "static")
 	folderpath=os.path.join(folderpath, "hydropicture")	
 	sortedlist=os.listdir(folderpath)
 	i=0
 	for files in sortedlist:
-		os.remove(os.path.join(folderpath, files))
-		i=i+1
+		if os.path.isfile(os.path.join(folderpath, files)):
+			os.remove(os.path.join(folderpath, files))
+			i=i+1
+	#delete thumb 
+	paththumb=os.path.join(folderpath,"thumb")
+	sortedlist=os.listdir(paththumb)
+	i=0
+	for files in sortedlist:
+		if os.path.isfile(os.path.join(paththumb, files)):
+			os.remove(os.path.join(paththumb, files))
+			i=i+1
 	return i
 
 def HWpresetlist(apprunningpath):
@@ -571,11 +582,12 @@ def removephotodataperiod(removebeforedays):
 			try:
 				filepath=os.path.join(get_path(), "static")
 				filepath=os.path.join(filepath, photo[0])
+				# remove photo
 				filestoragemod.deletefile(filepath)
 				print "removed Photo " , filepath
 			except ValueError:
 				print "Error in photo delete "
-	
+	thumbconsistency(get_path())
 
 			
 	
@@ -600,6 +612,9 @@ def shotit(video,istest,resolution,positionvalue):
 	
 def videodevlist():
 	return photomod.videodevlist()
+	
+def  thumbconsistency(apprunningpath):
+	return photomod.thumbconsistency(apprunningpath)
 			
 			
 def takephoto():
@@ -621,8 +636,6 @@ def takephoto():
 			ret_data={}
 			ret_data=shotit(video,False,resolution,"0")			
 		logger.info(ret_data["answer"])
-
-#-- start LOGGING utility--------////////////////////////////////////////////////////////////////////////////////////
 
 def resetandbackuplog_bak():
 	#setup log file ---------------------------------------

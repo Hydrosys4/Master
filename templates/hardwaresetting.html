@@ -191,41 +191,36 @@
 			</div>
 			<!--  file 1 -->
 			<div class="row">
-				<div class="col-xs-4">
-					<label >Current Log file</label>
+				<div class="col-xs-6">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlog">Current Log file</button>
 				</div>
-				<div class="col-xs-4">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlog">Prepare File</button>
-				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-6">
 					<a id="downloadlinkdownloadlog0" href="" ></a>
 				</div>
 			</div>	
 			<!--  file 1b -->
 			<div class="row">
-				<div class="col-xs-4">
-					<label >Previous saved Log file</label>
+				<div class="col-xs-6">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadprevlog">Previous Log files</button>
 				</div>
-				<div class="col-xs-4">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadprevlog">Prepare File</button>
-				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-6">
 					<a id="downloadlinkdownloadprevlog0" href="" ></a>
+					<p></p>
 					<a id="downloadlinkdownloadprevlog1" href="" ></a>
+					<p></p>
 					<a id="downloadlinkdownloadprevlog2" href="" ></a>
+					<p></p>
 					<a id="downloadlinkdownloadprevlog3" href="" ></a>
+					<p></p>
 					<a id="downloadlinkdownloadprevlog4" href="" ></a>
 				</div>
 			</div>	
 			<!--  file 2 -->
 			<div class="row">
-				<div class="col-xs-4">
-					<label >Hardware Config</label>
+				<div class="col-xs-6">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadHW">Hardware Config</button>
 				</div>
-				<div class="col-xs-4">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadHW">Prepare File</button>
-				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-6">
 					<a id="downloadlinkdownloadHW0" href="" ></a>
 				</div>
 			</div>		
@@ -264,7 +259,9 @@
 													fLen = filename.length;
 													for (i = 0; i < fLen; i++) {
 														var fileurl="{{ url_for('static', filename="")}}"+filename[i]+"?"+d.getTime();
-														$('#downloadlink'+prid+i.toString()).text("Download Ready");
+														var filenameGUIlist=filename[i].split("/");
+														var filenameGUI=filenameGUIlist[filenameGUIlist.length-1];
+														$('#downloadlink'+prid+i.toString()).text(filenameGUI);
 														$('#downloadlink'+prid+i.toString()).attr("href", fileurl);
 
 

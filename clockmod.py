@@ -9,6 +9,8 @@ import socket
 import struct
 import clockdbmod
 
+logger = logging.getLogger("hydrosys4."+__name__)
+
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 DATEFORMAT="%d/%m/%Y %H:%M"
@@ -16,7 +18,7 @@ timezone=clockdbmod.gettimezone()
 os.environ['TZ'] = timezone
 time.tzset()
 print "timezone set to ->", timezone
-#logging.info('Timezone Set to  = %s', timezone) # if this is enabled,for some reason the whole logging become empty
+#logger.info('Timezone Set to  = %s', timezone) # if this is enabled,for some reason the whole logging become empty
 
 
 # ///////////////// --- END GLOBAL VARIABLES AND INIT------
@@ -84,11 +86,11 @@ def setHWclock(datetime_format):
 	
 	try:
 		os.system('hwclock --set --date %s --localtime' % date_str)
-		#logging.info('HW clock set to = %s', date_str)
+		#logger.info('HW clock set to = %s', date_str)
 		return "Done"	
 	except:
 		print "Not able to set Hardware Clock "
-		#logging.error('Not able to set Hardware Clock')
+		#logger.error('Not able to set Hardware Clock')
 		return "ERROR: not able to set Hardware Clock"	
 		
 		
@@ -110,7 +112,7 @@ def setsystemclock(datetime_format):
 		return "Done"	
 	except:
 		print "Not able to set system Clock "
-		#logging.error('Not able to set Hardware Clock')
+		#logger.error('Not able to set Hardware Clock')
 		return "ERROR: not able to set Hardware Clock"	
 
 	

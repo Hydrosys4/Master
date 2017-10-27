@@ -4,6 +4,23 @@
   {% if session.logged_in %}
   
 
+	<!--  photoswipe -->
+		<!-- Core CSS file -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='photoswipe/dist/photoswipe.css') }}"> 
+
+		<!-- Skin CSS file (styling of UI - buttons, caption, etc.)
+			 In the folder of skin CSS file there are also:
+			 - .png and .svg icons sprite, 
+			 - preloader.gif (for browsers that do not support CSS animations) -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='photoswipe/dist/default-skin/default-skin.css') }}"> 
+
+		<!-- Core JS file -->
+		<script src="{{url_for('static', filename='photoswipe/dist/photoswipe.min.js') }}"></script> 
+
+		<!-- UI JS file -->
+		<script src="{{url_for('static', filename='photoswipe/dist/photoswipe-ui-default.js') }}"></script> 
+
+
   
   
   <div class="container-fluid">
@@ -12,7 +29,7 @@
 					  <h3>Image Gallery</h3>
 
 			 </div>        
-	<form novalidate="true" action="{{ url_for('imageshow') }}" id="menuForm" method="post" >
+	<form novalidate="true" action="{{ url_for('imageshow') }}" id="menuForm" method="post" > 
 		<!-- BUTTONS -->
 		<div class="col-xs-12">
 		<div class="row">
@@ -38,7 +55,7 @@
 		{% for pt in filenamelist  %}	
 		<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">		
 		<div class="thumbnail" title="{{ titlelist[loop.index0] }}" href="{{ url_for('static', filename=pt)}}" index="{{loop.index0}}">
-			<img  width="200" alt="{{ titlelist[loop.index0] }}"  src="{{ url_for('static', filename=pt)}}" >
+			<img  width="200" alt="{{ titlelist[loop.index0] }}"  src="{{ url_for('static', filename=thumbfilenamelist[loop.index0])}}" >
 		</div>
 		</div>  
 		{% endfor %}
@@ -80,13 +97,13 @@
 
 						<div class="pswp__counter"></div>
 
-						<button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+						<button type="button" class="pswp__button pswp__button--close" title="Close (Esc)"></button>
 
-						<button class="pswp__button pswp__button--share" title="Share"></button>
+						<button type="button" class="pswp__button pswp__button--share" title="Share"></button>
 
-						<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+						<button type="button" class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 
-						<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+						<button type="button" class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
 
 						<!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
 						<!-- element will get class pswp__preloader--active when preloader is running -->
@@ -98,15 +115,15 @@
 							</div>
 						</div>
 					</div>
-
+					
 					<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
 						<div class="pswp__share-tooltip"></div> 
 					</div>
-
-					<button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+					
+					<button type="button" class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
 					</button>
 
-					<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+					<button type="button" class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
 					</button>
 
 					<div class="pswp__caption">
@@ -131,7 +148,7 @@
 
 		
 		
-	</form>
+	</form> 
 
 
 		<script type="text/javascript" charset="utf-8">
@@ -176,7 +193,8 @@
 							var options = {
 								// optionName: 'option value'
 								// for example:
-								index: parseInt(selvalue) // start at first slide
+								index: parseInt(selvalue), // start at first slide
+								clickToCloseNonZoomable: false
 							};
 						var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
 						gallery.init();

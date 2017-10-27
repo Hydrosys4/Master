@@ -177,7 +177,9 @@
 					<option>20</option>
 					<option>40</option>
 					<option>60</option>
-					<option>80</option>
+					<option>100</option>
+					<option>200</option>
+					<option>300</option>
 				  </select>
 				  </td>	
 				  		
@@ -230,6 +232,31 @@
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
 									$('#actuatorstatus').text(data.answer);
+									$('#' + elem + "progress").removeClass("progress-bar-warning").addClass("progress-bar-default")
+									var answer=data.answer;
+									if (answer.includes("Started")) {
+									// Answer from server succesfull started pulse
+									// increment status bar bootstrap
+									$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
+									$('#' + elem + "progress").text('0')
+									var pCnt = 0;
+									var sec = 0;
+									var pGress = setInterval(function() {
+											//var pVal = parseInt($('#' + elem + "progress").attr('aria-valuenow'));
+											sec=sec+1;
+											var maxsec = parseInt( $("#selseconds_" + elem).val());
+											pCnt = (pCnt + 100.0/maxsec);
+											if (pCnt > 100) {
+												clearInterval(pGress);
+												$('#actuatorstatus').text("Done");							
+											} else {
+												$('#' + elem + "progress").css('width', pCnt+'%').attr('aria-valuenow', pCnt);
+												$('#' + elem + "progress").text(sec + 's')
+											}
+										},1000);									
+									}
+									
+									
 								},
 								//error: function(jqXHR, textStatus, errorThrown) {
 								//    alert(errorThrown); $("#thebutton").attr('name')
@@ -237,21 +264,10 @@
 							});    
 				  
 					
-				// increment status bar bootstrap
-				$( '#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
-				var pGress = setInterval(function() {
-						var pVal = parseInt($('#' + elem + "progress").attr('aria-valuenow'));
-						var maxsec = parseInt( $("#selseconds_" + elem).val());
-						var pCnt = !isNaN(pVal) ? (pVal + 100/maxsec) : 1;
-						if (pCnt > 100) {
-							clearInterval(pGress);
-							$('#actuatorstatus').text("Done");							
-						} else {
-							$('#' + elem + "progress").css('width', pCnt+'%').attr('aria-valuenow', pCnt);
-						}
-					},1000);
-					
-
+							$('#actuatorstatus').text("waiting ...");
+							$('#' + elem + "progress").addClass("progress-bar-warning")
+							$('#' + elem + "progress").css('width','100%').attr('aria-valuenow', 100);					
+							$('#' + elem + "progress").text('wait')
 					
 				});
 			  });

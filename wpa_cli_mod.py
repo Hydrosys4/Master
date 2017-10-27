@@ -1,7 +1,8 @@
-
+import logging
 import time
 import subprocess
 
+logger = logging.getLogger("hydrosys4."+__name__)
 
 def db2dbm(quality):
     """
@@ -26,13 +27,6 @@ wpa_cli list_network
 
 #SUPPLICANT_LOG_FILE = "wpa_supplicant.log"
 
-"""
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s %(filename)s: %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename='evil.log',
-                    filemode='w')
-"""
 
 def run_program(cmd):
 	"""
@@ -67,17 +61,18 @@ def get_networks(iface, retry=1):
 		if "OK" in run_program(['wpa_cli', '-i' + iface , 'scan']):
 			time.sleep(1)
 			networks=[]
-			r = run_program(['wpa_cli', '-i' + iface , 'scan_result']).strip()
-			if "bssid" in r and len ( r.split("\n") ) >1 :
-				for line in r.split("\n")[1:]:
+			
+			lines = run_program(['wpa_cli', '-i' + iface , 'scan_result']).split("\n")
+			if lines:
+				for line in lines[1:-1]:
 					b, fr, s, f = line.split()[:4]
-					ss = " ".join(line.split()[4:]) #Hmm, dirty
+					ss = line.split()[4]
 					networks.append( {"bssid":b, "freq":fr, "sig":s, "ssid":ss, "flag":f} )
 				return networks
 		retry-=1
-		#logging.debug("Couldn't retrieve networks, retrying")
+		logger.debug("Couldn't retrieve networks, retrying")
 		time.sleep(0.5)
-	#logging.error("Failed to list networks")
+	logger.error("Failed to list networks")
 	return []
 
 
@@ -146,11 +141,10 @@ def listsavednetwork(iface):
         for line in lines[1:-1]:
 			strlist = line.split()
 			if strlist:
-				strlist.pop()
-				strlist.pop()
-				net_id=strlist.pop(0)				
-				ssidout = " ".join(strlist) #Hmm, dirty
-				data.append(ssidout)
+				net_id=strlist[0]			
+				ssidout=strlist[1]
+				if ssidout!="":
+					data.append(ssidout)
 	return data
 
 

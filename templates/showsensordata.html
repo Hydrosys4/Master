@@ -2,6 +2,25 @@
 {% set active_page = "sensordata" %}
 {% block body %}
   {% if session.logged_in %}
+
+	
+	<!-- Jqplot -->
+	<link rel=stylesheet type=text/css  href="{{ url_for('static', filename='jqueryjqplot/css/jquery.jqplot.css') }}">
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jquery.jqplot.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.dateAxisRenderer.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.canvasTextRenderer.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.cursor.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.barRenderer.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js') }}"></script>
+	<!-- New jqplot plugin -->
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.trendline.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.enhancedLegendRenderer.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.pointLabels.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.highlighter.js') }}"></script>
+
+
+  
   <div class="container-fluid">
 		<script type="text/javascript">
 

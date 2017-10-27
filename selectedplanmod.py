@@ -58,9 +58,10 @@ def pulsenutrient(target,activationseconds):
 	duration=1000*hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
-	hardwaremod.makepulse(target,duration)
+	pulseok=hardwaremod.makepulse(target,duration)
 	# salva su database
 	actuatordbmod.insertdataintable(target,duration)
+	return pulseok
 
 
 def dictionarydataforactuator(actuatorname,data1,data2, description):
@@ -513,12 +514,6 @@ def startnewselectionplan():
 	
 if __name__ == '__main__':
 	
-	logging.basicConfig(filename="selectedplan.log", filemode='w', level=logging.INFO)
-	logging.basicConfig(format='%(asctime)s %(message)s')
-	#logging.basicConfig(format='%(levelname)s %(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-	logging.info('Start logging --------------------------------------------')
-
-
 	planname=plandbmod.getplanlist()[1]
 	print planname
 	table=[]

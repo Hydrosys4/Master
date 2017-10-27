@@ -265,6 +265,10 @@ def sensorsysinfomatrix():
 	return matrix
 
 
+def consistencycheck():
+	# this routine align the database table elements with the Hardware available elements "IOtype" labelled with usedfor "input"
+	tablelist=gettablelist()
+	databasemod.aligndbtable(DBFILENAME, tablelist)
 
 
 if __name__ == '__main__':

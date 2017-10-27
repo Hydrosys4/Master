@@ -4,27 +4,7 @@
 		<title>HydroSystem</title>
 	
 		<!-- Jquery -->
-		<!--<script type=text/javascript src="{{url_for('static', filename='jquery.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jquery-ui.js') }}"></script> 
-		<link rel=stylesheet type=text/css  href="{{ url_for('static', filename='jquery-ui-1.10.3.custom.css') }}">-->
 		<script type=text/javascript src="{{url_for('static', filename='jquery/js/jquery-2.2.3.min.js') }}"></script>		
-		<script type=text/javascript src="{{url_for('static', filename='jqueryui/jquery-ui.min.js') }}"></script>	
-		<!--<link rel=stylesheet type=text/css  href="{{ url_for('static', filename='jqueryui/jquery-ui.min.css') }}">-->
-		
-		<!-- Jqplot -->
-		<link rel=stylesheet type=text/css  href="{{ url_for('static', filename='jqueryjqplot/css/jquery.jqplot.css') }}">
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jquery.jqplot.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.dateAxisRenderer.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.canvasTextRenderer.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.cursor.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.barRenderer.min.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js') }}"></script>
-		<!-- New jqplot plugin -->
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.trendline.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.enhancedLegendRenderer.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.pointLabels.js') }}"></script>
-		<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.highlighter.js') }}"></script>
 
 
 		<!--  Bootstrap -->
@@ -35,11 +15,19 @@
 		<!--<script type=text/javascript src="{{url_for('static', filename='bootstrap/js/transition.js') }}"></script>
 		<script type=text/javascript src="{{url_for('static', filename='bootstrap/js/collapse.js') }}"></script>
 		<script type=text/javascript src="{{url_for('static', filename='bootstrap/js/dropdown.js') }}"></script>-->
-		
+
+		<!-- Custom Fonts font awesome-->
+		<link rel="stylesheet" type="text/css" href = "{{ url_for('static', filename='bootstrap/font-awesome/css/font-awesome.min.css') }}">
+
+
+	{% if session.logged_in %} 		<!-- This is used to reduce the time to load the login page -->	
+	
+		<!-- Jquery UI -->		
+		<script type=text/javascript src="{{url_for('static', filename='jqueryui/jquery-ui.min.js') }}"></script>	
+		<!--<link rel=stylesheet type=text/css  href="{{ url_for('static', filename='jqueryui/jquery-ui.min.css') }}">-->	
+	
 		<!--  moment (for datetime picker, should be loaded before datetimepicker) -->
 		<script type=text/javascript src="{{url_for('static', filename='moment/min/moment-with-locales.min.js') }}"></script>
-
-
 
 		<!--  bootstrap.datetimepicker -->
 		<link rel="stylesheet" media="screen" href = "{{ url_for('static', filename='datetimepicker/css/bootstrap-datetimepicker.min.css') }}">
@@ -54,26 +42,8 @@
 		<link rel="stylesheet" media="screen" href = "{{ url_for('static', filename='clockpicker/css/bootstrap-clockpicker.min.css') }}">
 
 
+	{% endif %}
 
-		<!-- Custom Fonts font awesome-->
-		<link rel="stylesheet" type="text/css" href = "{{ url_for('static', filename='bootstrap/font-awesome/css/font-awesome.min.css') }}">
-
-
-		<!--  photoswipe -->
-			<!-- Core CSS file -->
-			<link rel="stylesheet" href="{{ url_for('static', filename='photoswipe/dist/photoswipe.css') }}"> 
-
-			<!-- Skin CSS file (styling of UI - buttons, caption, etc.)
-				 In the folder of skin CSS file there are also:
-				 - .png and .svg icons sprite, 
-				 - preloader.gif (for browsers that do not support CSS animations) -->
-			<link rel="stylesheet" href="{{ url_for('static', filename='photoswipe/dist/default-skin/default-skin.css') }}"> 
-
-			<!-- Core JS file -->
-			<script src="{{url_for('static', filename='photoswipe/dist/photoswipe.min.js') }}"></script> 
-
-			<!-- UI JS file -->
-			<script src="{{url_for('static', filename='photoswipe/dist/photoswipe-ui-default.js') }}"></script> 
 
 
 
@@ -185,7 +155,17 @@
 		{% endwith %}
 		  
 	<!--<div class="container-fluid"><!--put content inside container will add borders-->
-		  
+
+
+
+
+
+
+
+
+
+
+
 		  {% block body %}{% endblock %}
 
 

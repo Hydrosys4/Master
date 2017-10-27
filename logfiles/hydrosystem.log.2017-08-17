@@ -1,0 +1,33 @@
+17:25:30 hydrosys4.networkdbmod - ERROR    Not able to get basic network data ---------------------
+17:25:30          hydrosys4 - INFO     Start logging -------------------------------------------- 2017-08-17 17:25:30
+17:25:30          hydrosys4 - DEBUG    This is a sample DEBUG message
+17:25:30          hydrosys4 - INFO     This is a sample INFO message
+17:25:30          hydrosys4 - WARNING  This is a sample WARNING message
+17:25:30          hydrosys4 - ERROR    This is a sample ERROR message
+17:25:30 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+17:25:45 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:25:49 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:25:55 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:25:56 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+17:26:00 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:26:04 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:26:10 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:26:11 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+17:26:11 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:26:11 hydrosys4.networkmod - WARNING  Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+17:26:21 hydrosys4.networkmod - INFO     preconditions to connect to wifi network are met
+17:26:29 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:26:36 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:26:37 hydrosys4.networkmod - INFO     check connected SSID 
+17:27:51 hydrosys4.networkmod - INFO     try to start system as WiFi access point
+17:28:05 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:28:09 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:28:15 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:28:16 hydrosys4.networkmod - INFO     Access point failed to start, attempt 0 
+17:28:19 hydrosys4.networkmod - INFO     try to set Static IP: 192.168.0.192
+17:28:24 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:28:30 hydrosys4.networkmod - INFO     SSID empty, try again to get SSID
+17:28:31 hydrosys4.networkmod - INFO     Access point failed to start, attempt 1 
+17:30:35 hydrosys4.selectedplanmod - INFO     Read sensor data: tempsensor1 - 2017-08-17 17:30:35
+17:30:35 hydrosys4.selectedplanmod - INFO     Read sensor data: humidsensor - 2017-08-17 17:30:35
+17:35:45          hydrosys4 - INFO      all image files deleted 

@@ -101,8 +101,14 @@ def connect_preconditions():
 		if cells:
 			for cell in cells:
 				ssids.append(cell.ssid)
-	
+	# alternative method using wpa_cli
+	if not ssids:
+		logger.warning("Not able to scan SSIDs on air, try with second method")
+		wpalist=wpa_cli_mod.get_networks("wlan0") #returns a list of dictionaries includind "ssid"
+		for item in wpalist:
+			ssids.append(item["ssid"])
 	print "ssID on air =", ssids
+	logger.info("Number of scan SSID: %d",len(ssids))
 	savedssids = wpa_cli_mod.listsavednetwork("wlan0")
 	for ssid in savedssids:
 		#print " Scheme ", scheme
@@ -334,6 +340,11 @@ def waitandconnect_AP(pulsesecond):
 def connect_AP():
 	print "try to start system as WiFi access point"
 	logger.info('try to start system as WiFi access point')
+	if localwifisystem=="":
+		print "WiFi access point SSID name is an empty string, problem with network setting file"
+		logger.info('WiFi access point SSID name is an empty string, problem with network setting file')	
+		return False	
+
 
 	done=False
 	
@@ -348,6 +359,8 @@ def connect_AP():
 		print "Already working as access point, only adding IP address ",localwifisystem
 		logger.info('Already working as access poin %s',localwifisystem)
 		addIP("wlan0")
+		#restart DNSmask, this should help to acquire the new IP address (needed for teh DHCP mode)
+		start_dnsmasq()
 		return True
 	
 
@@ -519,13 +532,13 @@ def connect_network():
 	else:
 		print "No Saved Wifi Network available"
 		logger.info('No Saved Wifi Network available')	
-		ssid=connectedssid()
-		if len(ssid)==0:
-			print "No SSID established, try to fallback to AP mode"
-			# go back and connect in Access point Mode
-			logger.info('No Wifi Network connected, no AP connected, going back to Access Point mode')
-			connect_AP()
-			connected=False
+		print "try to fallback to AP mode"
+		# go back and connect in Access point Mode
+		logger.info('Going back to Access Point mode')
+		connect_AP()
+		connected=False
+
+
 			
 	return connected
 

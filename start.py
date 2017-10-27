@@ -55,7 +55,7 @@ application.config.from_object('flasksettings') #read the configuration variable
 global SELTABLENAME
 SELTABLENAME=""
 global DEBUGMODE
-DEBUGMODE=True
+DEBUGMODE=False
 global PUBLICMODE
 PUBLICMODE=True
 MYPATH=""
@@ -114,6 +114,7 @@ selectedplanmod.setmastercallback()
 
 #setup network connecton --------------------
 try:
+	print "start networking"
 	networkmod.init_network()
 except:
 	print "No WiFi available"
@@ -150,23 +151,23 @@ def show_entries():
 	currentday=date.today()
 			
 	#Picture panel------------------------------------
-	folderpath=os.path.join(MYPATH, "static")
-	folderpath=os.path.join(folderpath, "hydropicture")
-	sortedlist=sorted(os.listdir(folderpath))
-	sortedlist.reverse()
+	#folderpath=os.path.join(MYPATH, "static")
+	#folderpath=os.path.join(folderpath, "hydropicture")
+	#sortedlist=sorted(os.listdir(folderpath))
+	#sortedlist.reverse()
+	photolist=hardwaremod.photolist(MYPATH)
 	photopanellist=[]	
-	if sortedlist:
-		picturefile="hydropicture/"+sortedlist[0]	
-		referencestr=sortedlist[0].split("@")[0]
-		for filelist in sortedlist:
-			if filelist.split("@")[0]==referencestr:
-				picturefile="hydropicture/"+filelist
+	if photolist:
+		referencestr=photolist[0][0].split("@")[0]
+		for items in photolist:
+			if items[0].split("@")[0]==referencestr:
 				photopanel={}
 				photopanel["type"]="photo"	
 				photopanel["active"]="yes"
 				photopanel["title"]=""
 				photopanel["subtitle"]=""
-				photopanel["file"]=picturefile	
+				photopanel["file"]=items[0]
+				photopanel["thumb"]=items[3]	
 				photopanel["link"]=url_for('imageshow')
 				photopanel["linktitle"]="Go to Gallery"		
 				#print photopanel
@@ -481,6 +482,7 @@ def imageshow():
 	wlist=[]
 	hlist=[]
 	titlelist=[]
+	thumbfilenamelist=[]
 	for files in sortedlist:
 		filemonthnumber=files[2].month
 		print filemonthnumber
@@ -490,12 +492,12 @@ def imageshow():
 			(w,h)=hardwaremod.get_image_size(files[0])
 			wlist.append(w)
 			hlist.append(h)
-			
+			thumbfilenamelist.append(files[3])			
 			
 	print filenamelist
 	selectedmothname=monthdict[monthtoshow]
 	print selectedmothname
-	return render_template('showimages.html',filenamelist=filenamelist,titlelist=titlelist,wlist=wlist,hlist=hlist,monthlist=monthlist,selectedmothname=selectedmothname)
+	return render_template('showimages.html',filenamelist=filenamelist,titlelist=titlelist,wlist=wlist,hlist=hlist,monthlist=monthlist,selectedmothname=selectedmothname, thumbfilenamelist=thumbfilenamelist)
 
 
 	
@@ -538,14 +540,14 @@ def doit():
 	if name=="pulse":
 		idx=1
 		if idx < len(argumentlist):
-			pulse=int(argumentlist[idx])
-			testpulsetime=str(pulse*1000)
+			testpulsetime=argumentlist[idx]
 		else:
-			testpulsetime=str(20*1000)
+			testpulsetime="20"
 		element=request.args['element']		
 
 		print "starting pulse test " , testpulsetime
-		answer=hardwaremod.makepulse(element,testpulsetime)
+		#answer=hardwaremod.makepulse(element,testpulsetime)
+		answer=selectedplanmod.pulsenutrient(element,testpulsetime)
 		ret_data = {"answer": answer}
 
 	elif name=="servo":
@@ -689,7 +691,7 @@ def downloadit():
 		filename=LOG_SETTINGS['handlers']['access_file_handler']['filename']
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
-		dst=os.path.join(folderpath, dstfilename)
+		dst=os.path.join(folderpath, dstfilename+".txt")
 		print "prepare file for download, address=" , filename, "destination " , dst
 		try:
 			shutil.copyfile(filename, dst)
@@ -697,10 +699,9 @@ def downloadit():
 		except:
 			answer="problem copying file"
 		dstfilenamelist=[]
-		dstfilenamelist.append("download/"+dstfilename)	
+		dstfilenamelist.append("download/"+dstfilename+".txt")	
 		
 	elif name=="downloadprevlog":
-		dstfilename="log"+datetime.now().strftime("%Y-%m-%d-time:%H:%M")+".log.txt"
 		filenamestring=LOG_SETTINGS['handlers']['access_file_handler']['filename']		
 		logfolder=filenamestring.split('/')[0]
 		filename=filenamestring.split('/')[1]
@@ -712,7 +713,7 @@ def downloadit():
 		answer="files not available"
 		dstfilenamelist=[]
 		for dstfilename in sortedlist:
-			dst=os.path.join(folderpath, dstfilename)
+			dst=os.path.join(folderpath, dstfilename+".txt")
 			source=os.path.join(logfolder, dstfilename)
 			print "prepare file for download, address=" , source, "destination " , dst
 			try:
@@ -720,7 +721,7 @@ def downloadit():
 				answer="ready"
 			except:
 				answer="problem copying file"
-			dstfilenamelist.append("download/"+dstfilename)
+			dstfilenamelist.append("download/"+dstfilename+".txt")
 			
 	elif name=="downloadHW":
 		dstfilename=hardwaremod.HWDATAFILENAME
@@ -863,10 +864,9 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	sensorlist=sensordbmod.gettablelist()
 	
 	#read the sensors data
-	print "read sensor data " 
-	sensordatadict = hardwaremod.readallsensors()
+	#print "read sensor data " 
 	unitdict={}
-	for item in sensordatadict:
+	for item in sensorlist:
 		unitdict[item]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,item,hardwaremod.HW_INFO_MEASUREUNIT)
 	print "unitdict "  , unitdict
 	
@@ -878,8 +878,9 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	print "Current timezone ->", timezone
 	
 	
-	return render_template('ShowCalibration.html',servolist=servolist , videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist,sensordatadict=sensordatadict, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
+	return render_template('ShowCalibration.html',servolist=servolist , videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
+	
 	
 @application.route('/Sensordata/', methods=['GET', 'POST'])
 def show_sensordata():
@@ -1257,6 +1258,8 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 				hardwaremod.restoredefault() # copy default to normal file and reload HWdata
 				wateringdbmod.consitencycheck()
 				fertilizerdbmod.consitencycheck()
+				sensordbmod.consistencycheck()
+				actuatordbmod.consistencycheck()
 				#scheduler setup---------------------
 				selectedplanmod.setmastercallback()
 				#initiate the GPIO OUT pins
@@ -1275,6 +1278,7 @@ def currentpath(filename):
 
 def functiontest():
 	print " testing "
+	mailname="mail1"
 	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
 	hardwaremod.takephoto()
 	#selectedplanmod.heartbeat()

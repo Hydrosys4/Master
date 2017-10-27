@@ -97,9 +97,22 @@ Added support for servo motors to rotate the camera
 
 Found issue that stopped the scheduler when interrogating the server for the NTP time protocol, the socket request has now a timeout of 2 seconds
 
+2017-09-29 -> release 67
 
+Fixed issue with WiFi fall back to AP mode
 
+Fix issue when external IP address format is wrong, should not trigger send mail with IP change reason.
 
+2017-10-15 -> release 68
+
+try to use tumbnail images, using dependencies to Pillow library
+the photoswipe has been updated and fixed 
+
+2017-10-21 -> release 69
+
+fix the email problem - images name
+New hardware wiring setting according to the PCB board connections
+Next to be done: easy way to change the name to the actuator objects
 
 
 

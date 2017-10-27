@@ -3,8 +3,8 @@ from time import sleep
 import datetime
 import os
 import sys
-
 import subprocess 
+from PIL import Image # to make thumbnail
 
 def videodevlist():
 	folderpath="/dev"
@@ -21,10 +21,12 @@ def saveshot(filepath, video, realshot, resolution, positionvalue):
 	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
 	print "Current date and time: " , currentdate
 	if realshot:
-		filepath=os.path.join(filepath, currentdate+"@"+video+"@"+positionvalue+".jpg")
+		filenamenopath=currentdate+"@"+video+"@"+positionvalue+".jpg"
 	else:
-		filepath=os.path.join(filepath, "testimage.jpg")
-	print "FILE : ", filepath		
+		filenamenopath="testimage.jpg"
+	
+	filename=os.path.join(filepath, filenamenopath)
+	print "FILE : ", filename		
 
 	
 	cam_list = "/dev/" + video
@@ -33,18 +35,18 @@ def saveshot(filepath, video, realshot, resolution, positionvalue):
 		while (not shottaken)and(i<10):
 			i=i+1
 			print " ATTEMPT: ", i , " device : ", cam_list
-			filexist=os.path.isfile(filepath)
+			filexist=os.path.isfile(filename)
 			print "file already exist = ", filexist
 			
 			if (filexist)and(not realshot):
-				os.rename(filepath, filepath + ".bak")
+				os.rename(filename, filename + ".bak")
 			
 
-			#myproc = subprocess.check_output("fswebcam -d "+ cam_list +" -r 1280x720 -S 15 --jpeg 95" + filepath, shell=True)
+			#myproc = subprocess.check_output("fswebcam -d "+ cam_list +" -r 1280x720 -S 15 --jpeg 95" + filename, shell=True)
 			if i==1:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 35 --jpeg 95 " + filepath, shell=True, stderr=subprocess.STDOUT)				
+				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 35 --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)				
 			else:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 5 --jpeg 95 " + filepath, shell=True, stderr=subprocess.STDOUT)
+				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 5 --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)
 			# -R use read() method -- NOT WORKING ---
 			# -D delay before taking frames
 			# -S skip the first frames
@@ -60,19 +62,74 @@ def saveshot(filepath, video, realshot, resolution, positionvalue):
 				shottaken=False
 
 			
-			newfilexist=os.path.isfile(filepath)
+			newfilexist=os.path.isfile(filename)
 			print "file was created = ", newfilexist
 			
 			if not newfilexist:
 				shottaken=False
 				if filexist:
-					os.rename(filepath + ".bak", filepath)
+					os.rename(filename + ".bak", filename)
 			print "Picture take = " ,shottaken
 			
+			# make thumbnail
+			if shottaken:
+				paththumb=os.path.join(filepath,"thumb")
+				if not os.path.exists(paththumb):
+					os.makedirs(paththumb)
+				image = Image.open(filename)
+				image.thumbnail((300, 300))
+				thumbname=os.path.join(paththumb,filenamenopath)
+				image.save(thumbname)
+				
 
 	else:
 		print "camera not connected"	
 	return shottaken
+
+
+
+def thumbconsistency(apprunningpath):
+	# check if there is a thumbnail without corresponding image
+	
+	filepath=os.path.join(apprunningpath, "static")
+	filepath=os.path.join(filepath, "hydropicture")
+	# control if the folder hydropicture exist otherwise create it
+	if not os.path.exists(filepath):
+		os.makedirs(filepath)
+		print "Hydropicture folder has been created"
+	paththumb=os.path.join(filepath,"thumb")
+	if not os.path.exists(paththumb):
+		os.makedirs(paththumb)
+		print "Hydropicture thumbnail folder has been created"
+	
+	filenamelist=os.listdir(filepath)
+
+	thumbnamelist=os.listdir(paththumb)
+	
+	for thumbnail in thumbnamelist:
+		if thumbnail not in filenamelist:
+			print "thumbnail has no corresponding image, delete"
+			os.remove(os.path.join(paththumb, thumbnail))
+	
+	# create thumbnail in case picture has no coresponding thumbnail
+	
+	
+	for fileimage in filenamelist:
+		if os.path.isfile(os.path.join(filepath, fileimage)):
+			if fileimage not in thumbnamelist:
+				print "image has no corresponding thumbnail, create"
+				#create thumbnail
+				image = Image.open(os.path.join(filepath,fileimage))
+				image.thumbnail((300, 300))
+				thumbname=os.path.join(paththumb,os.path.basename(fileimage))
+				image.save(thumbname)
+			
+	return True
+
+
+
+
+
 
 
 if __name__ == '__main__':

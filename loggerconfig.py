@@ -7,7 +7,7 @@ LOG_SETTINGS = {
             'datefmt': '%Y-%m-%d %H:%M:%S'            
         },
         'simple': {
-            'format': '%(asctime)-2s %(name)18s - %(levelname)-8s %(message)s',
+            'format': '%(asctime)-2s %(name)24s - %(levelname)-10s %(message)s',
             'datefmt': '%H:%M:%S'
         },
     },
