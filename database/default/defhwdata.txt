@@ -1,12 +1,14 @@
-{"IOtype": "input", "controllercmd": "tempsensor", "measure": "Temperature", "name": "tempsensor1", "pin": "4", "schedulingtype": "periodic", "time": "00:15:05", "unit": "C", "usedfor": "temperaturecontrol"}
-{"IOtype": "input", "controllercmd": "humidsensor", "measure": "Humidity", "name": "humidsensor", "pin": "4", "schedulingtype": "periodic", "time": "00:15:03", "unit": "%", "usedfor": "humiditycontrol"}
-{"IOtype": "output", "controllercmd": "pulse", "logic": "neg", "measure": "Time", "name": "water1", "pin": "17", "schedulingtype": "oneshot", "unit": "sec", "usefor": "watercontrol"}
-{"IOtype": "output", "controllercmd": "pulse", "logic": "neg", "measure": "Time", "name": "water2", "pin": "18", "schedulingtype": "oneshot", "unit": "sec", "usefor": "watercontrol"}
-{"IOtype": "output", "controllercmd": "pulse", "logic": "neg", "measure": "Time", "name": "doser1", "pin": "27", "schedulingtype": "oneshot", "unit": "sec", "usefor": "fertilizercontrol"}
-{"IOtype": "output", "controllercmd": "pulse", "logic": "neg", "measure": "Time", "name": "doser2", "pin": "22", "schedulingtype": "oneshot", "unit": "sec", "usefor": "fertilizercontrol"}
-{"IOtype": "output", "controllercmd": "pulse", "logic": "neg", "measure": "Time", "name": "empty2", "pin": "23", "schedulingtype": "oneshot", "unit": "sec", "usefor": "N/A"}
-{"IOtype": "output", "controllercmd": "pulse", "logic": "neg", "measure": "Time", "name": "empty3", "pin": "24", "schedulingtype": "oneshot", "unit": "sec", "usefor": "N/A"}
-{"IOtype": "output", "controllercmd": "mail+info+link", "mailaddress": "", "mailtitle": "Hydrosys today report", "measure": "Mail", "name": "mail1", "schedulingtype": "oneshot", "time": "10:00", "unit": "pcs", "usefor": "mailcontrol"}
-{"IOtype": "output", "controllercmd": "mail+info", "mailaddress": "", "mailtitle": "Hydrosys today report", "measure": "Mail", "name": "mail2", "schedulingtype": "oneshot", "time": "10:00", "unit": "pcs", "usefor": "mailcontrol"}
-{"IOtype": "output", "controllercmd": "photo", "measure": "Photo", "name": "photo", "schedulingtype": "oneshot", "time": "15:00", "unit": "pcs", "usefor": "photocontrol"}
+{"IOtype": "input" ,"name": "tempsensor1", "unit" : "C", "measure":"Temperature",  "controllercmd": "tempsensor", "pin": "24" , "usedfor" : "temperaturecontrol", "schedulingtype":"periodic", "time":"00:15:05"}
+{"IOtype": "input" ,"name": "humidsensor", "unit" : "%", "measure":"Humidity",  "controllercmd": "humidsensor", "pin": "24" , "usedfor" : "humiditycontrol", "schedulingtype":"periodic", "time":"00:15:03"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water1", "pin": "5", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water2", "pin": "6", "usefor": "watercontrol",  "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water3", "pin": "13", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water4", "pin": "19", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water5", "pin": "26", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water6", "pin": "12", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "doser1", "pin": "20", "usefor": "fertilizercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "doser2", "pin": "16", "usefor": "fertilizercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
+{"IOtype": "output" ,"usefor": "mailcontrol", "mailaddress": "", "controllercmd": "mail+info+link","name": "mail1", "time": "10:00", "mailtitle": "Hydrosys today report", "measure" : "Mail"  , "unit" : "pcs" , "schedulingtype":"oneshot"}
+{"IOtype": "output" ,"usefor": "mailcontrol", "mailaddress": "", "controllercmd": "mail+info","name": "mail2", "time": "10:00", "mailtitle": "Hydrosys today report", "measure" : "Mail"  , "unit" : "pcs" , "schedulingtype":"oneshot"}
+{"IOtype": "output" ,"usefor": "photocontrol", "controllercmd": "photo", "name": "photo", "time": "09:30", "measure" : "Photo"  , "unit" : "pcs", "schedulingtype":"oneshot"}
 {"ADCchannel": "0", "IOtype": "output", "controllercmd": "servo", "frequency": "50", "logic": "pos", "mailaddress": "", "mailtitle": "", "max": "12", "measure": "Percentage", "min": "2", "name": "servo1", "pin": "21", "powerpin": "N/A", "schedulingtype": "oneshot", "time": "", "unit": "C", "usefor": "N/A"}

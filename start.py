@@ -437,7 +437,7 @@ def wificonfig():
 			
 		elif request.form['buttonsub'] == "Forget":
 			print "forget"		
-			networkmod.removewifi(ssid)
+			networkmod.waitandremovewifi(6,ssid)
 			print "remove network ", ssid
 			print "Try to connect AP"
 			networkmod.waitandconnect_AP(7)

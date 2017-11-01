@@ -112,7 +112,17 @@ the photoswipe has been updated and fixed
 
 fix the email problem - images name
 New hardware wiring setting according to the PCB board connections
-Next to be done: easy way to change the name to the actuator objects
+fix the bash file because squid has changed the config directory
+
+2017-10-31 -> release 70
+
+Make better WiFi module using WPA_CLI
+
+Future releases:
+
+Easy way to change the name to the actuator objects
+
+Check if watering works properly
 
 
 

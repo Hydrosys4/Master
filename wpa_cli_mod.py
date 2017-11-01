@@ -65,8 +65,8 @@ def get_networks(iface, retry=1):
 			lines = run_program(['wpa_cli', '-i' + iface , 'scan_result']).split("\n")
 			if lines:
 				for line in lines[1:-1]:
-					b, fr, s, f = line.split()[:4]
-					ss = line.split()[4]
+					#bssid / frequency / signal level / flags / ssid
+					b, fr, s, f, ss = line.split()[:5]
 					networks.append( {"bssid":b, "freq":fr, "sig":s, "ssid":ss, "flag":f} )
 				return networks
 		retry-=1
@@ -91,6 +91,42 @@ def remove_network(iface,net_id):
 	cmd=['wpa_cli', '-i' + iface , 'remove_network' , net_id]
 	run_program(cmd)  
 
+def get_saved_networks(iface):
+	cmd=['wpa_cli', '-i' + iface , 'list_networks']
+	lines = run_program(cmd).split("\n")
+	networks=[]
+	if lines:
+		for line in lines[1:-1]:
+			datavect = line.split()
+			if len(datavect)>1:
+				# network id / ssid / bssid / flags
+				networks.append( {"net_id":datavect[0], "ssid":datavect[1]} )
+	return networks
+
+def get_net_id(iface,ssid):
+	# find net_id
+	networks=get_saved_networks(iface)
+	for item in networks:
+		if item["ssid"]==ssid:
+			net_id=item["net_id"]
+			return net_id
+	return ""
+
+
+
+def remove_network_ssid(iface,ssid):
+	# find net_id
+	net_id=get_net_id(iface,ssid)
+	if net_id:
+		print "net id to remove ", net_id
+		remove_network(iface,net_id)
+		print "saved ",  saveconfig(iface)
+		updateconfig()	
+		return True
+	return False
+
+
+
 def disable_all(iface):
     """
     Disable all wireless networks.
@@ -102,9 +138,21 @@ def disable_all(iface):
             net_id=line.split()[0]
             disable_network(iface,net_id) 
 
+def disable_network_ssid(iface,ssid):
+	# find net_id
+	net_id=get_net_id(iface,ssid)
+	if net_id:
+		print "net id to disable ", net_id
+		return disable_network(iface,net_id)
+	return False
+
+
 def disable_network(iface,net_id):
 	cmd=['wpa_cli', '-i' + iface , 'disable_network' , net_id]
-	run_program(cmd)
+	strout=run_program(cmd)
+	if not "OK" in strout:
+		return False
+	return True
 
 def enable_network(iface,net_id):
 	cmd=['wpa_cli', '-i' + iface , 'enable_network' , net_id]
@@ -113,6 +161,40 @@ def enable_network(iface,net_id):
 def updateconfig():
 	cmd=['wpa_cli','reconfigure']
 	run_program(cmd)
+	
+def saveconfig(iface):	
+	cmd=['wpa_cli', '-i' + iface ,'save_config' ]
+	strout=run_program(cmd)
+	if not "OK" in strout:
+		return False
+	return True
+	
+def save_network(iface,ssid,password):
+	cmd=['wpa_cli', '-i' + iface , 'add_network']
+	net_id=run_program(cmd)
+	print "Net ID to add " , net_id
+	cmd=['wpa_cli', '-i' + iface , 'set_network', net_id , 'ssid' , '"'+ssid+'"' ]
+	strout=run_program(cmd)
+	print "ssid set " , strout
+	if not "OK" in strout:
+		return False
+	cmd=['wpa_cli', '-i' + iface , 'set_network', net_id , 'psk' , '"'+password+'"' ]
+	strout=run_program(cmd)
+	print "ssid psk " , strout
+	if not "OK" in strout:
+		return False
+
+	# enable network
+	#enable_network(iface,net_id)
+	
+	# save config	
+	if not saveconfig(iface):
+		return False
+	
+	updateconfig()
+	return True
+	
+	
 
 
 def enable_ssid(iface, ssid):
@@ -123,17 +205,14 @@ def enable_ssid(iface, ssid):
         for line in lines[1:-1]:
 			strlist = line.split()
 			if strlist:
-				strlist.pop()
-				strlist.pop()
-				net_id=strlist.pop(0)				
-				ssidout = " ".join(strlist) #Hmm, dirty
+				net_id=strlist[0]			
+				ssidout=strlist[1]
 				if ssid==ssidout:					
 					enable_network(iface,net_id)
 					return True
 	return False
 
 def listsavednetwork(iface):
-
     cmd=['wpa_cli', '-i' + iface , 'list_networks']
     lines = run_program(cmd).split("\n")
     data=[]
@@ -186,7 +265,9 @@ if __name__ == "__main__":
 	network = get_networks("wlan0")
 	for item in network:
 		print " ssid : " ,  item["ssid"] , " flags : " , item["flag"]
-	print status("wlan0")
+	#print status("wlan0")
 	print "saved SSids"
 	print listsavednetwork("wlan0")
+	save_connect_network("wlan0","beccolo2","daicazzo")
+	remove_network_ssid("wlan0","eccolo2")
 

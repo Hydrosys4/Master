@@ -539,6 +539,15 @@ cd /home/pi
 sudo apt-get install squid3 -y || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 # add configuration to squid.conf, the file should already exist if installation is succesful
+adir="/etc/squid3"
+if [ -d $adir ]; then
+	aconf="/etc/squid3/squid.conf"
+fi
+adir="/etc/squid"
+if [ -d $adir ]; then
+	aconf="/etc/squid/squid.conf"
+fi
+
 aconf="/etc/squid3/squid.conf"
 if [ -f $aconf ]; then
    cp $aconf $aconf.1

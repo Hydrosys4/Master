@@ -1,7 +1,5 @@
 import logging
 import subprocess
-from wifiscan import Cell
-import wifischeme
 import threading
 import emailmod
 import networkdbmod
@@ -15,7 +13,6 @@ import wpa_cli_mod
 
 logger = logging.getLogger("hydrosys4."+__name__)
 
-CELLSLIST=[]
 localwifisystem=networkdbmod.getAPSSID()
 if localwifisystem=="":
 	localwifisystem="hydrosys4"
@@ -30,14 +27,13 @@ IPADDRESS =networkdbmod.getIPaddress()
 
 
 
+	
 def wifilist_ssid():
 	# get all cells from the air
 	ssids=[]
-	global CELLSLIST
-	CELLSLIST=Cell.all('wlan0')
-	if CELLSLIST:
-		for cell in CELLSLIST:
-			ssids.append(cell.ssid)
+	network = wpa_cli_mod.get_networks("wlan0")
+	for item in network:
+		ssids.append(item["ssid"])
 	return ssids
 
 def savedwifilist_ssid():
@@ -45,12 +41,7 @@ def savedwifilist_ssid():
 	return wpa_cli_mod.listsavednetwork('wlan0')	
 
 def savewifi(ssid, password):
-	global CELLSLIST
-	for cell in CELLSLIST:
-		if cell.ssid==ssid:	
-			wifischeme.save(cell, password)
-			print "schema has been saved"
-	wpa_cli_mod.updateconfig()
+	wpa_cli_mod.save_network("wlan0",ssid,password)
 
 def savedefaultAP():
 	ssid='AP'
@@ -62,12 +53,10 @@ def savedefaultAP():
 		scheme.save() # modify the interfaces file adding the wlano-xx network data on the basis of the network encription type
 		print "default AP schema has been saved"
 	
+
 def removewifi(ssid):
-	#check if scheme already exist
-	isthere, delindex = wifischeme.findssid(ssid)
-	if isthere: #"This scheme already exists"
-		wifischeme.delete(delindex)
-	wpa_cli_mod.updateconfig()
+	wpa_cli_mod.remove_network_ssid("wlan0",ssid)
+
 
 def restoredefault():
 	ssids=savedwifilist_ssid()
@@ -81,10 +70,10 @@ def connect_savedwifi(thessid):
 	print "connecting to saved wifi network"
 	flushIP("wlan0")
 	isok=False
-	ifdown("wlan0")
+	#ifdown("wlan0")
 	isok=wpa_cli_mod.enable_ssid("wlan0",thessid)
 	time.sleep(1)
-	ifup("wlan0")			
+	#ifup("wlan0")			
 	addIP("wlan0")	
 	return isok
 
@@ -96,17 +85,8 @@ def connect_preconditions():
 	i=0
 	while (len(ssids)==0 and i<3):
 		i=i+1
-		cells=Cell.all('wlan0')
-		time.sleep(1)
-		if cells:
-			for cell in cells:
-				ssids.append(cell.ssid)
-	# alternative method using wpa_cli
-	if not ssids:
-		logger.warning("Not able to scan SSIDs on air, try with second method")
-		wpalist=wpa_cli_mod.get_networks("wlan0") #returns a list of dictionaries includind "ssid"
-		for item in wpalist:
-			ssids.append(item["ssid"])
+		ssids=wifilist_ssid()
+
 	print "ssID on air =", ssids
 	logger.info("Number of scan SSID: %d",len(ssids))
 	savedssids = wpa_cli_mod.listsavednetwork("wlan0")
@@ -284,27 +264,37 @@ def flushIP(interface): #-------------------
 		cmd = ['ip', 'addr' , 'flush' , 'dev', interface]
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		print "FlushIP: ", interface , " OK ", ifup_output
-		time.sleep(1.5)
+		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
 		print "IP flush failed: ", e
 		return False
 
-def addIP(interface): #-------------------
+def addIP(interface, brd=True): #-------------------
 	print "try to set Static IP " , IPADDRESS
 	logger.info("try to set Static IP: %s" , IPADDRESS)
 	try:
-		# sudo ip addr add 192.168.0.172/24 dev wlan0
-		cmd = ['ip', 'addr' , 'add' , IPADDRESS+'/24' , 'dev', interface]
+		if brd:
+			# ip addr add 192.168.0.77/24 broadcast 192.168.0.255 dev eth0
+			BROADCASTIPvect=IPADDRESS.split(".")
+			BROADCASTIPvect[3]="255"
+			BROADCASTIP=".".join(BROADCASTIPvect)
+			cmd = ['ip', 'addr' , 'add' , IPADDRESS+'/24' , 'broadcast' , BROADCASTIP , 'dev', interface]
+		else:
+			# ip addr add 192.168.0.172/24 dev wlan0
+			cmd = ['ip', 'addr' , 'add' , IPADDRESS+'/24' , 'dev', interface]		
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		print "ADD IP address: ", interface , " OK ", ifup_output
-		time.sleep(1)
+		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
 		print "ADD ip address Fails : ", e
 		return False
 
-
+def replaceIP(interface):
+	flushIP(interface)
+	addIP(interface, True)
+	
 
 def findinline(line,string):
 	strstart=line.find(string)
@@ -316,7 +306,6 @@ def findinline(line,string):
 def init_network():
 	# initiate network connection as AP, then start a thread to switch to wifi connection if available
 	step1=connect_AP()
-	addIP("wlan0")
 	if step1:
 		thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with
 		if not thessid=="":
@@ -331,6 +320,15 @@ def init_network():
 def waitandconnect(pulsesecond):
 	print "try to connect to wifi after " , pulsesecond , " seconds"
 	t = threading.Timer(pulsesecond, connect_network).start()
+
+def waitandremovewifi(pulsesecond,ssid):
+	print "try to switch to AP mode after " , pulsesecond , " seconds"
+	argvect=[]
+	argvect.append(ssid)
+	t = threading.Timer(pulsesecond, removewifiarg, argvect).start()
+
+def removewifiarg(arg):
+	removewifi(arg)
 
 def waitandconnect_AP(pulsesecond):
 	print "try to switch to AP mode after " , pulsesecond , " seconds"
@@ -355,24 +353,21 @@ def connect_AP():
 		ssid=""
 	if ssid==localwifisystem:
 		done=True
-		addIP("wlan0")	
-		print "Already working as access point, only adding IP address ",localwifisystem
+		print "Already working as access point, only reset IP address ",localwifisystem
 		logger.info('Already working as access poin %s',localwifisystem)
 		addIP("wlan0")
 		#restart DNSmask, this should help to acquire the new IP address (needed for teh DHCP mode)
 		start_dnsmasq()
 		return True
 	
-
 	
-	
-	# disable all connected network with wpa_supplicant
-	wpa_cli_mod.disable_all("wlan0")	
+	# disable connected network with wpa_supplicant
+	wpa_cli_mod.disable_network_ssid("wlan0",ssid)	
 			
-	ifdown("wlan0")
-	ifup("wlan0")			
-	start_dnsmasq()	# it is recommended that the dnsmasq shoudl start after the wlan0 is up	
-	start_hostapd()
+	#ifdown("wlan0")
+	#ifup("wlan0")			
+	#start_dnsmasq()	# it is recommended that the dnsmasq shoudl start after the wlan0 is up	
+	#start_hostapd()
 	time.sleep(3)
 	
 	
@@ -380,14 +375,14 @@ def connect_AP():
 	i=0	
 	while (i<2)and(not done):
 		print " loop ", i
-		ifdown("wlan0")
-		ifup("wlan0")
-		addIP("wlan0")				
+		#ifdown("wlan0")
+		#ifup("wlan0")			
 		start_dnsmasq()	
 		start_hostapd()
 		ssids=connectedssid()
+		replaceIP("wlan0")
 		j=0
-		while (len(ssids)<=0)and(j<2):
+		while (len(ssids)<=0)and(j<8):
 			j=j+1
 			time.sleep(2+(j-1)*2)
 			logger.info('SSID empty, try again to get SSID')							
@@ -411,31 +406,6 @@ def connect_AP():
 	return done
 	
 	
-	
-	
-def connect_network_nocheck():
-	# this is the procedure that disable the AP and connect to wifi network 
-	print " try to connect to wifi network"
-	thessid=connect_preconditions()
-	i=0
-	done=False
-	while (i<2) and (not done):
-		done=stop_hostapd()
-		i=i+1
-	i=0
-	done=False
-	while (i<2) and (not done):
-		done=stop_dnsmasq()
-		i=i+1
-
-	print "try to connect to wifi network"
-	i=0
-	done=False
-	while (i<2) and (not done):
-		done=connect_savedwifi(thessid)
-		i=i+1
-		print " wifi connection attempt ",i
-				
 
 
 def connect_network():
@@ -477,7 +447,7 @@ def connect_network():
 			
 			i=0
 			done=False
-			while (i<2) and (not done):
+			while (i<3) and (not done):
 				done=connect_savedwifi(thessid)
 				i=i+1
 				print " wifi connection attempt ",i
@@ -488,7 +458,7 @@ def connect_network():
 			
 			ssids=connectedssid()
 			i=0
-			while (i<3) and (len(ssids)==0):
+			while (i<2) and (len(ssids)==0):
 				time.sleep(1+i*5)
 				ssids=connectedssid()
 				i=i+1			

@@ -1,1 +1,0 @@
-{"name": "default", "position": "20", "resolution": "320x240", "servo": "none", "time": "10:30"}
