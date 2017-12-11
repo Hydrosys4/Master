@@ -71,7 +71,7 @@ sudo pip install pyserial || { echo "ERROR --------------------------Installatio
 sudo apt-get -y install fswebcam || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 #(for the image thumbnail support)
-sudo apt-get install libjpeg-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install libjpeg-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 sudo pip install Pillow || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 #(for external IP address, using DNS)
@@ -202,7 +202,7 @@ echo "Hello, following initial setting is requested:"
 
 IP="0"
 while ! valid_ip $IP; do
-	read -p "Local IP address (range 192.168.0.100-192.168.1.200), to confirm press [ENTER] or modify: " -e -i 192.168.0.172 IP
+	read -p "Local IP address (range 192.168.0.100-192.168.1.200), to confirm press [ENTER] or modify: " -e -i 192.168.1.172 IP
 	if valid_ip $IP; then stat='good'; 
 	else stat='bad'; echo "WRONG FORMAT, please enter a valid value for IP address"
 	fi
@@ -212,7 +212,7 @@ done
 
 PORT=""
 while [[ ! $PORT =~ ^[0-9]+$ ]]; do
-read -p "Local PORT, to confirm press [ENTER] or modify: " -e -i 5012 PORT
+read -p "Local PORT, to confirm press [ENTER] or modify: " -e -i 5172 PORT
 	if [[ ! $PORT =~ ^[0-9]+$ ]];
 	then echo "WRONG FORMAT, please enter a valid value for PORT";
 	fi
@@ -722,3 +722,4 @@ edit_defaultnetworkdb
 #edit_networkdb
 iptables_blockports
 
+echo "installation is finished!!! "
