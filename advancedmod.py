@@ -17,8 +17,6 @@ import filestoragemod
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 
-
-DATABASEPATH="database"
 DATAFILENAME="addata.txt"
 DEFDATAFILENAME="default/defaddata.txt"
 

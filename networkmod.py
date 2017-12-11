@@ -24,9 +24,6 @@ WAITTOCONNECT=180 # should be 180 at least
 IPADDRESS =networkdbmod.getIPaddress()
 
 
-
-
-
 	
 def wifilist_ssid():
 	# get all cells from the air
@@ -310,8 +307,8 @@ def init_network():
 		thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with
 		if not thessid=="":
 			waitandconnect(WAITTOCONNECT) # parameter is the number of seconds, 5 minutes = 300 sec
-			print "wifi access point up, wait 180 sec before try to connect to wifi network"
-			logger.warning('wifi access point up, wait 180 sec before try to connect to wifi network')
+			print "wifi access point up, wait " ,WAITTOCONNECT, " sec before try to connect to wifi network"
+			logger.warning('wifi access point up, wait %d sec before try to connect to wifi network',WAITTOCONNECT)
 	else:
 		waitandconnect(2) # try to connet immeditely to netwrok as the AP failed
 		print "Not able to connect wifi access point , wait 2 sec before try to connect to wifi network"
@@ -362,8 +359,12 @@ def connect_AP():
 	
 	
 	# disable connected network with wpa_supplicant
-	wpa_cli_mod.disable_network_ssid("wlan0",ssid)	
-			
+	logger.info('Try to disable current network %s',localwifisystem)
+	print "try to disable other network"
+	isOk=wpa_cli_mod.disable_all("wlan0")	
+	if not isOk:
+		logger.warning('Problem to disable network')
+		print "try to disable other network"
 	#ifdown("wlan0")
 	#ifup("wlan0")			
 	#start_dnsmasq()	# it is recommended that the dnsmasq shoudl start after the wlan0 is up	
@@ -494,9 +495,8 @@ def connect_network():
 				logger.info('Send first mail ! ')
 				emailmod.sendallmail("alert", "System has been reconnected to wifi network")				
 			else:
-				#logger.info('Connectivity problem with WiFi network, %s' ,ssid[0] )
 				print "Connectivity problem with WiFi network " ,ssid[0] , "going back to wifi access point mode"
-				logger.info('Connectivity problem with WiFi network, %s, gong back to wifi access point mode' ,ssid[0] )
+				logger.info('Connectivity problem with WiFi network, %s, gong back to wifi access point mode' ,ssid )
 				connect_AP()
 
 	else:
@@ -522,12 +522,16 @@ def internet_on_old():
 		return False
 
 def internet_on():
-    for timeout in [1,5,10,15]:
-        try:
-            response=urllib2.urlopen('http://google.com',timeout=timeout)
-            return True
-        except urllib2.URLError as err: pass
-    return False
+	websites=['http://google.com','https://www.wikipedia.org']
+	timeouts=[1,5]
+	for site in websites:
+		for timeout in timeouts:
+			try:
+				response=urllib2.urlopen(site,timeout=timeout)
+				return True
+			except:
+				print "internet_on: Error to connect"
+	return False
 
 def check_internet_connection(ntimes=3):
 	i=0

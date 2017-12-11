@@ -18,7 +18,7 @@ import filestoragemod
 
 
 
-DATABASEPATH="database"
+
 DATAFILENAME="camdata.txt"
 DEFDATAFILENAME="default/defcamdata.txt"
 

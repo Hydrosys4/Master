@@ -18,8 +18,6 @@ import filestoragemod
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 
-global DATABASEPATH
-DATABASEPATH="database"
 global DATAFILENAME
 DATAFILENAME="clocktimezone.txt"
 

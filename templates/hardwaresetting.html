@@ -8,21 +8,7 @@
 		
 		
 		
-<!-- Warning -->
-    <div class="container-fluid">
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
-						<h3 id="header">WARNING: don't modify the data on this page unless you know what you are doing. This page is for very expert only.</h3>
-					</div>
-				</div>
-            </div>
-          </div>
-        </div>
-        
-        
+      
         
   
 <!-- select and load preset HW config -->
@@ -76,59 +62,9 @@
           </div>
         </div>
   
-<!-- first section add record -->
-<form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
-  
-    
-  
-													<div class="table-responsive">
-															<table class="table table-striped">
-																<thead>
-																	<tr>
-																		{% for th in tablehead %}
-																		<th><h6>{{ th }}</h6></th>																			
-																		{% endfor %}
-																	</tr>
-																</thead>
-																<tbody>
-																	<tr>
-																		{% for th in tablehead %}
 
-																			<td>
-																			<div class="form-group">	
-																			{% if fields[th]|length<1 %}
-																			<input class="form-control input-sm smallgap" name="{{ th }}" value="">																					
-																			{% else %}		
-																			<select class="form-control input-sm smallgap" name="{{ th }}">																				
-																																			
-																						{% for field in fields[th] %}
-
-																						<option {% if loop.index == 1 %}selected="selected"{% endif %} value="{{field}}">{{field}}</option>
-																									
-																						{% endfor %}	
-																																					
-																			  </select>
-																			  {% endif %}
-																			  </div>																							
-																						
-																						
-																			</td>
-																			
-																		{% endfor %}
-
-																	</tr>
-																</tbody>
-															</table>
-															<!-- /.table-responsive -->		
-														</div>
-														
-	<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="save">ADD and Save</button>
-														
-														
-												
-</form>
   
-<!-- second section with list ot records -->
+<!-- second section table with the content of hwsetting -->
 <form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
   
   
@@ -145,39 +81,107 @@
           </div>
         </div>
 
-													<div class="table-responsive">
-															<table class="table table-striped">
-																<thead>
-																	<tr>
-																		<th><h6>Delete</h6></th>	
-																		{% for th in tablehead %}
-																		<th><h6>{{ th }}</h6></th>																			
-																		{% endfor %}
-																	</tr>
-																</thead>
-																<tbody>
-																	{% for rowdict in hwdata %}
+											
+														
+														
+<!-- bootstrap-table -->	
 
-																	<tr>
-	<td>										
-		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="delete_{{rowdict[tablehead[0]]}}">Del</button>
-	</td>
-																		
-																		{% for th in tablehead %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-table/src/bootstrap-table.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-table/src/examples.css') }}">
+    <script src="{{url_for('static', filename='bootstrap-table/src/bootstrap-table.js') }}"></script>    
+    <script src="{{url_for('static', filename='bootstrap-table/src/extensions/export/bootstrap-table-export.js') }}"></script> 
+    <script src="{{url_for('static', filename='bootstrap-table/src/extensions/export/tableExport.js') }}"></script>
+			
+														
+<div id="toolbar">
+		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="edit">Edit Table</button>
+														
+</div>
+    <table class="table table-striped table-sm"
+		   id="table"
+		   data-toggle="table"
+           data-toolbar="#toolbar"
+           data-search="true"
+           data-show-refresh="true"
+           data-show-columns="true"
+           data-show-export="true"
+           data-icon-size="sm" >
 
-																			<td>
-																						<h6>{{ rowdict[th] }}</h6>
-																			</td>
-																			
-																		{% endfor %}
+    </table>
 
-																	</tr>
-																	{% endfor %}
 
-																</tbody>
-															</table>
-														</div>
-														<!-- /.table-responsive -->
+<script>
+	
+// opertation functions to be put before the table declaration
+window.actionEvents = {
+    'click .like': function (e, value, row, index) {
+            $table.bootstrapTable('insertRow', {
+                index: row.id,
+                row: row
+            });
+        alert('You click edit icon, row: ' + JSON.stringify(row));
+        console.log(value, row, index);
+
+    },
+    'click .edit': function (e, value, row, index) {
+        alert('You click edit icon, row: ' + JSON.stringify(row));
+        console.log(value, row, index);
+    },
+    'click .remove': function (e, value, row, index) {
+            $table.bootstrapTable('remove', {
+                field: 'id',
+                values: [row.id]
+            });
+    }
+};
+
+// opertation functions
+function actionFormatter(value, row, index) {
+    return [
+        '<a class="like" href="javascript:void(0)" title="Like">',
+        '<i class="glyphicon glyphicon-heart"></i>',
+        '</a>',
+        '<a class="edit ml10" href="javascript:void(0)" title="Edit">',
+        '<i class="glyphicon glyphicon-edit"></i>',
+        '</a>',
+        '<a class="remove ml10" href="javascript:void(0)" title="Remove">',
+        '<i class="glyphicon glyphicon-remove"></i>',
+        '</a>'
+    ].join('');
+}
+
+    var $table = $('#table'),
+        $remove = $('#remove'),
+        selections = [];
+        
+    var titlelist={{tablehead|safe}};
+    var thecolumns = []; // create an empty array
+
+
+	for (index = titlelist.length - 1; index >= 0; --index) {
+		thecolumns.push({
+			title: titlelist[index],
+			field: titlelist[index]
+		});		
+	}
+	var thedata=({{ hwdata|safe }});
+
+
+        $('#table').bootstrapTable({
+            columns: thecolumns,
+               data: thedata
+        });
+
+
+
+</script>
+
+
+
+
+
+
+
 
 
 </form>
@@ -214,7 +218,17 @@
 					<p></p>
 					<a id="downloadlinkdownloadprevlog4" href="" ></a>
 				</div>
-			</div>	
+			</div>
+			<!--  file 1c -->
+			<div class="row">
+				<div class="col-xs-6">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlogSCHED">Scheduler Logs</button>
+				</div>
+				<div class="col-xs-6">
+					<a id="downloadlinkdownloadlogSCHED0" href="" ></a>
+				</div>
+			</div>		
+
 			<!--  file 2 -->
 			<div class="row">
 				<div class="col-xs-6">

@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% set active_page = "" %}
 {% block body %}
   {% if session.logged_in %}
   
@@ -7,10 +8,10 @@
 
 
 			  (function worker() {
-
+				var elem="{{selectedsensor}}";
 				$.ajax({
 							type: "GET",
-							url: $SCRIPT_ROOT + "/echo/",
+							url: $SCRIPT_ROOT + "/echo/?element=" + elem ,
 							contentType: "application/json; charset=utf-8",
 							data: { echoValue: "requestfordata" },
 							success: function(s) {
@@ -62,43 +63,44 @@
 			 
 			</script>
 
-		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="PHform" class="jotform-form" method="post" >
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}"  id="realtimesensor" method="post" >
 
 
 			<div class="page-header">
-					  <h3>Real time data</h3>   
+					  <h3>Real time data: {{selectedsensor}} </h3>   
 			</div>
 			
 			<!--  result  -->
 	<div class="well bs-component">
-		<table class="table" margin: 20px;>
-        <thead>
-            <tr>
-                <th>Sensor</th>
-                <th>Value</th>
-                <th>Unit</th>
-            </tr>
-        </thead>
-		<tbody>
-			{% for item in sensorlist %}	
+				<table class="table" margin: 20px;>
+				<thead>
+					<tr>
+						<th>Sensor</th>
+						<th>Value</th>
+						<th>Unit</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in sensorlist %}	
 
-			
-			 <tr>			
-					<td >{{ item }}</td>
+					{% if selectedsensor==item %} 
+					
+					 <tr>			
+							<td >{{ item }}</td>
 
-					<td id="{{ item }}"></td>
+							<td id="{{ item }}"></td>
+							
+												
+							<td>{{ unitdict[item] }}</td>
+							
+					 </tr>	
 					
-										
-					<td>{{ unitdict[item] }}</td>
+					{% endif %}
 					
-			 </tr>	
-			
-			
-			
-			{% endfor %}
-		
-        </tbody>
-    </table>
+					{% endfor %}
+				
+				</tbody>
+			</table>
  
 
 			<div class="row">
@@ -111,7 +113,13 @@
 			</div>
 			</div>
 			</div>
+		
+	 <button class="btn btn-success btn-default" type="submit" name="buttonsub" value="confirm">Back</button>
 	  </div>
+	  
+	  
+
+	  
 		</form>	
 
   </div>

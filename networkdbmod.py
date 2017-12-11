@@ -18,8 +18,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 
-global DATABASEPATH
-DATABASEPATH="database"
+
 global DATAFILENAME
 DATAFILENAME="network.txt"
 global DEFDATAFILENAME

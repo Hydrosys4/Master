@@ -66,8 +66,12 @@ def get_networks(iface, retry=1):
 			if lines:
 				for line in lines[1:-1]:
 					#bssid / frequency / signal level / flags / ssid
-					b, fr, s, f, ss = line.split()[:5]
-					networks.append( {"bssid":b, "freq":fr, "sig":s, "ssid":ss, "flag":f} )
+					if line:
+						linevect=line.split()
+						if len(linevect)>4:
+							b, fr, s, f, ss = line.split()[:5]
+							networks.append( {"bssid":b, "freq":fr, "sig":s, "ssid":ss, "flag":f} )												
+
 				return networks
 		retry-=1
 		logger.debug("Couldn't retrieve networks, retrying")
@@ -136,14 +140,19 @@ def disable_all(iface):
     if lines:
         for line in lines[1:-1]:
             net_id=line.split()[0]
-            disable_network(iface,net_id) 
+            disable_network(iface,net_id)
+        return True
+    return False
 
 def disable_network_ssid(iface,ssid):
-	# find net_id
-	net_id=get_net_id(iface,ssid)
-	if net_id:
-		print "net id to disable ", net_id
-		return disable_network(iface,net_id)
+	if ssid=="":
+		return disable_all(iface)
+	else:
+		# find net_id
+		net_id=get_net_id(iface,ssid)
+		if net_id:
+			print "net id to disable ", net_id
+			return disable_network(iface,net_id)
 	return False
 
 

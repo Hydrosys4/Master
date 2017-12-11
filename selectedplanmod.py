@@ -10,7 +10,6 @@ import string
 from datetime import datetime,date,timedelta
 import time
 import filestoragemod
-import plandbmod
 import sensordbmod
 import actuatordbmod
 import hardwaremod
@@ -26,8 +25,6 @@ import clockmod
 
 global FASTSCHEDULER
 FASTSCHEDULER=True
-global DATABASEPATH
-DATABASEPATH="database"
 global ITEMWEEKSROW
 ITEMWEEKSROW=2
 global HEARTBEATINTERVAL
@@ -39,17 +36,6 @@ PRESETFILENAME='presetsettings.txt'
 # ///////////////// --- END GLOBAL VARIABLES ------
 
 logger = logging.getLogger("hydrosys4."+__name__)
-
-#-- start filestorage utility--------////////////////////////////////////////////////////////////////////////////////////	
-def dbpath(filename):
-	return os.path.join(DATABASEPATH, filename)	
-
-# filestoragemod.readfiledata(filename,filedata)
-# filestoragemod.savefiledata(filename,filedata)
-# filestoragemod.appendfiledata(filename,filedata)
-# filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
-# filestoragemod.deletefile(filename)
-
 
 	
 #--start the scheduler call-back part--------////////////////////////////////////////////////////////////////////////////////////	
@@ -213,7 +199,24 @@ def heartbeat():
 	else:
 		print "not able to establish an internet connection"
 		logger.warning("not able to establish an internet connection")			
-
+	
+	# check master job has a next run"
+	isok, datenextrun = SchedulerMod.get_next_run_time("master")
+	if isok:
+		datenow=datetime.utcnow()
+		datenextrun = datenextrun.replace(tzinfo=None)
+		print "Master Scheduler Next run " , datenextrun , " Now (UTC) ", datenow
+		if datenextrun>datenow:
+			print "Masterschedule next RUN confirmed"
+			logger.info('Heartbeat check , Master Scheduler OK')
+		else:
+			isok=False
+			
+	if not isok:
+		print "No next run for master scheduler"
+		logger.warning('Heartbeat check , Master Scheduler Interrupted')
+		emailmod.sendallmail("alert","Master Scheduler has been interrupted, try to restart scheduler")
+		setmastercallback()
 		
 	return True
 	
@@ -250,6 +253,7 @@ schedulercallback={"heartbeat":heartbeat,"doser":pulsenutrient,"waterpump":start
 # Master callback is scheduled each day at midnight
 
 def setmastercallback():
+	logger.info('Master Scheduler - Setup daily jobs')
 	#set daily call for mastercallback at midnight
 	starttime=datetime(datetime.now().year, datetime.now().month, datetime.now().day, 0, 0, 0)
 	starttimeloc=starttime + timedelta(seconds=1)
@@ -258,8 +262,10 @@ def setmastercallback():
 	print "setup master job"
 	try:
 		SchedulerMod.sched.add_job(mastercallback, 'interval', days=1, start_date=starttime, misfire_grace_time=120, name="master")
+		logger.info('Master Scheduler - Started without errors')
 	except ValueError:
 		print 'Date value for job scheduler not valid'
+		logger.warning('Heartbeat check , Master Scheduler not Started properly')
 	mastercallback()
 
 #add_job(func, trigger=None, args=None, kwargs=None, id=None, name=None, misfire_grace_time=undefined, coalesce=undefined, max_instances=undefined, next_run_time=undefined, jobstore='default', executor='default', replace_existing=False, **trigger_args)
@@ -279,7 +285,10 @@ def mastercallback():
 	# remove all jobs except masterscheduler
 	for job in SchedulerMod.sched.get_jobs():
 		if job.name != "master":
-			job.remove()	
+			try:
+				job.remove()	
+			except:
+				logger.error('Not able to remove Job %s', job.name)
 
 	# set the individual callback of the day
 	
@@ -506,19 +515,15 @@ def startnewselectionplan():
 	print "new jobs there"
 	SchedulerMod.sched.print_jobs()	
 
-
-	
+def removeallscheduledjobs():
+	SchedulerMod.removealljobs()
 	
 #--end --------////////////////////////////////////////////////////////////////////////////////////		
 
 	
 if __name__ == '__main__':
 	
-	planname=plandbmod.getplanlist()[1]
-	print planname
-	table=[]
-	table=plandbmod.getplantable(planname)
-	#selplansave(table,planname)
+
 	
 	SchedulerMod.start_scheduler()
 	setmastercallback()

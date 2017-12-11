@@ -118,11 +118,42 @@ fix the bash file because squid has changed the config directory
 
 Make better WiFi module using WPA_CLI
 
-Future releases:
+2017-11-04 -> release 71
 
-Easy way to change the name to the actuator objects
+Get a separate file for the logging of scheduler and flask
 
-Check if watering works properly
+2017-11-05 -> release 72
+
+Added the control of the master scheduler job is alive in the Heartbeat routine
+
+2017-11-14 -> release 73
+
+Add bootstrap-table for editing the hardware setting table
+Implement Name change function in setting
+
+
+2017-12-03 -> release 74
+
+real time sensor reading once at the time.
+added basicsetting.py file which includes basic setting about the Database path and debugmode
+the database schema template has been moved to database/default
+Program able to run wihout files in the database directory, all the files needed seems to be created properly by tempates
+the logfile for apscheduler/flask is enabled only in debugging mode (from basicSetting.py file)
+
+
+
+------- Future releases: -----------
+
+
+add in the setting page the MIN-MAX setting for the servo (add also the reset button)
+
+add automatic watering control based on the hygrometers feedback
+
+make photoshot with raspicam module, should be more effective than fswebcam (check also)
+
+enable HTTPS, not public version
+
+
 
 
 

@@ -389,7 +389,7 @@ channel=6
 macaddr_acl=0
 auth_algs=1
 ignore_broadcast_ssid=0
-wpa=3
+wpa=2
 wpa_passphrase=$WiFiAPpsw
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
@@ -468,7 +468,7 @@ sed -i '/#END HYDROSYS4 SECTION/d' $aconf
 sudo bash -c "cat >> $aconf" << EOF
 #START HYDROSYS4 SECTION
 profile static_wlan0
-static ip_address=192.168.1.152/24
+static ip_address=$IP/24
 #static routers=192.168.1.1
 #static domain_name_servers=192.169.1.1
 # fallback to static profile on wlan0
@@ -719,6 +719,6 @@ install_DHT22lib
 install_SPIlib
 install_BMPlib
 edit_defaultnetworkdb
-edit_networkdb
+#edit_networkdb
 iptables_blockports
 

@@ -4,6 +4,7 @@ selected plan utility
 """
 import shutil
 import logging
+import re
 import os
 import os.path
 import sys
@@ -12,19 +13,19 @@ import random
 from datetime import datetime,date,timedelta
 import time
 import filestoragemod
-import plandbmod
 import HWcontrol
 import photomod
 import cameradbmod
 import struct
 import imghdr
+import copy
 
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 
 global DATABASEPATH
-DATABASEPATH="database"
+DATABASEPATH=filestoragemod.DATABASEPATH
 global HWDATAFILENAME
 HWDATAFILENAME="hwdata.txt"
 global DEFHWDATAFILENAME
@@ -92,7 +93,6 @@ HWdataKEYWORDS[HW_CTRL_MAX]=[]
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
 
-global IOdata
 IOdata=[]
 # read IOdata -----
 if not filestoragemod.readfiledata(HWDATAFILENAME,IOdata): #read calibration file
@@ -102,8 +102,8 @@ if not filestoragemod.readfiledata(HWDATAFILENAME,IOdata): #read calibration fil
 	print "writing default calibration data"
 	filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
 # end read IOdata -----
-
-
+IOdatatemp=copy.deepcopy(IOdata)
+IOdatarow={}
 
 # ///////////////// --- END GLOBAL VARIABLES ------
 
@@ -117,34 +117,51 @@ if not filestoragemod.readfiledata(HWDATAFILENAME,IOdata): #read calibration fil
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
 
+def IOdatatempalign():
+	global IOdatatemp
+	IOdatatemp=copy.deepcopy(IOdata)
 
-def checkdata(dictdata): # check if basic info in the fields are corect
-	# check free field first
+def	IOdatafromtemp():
+	global IOdata
+	IOdata=copy.deepcopy(IOdatatemp)
+	filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
+	
+def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fields are correct
+# name is the unique key indicating the row of the list, dictdata contains the datato be verified
+	# check the "name" field
 	fieldname=HW_INFO_NAME
-	fieldvalue=dictdata[HW_INFO_NAME]	
-	if fieldvalue=="":
-		message="Name is empty"
-		return False, message
-	else:
-		#check same name already present in IOdata
-		if searchmatch(fieldname,fieldvalue):
-			message="Same name is already present"
-			return False, message
+	if (fieldtocheck==fieldname)or(fieldtocheck==""):
+		if fieldname in dictdata:
+			fieldvalue=dictdata[fieldname]	
+			if fieldvalue=="":
+				message="Name is empty"
+				return False, message
+			elif not re.match("^[A-Za-z0-9_-]*$", fieldvalue):
+				message="Name should not contains alphanumeric caracters or spaces"
+				return False, message		
+			else:
+				#check same name already present in IOdatatemp
+				if searchmatch(fieldname,fieldvalue,temp):
+					message="Same name is already present"
+					return False, message
 					
 	#dictdata[HW_CTRL_MAILADDR]=[]
 	#dictdata[HW_CTRL_MAILTITLE]=[]		
 	fieldname=HW_FUNC_TIME
-	fieldvalue=dictdata[HW_FUNC_TIME]	
-	if fieldvalue!="":
-		#check format is correct
-		if len(fieldvalue.split(":"))<3:
-			message="Please enter correct time format hh:mm:ss"
-			return False, message
-	else:
-		correlatedfield=HW_INFO_IOTYPE
-		if dictdata[correlatedfield]=="input":
-			message="Time cannot be empty for item belonging to input"
-			return False, message	
+	correlatedfield=HW_INFO_IOTYPE	
+	if (fieldtocheck==fieldname)or(fieldtocheck==""):
+		if (correlatedfield in dictdata)and(fieldname in dictdata):
+			fieldvalue=dictdata[fieldname]	
+			if fieldvalue!="":
+				#check format is correct
+				if len(fieldvalue.split(":"))<3:
+					message="Please enter correct time format hh:mm:ss"
+					return False, message
+			else:
+
+				if dictdata[correlatedfield]=="input":
+					message="Time cannot be empty for item belonging to input"
+					return False, message	
 	
 	
 	# check select field dependencies
@@ -152,14 +169,17 @@ def checkdata(dictdata): # check if basic info in the fields are corect
 	#dictdata[HW_INFO_MEASUREUNIT]=MEASUREUNITLIST
 	#dictdata[HW_INFO_MEASURE]=MEASURELIST
 	#dictdata[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST
-	
+
+	fieldname=HW_CTRL_PIN	
 	correlatedfield=HW_CTRL_CMD
-	if dictdata[HW_CTRL_CMD]=="pulse":
-		fieldname=HW_CTRL_PIN
-		fieldvalue=dictdata[HW_CTRL_PIN]	
-		if searchmatch(fieldname,fieldvalue):
-			message="Same PIN already used"
-			return False, message
+	if (fieldtocheck==fieldname)or(fieldtocheck==""):
+		if (correlatedfield in dictdata)and(fieldname in dictdata):
+			if dictdata[correlatedfield]=="pulse":
+
+				fieldvalue=dictdata[fieldname]	
+				if searchmatch(fieldname,fieldvalue,temp):
+					message="Same PIN already used"
+					return False, message
 		
 	#dictdata[HW_CTRL_ADCCH]=HWcontrol.ADCCHANNELLIST
 	#dictdata[HW_CTRL_PWRPIN]=HWcontrol.RPIMODBGPIOPINLIST
@@ -405,6 +425,18 @@ def changesavecalibartion(IOname,IOparameter,IOvalue):  #needed
 			return True
 	return False
 
+def changeIOdatatemp(IOname,IOparameter,IOvalue):  #needed
+# questo il possibile dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario
+	global IOdatatemp
+	for line in IOdatatemp:
+		if line[HW_INFO_NAME]==IOname:
+			line[IOparameter]=IOvalue
+			return True
+	return False
+
+
+
+
 def searchdata(recordkey,recordvalue,keytosearch):
 	for ln in IOdata:
 		if recordkey in ln:
@@ -413,13 +445,31 @@ def searchdata(recordkey,recordvalue,keytosearch):
 					return ln[keytosearch]	
 	return ""
 
-def searchmatch(recordkey,recordvalue):
-	for ln in IOdata:
+def searchrowtemp(recordkey,recordvalue):
+	for ln in IOdatatemp:
 		if recordkey in ln:
 			if ln[recordkey]==recordvalue:
-				return True	
-	return False
+				return copy.deepcopy(ln)
+	return {}
 
+def searchrowtempbyname(recordvalue):
+	recordkey=HW_INFO_NAME
+	return searchrowtemp(recordkey,recordvalue)
+
+
+def searchmatch(recordkey,recordvalue,temp):
+	if temp:
+		for ln in IOdatatemp:
+			if recordkey in ln:
+				if ln[recordkey]==recordvalue:
+					return True	
+		return False
+	else:
+		for ln in IOdata:
+			if recordkey in ln:
+				if ln[recordkey]==recordvalue:
+					return True	
+		return False
 
 def gettimedata(name):
 	# return list with three integer values: hour , minute, second
@@ -712,22 +762,54 @@ def get_image_size(picturepath):
 		else:
 			return
 		return width, height
-
-def addrow(dicttemp):
-	IOdata.append(dicttemp)
-	filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
+		
+def additionalRowInit():
+	fields=HWdataKEYWORDS
+	tablehead=[]
+	for key, value in fields.iteritems():
+		tablehead.append(key)
+	additionalrow={}
+	for th in tablehead:
+		if len(fields[th])>1:
+			additionalrow[th]=fields[th][0]
+		else:
+			additionalrow[th]=""
+	#initialize IOdatarow
+	global IOdatarow
+	IOdatarow=additionalrow
 	return True
+
+def addrow(dicttemp, temp=True):
+	global IOdata
+	global IOdatatemp
+	if temp:
+		IOdatatemp.append(dicttemp)
+		return True
+	else:
+		IOdata.append(dicttemp)
+		filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
+		return True
 	
-def deleterow(element):
+def deleterow(element, temp=True):
+	global IOdata
+	global IOdatatemp
 	searchfield=HW_INFO_NAME
 	searchvalue=element
-	for line in IOdata:
-		if searchfield in line:
-			if line[searchfield]==searchvalue:
-				IOdata.remove(line)
-				filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
-				return True
-	return False
+	if temp:
+		for line in IOdatatemp:
+			if searchfield in line:
+				if line[searchfield]==searchvalue:
+					IOdatatemp.remove(line)
+					return True
+		return False
+	else:	
+		for line in IOdata:
+			if searchfield in line:
+				if line[searchfield]==searchvalue:
+					IOdata.remove(line)
+					filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
+					return True
+		return False
 
 
 	

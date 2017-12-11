@@ -2,7 +2,7 @@
 """
 file storage utility
 """
-
+import basicSetting
 import logging
 import os
 import os.path
@@ -14,7 +14,7 @@ import json
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 global DATABASEPATH
-DATABASEPATH="database"
+DATABASEPATH=basicSetting.data["DATABASEPATH"]
 
 # ///////////////// --- END GLOBAL VARIABLES ------
 

@@ -54,7 +54,7 @@
 
 				$.ajax({
 							type: "GET",
-							url: $SCRIPT_ROOT + "/echo/",
+							url: $SCRIPT_ROOT + "/echo/?element=" + "all" ,
 							contentType: "application/json; charset=utf-8",
 							data: { echoValue: "requestfordata" },
 							success: function(s) {
@@ -86,7 +86,7 @@
 		<form novalidate="true" action="{{ url_for('show_realtimedata') }}" id="PHform" method="post" >
 
 			<div class="page-header">
-					  <h3>Sensor data</h3>   
+					  <h3>Sensor data </h3>   
 			</div>
 
 			
@@ -100,6 +100,7 @@
                 <th>Sensor</th>
                 <th>Value</th>
                 <th>Unit</th>
+                <th>Action</th>
             </tr>
         </thead>
 		<tbody>
@@ -114,6 +115,10 @@
 										
 					<td>{{ unitdict[item] }}</td>
 					
+					<td>
+						<button class="sensorbutton btn-sm btn btn-default" type="submit" name="{{item}}">Read</button>
+					</td>
+
 			 </tr>	
 			
 			
@@ -122,12 +127,21 @@
 		
         </tbody>
     </table> 
-    			<div class="row">
-				<div class="col-xs-2">
-				<!-- Sensor button -->
-					<button id="realtimebtn" class="btn-sm btn btn-default" name="realtimebtn" value="" type="submit">ShowRealTimeData</button>
-				</div>
-			</div>
+    <input value="{{selectedsensor}}" id="postsensor" name="postsensor" type="hidden">
+    <script type="text/javascript" charset="utf-8">
+                
+			$(function() {
+					$(".sensorbutton").click(function() {
+						var selvalue=$(this).attr('name');
+						$('#postsensor').attr("value", selvalue);
+					});  
+				});  
+     </script>	
+    
+    
+    
+    
+
     			</div>
 		</form>
     
@@ -428,7 +442,8 @@
 					<option {% if resolution=="1024x768" %} selected="selected"{% endif %}>1024x768</option>
 					<option {% if resolution=="1920x1080" %} selected="selected"{% endif %}>1920x1080</option>
 					<option {% if resolution=="1920x1440" %} selected="selected"{% endif %}>1920x1440</option>
-					<option {% if resolution=="2592×1944" %} selected="selected"{% endif %}>2592×1944</option>
+					<option {% if resolution=="2592x1944" %} selected="selected"{% endif %}>2592x1944</option>
+					<option {% if resolution=="3280x2464" %} selected="selected"{% endif %}>3280x2464</option>					
 				  </select>
 				  
 				  </td>	
@@ -998,7 +1013,49 @@
 		<!-- End Clock test and setting -->		
 		
 		
-		
+		<!-- Change Hardware component naming -->
+  		<form  action="{{ url_for('show_Calibration') }}" id="menuForm32" class="jotform-form" method="post" >
+
+			<div class="page-header">
+					  <h3>Change the Hardware component naming for easier reference</h3>   
+			</div>
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label for="input_3">Change Hardware naming</label>
+				</div>
+				<div class="col-xs-8">
+					<button id="naming" class="btn-sm btn btn-default" name="buttonsub" value="editnames" type="submit">Edit Names</button>
+
+					
+				</div>
+			</div>	
+
+
+				 
+				<!-- Modal HTML -->
+				<div id="myModal" class="modal fade">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title">Confirmation</h4>
+							</div>
+							<div class="modal-body">
+								<p>Are you sure to restore the default setting?</p>
+								<p class="text-warning"><small>All the current setting will be lost, wifi connection will be removed</small></p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button id="deletbtn" name="buttonsub" value="delete" type="submit" class="btn btn-primary">Restore Default</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+
+		</form>
 		
 		
 		

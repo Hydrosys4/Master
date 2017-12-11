@@ -6,6 +6,8 @@ import sys
 import subprocess 
 from PIL import Image # to make thumbnail
 
+
+
 def videodevlist():
 	folderpath="/dev"
 	videolist=[]
@@ -43,10 +45,25 @@ def saveshot(filepath, video, realshot, resolution, positionvalue):
 			
 
 			#myproc = subprocess.check_output("fswebcam -d "+ cam_list +" -r 1280x720 -S 15 --jpeg 95" + filename, shell=True)
+
+
+
+
+			shottaken=False
+			w=resolution.split("x")[0]
+			h=resolution.split("x")[1]			
+
+			print "try fswebcam"
 			if i==1:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 35 --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)				
+				S="35"
 			else:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S 5 --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)
+				S="5"
+			# Raspistill option
+			# raspistill -w 1024 -h 768 -q 95 -o "picture.jpg"			
+			#myproc = subprocess.check_output("raspistill -w "+w+" -h "+h+" -q 95 -o " + filename, shell=True, stderr=subprocess.STDOUT)
+
+			#fswebcam option
+			myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S "+S+" --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)
 			# -R use read() method -- NOT WORKING ---
 			# -D delay before taking frames
 			# -S skip the first frames

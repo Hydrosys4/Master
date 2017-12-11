@@ -2,7 +2,7 @@
 """
 Database utility
 """
-
+import basicSetting
 import logging
 import os
 import os.path
@@ -13,7 +13,9 @@ import sqlite3
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 global DATABASEPATH
-DATABASEPATH="database"
+DATABASEPATH=basicSetting.data["DATABASEPATH"]
+global SCHEMAFILEPATH
+SCHEMAFILEPATH=basicSetting.data["SCHEMAFILEPATH"]
 global REFERENCETABLE
 REFERENCETABLE="referencetable"
 
@@ -26,6 +28,10 @@ REFERENCETABLE="referencetable"
 def dbpath(filename):
 	return os.path.join(DATABASEPATH, filename)	
 
+def schemapath(filename):
+	schemapath=os.path.join(DATABASEPATH, SCHEMAFILEPATH)
+	return os.path.join(schemapath, filename)	
+
 def init_db(filename):
 	"""Creates the database tables."""
 	if not os.path.isfile(dbpath(filename)): #file is there
@@ -33,8 +39,8 @@ def init_db(filename):
 		print "create empty database"
 		print 'Creating schema from file'
 		schemafilename = os.path.splitext(filename)[0]+'sc.sql'
-		if os.path.isfile(dbpath(schemafilename)):
-			with open(dbpath(schemafilename), 'rt') as f:
+		if os.path.isfile(schemapath(schemafilename)):
+			with open(schemapath(schemafilename), 'rt') as f:
 				schema = f.read()
 			conn.executescript(schema)
 	else:

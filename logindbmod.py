@@ -18,8 +18,6 @@ import hardwaremod
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 
-global DATABASEPATH
-DATABASEPATH="database"
 global DATAFILENAME
 DATAFILENAME="logincred.txt"
 

@@ -1,0 +1,62 @@
+21:35:16   hydrosys4.networkdbmod - ERROR      Not able to get basic network data ---------------------
+21:35:16     hydrosys4.networkmod - ERROR      error the name of AP not found, double check the hostapd configuration
+21:35:16                hydrosys4 - INFO       Start logging -------------------------------------------- 2017-10-27 21:35:16
+21:35:16                hydrosys4 - DEBUG      This is a sample DEBUG message
+21:35:16                hydrosys4 - INFO       This is a sample INFO message
+21:35:16                hydrosys4 - WARNING    This is a sample WARNING message
+21:35:16                hydrosys4 - ERROR      This is a sample ERROR message
+21:35:16     hydrosys4.networkmod - INFO       try to start system as WiFi access point
+21:35:32     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:35:37     hydrosys4.networkmod - INFO       SSID empty, try again to get SSID
+21:35:40     hydrosys4.networkmod - INFO       Access point failed to start, attempt 0 
+21:35:44     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:35:47     hydrosys4.networkmod - INFO       Access point failed to start, attempt 1 
+21:35:47     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:35:47     hydrosys4.networkmod - WARNING    Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+21:35:55     hydrosys4.networkmod - INFO       Number of scan SSID: 3
+21:35:55     hydrosys4.networkmod - INFO       preconditions to connect to wifi network are met
+21:35:58     hydrosys4.networkmod - INFO       Connected to Wifi Network AngeloAnnnie, now testing connectivity
+21:36:13     hydrosys4.networkmod - INFO       Connectivity problem with WiFi network, A, gong back to wifi access point mode
+21:36:13     hydrosys4.networkmod - INFO       try to start system as WiFi access point
+21:36:29     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:36:34     hydrosys4.networkmod - INFO       SSID empty, try again to get SSID
+21:36:37     hydrosys4.networkmod - INFO       Access point failed to start, attempt 0 
+21:36:40     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:36:43     hydrosys4.networkmod - INFO       Access point failed to start, attempt 1 
+21:36:45     hydrosys4.networkmod - INFO       try to start system as WiFi access point
+21:37:01     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:37:06     hydrosys4.networkmod - INFO       SSID empty, try again to get SSID
+21:37:09     hydrosys4.networkmod - INFO       Access point failed to start, attempt 0 
+21:37:12     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:37:15     hydrosys4.networkmod - INFO       Access point failed to start, attempt 1 
+21:37:16     hydrosys4.networkmod - INFO       try to start system as WiFi access point
+21:37:32     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:37:37     hydrosys4.networkmod - INFO       SSID empty, try again to get SSID
+21:37:40     hydrosys4.networkmod - INFO       Access point failed to start, attempt 0 
+21:37:44     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:37:47     hydrosys4.networkmod - INFO       Access point failed to start, attempt 1 
+21:40:24   hydrosys4.networkdbmod - ERROR      Not able to get basic network data ---------------------
+21:40:24     hydrosys4.networkmod - ERROR      error the name of AP not found, double check the hostapd configuration
+21:40:24                hydrosys4 - INFO       Start logging -------------------------------------------- 2017-10-27 21:40:24
+21:40:24                hydrosys4 - DEBUG      This is a sample DEBUG message
+21:40:24                hydrosys4 - INFO       This is a sample INFO message
+21:40:24                hydrosys4 - WARNING    This is a sample WARNING message
+21:40:24                hydrosys4 - ERROR      This is a sample ERROR message
+21:40:24     hydrosys4.networkmod - INFO       try to start system as WiFi access point
+21:40:40     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:40:45     hydrosys4.networkmod - INFO       SSID empty, try again to get SSID
+21:40:48     hydrosys4.networkmod - INFO       Access point failed to start, attempt 0 
+21:40:51     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:40:54     hydrosys4.networkmod - INFO       Access point failed to start, attempt 1 
+21:40:54     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:40:54     hydrosys4.networkmod - WARNING    Not able to connect wifi access point , wait 2 sec before try to connect to wifi network
+21:41:02     hydrosys4.networkmod - INFO       Number of scan SSID: 5
+21:41:03     hydrosys4.networkmod - INFO       preconditions to connect to wifi network are met
+21:41:06     hydrosys4.networkmod - INFO       Connected to Wifi Network AngeloAnnnie, now testing connectivity
+21:41:16     hydrosys4.networkmod - INFO       Connectivity problem with WiFi network, A, gong back to wifi access point mode
+21:41:16     hydrosys4.networkmod - INFO       try to start system as WiFi access point
+21:41:32     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:41:37     hydrosys4.networkmod - INFO       SSID empty, try again to get SSID
+21:41:40     hydrosys4.networkmod - INFO       Access point failed to start, attempt 0 
+21:41:44     hydrosys4.networkmod - INFO       try to set Static IP: 
+21:41:47     hydrosys4.networkmod - INFO       Access point failed to start, attempt 1 

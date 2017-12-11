@@ -64,7 +64,10 @@ def getNTPTime(host = "pool.ntp.org"):
 		t = struct.unpack( "!12I", msg )[10]
 		t -= TIME1970
 		#strvalue=time.ctime(t).replace("  "," ")
-		datetimevalue=datetime.utcfromtimestamp(t)
+		try: 
+			datetimevalue=datetime.utcfromtimestamp(t)
+		except:
+			return ""			
 		strvalueUTC=datetimevalue.strftime(DATEFORMAT)
 		strvalue=convertUTCtoLOC(strvalueUTC)
 		return strvalue

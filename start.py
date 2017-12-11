@@ -1,19 +1,27 @@
 # -*- coding: utf-8 -*-
-"""
-Flaskr
-~~~~~~
-
-A microblog example application written as Flask tutorial with
-Flask and sqlite3.
-
-:copyright: (c) 2010 by Armin Ronacher.
-:license: BSD, see LICENSE for more details.
-"""
 from loggerconfig import LOG_SETTINGS
 import logging, logging.config, logging.handlers
+import basicSetting
+
+global DEBUGMODE
+DEBUGMODE=basicSetting.data["DEBUGMODE"]
+global PUBLICMODE
+PUBLICMODE=basicSetting.data["PUBLICMODE"]
+
+if DEBUGMODE:
+	# below line is required for the loggin of the apscheduler, this might not be needed in the puthon 3.x
+	logging.basicConfig(level=logging.DEBUG,
+						format='%(asctime)s %(levelname)s %(message)s',
+						filename='logfiles/apscheduler_hydrosystem.log',
+						filemode='w')
+
+
+# dedicated logging for the standard operation
+
 logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('hydrosys4')
 exc_logger = logging.getLogger('exception')
+
 
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
@@ -30,7 +38,6 @@ import random
 import json
 import hardwaremod
 import videomod
-import plandbmod
 import sensordbmod
 import actuatordbmod
 import selectedplanmod
@@ -51,13 +58,10 @@ from camera_pi import Camera
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 application = Flask(__name__)
-application.config.from_object('flasksettings') #read the configuration variables from a separate module (.py) file
-global SELTABLENAME
-SELTABLENAME=""
-global DEBUGMODE
-DEBUGMODE=False
-global PUBLICMODE
-PUBLICMODE=True
+application.config.from_object('flasksettings') #read the configuration variables from a separate module (.py) file, this file is mandatory for Flask operations
+print "-----------------" , basicSetting.data["INTRO"], "--------------------"
+
+
 MYPATH=""
 
 
@@ -503,22 +507,20 @@ def imageshow():
 	
 @application.route('/echo/', methods=['GET'])
 def echo():
-    # read from serial the values for arduino
 
-	teperatura=string.join(random.choice(string.digits) for x in range(2)).replace(" ", "")
-	light=string.join(random.choice(string.digits) for x in range(2)).replace(" ", "")
-		
-	#ret_data = {"tempsensor1": "1", "humidsensor1": "20"}
-	
-	ret_data = hardwaremod.readallsensors()
+	element=request.args['element']
+	if element=="all":
+		# take reading for all sensors
+		ret_data = hardwaremod.readallsensors()	
+	else:
+		sensorvalue={}
+		sensorvalue[element]=hardwaremod.getsensordata(element,3)
+		ret_data=sensorvalue
+
 
 	print ret_data
 	return jsonify(ret_data)
 
-
-
-
-	
 
 	
 @application.route('/doit/', methods=['GET'])
@@ -674,7 +676,10 @@ def saveit():
 	ret_data = {"answer": "saved"}
 	print "The actuator ", ret_data
 	return jsonify(ret_data)
-	
+
+
+
+
 	
 @application.route('/downloadit/', methods=['GET'])
 def downloadit():
@@ -722,7 +727,23 @@ def downloadit():
 			except:
 				answer="problem copying file"
 			dstfilenamelist.append("download/"+dstfilename+".txt")
-			
+
+	elif name=="downloadlogSCHED":
+		dstfilename="Sched_log"+datetime.now().strftime("%Y-%m-%d-time:%H:%M")+".log"
+		filename="logfiles/apscheduler_hydrosystem.log"
+		folderpath=os.path.join(MYPATH, "static")
+		folderpath=os.path.join(folderpath, "download")
+		dst=os.path.join(folderpath, dstfilename+".txt")
+		print "prepare file for download, address=" , filename, "destination " , dst
+		try:
+			shutil.copyfile(filename, dst)
+			answer="ready"
+		except:
+			answer="problem copying file"
+		dstfilenamelist=[]
+		dstfilenamelist.append("download/"+dstfilename+".txt")	
+
+
 	elif name=="downloadHW":
 		dstfilename=hardwaremod.HWDATAFILENAME
 		filename=os.path.join(hardwaremod.DATABASEPATH, hardwaremod.HWDATAFILENAME)
@@ -768,12 +789,18 @@ def testit():
 def show_realtimedata():
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	sensorlist=sensordbmod.gettablelist()
+	
+	sensorlist=sensordbmod.gettablelist()	
+	selectedsensor=sensorlist[0]
+	
+	if request.method == 'POST':
+		selectedsensor=request.form['postsensor']
+
 	unitdict={}
 	for item in sensorlist:
 		unitdict[item]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,item,hardwaremod.HW_INFO_MEASUREUNIT)
 	print "unitdict "  , unitdict
-	return render_template('ShowRealTimeSensor.html', sensorlist=sensorlist, unitdict=unitdict)
+	return render_template('ShowRealTimeSensor.html', sensorlist=sensorlist, unitdict=unitdict, selectedsensor=selectedsensor)
 	
 @application.route('/systemmailsetting/', methods=['GET', 'POST'])
 def systemmailsetting():
@@ -832,7 +859,10 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 			#scheduler setup---------------------
 			selectedplanmod.setmastercallback()
 			#initiate the GPIO OUT pins
-			hardwaremod.initallGPIOoutput()		
+			hardwaremod.initallGPIOoutput()	
+		
+		if requesttype=="editnames":
+			return hardwaresettingeditfield()	
 
 	actuatorlist=[]
 	actuatorlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"pulse",hardwaremod.HW_INFO_NAME)
@@ -1201,33 +1231,7 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 		requestinfo=request.form['buttonsub']
 		requesttype=requestinfo.split("_")[0]
 		print "requesttype "  , requestinfo , " " , requesttype
-		if requesttype=="delete":
-			name=requestinfo.split("_")[1]
-			#remove the calibration file and read the default
-			print " Delete ", name
-			if hardwaremod.deleterow(name):
-				flash('Record has been deleted')
-
-
-		if requesttype=="save":
-			print "Save row"
-			dictrow={}
-			for record in tablehead:
-				dictrow[record]=request.form[record]
-			print dictrow
-			
-			isok, message = hardwaremod.checkdata(dictrow)
-			if isok:
-				hardwaremod.addrow(dictrow)		
-				flash('Table has been saved')
-				# apply changes to the system (this is not best way, should be system reset indeed
-				wateringdbmod.consitencycheck()
-				fertilizerdbmod.consitencycheck()
-				hardwaremod.initallGPIOoutput()	
-				
-			else:
-				print "problem ", message
-				flash(message, 'danger')				
+		
 				
 				
 		if requesttype=="applyHWpreset":
@@ -1236,6 +1240,7 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 			for items in HWfilelist:
 				if items[1]==selectedfilename:
 					selectedpath=items[0]
+
 
 			
 			# copy file to the default HWdata
@@ -1264,11 +1269,214 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 				selectedplanmod.setmastercallback()
 				#initiate the GPIO OUT pins
 				hardwaremod.initallGPIOoutput()			
+
+		if requesttype=="edit":
+			return hardwaresettingedit()
+
+
+	return render_template('hardwaresetting.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , HWfilelist=HWfilelist)
+
+
+
+@application.route('/HardwareSettingedit/', methods=['GET', 'POST'])
+def hardwaresettingedit():  #on the contrary of the name, this show the setting menu
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print "visualizzazione menu hardwareSettingedit:"
+
+	
+	fields=hardwaremod.HWdataKEYWORDS
+
+
+	tablehead=[]
+	for key, value in fields.iteritems():
+		tablehead.append(key)
+	#print "tablehead ", tablehead
+
+	if request.method == 'POST':
+		requestinfo=request.form['buttonsub']
+		requesttype=requestinfo.split("_")[0]
+		print "requesttype POST "  , requestinfo , " " , requesttype
+
+		if requestinfo=="edit":
+			#request coming from previous page, need init table from zero
+			print "the teporary Tables have been reset"
+			#initialize IOdatarow
+			hardwaremod.additionalRowInit()
+
+			# Alignt the hardwaremod IOdatatemp to IOdata
+			hardwaremod.IOdatatempalign()
+
+				
+		if requesttype=="confirm":
+			print "Confirm table"
+			# Copy the hardwaremod IOdatatemp to IOdata and save it
+			hardwaremod.IOdatafromtemp()	
+				
+			# apply changes to the system
+
+			wateringdbmod.consitencycheck()
+			fertilizerdbmod.consitencycheck()
+			sensordbmod.consistencycheck()
+			actuatordbmod.consistencycheck()
+			#scheduler setup---------------------
+			selectedplanmod.setmastercallback()
+			#initiate the GPIO OUT pins
+			hardwaremod.initallGPIOoutput()	
+			return redirect(url_for('hardwaresetting'))
+
+		if requesttype=="reload":	
+			hardwaremod.IOdatatempalign()
+
+		if requesttype=="cancel":
+			return redirect(url_for('hardwaresetting'))
+						
+		if requesttype=="delete":
+			name=requestinfo.split("_")[1]
+			#remove the row in IOdatatemp
+			print " Delete ", name
+			if hardwaremod.deleterow(name):
+				flash('Row has been correctly deleted')
+				print " deleted"
+			else:
+				flash('Errors to delelte the row','danger')
 			
 				
+		if requesttype=="addrow":
+			dictrow=hardwaremod.IOdatarow
+			isok, message = hardwaremod.checkdata("",dictrow)
+			if isok:
+				hardwaremod.addrow(dictrow)
+				flash('Row has been correctly Added')
+				ret_data = {"answer":"Added"}
+			else:
+				print "problem ", message
+				flash(message,'danger')
+				ret_data = {"answer":"Error"}
 
 
-	return render_template('hardwaresetting.html',fields=fields, hwdata=hwdata, tablehead=tablehead , HWfilelist=HWfilelist)
+#	return render_template('hardwaresettingedit.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , HWfilelist=HWfilelist)
+
+	hwdata=hardwaremod.IOdatatemp
+	additionalrow=hardwaremod.IOdatarow
+
+	return render_template('hardwaresettingedit.html',fields=fields, hwdata=hwdata, tablehead=tablehead , additionalrow=additionalrow)
+
+@application.route('/hardwaresettingeditfield/', methods=['GET', 'POST'])
+def hardwaresettingeditfield():  #on the contrary of the name, this show the setting menu
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print "visualizzazione menu hardwareSettingedit:"
+
+	
+	fields=hardwaremod.HWdataKEYWORDS
+
+
+	tablehead=[]
+	#for key, value in fields.iteritems():
+	#	tablehead.append(key)
+	#print "tablehead ", tablehead
+	tablehead=[hardwaremod.HW_INFO_NAME]
+
+
+	if request.method == 'POST':
+		requestinfo=request.form['buttonsub']
+		requesttype=requestinfo.split("_")[0]
+		print "requesttype POST "  , requestinfo , " " , requesttype
+
+		if requestinfo=="edit":
+			#request coming from previous page, need init table from zero
+			print "the teporary Tables have been reset"
+
+			# Alignt the hardwaremod IOdatatemp to IOdata
+			hardwaremod.IOdatatempalign()
+
+				
+		if requesttype=="confirm":
+			print "Confirm table"
+			# Copy the hardwaremod IOdatatemp to IOdata and save it
+			hardwaremod.IOdatafromtemp()	
+				
+			# apply changes to the system
+
+			wateringdbmod.consitencycheck()
+			fertilizerdbmod.consitencycheck()
+			sensordbmod.consistencycheck()
+			actuatordbmod.consistencycheck()
+			#scheduler setup---------------------
+			selectedplanmod.setmastercallback()
+			#initiate the GPIO OUT pins
+			hardwaremod.initallGPIOoutput()	
+			return redirect(url_for('show_Calibration'))
+
+		if requesttype=="reload":	
+			hardwaremod.IOdatatempalign()
+
+		if requesttype=="cancel":
+			return redirect(url_for('show_Calibration'))
+
+
+#	return render_template('hardwaresettingedit.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , HWfilelist=HWfilelist)
+
+	hwdata=hardwaremod.IOdatatemp
+
+	return render_template('hardwaresettingeditfield.html',fields=fields, hwdata=hwdata, tablehead=tablehead )
+
+
+
+
+@application.route('/HWsettingEditAjax/', methods=['GET','POST'])
+def HWsettingEditAjax():
+	if not session.get('logged_in'):
+		ret_data = {"answer":"Login Needed"}
+		return jsonify(ret_data)
+
+	
+    
+	recdata=[]
+	ret_data={}
+	if request.method == 'POST':
+		print "we are in the HWsettingEdit"
+		pk = request.form['pk']
+		value = request.form['value']
+		name = request.form['name']
+		print "request type : " , pk , "  " , value , "  " , name		
+		
+		IOname=pk
+		if IOname=="addrow":
+			dictrow=hardwaremod.IOdatarow	
+		else:		
+			dictrow=hardwaremod.searchrowtempbyname(IOname)
+		dictrow[name]=value		
+		fieldtocheck=name
+		
+		#print "Dictrow: " ,dictrow
+		#print "IOdatatemp: " , hardwaremod.IOdatatemp
+		isok, message = hardwaremod.checkdata(fieldtocheck,dictrow)
+					
+				
+
+	notok=False
+	if isok:
+		print "data is OK"
+		#modify the IOdatatemp matrix
+		if IOname=="addrow":
+			hardwaremod.IOdatarow[name]=value
+			#print "row: " , hardwaremod.IOdatarow
+		else:
+			isfound=hardwaremod.changeIOdatatemp(IOname,name,value) 
+		
+		#print "item found " , isfound
+		#print "IOdatatemp: " , hardwaremod.IOdatatemp
+
+		
+		ret_data = {"answer": message}
+		return jsonify(ret_data)
+	else:
+		print "data NOK ", message
+		ret_data = message
+		return ret_data,400
+
 
 
 
@@ -1280,9 +1488,9 @@ def functiontest():
 	print " testing "
 	mailname="mail1"
 	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
-	hardwaremod.takephoto()
-	#selectedplanmod.heartbeat()
-
+	#hardwaremod.takephoto()
+	selectedplanmod.heartbeat()
+	#selectedplanmod.removeallscheduledjobs()
 
 	return True
 
