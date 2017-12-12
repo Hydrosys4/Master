@@ -10,7 +10,9 @@ More details can be found on my webpage https://hydrosysblog.wordpress.com/
 
 # Installation
 
-For installation please download the installer in the bash folder and run it on the fresh installation of the raspbian jessie lite. Before installation please remember to enable the camera (if you are using the raspicam). Camera canbe enables using the raspi-config command and searching for camera.
+For fast installation it is possible to directly download the SD image from the Download section in the site https://hydrosysblog.wordpress.com/ 
+
+For a more traditional installation please download the installer in the bash folder and run it on the fresh installation of the raspbian stretch lite. Before installation please remember to enable the camera (if you are using the raspicam). Camera canbe enables using the raspi-config command and searching for camera.
 Below the required steps to install the hydrosys4 on you jessie raspbian lite:
 
 wget https://raw.githubusercontent.com/Hydrosys4/Master/master/bash/install_hydrosys4.sh
@@ -21,8 +23,8 @@ sudo ./install_hydrosys4.sh
 
 The installation will take same time.
 During the installation the script will ask to confirm or modify the following parameters, please take note of them:
-IP address (default: 192.168.0.172) NOTE: some wifi routers assigns the IP addressed starting from 192.168.1.xxx in this case it is suggested to change the IP address to 192.168.1.172.
-port (default: 5012)
+IP address (default: 192.168.1.172) NOTE: some wifi routers assigns the IP addressed starting from 192.168.1.xxx in this case it is suggested to change the IP address to 192.168.1.172.
+port (default: 5172)
 Wifi name (default: Hydrosys4)
 Wifi password (default: hydrosystem)
 
@@ -32,7 +34,7 @@ when installation is completed, Reboot the system (or power off/on)
 
 The systems run on the RPI3 which can act as access point, wait few seconds after the system is restarted, you will se a new wifi network, the name is Hydrosys4 the Password is specified above, in case these values have been changed during installation the new values have to be used.
 Once the network is connected, open any web browser and type the URL as follow:
-192.168.0.172:5012 (please note that in case you have modified the IP address and port during the installation, you require to use the new values).
+192.168.1.172:5012 (please note that in case you have modified the IP address and port during the installation, you require to use the new values).
 
 Great, now the hydrosys4 web interface should be up on your smartphone or PC.
 
