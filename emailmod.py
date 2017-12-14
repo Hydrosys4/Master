@@ -155,9 +155,9 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 		photolist=hardwaremod.photolist(MYPATH)
 		imgfiles=[]	
 		if photolist:
-			referencestr=photolist[0][0].split("@")[0]
+			referencestr=photolist[0][0].split(",")[0]
 			for items in photolist:
-				if items[0].split("@")[0]==referencestr:
+				if referencestr in items[0]:
 					folderpath=os.path.join(MYPATH, "static")
 					folderpath=os.path.join(folderpath, items[0])
 					imgfiles.append(folderpath)

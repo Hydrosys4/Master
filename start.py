@@ -162,9 +162,9 @@ def show_entries():
 	photolist=hardwaremod.photolist(MYPATH)
 	photopanellist=[]	
 	if photolist:
-		referencestr=photolist[0][0].split("@")[0]
+		referencestr=photolist[0][0].split(",")[0]
 		for items in photolist:
-			if items[0].split("@")[0]==referencestr:
+			if referencestr in items[0]:
 				photopanel={}
 				photopanel["type"]="photo"	
 				photopanel["active"]="yes"

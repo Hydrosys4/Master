@@ -1,3 +1,5 @@
+USE MELD TO COPY FILES TO MASTER LOCAL:
+
 OPERATING SYSTEM LEVEL:
 
 1) disable SSH -> sudo raspi-config -> advanced -> disable SSH server
@@ -6,14 +8,19 @@ OPERATING SYSTEM LEVEL:
 
 HYDROSYSTEM SW LEVEL:
 
-2) Check in start.py if the debugmode is set to False
-3) reset all data to default -> go to settings, scroll down, push reset button
+2) Check in basicsetting.py if the debugmode is set to False
+3) (no needed) reset all data to default -> go to settings, scroll down, push reset button (not needed)
 4) check that the accounts are deleted -> go to defhwdata.txt in database,
-5) check that the database folder does not have files except for the (.db .sql timezone.txt)
-6) check that the main mail account is deleted -> go to emailcred.txt in database
-7) Hardware setting to be reduced to HUmid+Temp -> select it from hardwaresetting interface
-8) remove data from sensors -> go to 'data' page and delete record data
-9) remove all pictures -> go to 'images' and push deleteall
+5) check that the database folder does not have files in it (delete all files, this will also delete database data)
+7) Hardware setting to be reduced to HUmid+Temp minimum configuration -> ensure that the file defhwdara.txt is the same as minimum config in database/default/presethwsetting
+9) remove all pictures -> go to 'images' and push deleteall or go to static/hydropicture/
 13) AP wifi to Network switch time to 180 sec (3 minutes) -> go to networkmod.py and check around row 18, WAITTOCONNECT=180
 14) bash, ensure the latest bash file is install_hydreosys4.sh
+
+
+START THE PROGRAM IN UBUNTU:
+source ./env/bin/activate
+cd env/autonomMaster2
+sudo python start.py
+go to http://127.0.0.1:5020/
 
