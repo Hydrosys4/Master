@@ -224,7 +224,7 @@
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-8">
 					<label class="form-label-left" id="actuatorstatus" for="input_3">Status</label>
 				</div>
 			</div>	
@@ -369,44 +369,18 @@
 					  <h3>WebCam Setting</h3>   
 			</div>
 
-			<div class="form-group">	
-			<div class="row">
-				<div class="col-xs-12">
-					<label id="label_30" for="input_3">Daily picture time:</label>
-				</div>
-				<!-- old 
-
-					<select class="form-control seltimeclass"  id="SelTime1" name="name" valueinit="{{photosetting[0]}}">
-					</select>		
-				-->
-				<!-- new -->
-				<div class="col-xs-6">
-						<div class="input-group clockpicker" data-autoclose="true">
-							<input readonly="readonly" type="text" class="form-control" id="SelTime1" value="{{photosetting[0]}}">
-							<span class="input-group-addon">
-								<span class="glyphicon glyphicon-time"></span>
-							</span>
-							<script type="text/javascript">
-							$('.clockpicker').clockpicker({ placement: 'top'});
-							</script>								
-						</div>
-				</div>
-				<!-- new -->				
-				
-				
-				
-				
-				<div class="col-xs-6">
-					<button id="savesettingphoto" class="btn-sm btn btn-default" type="button" name="photo">Save Config</button>
-				</div>
-			</div>	
-			</div>	
-			
-			<!--  list of cameras  -->
 			
 			<div class="well bs-component well-sm">
 			
-						<!--  Actuator table   -->
+			{% if camerasettinglist|length > 0 %}
+
+			<div class="form-group">	
+
+			
+			<!--  list of cameras  -->
+
+			
+
 			<table class="table" margin: 10px;>
 			<thead>
 				<tr>
@@ -481,6 +455,8 @@
 
         </tbody>
 			</table>
+	
+	<!--  end table 1 -->	
 	<div class="small">Multiple positions separated by comma (,) numbers from 0 to 100</div>
 	<table class="table" margin: 10px;>
 		<tbody>
@@ -512,7 +488,48 @@
 		</tr>
 		<tr>
 			<td>
-						<label>Adapt video to the screen
+	
+			
+				<div class="col-xs-12">
+					<label id="label_30" for="input_3">Picture time:</label>
+				</div>
+				<!-- old 
+
+
+					<select class="form-control seltimeclass"  id="SelTime1" name="name" valueinit="{{photosetting[0]}}">
+					</select>		
+				-->
+				<!-- new -->
+				<div class="col-xs-6">
+						<div class="input-group clockpicker" data-autoclose="true">
+							<input readonly="readonly" type="text" class="form-control" id="SelTime1" value="{{photosetting[0]}}">
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
+							<script type="text/javascript">
+							$('.clockpicker').clockpicker({ placement: 'top'});
+							</script>								
+						</div>
+				</div>
+				<!-- new -->				
+				
+				
+			</td>
+		</tr>
+		<tr>
+			<td>				
+				<div class="col-xs-6">
+					<button id="savesettingphoto" class="btn-sm btn btn-default" type="button" name="photo">Save Config</button>
+				</div>
+	
+
+		
+			</td>
+		</tr>	
+						
+		<tr>
+			<td>
+						<label>Adapt Picture to the screen
 						<input id="toggle-event" checked="checked" type="checkbox">
 						</label>
 						<script>
@@ -534,19 +551,25 @@
 		</tr>
 		</tbody>
 	</table>
-
-
-
-
-
-			
-			<!-- end of camera list -->
+	<!--  end table -->	
 						
 
 				<div style="width: 100%; overflow: auto;">		
 				<img id="imgtest" class="img-responsive" src="{{ url_for('static', filename='cameratest/testimage1.jpg')}}" />
 				</div>
 
+			</div>					
+	<!--  end form group  -->
+	{% else %}
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>No Camera detected</legend>  
+				</div>	
+			</div>
+
+	{% endif %}
+	
+	
 
 	</div> 
 	<!-- end wells -->
@@ -738,7 +761,7 @@
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-8">
 					<label id="mailteststatus" class="mailteststatus" for="input_3">Status</label>
 				</div>
 			</div>				
@@ -948,7 +971,7 @@
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-xs-8">
 					<label id="clockteststatus" for="input_3">Status</label>
 				</div>
 			</div>	

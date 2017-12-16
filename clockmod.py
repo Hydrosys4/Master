@@ -48,10 +48,10 @@ def getNTPTime(host = "pool.ntp.org"):
 	TIME1970 = 2208988800L # 1970-01-01 00:00:00
 
 	# connect to server
-	client = socket.socket( AF_INET, SOCK_DGRAM)
-	client.settimeout(2)
-	client.sendto(msg, address)
-	try:
+	try:	
+		client = socket.socket( AF_INET, SOCK_DGRAM)
+		client.settimeout(2)
+		client.sendto(msg, address)
 		msg, address = client.recvfrom( buf )
 	except socket.timeout, e:
 		print "server timeout"
