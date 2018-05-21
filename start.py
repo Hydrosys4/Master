@@ -1488,8 +1488,8 @@ def functiontest():
 	print " testing "
 	mailname="mail1"
 	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
-	#hardwaremod.takephoto()
-	selectedplanmod.heartbeat()
+	hardwaremod.takephoto()
+	#selectedplanmod.heartbeat()
 	#selectedplanmod.removeallscheduledjobs()
 
 	return True
@@ -1507,7 +1507,7 @@ def videostream():
 	ipaddress=networkmod.get_local_ip()
 	videolist=hardwaremod.videodevlist()
 	servolist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"servo",hardwaremod.HW_INFO_NAME)
-	initposition=50
+	initposition=hardwaremod.getservopercentage(servolist[0])
 	return render_template('videostream.html',initposition=initposition, itemlist=itemlist, ipaddress=ipaddress, videolist=videolist, servolist=servolist)
 
 

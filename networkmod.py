@@ -24,6 +24,9 @@ WAITTOCONNECT=180 # should be 180 at least
 IPADDRESS =networkdbmod.getIPaddress()
 
 
+
+
+
 	
 def wifilist_ssid():
 	# get all cells from the air
@@ -108,11 +111,16 @@ def connectedssid():
 	return ssids
 
 def iwcommand(cmd,wordtofind):
-	scanoutput = subprocess.check_output(cmd).decode('utf-8')
-	time.sleep(1.5)	
+	ssids=[]	
+	try:
+		scanoutput = subprocess.check_output(cmd).decode('utf-8')
+	except:
+		print "error to execute the command"
+		return ssids
+
 	#scanoutput = subprocess.check_output('iw ' , 'wlan0 ' , 'info ', stderr=subprocess.STDOUT)
 	#print scanoutput
-	ssids=[]
+
 	for line in scanoutput.split('\n'):
 		#print " line ",line
 		strstart=line.find(wordtofind)
@@ -242,7 +250,11 @@ def waituntilIFUP(interface,timeout): # not working properly, to be re-evaluated
 	done=False
 	while (i<timeout)and(not done):
 		cmd = ['ip' , 'link' , 'show', interface, 'up']
-		ifup_output = subprocess.check_output(cmd).decode('utf-8')
+		try:
+			ifup_output = subprocess.check_output(cmd).decode('utf-8')
+		except:
+			print "error to execute the command"
+			
 		if not ifup_output:
 			print "interface ", interface , " still down, check again in one second"			
 			time.sleep(1)

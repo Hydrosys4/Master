@@ -36,6 +36,7 @@ ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 inpu
 
 DHT22_data={'Temperature':None,'Humidity':None,'lastupdate':None}
 DHT22_data['lastupdate']=datetime.datetime.now() - datetime.timedelta(seconds=2)
+Servo_data={'duty':"3"}
 
 #" GPIO_data is an array of dictionary, total 40 items in the array
 GPIO_data=[{"level":None, "state":None} for k in range(40)]
@@ -46,6 +47,10 @@ PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
 MCP3008_busy_flag=False
 
 def execute_task(cmd, message, recdata):
+	global DHT22_data
+	global Servo_data
+	
+	
 	if cmd==HWCONTROLLIST[0]:
 		return get_DHT22_temperature(cmd, message, recdata , DHT22_data)
 		
@@ -69,7 +74,7 @@ def execute_task(cmd, message, recdata):
 		return gpio_pin_level(cmd, message, recdata)
 
 	elif cmd==HWCONTROLLIST[7]:	
-		return gpio_set_servo(cmd, message, recdata)
+		return gpio_set_servo(cmd, message, recdata, Servo_data)
 
 	else:
 		print "Command not found"
@@ -451,27 +456,30 @@ def gpio_pin_level(cmd, message, recdata):
 
 
 
-def gpio_set_servo(cmd, message, recdata):
+def gpio_set_servo(cmd, message, recdata, Servo_data):
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
 	PIN=int(msgarray[1])
 	frequency=int(msgarray[2])
 	duty=float(msgarray[3])
 	delay=float(msgarray[4])
-			
+	
 	GPIO_setup(PIN, "out")
 	pwm = GPIO.PWM(PIN, frequency) # set the frequency
 	pwm.start(duty)
-	time.sleep(0.1+delay)
+	time.sleep(0.2+delay)
 	#pwm.ChangeDutyCycle(duty)
 	pwm.stop()
-			
+
+	Servo_data['duty']=msgarray[3]
+		
 	print "servo set to frequency", frequency , " PIN=", PIN , " Duty cycle=", duty 
 	recdata.append(cmd)
 	recdata.append(PIN)
 	return True	
 
-
+def get_servo_duty():
+	return Servo_data['duty']
 
 
 def sendcommand(cmd, message, recdata):

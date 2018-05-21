@@ -318,6 +318,28 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 			return "Servo angle set"
 			
 	return "error"
+	
+def getservopercentage(target):
+	percentage="50"
+	MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
+	MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+	
+	if (not MIN=="")and(not MAX==""):
+		#print " MIN ", MIN , " MAX ", MAX
+		try:
+			den=(int(MAX)-int(MIN))
+			percentage_num=int((100*(float(HWcontrol.get_servo_duty())-int(MIN)))/den)
+			if percentage_num<0:
+				percentage_num=0
+			if percentage_num>100:
+				percentage_num=100
+			percentage=str(percentage_num)
+		except:
+			print " No valid data for Servo", target
+
+	print "servo percntage " , percentage
+	return percentage
+
 
 def getpinstate(target):
 	#search the data in IOdata
@@ -552,11 +574,12 @@ def photolist(apprunningpath):
 			try:
 				dateref=datetime.strptime(datestr,'%y-%m-%d,%H:%M')
 				templist.append(dateref)
+				templist.append("hydropicture/thumb/"+files)
+				filenamelist.append(templist)				
 			except:
 				print "file name format not compatible with date"
 				templist.append("")
-			templist.append("hydropicture/thumb/"+files)
-			filenamelist.append(templist)			
+			
 	return filenamelist # item1 (path+filename) item2 (name for title) item3 (datetime) item4 (thumbpath + filename)
 
 def loglist(apprunningpath,logfolder,searchstring):
@@ -627,16 +650,19 @@ def removephotodataperiod(removebeforedays):
 
 	for photo in photodata:
 		dateref=photo[2]
-		print dateref
-		if (dateref>=startdate)and(dateref<=enddate):
-			try:
-				filepath=os.path.join(get_path(), "static")
-				filepath=os.path.join(filepath, photo[0])
-				# remove photo
-				filestoragemod.deletefile(filepath)
-				print "removed Photo " , filepath
-			except ValueError:
-				print "Error in photo delete "
+		if isinstance(dateref, datetime):
+			print dateref
+			if (dateref>=startdate)and(dateref<=enddate):
+				try:
+					filepath=os.path.join(get_path(), "static")
+					filepath=os.path.join(filepath, photo[0])
+					# remove photo
+					filestoragemod.deletefile(filepath)
+					print "removed Photo " , filepath
+				except ValueError:
+					print "Error in photo delete "
+			else:
+				print "datetime format incorrect"
 	thumbconsistency(get_path())
 
 			
