@@ -40,10 +40,6 @@
 			var sensorlist={{usedsensorlist|safe}};			
 			var actuatorlist={{usedactuatorlist|safe}};	
 			
-
-
-
-
 			var shapes=["diamond", "circle", "square", "x", "plus", "dash", "filledDiamond", "filledCircle", "filledSquare"];
 
 			var fLen, i, seriedict;
@@ -433,19 +429,218 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 // ACTUATOR graph END
 
 
+//COMBO CHART for HYGROMETERS
+//combochartdata
 
+
+	//var sensorchartdata={{sensordata|safe}};
+	//var actuatorchartdata={{actuatordata|safe}};
+	//var datatype="{{actiontype}}";
+
+	//var sensorlist={{usedsensorlist|safe}};			
+	//var actuatorlist={{usedactuatorlist|safe}};	
 	
+	//var shapes=["diamond", "circle", "square", "x", "plus", "dash", "filledDiamond", "filledCircle", "filledSquare"];
+
+	var hygrosensornumlist={{hygrosensornumlist}};
+	var hygroactuatornumlist={{hygroactuatornumlist}};
+	var seriesColors= [ "#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"]
+	
+	var fLen, i, seriedict;
+	var sensorseriesh=[];
+	var sensorchartdatah=[];
+	fLen = hygrosensornumlist.length;
+	for (i = 0; i < fLen; i++) {
+
+			seriedict={"label": sensorlist[hygrosensornumlist[i]], "color":seriesColors[i % seriesColors.length] , "showLine":true, "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 4 }};
+			sensorseriesh.push(seriedict);
+			sensorchartdatah.push(sensorchartdata[hygrosensornumlist[i]]);
+
+	} 
+
+	var fLen, i, seriedict;
+	var actuatorseriesh=[];
+	var actuatorchartdatah=[];
+	fLen = hygroactuatornumlist.length;
+	for (i = 0; i < fLen; i++) {
+			seriedict={"label": actuatorlist[hygroactuatornumlist[i]], "color":seriesColors[i % seriesColors.length] , "showLine":false, "yaxis" : 'y2axis', "markerOptions" : { "style": shapes[i % shapes.length] , "size": 12  }};
+			actuatorseriesh.push(seriedict);
+			actuatorchartdatah.push(actuatorchartdata[hygroactuatornumlist[i]]);	
+	} 
+
+
+
+	var combochartseriesh = actuatorseriesh.concat(sensorseriesh); 
+	var combochartdatah = actuatorchartdatah.concat(sensorchartdatah); 
+
+
+		$(document).ready(function(){
+		// label text with same color of the series		
+			$.jqplot.postDrawHooks.push(function() {
+				var swatches = $('table.jqplot-table-legend tr td.jqplot-table-legend-swatch');
+				var labels = $('table.jqplot-table-legend tr td.jqplot-table-legend-label');
+				labels.each(function(index) {
+					//turn the label's text color to the swatch's color
+					var color = $(swatches[index]).find("div div").css('background-color');
+					$(this).css('color',color );
+					$(this).css('font-weight',"bold" );
+				});
+			});
+
+
+		// COMMON VARIABLES
 		
-		$(function() {
-				$(".thebutton").click(function() {
-					var selvalue=$(this).attr('name');
-					//alert(selvalue);
-					$('#actionbtn').attr("value", selvalue);
-				});  
-			});  
+		
 		
 
+		var	gridvar=                 
+                {
+                    drawGridLines: true,        // wether to draw lines across the grid or not.
+                    gridLineColor: '#e2e2e2',   // Color of the grid lines.
+                    backgroundColor: "#eee",
+                    borderColor: 'white',     // CSS color spec for border around grid.
+                    borderWidth: 2.0,           // pixel width of border around grid.
+                    shadow: false,               // draw a shadow for grid.
+                    drawBorder: true,
+					gridLineWidth: 1	//width of the grid lines.
+					//background	//css spec for the background color.
+					//borderWidth	width of the border in pixels.            
+                  
+                    
+                };
+
+		var	seriesDefaultsvar=
+					{
+						shadow: false,
+						markerRenderer: $.jqplot.MarkerRenderer,
+						markerOptions: {
+							show: true,
+							style: 'circle',
+							size: 4,
+							shadow: false,
+						}
+					};
+
+
+		var	highlightervar= {
+				show: true,
+				sizeAdjust: 7.5,
+				tooltipLocation:"n",
+				formatString:'<table class="jqplot-highlighter"><tr><td>%s</td></tr><tr><td>Value:%s</td></tr><tr></tr></table>'
+			  };
+
+
+
+		// END VARIABLES
+
+
+
+// COMBO new graph 	 
+
+		  $.jqplot._noToImageButton = true;
+		 	  
+		  var options = {
+			
+			//title: "COMBO chart",
+			
+			grid:gridvar,             
+
+			gridPadding: {top:80, left:30, right:30, bottom:70},
+
+			
+		   legend:{
+			   renderer: $.jqplot.EnhancedLegendRenderer,
+			   show:true,
+			   location: 'n', 
+				placement: 'outside',
+				   rendererOptions: {
+					   numberRows: 4,
+						// set to true to replot when toggling series on/off
+						// set to an options object to pass in replot options.
+						seriesToggle: 'normal',
+						seriesToggleReplot: {resetAxes: true}
+					}
+						
+				
+			},
+			
+			series: combochartseriesh,
+			seriesDefaults:seriesDefaultsvar,
+			
+			highlighter: highlightervar,
+			
+			cursor: {
+				show: false
+			  },
+			axes:{
+				
+					xaxis:{
+						renderer:$.jqplot.DateAxisRenderer,
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer
+							// above is necessary to make the text rotate effect
+						},
+						tickOptions:{
+							fontSize:'8pt',
+							angle:-60,
+							formatString:'%b %#d, %H:%M'
+						}
+					},
+					
+					yaxis:{
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							}
+					},
+					
+					
+					y2axis:{
+						rendererOptions:{
+							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
+							tickOptions:{
+								fontSize:'8pt',
+								angle:0
+							},
+							
+							
+							
+							
+					pointLabels:{
+								show: false
+							}
+					}  
+			  
+			  
+			}
+		  };
+		  
+		  if ((combochartdatah.length) > 0) {
+		  var plot4 = $.jqplot('chart4', combochartdatah,  options);
+   
+		 //responsive part
+		  $(window).bind('resize', function(event, ui) {
+			  // pass in resetAxes: true option to get rid of old ticks and axis properties
+			  // which should be recomputed based on new plot size.
+			  plot4.replot( { resetAxes: true } );
+		  });
+		}
+
+
+		}); // end of the ready function
+
+// COMBO graph for HYGROMETER END
+
+
+
+
+
+
 		
+
+
 
 		
 		</script>
@@ -453,7 +648,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 
 		<div class="page-header">
 
-					  <h4>Data Trend</h4>
+					  <h4>Data Trend ----</h4>
        
        </div>
 		
@@ -490,7 +685,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 							</div>
 							
 							<div  class="row">
-								<div id="chart1" style="height:100%; width:100%;"></div>
+								<div id="chart1" style="height:450px; width:100%;"></div>
 							</div>
 							
 							{% else %}
@@ -504,7 +699,32 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 
                 </div>
 
+			<div class="well bs-component">					
+							
+							{% if (usedsensorlist|length+usedactuatorlist|length)>0 %}
+							<div  class="row">
+								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Combined Chart</div>
+							</div>						
+							<div  class="row">
+								<div id="chart3" style="height:450px; width:100%;"></div>
+							</div>
 
+							{% else %}
+
+							<div class="row">
+								<div class="col-xs-12">
+									<div style="height:100px"><h4>Data not available</h4></div>
+								
+								</div>
+							</div>
+
+							{% endif %}
+
+
+
+
+
+			</div>
 
 
 			<div class="well bs-component">
@@ -528,33 +748,28 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 							
 			</div>
 
+			<div class="well bs-component">
 
-			<div class="well bs-component">					
-							
-							{% if (usedsensorlist|length+usedactuatorlist|length)>0 %}
+							<!-- graph here-->
+
+							{% if (hygrosensornumlist|length + hygroactuatornumlist|length)>0%}	
 							<div  class="row">
-								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Combined Chart</div>
+								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Auto water Control Chart</div>
 							</div>						
 							<div  class="row">
-								<div id="chart3" style="height:100%; width:100%;"></div>
+								<div id="chart4" style="height:450px; width:100%;"></div>
 							</div>
-
 							{% else %}
 
 							<div class="row">
-								<div class="col-xs-12">
-									<div style="height:100px"><h4>Data not available</h4></div>
-								
-								</div>
+									<div style="height:100px"><h4>Hygrometer data not available</h4></div>
 							</div>
 
-							{% endif %}
+							{% endif %}		
+							
+			</div>
 
 
-
-
-
-      </div>
 
 
 							<div class="page-header">

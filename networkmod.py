@@ -22,7 +22,7 @@ LOCALPORT=5020
 PUBLICPORT=networkdbmod.getPORT()
 WAITTOCONNECT=180 # should be 180 at least
 IPADDRESS =networkdbmod.getIPaddress()
-
+EXTERNALIPADDR=""
 
 
 
@@ -115,7 +115,8 @@ def iwcommand(cmd,wordtofind):
 	try:
 		scanoutput = subprocess.check_output(cmd).decode('utf-8')
 	except:
-		print "error to execute the command"
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		return ssids
 
 	#scanoutput = subprocess.check_output('iw ' , 'wlan0 ' , 'info ', stderr=subprocess.STDOUT)
@@ -136,13 +137,15 @@ def iwcommand(cmd,wordtofind):
 
 def start_hostapd():
 	done=False
+	print "try to start hostapd"
+	# systemctl restart dnsmasq.service
+	cmd = ['systemctl' , 'restart' , 'hostapd.service']	
 	try:
-		print "try to start hostapd"
-		# systemctl restart dnsmasq.service
-		cmd = ['systemctl' , 'restart' , 'hostapd.service']
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(2)	
 	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "Hostapd error failed to start the service "
 		return False
 	else:
@@ -156,13 +159,15 @@ def start_hostapd():
 
 def stop_hostapd():
 	done=False
+	print "try to stop hostapd"
+	# systemctl restart dnsmasq.service
+	cmd = ['systemctl' , 'stop' , 'hostapd.service']	
 	try:		
-		print "try to stop hostapd"
-		# systemctl restart dnsmasq.service
-		cmd = ['systemctl' , 'stop' , 'hostapd.service']
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)	
 	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "Hostapd error, failed to stop the service "
 		return False
 	else:
@@ -176,13 +181,15 @@ def stop_hostapd():
 
 def start_dnsmasq():
 	done=False
+	print "try to start DNSmasq"
+	# systemctl restart dnsmasq.service
+	cmd = ['systemctl' , 'restart' , 'dnsmasq.service']	
 	try:
-		print "try to start DNSmasq"
-		# systemctl restart dnsmasq.service
-		cmd = ['systemctl' , 'restart' , 'dnsmasq.service']
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)	
 	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "DNSmasq error, failed to start "
 		return False
 	else:
@@ -197,15 +204,15 @@ def start_dnsmasq():
 
 def stop_dnsmasq():
 	done=False
+	print "try to stop dnsmasq"
+	# systemctl restart dnsmasq.service
+	cmd = ['systemctl' , 'stop' , 'dnsmasq.service']	
 	try:
-
-		print "try to stop dnsmasq"
-		# systemctl restart dnsmasq.service
-		cmd = ['systemctl' , 'stop' , 'dnsmasq.service']
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)	
-
 	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "DNSmasq error, failed to stop "
 		return False
 	else:
@@ -222,8 +229,8 @@ def stop_dnsmasq():
 # ip link set wlan0 down
 def ifdown(interface):
 	print "try ifdown"
+	cmd = ['ip' , 'link' , 'set', interface, 'down']	
 	try: 
-		cmd = ['ip' , 'link' , 'set', interface, 'down']
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)		
 		print "ifdown OK "
@@ -231,17 +238,21 @@ def ifdown(interface):
 		return True
 	except subprocess.CalledProcessError as e:
 		print "ifdown failed: ", e
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		return False
 
 def ifup(interface):
 	print "try ifup"
+	cmd = ['ip' , 'link' , 'set', interface, 'up']	
 	try:
-		cmd = ['ip' , 'link' , 'set', interface, 'up']
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		#isup=waituntilIFUP(interface,15) to be reevaluated
 		time.sleep(2)	
 		return True
 	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "ifup failed: ", e
 		return False
 		
@@ -253,7 +264,9 @@ def waituntilIFUP(interface,timeout): # not working properly, to be re-evaluated
 		try:
 			ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		except:
-			print "error to execute the command"
+			print "error to execute the command" , cmd
+			logger.error("error to execute the command %s",cmd)
+			ifup_output=""
 			
 		if not ifup_output:
 			print "interface ", interface , " still down, check again in one second"			
@@ -268,14 +281,17 @@ def waituntilIFUP(interface,timeout): # not working properly, to be re-evaluated
 
 def flushIP(interface): #-------------------
 	print "try flush IP"
+	cmd = ['ip', 'addr' , 'flush' , 'dev', interface]	
 	try:
 		# sudo ip addr flush dev wlan0
-		cmd = ['ip', 'addr' , 'flush' , 'dev', interface]
+
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		print "FlushIP: ", interface , " OK ", ifup_output
 		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "IP flush failed: ", e
 		return False
 
@@ -425,7 +441,7 @@ def connect_network():
 	# this is the procedure that disable the AP and connect to wifi network 
 	connected=False
 	print " try to connect to wifi network"
-	thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with
+	thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with and see if the SSID is on air
 	
 	
 	
@@ -443,9 +459,9 @@ def connect_network():
 			
 		if not ssid==thessid:
 			print "try to connect to wifi network"
-			
+			logger.info('try to connect to wifi network %s ' ,thessid)			
 			print "try to stop AP services, hostapd, dnsmasq"
-			
+			logger.info('try to stop AP services, hostapd, dnsmasq ')
 			i=0
 			done=False
 			while (i<2) and (not done):
@@ -456,32 +472,32 @@ def connect_network():
 			while (i<2) and (not done):
 				done=stop_dnsmasq()
 				i=i+1			
-				
-			
-			i=0
-			done=False
-			while (i<3) and (not done):
-				done=connect_savedwifi(thessid)
-				i=i+1
-				print " wifi connection attempt ",i
-				
-			print "check connected SSID"
+						
 
-			logger.info('check connected SSID ')
-			
-			ssids=connectedssid()
+			done=False
+			ssids=[]
 			i=0
-			while (i<2) and (len(ssids)==0):
-				time.sleep(1+i*5)
+			while (i<3) and (len(ssids)==0):
+				done=connect_savedwifi(thessid) # return true when the command is executed
+				i=i+1					
+				if done:
+					time.sleep(1+i*5)				
+					print "wifi connection attempt ",i
+					print "check connected SSID"
+					logger.info('Connection command executed attempt %d, check connected SSID ',i)
+				else:
+					print "Connection command NOT executed properly , attempt ",i
+					logger.info('Connection command NOT executed properly , attempt %d ',i)							
 				ssids=connectedssid()
-				i=i+1			
+		
 
 			if len(ssids)>0:
 				ssid=ssids[0]
 			else:
-				ssid=""	
-			print "connected to the SSID ", ssid
-			logger.info('connected SSID %s ', ssid)
+				ssid=""
+				logger.info('NO connected SSID')
+			print "Connected to the SSID ", ssid
+			logger.info('Connected SSID: %s -- ', ssid)
 
 		else:
 			print "already connected to the SSID ", ssid
@@ -569,12 +585,14 @@ def get_external_ip():
 		out,err=proc.communicate()
 		logger.info('Got reply from openDNS')
 	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "External IP Error "
 		logger.error('Error to get External IP')
 		return ""
-
-	ipaddr=out.split('\n')[0]
-	if not is_ipv4(ipaddr):
+	logger.info('Reply from openDNS: %s', out)
+	isaddress , ipaddr = IPv4fromString(out)
+	if not isaddress:
 		print "External IP Error "
 		logger.error('Error to get external IP , wrong syntax')
 		return ""
@@ -589,13 +607,14 @@ def get_external_ip():
 	#	print "same addresses"
 	#else:
 	#	print "check failed"
+	global EXTERNALIPADDR
+	EXTERNALIPADDR=ipaddr
 	return ipaddr
 
 def get_local_ip():
+	cmd = ["hostname -I"]	
 	try:
-		cmd = ["hostname -I"]
 		ipaddrlist = subprocess.check_output(cmd, shell=True).decode('utf-8')
-		ipaddr=ipaddrlist.split(" ")[0]
 		print "IP addresses " , ipaddrlist
 		#hostname -I
 		#s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -603,31 +622,81 @@ def get_local_ip():
 		#ipaddr=s.getsockname()[0]
 		#s.close()			
 	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
 		print "Local IP Error "
 		logger.error('Error to get local IP')
 		return ""
-	if not is_ipv4(ipaddr):
-		print "Local IP Error "
+	isaddress , ipaddr = IPv4fromString(ipaddrlist)
+	if not isaddress:
+		print "Local IP Error with Sintax"
 		logger.error('Error to get local IP, wrong suntax')
 		return ""
 	print ipaddr
 	return ipaddr
 	
 	
-def is_ipv4(ip):
-	match = re.match("^(\d{0,3})\.(\d{0,3})\.(\d{0,3})\.(\d{0,3})$", ip)
-	if not match:
-		return False
-	quad = []
-	for number in match.groups():
-		quad.append(int(number))
-	if quad[0] < 1:
-		return False
-	for number in quad:
-		if number > 255 or number < 0:
-			return False
-	return True
+def IPv4fromString(ip_string):
+	print " Start -- "
+	iprows=ip_string.split('\n')
+	inde=0
+	ip_address=""
+	for ip in iprows:
+		print "String IP address ", ip
+		countdigit=0
+		countdot=0
+		start=-1
+		for i in ip:
+			if i.isdigit():
+				countdigit=countdigit+1
+			else:
+				if countdigit>0: 
+					if i==".":
+						countdot=countdot+1
+					else:
+						#check numbers of dots
+						if countdot==3:
+							thestring=ip[start:inde]
+							if checkstringIPv4(thestring):
+								ip_address=thestring
+								print "IP extracted succesfully " , ip_address
+								return True , ip_address
+						
+						start=-1	
+						countdigit=0
+						countdot=0
+			if countdigit==1:
+				start=inde
+			inde=inde+1
+
+
+		# check in case the IP is in the end of the string
+		if countdigit>0: 
+			#check numbers of dots
+			if countdot==3:
+				thestring=ip[start:inde]
+				if checkstringIPv4(thestring):
+					ip_address=thestring
+					print "IP extracted succesfully " , ip_address
+					return True, ip_address
+
+	return False , ""
 	
+
+def checkstringIPv4(thestring):
+	print thestring
+	numbers=thestring.split(".")
+	if len(numbers)==4:
+		for num in numbers:
+			try:
+				value=int(num)
+			except:
+				return False
+			if value <1 or value >255:
+				return False
+	else:
+		return False
+	return True
 
 
 	
@@ -636,10 +705,6 @@ def is_ipv4(ip):
 if __name__ == '__main__':
 	# comment
 	#a=[]
-	#print a
-	#connectedssid()
-	schemes = list(Scheme.all())
-	for scheme in schemes:
-		print " Scheme ", scheme
-		ssid = scheme.options.get('wpa-ssid', scheme.options.get('wireless-essid'))
-		print "ssid " , ssid
+	ip_string="hello 1.2.3.125 ma chi siete"
+	ip_address=""
+	IPv4fromString(ip_string,ip_address)

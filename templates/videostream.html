@@ -282,6 +282,14 @@
 									$('button[name=stop]').attr("name", "start"); // this should b the last of the commands series																	
 									if (prid != "stop") {
 										var d = new Date();
+										var rotate = 'rotate(' + {{rotdeg}} + 'deg)';
+											$("#videoimg").css({ 
+												'-webkit-transform': rotate,
+												'-moz-transform': rotate,
+												'-o-transform': rotate,
+												'-ms-transform': rotate,
+												'transform': rotate 
+											});
 										var linksrc="/?action=stream";
 										$("#videoimg").attr("src", linksrc+"?"+d.getTime());
 										$('#'+butid).text('Stop');										

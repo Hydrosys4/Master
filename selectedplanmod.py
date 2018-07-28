@@ -15,6 +15,7 @@ import actuatordbmod
 import hardwaremod
 import SchedulerMod
 import wateringdbmod
+import autowateringmod
 import fertilizerdbmod
 import advancedmod
 import emailmod
@@ -63,6 +64,12 @@ def dictionarydataforactuator(actuatorname,data1,data2, description):
 
 
 def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
+	# check if water actuator is full auto mode
+	workmode=autowateringmod.checkworkmode(target)
+	if workmode=="Full Auto":
+		pumpit=False
+		return False
+	
 	duration=1000*hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
 	logger.info('Startpump evaluation')
@@ -118,7 +125,9 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 			logger.info('Humidity check FAILED')
 			print 'Humidity check FAILED'
 			pumpit=False			
-		
+	
+
+	
 	if pumpit:
 		hardwaremod.makepulse(target,duration)
 		# salva su database
@@ -136,7 +145,14 @@ def periodicdatarequest(sensorname):
 	if sensorvalue!="":
 		sensordbmod.insertdataintable(sensorname,sensorvalue)
 	
+	
+	
+	
+	
+	
 def heartbeat():
+	# here to include call to automatic algorithms for watering
+	autowateringmod.autowateringcheck()
 	print "start heartbeat check", " " , datetime.now()
 	logger.info('Start heartbeat routine %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	connectedssid=networkmod.connectedssid()
@@ -165,12 +181,14 @@ def heartbeat():
 	if connected:
 		# Check if remote IP address is changed compared to previous communication and in such case resend the mail	
 		ipext=networkmod.get_external_ip()
-		logger.info('Heartbeat check , Check IP address change %s', ipext)
+		logger.info('Heartbeat check , Check IP address change -%s- and previously sent -%s-', ipext , emailmod.IPEXTERNALSENT)
 		if ipext!="":
 			if ipext!=emailmod.IPEXTERNALSENT:
 				print "Heartbeat check, IP address change detected. Send email with updated IP address"
 				logger.info('Heartbeat check, IP address change detected. Send email with updated IP address')
 				emailmod.sendallmail("alert","System detected IP address change, below the updated links")
+			else:
+				logger.info('Heartbeat check, IP address unchanged')				
 
 		# Check current time is less than 60 second different from NTP information
 		# try to get the clock from network

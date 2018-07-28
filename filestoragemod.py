@@ -94,9 +94,24 @@ def savechange(filename,searchfield,searchvalue,fieldtochange,newvalue):
 			savefiledata(filename,filedata)
 			return True
 	return False
-	
 
-	
+
+def replacewordandsave(filename,oldvalue,newvalue): #oldvalue and newvalue are lists
+	filedata=[]
+	readfiledata(filename,filedata)
+	# questo il possibile dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario
+
+	for line in filedata:
+		for key in line:
+			for i in range(len(newvalue)): #iterate in the lists
+				if newvalue[i]!=oldvalue[i]:					
+					if line[key]==oldvalue[i]:
+						line[key]=newvalue[i]
+
+	savefiledata(filename,filedata)
+	return True
+
+
 	
 def deletefile(filename):
 	try:

@@ -5,6 +5,7 @@
 import time
 import datetime
 import threading
+from math import sqrt
 #import sys,os
 #import serial
 import logging
@@ -281,13 +282,16 @@ def get_MCP3008_channel(cmd, message, recdata):
 		
 	if (waittime>=maxwait):
 		#something wrog, wait too long, avoid initiate further processing
-		MCP3008_busy_flag=False
+		print "MCP3008 wait time EXCEEDED "
+		logger.info("Wait Time exceeded, not able to read ADCdata Channel: %d", channel)
 		return False
 
 	MCP3008_busy_flag=True		
 
 	
 	powerPIN_start(POWERPIN,"pos",0.05)
+
+	refvoltage=5.0
 	
 	try:
 		# Open SPI bus
@@ -299,30 +303,34 @@ def get_MCP3008_channel(cmd, message, recdata):
 
 		# Function to read SPI data from MCP3008 chip
 		# Channel must be an integer 0-7
-		
-		dataaverage=0.0
+		datatext=""	
 		inde =0
-		for x in range(0, 5):
-
+		dataarray=[]
+		
+		print "Starting sample reading"
+		for x in range(0, 39):
+			
+			# read data from selected channel
 			adc = spi.xfer2([1,(8+channel)<<4,0])
-
 			data = ((adc[1]&3) << 8) + adc[2]
 			
-			dataaverage=dataaverage+data
-			
+			dataarray.append(data)
 			inde=inde+1
-			
+			datatext=datatext+str(data)+","			
 			print "MCP3008 chennel ", channel, " data:",data
-			
-		dataaverage=dataaverage/inde
-
-		print "MCP3008 chennel ", channel, " data Average:",dataaverage
-
+						
+		logger.info("ADCdata Channel: %d", channel)
+		logger.info("ADCdata Sampling: %s", datatext)
+		dataaverage, mean = normalize_average(dataarray)
+		
 		# Function to convert data to voltage level,
 		# rounded to specified number of decimal places.
-		volts = (dataaverage * 5) / float(1023)
-		volts = round(volts,2)
-
+		voltsraw = (mean * refvoltage) / float(1023)
+		voltsnorm = (dataaverage * refvoltage) / float(1023)
+		volts = round(voltsnorm,2)	
+	
+		print "MCP3008 chennel ", channel, " Average (volts): ",voltsraw , " Average Norm (v): ", voltsnorm
+		
 		spi.close()
 		successflag=1
 	except:
@@ -340,6 +348,27 @@ def get_MCP3008_channel(cmd, message, recdata):
 	MCP3008_busy_flag=False
 
 	return True	
+
+
+def normalize_average(lst):
+	"""Calculates the standard deviation for a list of numbers."""
+	num_items = len(lst)
+	mean = sum(lst) / float(num_items)
+	differences = [x - mean for x in lst]
+	sq_differences = [d ** 2 for d in differences]
+	ssd = sum(sq_differences)
+	variance = ssd / float(num_items)
+	sd = sqrt(variance)
+	 
+	# use functions to adjust data, keep only the data inside the standard deviation
+
+	final_list = [x for x in lst if ((x > mean - sd) and (x < mean + sd))]
+	num_items_final = len(final_list)
+	normmean=sum(final_list) / float(num_items_final)
+	
+	print "discarded ", num_items-num_items_final , " mean difefrence ", normmean-mean
+
+	return normmean, mean
 
 
 

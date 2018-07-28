@@ -42,6 +42,8 @@ import sensordbmod
 import actuatordbmod
 import selectedplanmod
 import wateringdbmod
+import autowateringdbmod
+import autowateringmod
 import fertilizerdbmod
 import advancedmod
 import networkmod
@@ -111,6 +113,7 @@ print "path ",hardwaremod.get_path()
 MYPATH=hardwaremod.get_path()
 
 wateringdbmod.consitencycheck()
+autowateringdbmod.consistencycheck()
 fertilizerdbmod.consitencycheck()
 #scheduler setup---------------------
 selectedplanmod.start()
@@ -560,7 +563,7 @@ def doit():
 		servo=request.args.getlist('servo')[0]		
 		print "Servo ", servo , " position ", position
 		# move servo
-		delay=0.1
+		delay=0.5
 		hardwaremod.servoangle(servo,position,delay)
 		ret_data = {"answer": position}
 
@@ -573,13 +576,15 @@ def doit():
 		resolution=request.args.getlist('resolution')[0]
 		position=request.args.getlist('position')[0]
 		servo=request.args.getlist('servo')[0]
+		vdirection=request.args.getlist('vdirection')[0]
 		print "resolution ", resolution , " position ", position
 		positionlist=position.split(",")
 		print "oly use the first position for testing " , positionlist[0]
 		# move servo
 		hardwaremod.servoangle(servo,positionlist[0],1)
 		# take picture
-		ret_data=hardwaremod.shotit(video,True,resolution,positionlist[0])
+		#vdirection=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC)
+		ret_data=hardwaremod.shotit(video,True,resolution,positionlist[0],vdirection)
 		
 	elif name=="mail":
 		mailaname=request.args['element']
@@ -635,7 +640,7 @@ def saveit():
 	recdata=[]
 	ret_data={}
 	name=request.args['name']
-	print "Saving .."
+	print "Saving .." , name
 	if name=="mail":
 		mailaname=request.args['element']
 		mailaddress=request.args['address']
@@ -651,9 +656,12 @@ def saveit():
 		# save photo time
 		phototime=""
 		phototime=request.args['time']
-		print "save photo setting, time=" , phototime
-		hardwaremod.changesavecalibartion(name,hardwaremod.HW_FUNC_TIME,phototime)
-		
+		vdirection=request.args['vdirection']
+		print "save photo setting, time=" , phototime , " Vertical direction " , vdirection
+		hwname=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_INFO_NAME)
+		hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_FUNC_TIME,phototime)
+		hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_CTRL_LOGIC,vdirection)
+				
 		camname=request.args['element']
 		resolution=request.args['resolution']
 		position=request.args['position']
@@ -870,8 +878,9 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	lightsetting=[]
 	lightsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,"light1",hardwaremod.HW_FUNC_TIME))
 	photosetting=[]
-	photosetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,"photo",hardwaremod.HW_FUNC_TIME))
-	
+	photosetting.append(hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_FUNC_TIME))
+	photosetting.append(hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC))
+		
 	mailelements=emaildbmod.getelementlist()
 	mailsettinglist=[]
 	for element in mailelements:
@@ -959,7 +968,22 @@ def show_sensordata():
 		actuatordata,usedactuatorlist=actuatordbmod.getAllActuatorDataPeriodv2(startdate,perioddaysdict[periodtype])
 
 
-	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,usedsensorlist=usedsensorlist,sensordata=json.dumps(sensordata),usedactuatorlist=usedactuatorlist,actuatordata=json.dumps(actuatordata))
+		#Usedfor="Moisturecontrol"	
+		#hygrosensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,Usedfor,hardwaremod.HW_INFO_NAME)
+		hygroactuatornumlist=[]
+		hygrosensornumlist=[]
+		actuatorlisth= autowateringdbmod.getelementlist()
+		for inde in range(len(usedactuatorlist)):
+			element=usedactuatorlist[inde]
+			if element in actuatorlisth:
+				linkedsensor=autowateringdbmod.gethygrosensorfromactuator(element)
+				if linkedsensor in usedsensorlist: # if the actuator has an associated sensor hygro
+					hygroactuatornumlist.append(inde)
+					hygrosensornumlist.append(usedsensorlist.index(linkedsensor))
+				
+		print "hygrosensornumlist " , hygrosensornumlist
+		print "hygroactuatornumlist " , hygroactuatornumlist
+	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,usedsensorlist=usedsensorlist,sensordata=json.dumps(sensordata),usedactuatorlist=usedactuatorlist,actuatordata=json.dumps(actuatordata), hygrosensornumlist=hygrosensornumlist, hygroactuatornumlist=hygroactuatornumlist)
 
 
 @application.route('/wateringplan/' , methods=['GET', 'POST'])
@@ -1024,6 +1048,99 @@ def wateringplan():
 			
 		
 	return render_template("wateringplan.html", title=title,paramlist=paramlist,elementlist=elementlist,schemaementlist=schemaementlist,table=table,table1=table1,table2=table2,selectedelement=selectedelement)
+
+
+
+@application.route('/autowatering/' , methods=['GET', 'POST'])
+def autowatering():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	title = "Auto Watering Setting"
+	elementlist= autowateringdbmod.getelementlist()		
+	selectedelement = request.args.get('selectedelement')
+	if selectedelement==None:
+		selectedelement=elementlist[0]	
+	
+
+	sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)	
+	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,"Moisturecontrol",hardwaremod.HW_INFO_NAME)
+	print "sensorlist ",sensorlist
+	
+	modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
+	formlist=["workmode", "sensor" , "threshold", "wtstepsec", "maxstepnumber", "pausebetweenwtstepsmin", "allowedperiod" , "maxdaysbetweencycles", "sensorminacceptedvalue", "mailalerttype"  ]
+	alertlist=["infoandwarning", "warningonly"]
+
+
+	
+	if request.method == 'POST':	
+		actiontype=request.form['actionbtn']
+		print actiontype
+		
+		if actiontype == "save":
+			element=request.form['element']
+			print "save il water form...:" , element
+			selectedelement=element	
+			
+			
+			#add proper formatting
+			dicttemp={}
+			dicttemp["element"]=element		
+			dicttemp["workmode"]=request.form[element+'_1']
+			dicttemp["sensor"]=request.form[element+'_2']
+			dicttemp["threshold"]=[request.form[element+'_3'],request.form[element+'_4']]
+			dicttemp["wtstepsec"]=request.form[element+'_5']
+			dicttemp["maxstepnumber"]=request.form[element+'_6']
+			dicttemp["pausebetweenwtstepsmin"]=request.form[element+'_7']
+			dicttemp["allowedperiod"]=[request.form[element+'_8'],request.form[element+'_9']]
+			dicttemp["maxdaysbetweencycles"]=request.form[element+'_10']
+			dicttemp["sensorminacceptedvalue"]=request.form[element+'_11']
+			dicttemp["mailalerttype"]=request.form[element+'_12']
+
+			print "dicttemp ----->",dicttemp 
+			autowateringdbmod.replacerow(element,dicttemp)		
+			flash('Table as been saved')
+
+			#selectedplanmod.startnewselectionplan()
+			
+			
+		if actiontype == "reset":
+			element=request.form['element']
+			print "Reset the Cycle:" , element
+			selectedelement=element	
+			autowateringmod.cyclereset(element)
+			
+			
+
+			
+			
+			
+	watersettinglist=[]
+	for element in elementlist:
+		watersetting=[]
+		watersetting.append(element)
+		for item in formlist:
+			watersetting.append(autowateringdbmod.searchdata("element",element,item))
+
+		watersettinglist.append(watersetting)
+	
+	
+	cyclestatuslist=[]
+	for element in elementlist:
+		cyclestatus=[]
+		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestartdate"].strftime("%Y-%m-%d %H:%M:%S"))
+		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestatus"])
+		cyclestatus.append(autowateringmod.AUTO_data[element]["watercounter"])
+		cyclestatus.append(autowateringmod.AUTO_data[element]["alertcounter"])		
+		#{"cyclestartdate":datetime.utcnow(),"lastwateringtime":datetime.utcnow(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
+		cyclestatuslist.append(cyclestatus)
+
+
+		
+	return render_template("autowatering.html", title=title,selectedelement=selectedelement,modelist=modelist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist)
+
+
+
+
 
 @application.route('/fertilizerplan/' , methods=['GET', 'POST'])
 def fertilizerplan():
@@ -1174,7 +1291,7 @@ def login():
 				error = 'Invalid Credentials'
 			else:
 				session['logged_in'] = True
-				flash('You were logged in')   
+				#flash('You were logged in')   
 				return redirect(url_for('show_entries'))
 
 		elif reqtype=="change":
@@ -1206,7 +1323,7 @@ def login():
 @application.route('/logout')
 def logout():
     session.pop('logged_in', None)
-    flash('You were logged out')
+    #flash('You were logged out')
     return redirect(url_for('show_entries'))
 
 
@@ -1262,6 +1379,7 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 			if isdone:
 				hardwaremod.restoredefault() # copy default to normal file and reload HWdata
 				wateringdbmod.consitencycheck()
+				autowateringdbmod.consistencycheck()
 				fertilizerdbmod.consitencycheck()
 				sensordbmod.consistencycheck()
 				actuatordbmod.consistencycheck()
@@ -1316,6 +1434,7 @@ def hardwaresettingedit():  #on the contrary of the name, this show the setting 
 			# apply changes to the system
 
 			wateringdbmod.consitencycheck()
+			autowateringdbmod.consistencycheck()
 			fertilizerdbmod.consitencycheck()
 			sensordbmod.consistencycheck()
 			actuatordbmod.consistencycheck()
@@ -1394,13 +1513,23 @@ def hardwaresettingeditfield():  #on the contrary of the name, this show the set
 				
 		if requesttype=="confirm":
 			print "Confirm table"
+			# get the diferences in name field
+			newnames=[]
+			hardwaremod.getfieldvaluelisttemp("name",newnames)
+			oldnames=[]
+			hardwaremod.getfieldvaluelist("name",oldnames)
+			print newnames
+			print oldnames
+			
 			# Copy the hardwaremod IOdatatemp to IOdata and save it
 			hardwaremod.IOdatafromtemp()	
 				
 			# apply changes to the system
+			# basically instead of the consistencycheck procedure it should be simply the rename procedure -- to be improved
 
-			wateringdbmod.consitencycheck()
-			fertilizerdbmod.consitencycheck()
+			autowateringdbmod.replacewordandsave(oldnames,newnames)
+			wateringdbmod.replacewordandsave(oldnames,newnames)
+			fertilizerdbmod.replacewordandsave(oldnames,newnames)
 			sensordbmod.consistencycheck()
 			actuatordbmod.consistencycheck()
 			#scheduler setup---------------------
@@ -1487,10 +1616,11 @@ def currentpath(filename):
 def functiontest():
 	print " testing "
 	mailname="mail1"
-	#emailmod.sendallmail("alert","System detected IP address change, below the updated links")
-	hardwaremod.takephoto()
+	emailmod.sendallmail("alert","System detected IP address change, below the updated links")
+	#autowateringmod.autowateringcheck()
 	#selectedplanmod.heartbeat()
 	#selectedplanmod.removeallscheduledjobs()
+	#hardwaremod.takephoto()
 
 	return True
 
@@ -1508,7 +1638,12 @@ def videostream():
 	videolist=hardwaremod.videodevlist()
 	servolist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"servo",hardwaremod.HW_INFO_NAME)
 	initposition=hardwaremod.getservopercentage(servolist[0])
-	return render_template('videostream.html',initposition=initposition, itemlist=itemlist, ipaddress=ipaddress, videolist=videolist, servolist=servolist)
+	vdirection=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC)
+	if vdirection=="neg":
+		rotdeg="180"
+	else:
+		rotdeg="0"
+	return render_template('videostream.html',initposition=initposition, itemlist=itemlist, ipaddress=ipaddress, videolist=videolist, servolist=servolist, rotdeg=rotdeg)
 
 
 @application.route('/videocontrol/', methods=['GET'])
@@ -1541,6 +1676,7 @@ def videocontrol():
 		element=request.args['element']	
 		print "element " , element
 		print "starting Stream " , data
+		vdirection=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC)
 		answer=videocontrolmod.stream_video(element,data) + "-" + element
 		time.sleep(2)
 		

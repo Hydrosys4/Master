@@ -140,21 +140,48 @@ the database schema template has been moved to database/default
 Program able to run wihout files in the database directory, all the files needed seems to be created properly by tempates
 the logfile for apscheduler/flask is enabled only in debugging mode (from basicSetting.py file)
 
+2018-05-21 -> release 80
+
+corrected interface wateringplan delay in sec
+photos with raspicam module (fixed the exposure)
+servo position is not memorized in the system
+
+
+2018-06-21 -> release 81
+
+add automatic watering control based on the hygrometers feedback
+
+2018-06-21 -> release 82
+
+bug fixing, IP address sintax procedure rewritten
+
+2018-07-21 -> release 83
+
+Add the camera direction (up/down) by using pos e neg from the hardwaresetting
+
+
+
+Tested the "debug=False" in the basicSetting.py file (which removes the log file "scheduler")
+
+added automatic watering control based on the hygrometers feedback
+
+graph with values of the hygrometer and relevant valves activation in same color
+
+
 
 
 ------- Future releases: -----------
 
 
+
 add in the setting page the MIN-MAX setting for the servo (add also the reset button)
 
-add automatic watering control based on the hygrometers feedback
-
-make photoshot with raspicam module, should be more effective than fswebcam (check also)
 
 enable HTTPS, not public version
 
+NOTE:
 
-
+Command to dump log: sudo python bentornado.py >> logfile.log 2>&1
 
 
 

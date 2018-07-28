@@ -418,12 +418,21 @@ def initallGPIOoutput():
 				else:
 					HWcontrol.GPIO_output(int(ln[HW_CTRL_PIN]), 1)
 					
-			if (HW_CTRL_PWRPIN in ln):
-				try: 
-					HWcontrol.GPIO_setup(int(ln[HW_CTRL_PWRPIN]), "out")
-					HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0)
-				except ValueError:
-					print "powerpin not se because is not a number"
+		if (HW_CTRL_PWRPIN in ln):
+			try: 
+				HWcontrol.GPIO_setup(int(ln[HW_CTRL_PWRPIN]), "out")
+				if (HW_CTRL_LOGIC in ln):
+					if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
+						HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0)
+						print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
+					else:
+						HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 1)
+						print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
+				else:			
+					HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0) # assume logic is positive
+					print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
+			except ValueError:
+				print "powerpin not set because is not a number"
 	#print HWcontrol.GPIO_data
 	return True
 
@@ -537,10 +546,20 @@ def searchdatalist(recordkey,recordvalue,keytosearch):
 					datalist.append(str(ln[keytosearch]))	
 	return datalist
 
+
+
+
 def getfieldvaluelist(fielditem,valuelist):
 	del valuelist[:]
 	for line in IOdata:
 		valuelist.append(line[fielditem])
+
+def getfieldvaluelisttemp(fielditem,valuelist):
+	del valuelist[:]
+	for line in IOdatatemp:
+		valuelist.append(line[fielditem])
+
+
 
 def getfieldinstringvalue(fielditem,stringtofind,valuelist):
 	del valuelist[:]
@@ -661,24 +680,24 @@ def removephotodataperiod(removebeforedays):
 					print "removed Photo " , filepath
 				except ValueError:
 					print "Error in photo delete "
-			else:
-				print "datetime format incorrect"
+		else:
+			print "datetime format incorrect"
 	thumbconsistency(get_path())
 
 			
 	
-def shotit(video,istest,resolution,positionvalue):
+def shotit(video,istest,resolution,positionvalue,vdirection):
     # send command to the actuator for test
 	if istest:
 		filepath=os.path.join(get_path(), "static")
 		filepath=os.path.join(filepath, "cameratest")
 		filedelete=os.path.join(filepath, "testimage.png")
 		filestoragemod.deletefile(filedelete)		
-		shottaken=photomod.saveshot(filepath,video,False,resolution,positionvalue)       
+		shottaken=photomod.saveshot(filepath,video,False,resolution,positionvalue,vdirection)       
 	else:
 		filepath=os.path.join(get_path(), "static")
 		filepath=os.path.join(filepath, "hydropicture")
-		shottaken=photomod.saveshot(filepath,video,True,resolution,positionvalue)			
+		shottaken=photomod.saveshot(filepath,video,True,resolution,positionvalue,vdirection)			
 	if shottaken:
 		ret_data = {"answer": "photo taken"}
 	else:
@@ -700,17 +719,18 @@ def takephoto():
 		resolution=cameradbmod.searchdata("camname",video,"resolution") # if not found return ""
 		position=cameradbmod.searchdata("camname",video,"position")
 		servo=cameradbmod.searchdata("camname",video,"servo")
-		print "Camera: ", video , " Resolution ", resolution , " Position " , position
+		vdirection=searchdata(HW_FUNC_USEDFOR,"photocontrol",HW_CTRL_LOGIC)
+		print "Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection
 		positionlist=position.split(",")
 		if (positionlist)and(servo!="none"):
 			for positionvalue in positionlist:
 			# move servo
 				servoangle(servo,positionvalue,2)
 				ret_data={}
-				ret_data=shotit(video,False,resolution,positionvalue)
+				ret_data=shotit(video,False,resolution,positionvalue,vdirection)
 		else:
 			ret_data={}
-			ret_data=shotit(video,False,resolution,"0")			
+			ret_data=shotit(video,False,resolution,"0",vdirection)			
 		logger.info(ret_data["answer"])
 
 def resetandbackuplog_bak():

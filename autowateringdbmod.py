@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-watering UI setting storage utilities
+Auto watering UI setting storage utilities
 """
 
 import logging
@@ -19,9 +19,9 @@ import hardwaremod
 
 
 global WTDATAFILENAME
-WTDATAFILENAME="wtdata.txt"
+WTDATAFILENAME="autowtdata.txt"
 global DEFWTDATAFILENAME
-DEFWTDATAFILENAME="default/defwtdata.txt"
+DEFWTDATAFILENAME="default/defautowtdata.txt"
 
 global WTdata
 WTdata=[]
@@ -50,7 +50,7 @@ if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering settin
 # filestoragemod.deletefile(filename)
 
 
-def consitencycheck():
+def consistencycheck():
 	
 	# this routine align the watering table elements with the Hardware available elements "name" labelled with usedfor "watering"
 	
@@ -107,10 +107,15 @@ def consitencycheck():
 					WTdata.remove(ln)
 					
 	saveWTsetting()
-			
+
+	# extra code for the sensor field which should be consistent with sensor names in HW
+
+
+
 def replacewordandsave(oldword,newword):
 	filestoragemod.replacewordandsave(WTDATAFILENAME,oldword,newword)
 	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
+
 
 	
 def restoredefault():
@@ -123,20 +128,6 @@ def restoredefault():
 def saveWTsetting():
 	filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
 
-def getparamlist():
-	recordkey="name"
-	recordvalue="listparam"
-	datalist=[]
-	for ln in WTdata:
-		if recordkey in ln:
-			if ln[recordkey]==recordvalue:
-				ind=0
-				for rw in ln:
-					if rw!=recordkey:
-						ind=ind+1
-						datalist.append(ln[str(ind)])	
-					
-	return datalist
 
 def getelementlist():
 	recordkey=hardwaremod.HW_FUNC_USEDFOR
@@ -146,9 +137,19 @@ def getelementlist():
 	print "elementlist= ",datalist
 	return datalist
 
+def gethygrosensorfromactuator(actuatorname):
+	recordkey="element"
+	recordvalue=actuatorname
+	keytosearch="sensor"
+	if searchdata(recordkey,recordvalue,"workmode")!="None":
+		return searchdata(recordkey,recordvalue,keytosearch)
+	else:
+		return ""
+	
+	
+	
 
-
-def getrowdata(recordvalue,paramlist,index):
+def getrowdata(recordvalue,paramlist,index): #for parameters with array of integers
 	recordkey="element"
 	datalist=[]
 	for ln in WTdata:

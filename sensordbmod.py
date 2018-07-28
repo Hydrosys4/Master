@@ -130,14 +130,14 @@ def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 	getsensordbdatadays(selsensor,allsensordata,num)
 	del sensordata[:]
 	for rowdata in allsensordata:
-		dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
-		if (dateref>=startdate)and(dateref<=enddate):
-			try:
-				value=float(rowdata[1])
-				templist=[rowdata[0], value]
-				sensordata.append(templist)
-			except ValueError:
-				print "Error in database reading ",rowdata
+		try:
+			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			if (dateref>=startdate)and(dateref<=enddate):
+					value=float(rowdata[1])
+					templist=[rowdata[0], value]
+					sensordata.append(templist)
+		except ValueError:
+			print "Error in database reading ",rowdata
 	# sensor data --------------------------------------------
 
 
@@ -159,9 +159,9 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 		sensordata=[]
 		# fetch raw data from database
 		for rowdata in allsensordata:
-			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
-			if (dateref>=startdate)and(dateref<=enddate):
-				try:
+			try:
+				dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+				if (dateref>=startdate)and(dateref<=enddate):
 					value=float(rowdata[1])
 					dateinsecepoch=(dateref - datetime(1970,1,1)).total_seconds()
 					templist=[rowdata[0], value]
@@ -170,8 +170,8 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 						mintime=dateinsecepoch
 					if maxtime<dateinsecepoch:
 						maxtime=dateinsecepoch					
-				except ValueError:
-					print "Error in database reading ",rowdata
+			except ValueError:
+				print "Error in database reading ",rowdata
 		if len(sensordata)>0:
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)

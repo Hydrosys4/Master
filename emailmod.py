@@ -219,32 +219,36 @@ def send_email_main(address,title,cmd,mailtype,intromessage):
 
 	# check IP address
 	iplocal=networkmod.get_local_ip()	
-	ipext=networkmod.get_external_ip()
+	ipext=networkmod.EXTERNALIPADDR
 	if ipext=="":
-		print "No external IP address, mail is not sent"
-		logger.error('Unable to get external IP address, mail is not sent')
-		return False
-	else:
-		print "Try to send mail"	
-		# subject of the mail
-		subject=starttitle +" " + title + "  " + currentdate
-		htmlbody=create_htmlopen()
-		htmlbody=htmlbody+create_htmlintro(intromessage)
-		if showlink:
+		logger.info('Stored external IP address is empty, try to get it from network')
+		ipext=networkmod.get_external_ip()
+		
+	print "Try to send mail"	
+	# subject of the mail
+	subject=starttitle +" " + title + "  " + currentdate
+	htmlbody=create_htmlopen()
+	htmlbody=htmlbody+create_htmlintro(intromessage)
+	
+	if showlink:
+		if ipext=="":
+			print "No external IP address available"
+			logger.error('Unable to get external IP address')		
+		else:		
 			port=str(networkmod.PUBLICPORT)
 			if cmd=="mail+info+link":
 				htmlbody=htmlbody+create_htmladdresses(ipext, iplocal, port)
-		if showtable:
-			# table with information
-			matrixinfo=sensordbmod.sensorsysinfomatrix()
-			htmlbody=htmlbody+create_htmlmatrix(matrixinfo)
-			matrixinfo=actuatordbmod.sensorsysinfomatrix()
-			htmlbody=htmlbody+create_htmlmatrix(matrixinfo)
-		htmlbody=htmlbody+create_htmlclose()
-		issent=send_email_html(user, pwd, recipient, subject, htmlbody, showpicture)
-		if issent:
-			global IPEXTERNALSENT
-			IPEXTERNALSENT=ipext
+	if showtable:
+		# table with information
+		matrixinfo=sensordbmod.sensorsysinfomatrix()
+		htmlbody=htmlbody+create_htmlmatrix(matrixinfo)
+		matrixinfo=actuatordbmod.sensorsysinfomatrix()
+		htmlbody=htmlbody+create_htmlmatrix(matrixinfo)
+	htmlbody=htmlbody+create_htmlclose()
+	issent=send_email_html(user, pwd, recipient, subject, htmlbody, showpicture)
+	if (issent) and (showlink) and (ipext!=""):
+		global IPEXTERNALSENT
+		IPEXTERNALSENT=ipext
 	return issent
 	
 

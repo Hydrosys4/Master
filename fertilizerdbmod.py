@@ -111,6 +111,11 @@ def consitencycheck():
 					
 	saveFTsetting()
 			
+			
+def replacewordandsave(oldword,newword):
+	filestoragemod.replacewordandsave(FTDATAFILENAME,oldword,newword)
+	filestoragemod.readfiledata(FTDATAFILENAME,FTdata)
+
 
 	
 def restoredefault():

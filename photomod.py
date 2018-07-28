@@ -19,8 +19,14 @@ def videodevlist():
 			videolist.append(files)
 	return videolist # item1 (path) item2 (name) item3 (datetime)
  
-def saveshot(filepath, video, realshot, resolution, positionvalue):
+def saveshot(filepath, video, realshot, resolution, positionvalue, vdirection):
 	shottaken=False
+	print "take photo"
+	
+	if vdirection=="neg":
+		rotdeg="180"
+	else:
+		rotdeg="0"
 	
 	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
 	print "Current date and time: " , currentdate
@@ -76,11 +82,11 @@ def saveshot(filepath, video, realshot, resolution, positionvalue):
 		# there is no reliable way to detect the raspicam, then just try to get a picture first with raspistill
 		
 		if (video=="video0"):
-			shottaken=takeshotandsave_raspistill(filepath,filenamenopath3, video, resolution)
+			shottaken=takeshotandsave_raspistill(filepath,filenamenopath3, video, resolution,rotdeg)
 			if not shottaken:
-				shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution)	
+				shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution,rotdeg)	
 		else:
-			shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution)		
+			shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution,rotdeg)		
 		
 		#shottaken=takeshotandsave_mjpg_streamer(filepath,filenamenopath, video, resolution)	
 				
@@ -98,8 +104,14 @@ def saveshot(filepath, video, realshot, resolution, positionvalue):
 
 
 
-def takeshotandsave_raspistill(filepath,filenamenopath, video, resolution):
+def takeshotandsave_raspistill(filepath,filenamenopath, video, resolution, rotdeg):
 	shottaken=False
+	if rotdeg=="180":
+		vflip="-vf -hf"
+	else:
+		vflip=""
+	print "flip ", vflip
+		
 
 	if (video=="video0"):
 		cam_list = "/dev/" + video			
@@ -128,7 +140,7 @@ def takeshotandsave_raspistill(filepath,filenamenopath, video, resolution):
 			
 			# create the picture files
 			try:
-				myproc = subprocess.check_output("raspistill -w "+w+" -h "+h+" -q 95 -a 12 -a \"%Y-%m-%d %X (UTC)\" -o " + filename, shell=True, stderr=subprocess.STDOUT)
+				myproc = subprocess.check_output("raspistill "+vflip+" -w "+w+" -h "+h+" -q 95 -a 12 -a \"%Y-%m-%d %X (UTC)\" -o " + filename, shell=True, stderr=subprocess.STDOUT)
 			except:
 				print "problem to execute command"
 				myproc = "error"
@@ -159,7 +171,7 @@ def takeshotandsave_raspistill(filepath,filenamenopath, video, resolution):
 
 
 
-def takeshotandsave_fswebcam(filepath,filenamenopath, video, resolution):
+def takeshotandsave_fswebcam(filepath,filenamenopath, video, resolution, rotdeg):
 	shottaken=False
 
 	if not (video==""):
@@ -192,7 +204,7 @@ def takeshotandsave_fswebcam(filepath,filenamenopath, video, resolution):
 			# create the picture files
 			#fswebcam option
 			try:
-				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S "+S+" -s brightness=50% -s Contrast=50% --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)
+				myproc = subprocess.check_output("fswebcam -q -d "+ cam_list +" -r "+resolution+" -S "+S+" --rotate "+rotdeg+" -s brightness=50% -s Contrast=50% --jpeg 95 " + filename, shell=True, stderr=subprocess.STDOUT)
 			except:
 				print "problem to execute command"
 				myproc = "error"
@@ -227,7 +239,7 @@ def takeshotandsave_fswebcam(filepath,filenamenopath, video, resolution):
 		print "camera not connected"	
 	return shottaken
 
-def takeshotandsave_mjpg_streamer(filepath,filenamenopath, video, resolution):
+def takeshotandsave_mjpg_streamer(filepath,filenamenopath, video, resolution , rotdeg):
 	shottaken=False
 	
 	
@@ -268,9 +280,9 @@ def takeshotandsave_mjpg_streamer(filepath,filenamenopath, video, resolution):
 		
 		if (video=="video0")and(int(w)>1024):
 			print "mjpg_streamer using the raspicam"
-			stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+w+" -y "+h+" -fps "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_file.so -f "+pathmjpg+" -d 100' &"
+			stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+w+" -y "+h+" -fps "+fps+" -rot "+rotdeg+"' -o '/usr/local/lib/mjpg-streamer/output_file.so -f "+pathmjpg+" -d 100' &"
 		else:
-			stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_uvc.so -d /dev/"+video+" -r "+w+"x"+h+" -f "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_file.so -f "+pathmjpg+" -d 100' &"
+			stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_uvc.so -d /dev/"+video+" -r "+w+"x"+h+" -f "+fps+" -rot "+rotdeg+"' -o '/usr/local/lib/mjpg-streamer/output_file.so -f "+pathmjpg+" -d 100' &"
 		call ([stream], shell=True)
 		time.sleep(2)
 		call (["sudo pkill mjpg_streamer"], shell=True)

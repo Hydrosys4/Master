@@ -460,39 +460,13 @@
 	<div class="small">Multiple positions separated by comma (,) numbers from 0 to 100</div>
 	<table class="table" margin: 10px;>
 		<tbody>
-		<tr>
-			<td>
-				   <!-- status-->
-			   
-				<div class="col-xs-4">
-					<label>Status:</label>
-				</div>
-				<div class="col-xs-8">
-					<label id="phototeststatus" for="input_3">Status</label>
-				</div>				
-			</td>
-		</tr>
-		<tr>
-			<td>
-				   
-				   <!--  progress bar bootstrap-->
-					<div class="col-xs-12">			
-					<div class="progress">
-					  <div id="photoprogressbar1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-					  </div>
-					</div>
-					</div>
-				<!-- progress-->
-			
-			</td>
-		</tr>
+
 		<tr>
 			<td>
 	
 			
-				<div class="col-xs-12">
-					<label id="label_30" for="input_3">Picture time:</label>
-				</div>
+
+
 				<!-- old 
 
 
@@ -500,7 +474,7 @@
 					</select>		
 				-->
 				<!-- new -->
-				<div class="col-xs-6">
+
 						<div class="input-group clockpicker" data-autoclose="true">
 							<input readonly="readonly" type="text" class="form-control" id="SelTime1" value="{{photosetting[0]}}">
 							<span class="input-group-addon">
@@ -510,26 +484,23 @@
 							$('.clockpicker').clockpicker({ placement: 'top'});
 							</script>								
 						</div>
-				</div>
-				<!-- new -->				
-				
-				
+
+				<!-- new -->
 			</td>
-		</tr>
-		<tr>
 			<td>				
-				<div class="col-xs-6">
-					<button id="savesettingphoto" class="btn-sm btn btn-default" type="button" name="photo">Save Config</button>
-				</div>
+
+					<button id="savesettingphoto" class="btn-sm btn btn-default" type="button" name="photo">Save All Config</button>
+
 	
 
 		
 			</td>
-		</tr>	
+		</tr>
+
 						
 		<tr>
 			<td>
-						<label>Adapt Picture to the screen
+						<label>Adapt to the screen
 						<input id="toggle-event" checked="checked" type="checkbox">
 						</label>
 						<script>
@@ -548,6 +519,63 @@
 						
 
 			</td>
+			
+			<td>
+						<label>Vertical Flip
+						{% if photosetting[1]=="neg" %}
+						<input id="toggle-event2" checked="checked" type="checkbox">
+						{% else %}						
+						<input id="toggle-event2" type="checkbox">
+						{% endif %}
+						<input value="{{photosetting[1]}}" id="vdirection" name="vdirection" type="hidden">
+						</label>
+						<script>
+						  $(function() {
+							$('#toggle-event2').change(function() {
+								var togglevalue=$(this).prop('checked');
+					
+								if (togglevalue==true) {
+									$("#vdirection").val("neg");										
+								} else {
+									$("#vdirection").val("pos");	
+								}
+							})
+						  })
+						</script>
+						
+
+			</td>
+			
+			
+			
+			
+			
+			
+			
+		</tr>
+		<tr>
+			<td>
+				   
+				   <!--  progress bar bootstrap-->
+		
+					<div class="progress">
+					  <div id="photoprogressbar1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					  </div>
+					</div>
+
+				<!-- progress-->
+			
+			</td>			
+			<td>
+				   <!-- status-->
+
+					<label>Status:</label>
+
+					<label id="phototeststatus" for="input_3">Status</label>
+			
+			</td>
+
+
 		</tr>
 		</tbody>
 	</table>
@@ -589,7 +617,7 @@
 					$.ajax({
 								type: "GET",
 								// url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + value ,
-								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val(),
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val() + "&vdirection=" + $('#vdirection').val(),
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
@@ -646,7 +674,7 @@
 					
 						$.ajax({
 									type: "GET",
-									url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val(),
+									url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val() + "&vdirection=" + $('#vdirection').val(),
 									contentType: "application/json; charset=utf-8",
 									data: { echoValue: "requestfordata" },
 									success: function(data) {
