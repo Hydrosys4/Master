@@ -44,15 +44,39 @@ def readfiledata(filename,filedata):
 		print "----------------------------------------------------------------------> warning no file ", filename 
 		return False
 		
-def readfiledata_spec(filename,filedata): 
-	if os.path.isfile(dbpath(filename)): #file is there
+# START Plain text file functions ---------------------------------------- Used for generic file manipulation
+
+
+def readfiledata_plaintext(pathfilename,filedata): 
+	if os.path.isfile(pathfilename): #file is there
 		# read the selected table file
-		in_file = open(dbpath(filename),"r")
+		in_file = open(pathfilename,"r")
+		lines = in_file.readlines()
+		in_file.close()
+		del filedata[:]
+		for ln in lines:
+			filedata.append(ln.strip("\n"))
+		return True
+	else:
+		print "-----------------------------------------> warning no file ", pathfilename 
+		return False
+
+def savefiledata_plaintext(pathfilename,filedata):
+	#print "save file ", filedata
+	out_file = open(pathfilename,"w")
+	for line in filedata:
+		out_file.write(line)
+		out_file.write("\n")
+	out_file.close()
+
+def readfiledata_spec(pathfilename,identifier,filedata): # used also in networkdbmod
+	if os.path.isfile(pathfilename): #file is there
+		# read the selected table file
+		in_file = open(pathfilename,"r")
 		lines = in_file.readlines()
 		in_file.close()
 		del filedata[:]
 		#print " ln " , lines
-		identifier="# HERE->"
 		for ln in lines:
 			if identifier in ln:
 				theline=ln[ln.find("{"):ln.find("}")+1]
@@ -61,9 +85,43 @@ def readfiledata_spec(filename,filedata):
 		#print IOdata[0]["name"]
 		return False
 	else:
-		print "----------------------------------------------------------------------> warning no file ", filename 
+		print "------------------------------------------> warning no file ", pathfilename 
 		return False
 		
+
+def savechangerow_plaintext(pathfilename,searchvalue,newrow): # used to replace row in file giving one string
+	filedata=[]
+	readfiledata_plaintext(pathfilename,filedata)
+	#print "text File /n" , filedata
+	for i in range(len(filedata)):
+		line=filedata[i]
+		if searchvalue in line:
+			print " row found ------------ !!!!!!!!! " , line
+			filedata[i]=newrow
+			print " new row  ------------ !!!!!!!!! " , newrow
+			savefiledata_plaintext(pathfilename,filedata)
+			return True
+	return False
+
+
+def readvalue_plaintext(pathfilename,key,separation): # used to get data from text file
+	#format of the row "key:value"
+	filedata=[]
+	readfiledata_plaintext(pathfilename,filedata)
+	for line in filedata:
+		if key in line:
+			substr=line.split(separation)
+			if len(substr)>1:
+				value=substr[1].strip()
+				return value
+	return False
+
+
+# END Plain text file functions ---------------------------------------- Used for generic file manipulation
+
+def disct2text(dictdata):
+	return json.dumps(dictdata, sort_keys=True)
+
 
 def savefiledata(filename,filedata):
 # questo possibile lista di dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario
@@ -89,11 +147,13 @@ def savechange(filename,searchfield,searchvalue,fieldtochange,newvalue):
 	readfiledata(filename,filedata)
 	# questo il possibile dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario
 	for line in filedata:
-		if line[searchfield]==searchvalue:
-			line[fieldtochange]=newvalue
-			savefiledata(filename,filedata)
-			return True
+		if searchfield in line:
+			if line[searchfield]==searchvalue:
+				line[fieldtochange]=newvalue
+				savefiledata(filename,filedata)
+				return True
 	return False
+
 
 
 def replacewordandsave(filename,oldvalue,newvalue): #oldvalue and newvalue are lists

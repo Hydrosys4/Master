@@ -78,7 +78,8 @@
 				<td>
 
 					<!-- go left button-->										
-					<button class="moveservo btn-sm btn btn-default btn-block" type="button" name="servo" item="-5"><<<</button>
+
+					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" value="5" direction="FORWARD"><<<</button>
 				</td>
 
 
@@ -86,7 +87,7 @@
 		  					  				
 
 					
-					<input value="{{initposition}}"  id="servoteststatus" class="form-control input-sm" style="text-align:center;" readonly />
+					<input value="{{initposition}}"  id="servostatus" class="form-control input-sm" style="text-align:center;" readonly />
 
 				  
 				  </td>	
@@ -95,8 +96,8 @@
 							
 				<td>
 					<!-- go right button-->										
-					<button class="moveservo btn-sm btn btn-default btn-block" type="button" name="servo" item="+5">>>></button>
 
+					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" value="5" direction="BACKWARD">>>></button>
 				</td>
 
 
@@ -111,44 +112,43 @@
 			
 			
 			
-			<script type=text/javascript>
-			var position=Number({{initposition}});
+
+
+			 <script type=text/javascript>
+			  $(function() {
+				$(".servobutton").click(function() {
 				
-
-			$(".moveservo").click(function() {
-			
-			// send ajax interrupt to flask to initiate the actuator test
-
-				var prid=$(this).attr('name');
-				var elem = $(this).attr('item');
-				position=Number(position)+Number(elem);
-				if (position<0) {position=0;}
-				if (position>100) {position=100;}
-				$('#servoteststatus').val("---");
-				$.ajax({
-							type: "GET",
-							url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + position + "&servo=" + $('#selsettingservo').val(),
-							//url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val(),
-							contentType: "application/json; charset=utf-8",
-							data: { echoValue: "requestfordata" },
-							success: function(data) {
-								$('#servoteststatus').val(data.answer);
-
-							},
-							//error: function(jqXHR, textStatus, errorThrown) {
-							//    alert(errorThrown);
-							//}
-						});    
-
+				// send ajax interrupt to flask to initiate the actuator test
 				
-			});
+					var prid=$(this).attr('name');
+					var elem=$('#selsettingservo').val();
+					var direction=$(this).attr('direction');
+					var value = $(this).attr('value');					
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&name=" + direction + "&element=" + elem,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#servostatus').val(data.answer);
+		
+									
+									
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown); $("#thebutton").attr('name')
+								//}
+							});    
+				  
+					
+							$('#servostatus').text("waiting ...");
 
-
+					
+				});
+			  });
+			   
 			  
 			  
-			  
-
-
 			</script>
 
 		<!--  end servo part   -->

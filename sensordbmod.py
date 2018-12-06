@@ -118,6 +118,28 @@ def getsensordbdatadays(selsensor,sensordata,days):
 	samplingintervalminutes=int(sampletime.split(":")[1])
 	samplesnumber=(days*24*60)/samplingintervalminutes
 	databasemod.getdatafromfieldslimit(DBFILENAME,selsensor,fieldlist,sensordata,samplesnumber)
+
+def getsensordbdatasamplesN(selsensor,sensordata,samplesnumber):
+	fieldlist=[]
+	fieldlist.append(TIMEFIELD)
+	fieldlist.append(DATAFIELD)
+	databasemod.getdatafromfieldslimit(DBFILENAME,selsensor,fieldlist,sensordata,samplesnumber)
+
+def readallsensorsdatabase():
+	#sensorlist=searchdatalist(HW_INFO_IOTYPE,"input",HW_INFO_NAME)
+	sensorlist=gettablelist()
+	sensorvalues={}
+	sensortimestamp={}
+	for sensorname in sensorlist:
+		#sensorvalues[sensorname]=getsensordata(sensorname,3)
+		databasevalues=[]
+		samplesnumber=1
+		getsensordbdatasamplesN(sensorname,databasevalues,samplesnumber)
+		for value in databasevalues:
+			sensorvalues[sensorname]=value[1]
+			sensortimestamp[sensorname]=value[0]
+		print sensorvalues[sensorname] , sensortimestamp[sensorname]
+	return sensorvalues
 	
 def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 	num = int(pastdays)
@@ -133,12 +155,42 @@ def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 		try:
 			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
 			if (dateref>=startdate)and(dateref<=enddate):
-					value=float(rowdata[1])
-					templist=[rowdata[0], value]
-					sensordata.append(templist)
+				value=float(rowdata[1])
+				templist=[rowdata[0], value]
+				sensordata.append(templist)
 		except ValueError:
 			print "Error in database reading ",rowdata
 	# sensor data --------------------------------------------
+
+def getSensorDataPeriodXminutes(selsensor,datax,datay,startdate,enddate): # return sensordata in form of a matrix Nx2
+	# x value is in minutes, y value is float. Shifted to have average Zero
+	allsensordata=[]
+	getsensordbdata(selsensor,allsensordata)
+	del datax[:]	
+	del datay[:]
+	lenght=0
+	for rowdata in allsensordata:
+		try:
+			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			if (dateref>=startdate)and(dateref<=enddate):
+				valuex=timediffinminutes(startdate, dateref)
+				valuey=float(rowdata[1])
+				datax.append(valuex)
+				datay.append(valuey)
+				lenght=lenght+1				
+		except ValueError:
+			print "Error in database reading ",rowdata
+
+	return lenght
+
+def timediffinminutes(data2, data1):
+	diff =  data1 - data2
+	return abs(diff.days*1440 + diff.seconds/60)
+
+
+def timediffdays(data2, data1):
+	diff =  data1 - data2
+	return abs(diff.days)
 
 
 def getAllSensorsDataPeriodv2(enddate,pastdays):

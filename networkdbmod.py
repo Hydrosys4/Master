@@ -31,7 +31,7 @@ BASICDATAFILENAME="/etc/hostapd/hostapd.conf"
 # read data -----
 data=[]
 #read data from BASICDATAFILENAME file
-done=filestoragemod.readfiledata_spec(BASICDATAFILENAME,data)
+done=filestoragemod.readfiledata_spec(BASICDATAFILENAME,"# HERE->",data)
 if done:
 	print "writing default network data"
 	filestoragemod.savefiledata(DATAFILENAME,data)
@@ -41,11 +41,13 @@ else:
 	logger.error('Not able to get basic network data ---------------------')
 # end read IOdata -----
 
-
-	
 	
 def savedata(filedata):
 	filestoragemod.savefiledata(DATAFILENAME,filedata)
+
+def readdata(filedata):
+	filestoragemod.readfiledata(DATAFILENAME,filedata)
+
 
 
 def getIPaddress():
@@ -69,33 +71,30 @@ def getAPSSID():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 
-
+def getWAITTOCONNECT():
+	recordkey="name"
+	recordvalue="IPsetting"
+	keytosearch="APtime"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	return dataitem
+	
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
 	searchvalue="IPsetting"
 	isok=filestoragemod.savechange(DATAFILENAME,searchfield,searchvalue,FTparameter,FTvalue)
 	if not isok:
-		print "problem saving paramete"
+		print "problem saving parameters"
 	return isok
+
+
+
 	
 def restoredefault():
 	filestoragemod.deletefile(DATAFILENAME)
-	filedata=[{"name": "IPsetting", "LocalIPaddress": "192.168.0.172", "LocalPORT": "5012", "LocalAPSSID" : "Hydrosys4"}]
+	filedata=[{"name": "IPsetting", "LocalIPaddress": "192.168.1.172", "LocalPORT": "5172", "LocalAPSSID" : "Hydrosys4", "APtime" : "180"}]
 	filestoragemod.savefiledata(DATAFILENAME,filedata)
 
-def get_path():
-    '''Get the path to this script no matter how it's run.'''
-    #Determine if the application is a py/pyw or a frozen exe.
-    if hasattr(sys, 'frozen'):
-        # If run from exe
-        dir_path = os.path.dirname(sys.executable)
-    elif '__file__' in locals():
-        # If run from py
-        dir_path = os.path.dirname(__file__)
-    else:
-        # If run from command line
-        dir_path = sys.path[0]
-    return dir_path
+
 	
 #--end --------////////////////////////////////////////////////////////////////////////////////////		
 	

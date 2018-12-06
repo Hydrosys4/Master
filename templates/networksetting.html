@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+
+
+
+
+      <form class="form-horizontal" action="{{ url_for('networksetting') }}" method=post>
+
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="page-header">
+              <!-- <h6 id="forms"></h6> -->
+            </div>
+          </div>
+        </div>
+
+				
+				
+				<!-- Setting part  OOOOOOOOOOOOOOOOOOOOOO-->
+				
+			<div class="well bs-component">
+				
+							<div class="form-group">			
+							<div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<legend>Parameters Setting</legend>  
+								</div>	
+							</div>	
+							</div>	
+							
+							<div class="form-group">
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>IP Address</label>
+								</div>		
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<input type="text" class="form-control" placeholder={% if address=="" %}"IP address"{% else %}"{{IPADDRESS}}"{% endif %} name="IPADDRESS" value="{{IPADDRESS}}">
+								<div class="small">IP address for local connection</div>
+
+								</div>
+							</div>
+							</div>	
+
+						
+							<div class="form-group">
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Access Point SSID Name</label>
+								</div>		
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<input type="text" class="form-control" placeholder={% if address=="" %}"AP SSID"{% else %}"{{AP_SSID}}"{% endif %} name="AP_SSID" value="{{AP_SSID}}">
+ 
+								</div>
+							</div>
+							</div>	
+
+							<div class="form-group">
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Access Point Password</label>
+								</div>		
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+										<input type="password" class="form-control"  placeholder="{{AP_PASSWORD}}" name="AP_PASSWORD" value="{{AP_PASSWORD}}">
+  
+								</div>
+							</div>
+							</div>	
+
+
+
+
+							<div class="form-group">		
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Access Point time (sec):
+								</label>
+
+								
+								</div>
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								
+								{% set arr=["0","60","120","180","240","300"] %}	 			
+								  <select class="form-control input-sm dontwantgap" name="AP_TIME">
+									{% for item in arr %}
+									<option {% if item==AP_TIME %}selected="selected"{% endif %} >{{item}}</option>
+									{% endfor %}
+								  </select>
+								
+								
+								
+								
+								
+								<div class="small">When the system is started, this valuse indicated the time in seconds that the Access point is ON before the WiFi netowrk is connectred (if configured) </div>
+
+								</div>
+							</div>				
+							</div>
+			
+                  <div class="form-group">
+                    <div class="col-lg-6 col-lg-offset-3">
+                      <!--<button type="reset" class="btn btn-default">Cancel</button> -->
+                      <button name="button" type="submit" class="btn btn-primary" value="save">Submit</button>
+					  <button name="button" type="submit" class="btn btn-default" value="cancel">Cancel</button>
+                      
+                    </div>
+
+                  </div>
+
+
+			</div>	
+              
+
+
+      </form>
+ <!-- end form --> 
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

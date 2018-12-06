@@ -23,6 +23,7 @@ except ImportError:
 else:
 	import Adafruit_DHT #humidity temperature sensor
 	import Adafruit_BMP.BMP085 as BMP085 #pressure sensor
+	from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
 	import spidev
 	import smbus
 	import RPi.GPIO as GPIO
@@ -30,14 +31,14 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","photo","mail+info+link","mail+info"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","photo","mail+info+link","mail+info"]
 RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
 
-DHT22_data={'Temperature':None,'Humidity':None,'lastupdate':None}
-DHT22_data['lastupdate']=datetime.datetime.now() - datetime.timedelta(seconds=2)
-Servo_data={'duty':"3"}
+# status variables
+DHT22_data={}
+DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.datetime.now() - datetime.timedelta(seconds=2)}
 
 #" GPIO_data is an array of dictionary, total 40 items in the array
 GPIO_data=[{"level":None, "state":None} for k in range(40)]
@@ -46,6 +47,29 @@ GPIO_data=[{"level":None, "state":None} for k in range(40)]
 PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
 
 MCP3008_busy_flag=False
+
+def read_status_data(data,element,variable):
+	print data
+	if element in data:
+		print " element present"
+		elementdata=data[element]
+		if variable in elementdata:
+			return elementdata[variable]
+		else:
+			# variable not in elementdata
+			return ""
+	else:
+		print " element NOT present"
+		# element not present in the data use the default
+		data[element]=data["default"].copy()
+		elementdata=data[element]
+		print data
+		if variable in elementdata:
+			return elementdata[variable]
+		else:
+			# variable not in elementdata
+			return ""
+
 
 def execute_task(cmd, message, recdata):
 	global DHT22_data
@@ -74,8 +98,12 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[6]:	
 		return gpio_pin_level(cmd, message, recdata)
 
-	elif cmd==HWCONTROLLIST[7]:	
-		return gpio_set_servo(cmd, message, recdata, Servo_data)
+	elif cmd==HWCONTROLLIST[7]:	# servo
+		return gpio_set_servo(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[8]: #stepper	
+		return gpio_set_stepper(cmd, message, recdata)
+
 
 	else:
 		print "Command not found"
@@ -111,28 +139,27 @@ def execute_task_fake(cmd, message, recdata):
 
 
 def get_DHT22_temperature_fake(cmd, message, recdata, DHT22_data):
-	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
-	if deltat.total_seconds()>2:
-		
-		DHT22_data['Humidity']="10.10"
-		DHT22_data['Temperature']="20.10"
-		DHT22_data['lastupdate']=datetime.datetime.now()
 
 	recdata.append(cmd)
-	recdata.append(DHT22_data['Temperature'])
+	recdata.append("10.10")
 	recdata.append(1)
-	return DHT22_data['lastupdate']
-	
+	return True
 	
 
-def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
+def get_DHT22_reading(cmd, message, recdata, DHT22_data):	
 	
 	successflag=0
 	msgarray=message.split(":")
 	pin=int(msgarray[1])
-
-	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
-	if deltat.total_seconds()>2:
+	element=msgarray[1]
+	TemperatureUnit="C"
+	if len(msgarray)>4:
+		TemperatureUnit=msgarray[4]
+		
+	lastupdate=read_status_data(DHT22_data,element,'lastupdate')	
+	deltat=datetime.datetime.now()-lastupdate
+	
+	if deltat.total_seconds()>10:
 		
 		humidity=None
 		temperature=None
@@ -140,61 +167,48 @@ def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
 		try:
 			sensor = Adafruit_DHT.DHT22
 			humidity, temperature = Adafruit_DHT.read(sensor, pin)
+			if (TemperatureUnit=="F") and (temperature is not None):
+				temperature=temperature*1.8+32
 		except:
 			print "error reading the DHT sensor (Humidity,Temperature)"
 			logger.error("error reading the DHT sensor (Humidity,Temperature)")
-			logger.exception("message")
-
-
+			
+		# if reading OK, update status variable
 		if (humidity is not None) and (temperature is not None):
 			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
-			DHT22_data['Humidity']=('{:3.2f}'.format(humidity / 1.))
-			DHT22_data['Temperature']=('{:3.2f}'.format(temperature / 1.))
-			DHT22_data['lastupdate']=datetime.datetime.now()
+			DHT22_data[element]['humidity']=('{:3.2f}'.format(humidity / 1.))
+			DHT22_data[element]['temperature']=('{:3.2f}'.format(temperature / 1.))
+			DHT22_data[element]['lastupdate']=datetime.datetime.now()
 			successflag=1
 		else:
-			print 'Failed to get DHT22 reading'
-
+			print 'Failed to get DHT22 reading'			
+		# data in status variable will not be used in case of failure reading, only in case of reading request less than 10sec
 	else:
-		successflag=1 # use the data in memory, reading less than 2 sec ago
+		# use the data in memory, reading less than 10 sec ago
+		temperature=read_status_data(DHT22_data,element,'temperature')
+		humidity=read_status_data(DHT22_data,element,'humidity')
+		if (humidity is not None) and (temperature is not None):		
+			successflag=1
+	
+	return successflag, element
+
 		
+def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
+
+	successflag , element=get_DHT22_reading(cmd, message, recdata, DHT22_data)
 	recdata.append(cmd)
-	recdata.append(DHT22_data['Temperature'])
+	recdata.append(DHT22_data[element]['temperature'])
 	recdata.append(successflag)	
-	return DHT22_data['lastupdate']
+	return DHT22_data[element]['lastupdate']
 	
 
 def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
-	successflag=0
-	msgarray=message.split(":")
-	pin=int(msgarray[1])
-	deltat=datetime.datetime.now()-DHT22_data['lastupdate']
-	if deltat.total_seconds()>2:
-		
-		humidity=None
-		temperature=None
-		try:
-			sensor = Adafruit_DHT.DHT22
-			humidity, temperature = Adafruit_DHT.read(sensor, pin)
-		except:
-			print "error reading the DHT sensor (Humidity,Temperature)"
-			logger.exception("message")
 
-		if (humidity is not None) and (temperature is not None):
-			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
-			DHT22_data['Humidity']=('{:3.2f}'.format(humidity / 1.))
-			DHT22_data['Temperature']=('{:3.2f}'.format(temperature / 1.))
-			DHT22_data['lastupdate']=datetime.datetime.now()
-			successflag=1
-		else:
-			print 'Failed to get DHT22 reading'
-	else:
-		successflag=1 # use the data in memory, reading less than 2 sec ago
-		
+	successflag , element=get_DHT22_reading(cmd, message, recdata, DHT22_data)		
 	recdata.append(cmd)
-	recdata.append(DHT22_data['Humidity'])
+	recdata.append(DHT22_data[element]['humidity'])
 	recdata.append(successflag)	
-	return DHT22_data['lastupdate']
+	return DHT22_data[element]['lastupdate']
 
 
 def get_BMP180_pressure(cmd, message, recdata):
@@ -317,7 +331,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 			dataarray.append(data)
 			inde=inde+1
 			datatext=datatext+str(data)+","			
-			print "MCP3008 chennel ", channel, " data:",data
+			print "MCP3008 channel ", channel, " data:",data
 						
 		logger.info("ADCdata Channel: %d", channel)
 		logger.info("ADCdata Sampling: %s", datatext)
@@ -362,7 +376,7 @@ def normalize_average(lst):
 	 
 	# use functions to adjust data, keep only the data inside the standard deviation
 
-	final_list = [x for x in lst if ((x > mean - sd) and (x < mean + sd))]
+	final_list = [x for x in lst if ((x >= mean - sd) and (x <= mean + sd))]
 	num_items_final = len(final_list)
 	normmean=sum(final_list) / float(num_items_final)
 	
@@ -485,30 +499,75 @@ def gpio_pin_level(cmd, message, recdata):
 
 
 
-def gpio_set_servo(cmd, message, recdata, Servo_data):
+def gpio_set_servo(cmd, message, recdata):
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
 	PIN=int(msgarray[1])
 	frequency=int(msgarray[2])
 	duty=float(msgarray[3])
 	delay=float(msgarray[4])
+	previousduty=float(msgarray[5])
+	stepnumber=int(msgarray[6])
+	
+	step=(duty-previousduty)/stepnumber
+	
 	
 	GPIO_setup(PIN, "out")
 	pwm = GPIO.PWM(PIN, frequency) # set the frequency
-	pwm.start(duty)
-	time.sleep(0.2+delay)
-	#pwm.ChangeDutyCycle(duty)
+	pwm.start(previousduty)
+	for inde in range(stepnumber):
+		currentduty=previousduty+(inde+1)*step
+		pwm.ChangeDutyCycle(currentduty)
+		time.sleep(0.02)		
+	time.sleep(0.2+delay)	
 	pwm.stop()
-
-	Servo_data['duty']=msgarray[3]
-		
+	time.sleep(0.1)		
 	print "servo set to frequency", frequency , " PIN=", PIN , " Duty cycle=", duty 
 	recdata.append(cmd)
 	recdata.append(PIN)
 	return True	
+	
 
-def get_servo_duty():
-	return Servo_data['duty']
+	
+def gpio_set_stepper(cmd, message, recdata):
+			
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	Interface_Number=int(msgarray[1]) # this is the interface on same I2C board
+	direction=msgarray[2]
+	speed=int(msgarray[3])
+	steps=int(msgarray[4])
+	
+	
+	# create a default object, no changes to I2C address or frequency
+	mh = Adafruit_MotorHAT()
+	
+	# set motor parameters
+	myStepper = mh.getStepper(200, Interface_Number)  # 200 steps/rev, motor port #1 or #2
+	myStepper.setSpeed(speed)             # 30 RPM
+
+	print "Double coil steps"
+	if direction=="FORWARD":
+		myStepper.step(steps, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
+	elif direction=="BACKWARD":
+		myStepper.step(steps, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)	
+	
+		
+	print "stepper: Interface", Interface_Number , " direction=", direction , " speed=", speed , " steps=", steps 
+	recdata.append(cmd)
+	recdata.append(Interface_Number)
+
+	# turn off motors
+	mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
+	return True	
+
+
+
+
+
 
 
 def sendcommand(cmd, message, recdata):

@@ -2,6 +2,14 @@
 {% set active_page = "network" %}
 {% block body %}
   {% if session.logged_in %}
+  
+  
+
+  
+  
+  
+  
+  
   <div class="container-fluid">
 
 		
@@ -9,29 +17,11 @@
 			<div class="page-header">
 		        <h3>Available WiFi networks</h3>   
 			</div>
-			{% for index1 in range(wifilist|length) %}	
-			<div class="row">
-				<div class="col-xs-8">
-					{% if wifilist[index1]==connectedssid %}<span class="glyphicon glyphicon-ok-sign" style="color:green"></span>
-					{% else %}<span class="glyphicon glyphicon-remove-sign" style="color:red"></span>
-					{% endif %}
-				
-					<a href="{{ url_for('wificonfig', ssid=wifilist[index1])}}">
-						{{ wifilist[index1] }}
-					</a>
-				
-				</div>
-				<div class="col-xs-4">
-					<div>
-						{{ savedwifilist[index1] }}
-					</div>
-				</div>				
-
-			</div>	
-			{% endfor %}				
-	
-	
 			
+	
+	
+			<div id="wifilistplace"></div>
+			<div id="wifilistwait">Scanning wifi networks <span id="wait">.</span> </div>
 			
 			<div class="page-header">
 				<h3>Local System Access Point</h3>   
@@ -78,7 +68,24 @@
 			
 		</form>
   
+  
+		
+		<form novalidate="true" action="{{ url_for('networksetting') }}" id="networksetting" method="post" >
 
+			<div class="row">
+				<div class="col-xs-4">
+				
+					<!-- advanced setting button -->
+			
+					<button name="button" value="show" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
+						Advanced Setting
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+			</div>
+		</form>  
+		
 			
 
   
@@ -88,6 +95,90 @@
 
 	
   </div>
+  
+  
+  
+    
+     <!-- wifi list data using ajax -->
+   
+   		<script type=text/javascript>
+
+
+			 $(document).ready(function() {
+				//alert("starting");
+				$.ajax({
+							type: "GET",
+							url: $SCRIPT_ROOT + "/echowifi/?element=" + "all" ,
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" },
+							success: function(s) {
+								var data = eval(s); // this will convert your json string to a javascript object
+								$('#wifilistwait').remove()
+								for (var key in data) {
+										//alert(data[key]);
+										var htmltext1='<div class="row"><div class="col-xs-8">';
+										var htmltext1a='';
+										if (data[key][1]=="1") {
+											var htmltext1a='<span class="glyphicon glyphicon-ok-sign" style="color:green"></span>';
+										} else {
+											var htmltext1a='<span class="glyphicon glyphicon-remove-sign" style="color:red"></span>';
+										}
+										var urlcontent='{{ url_for("wificonfig")}}'+'?ssid='+key;
+										var htmltext2='<a href="'+urlcontent+'">'+key+'</a>';
+														
+										var htmltext3='</div><div class="col-xs-4"><div> '+data[key][0]+' </div></div></div>';
+										
+
+										
+										$('#wifilistplace').append(htmltext1+htmltext1a+htmltext2+htmltext3);
+									
+						
+								}
+							},								
+							complete: function() {
+							  // Schedule the next request when the current one's complete
+
+							//    alert(errorThrown);
+							//}
+
+							}
+
+
+							//error: function(jqXHR, textStatus, errorThrown) {
+							//    alert(errorThrown);
+							//}
+						});
+						
+			  });
+
+			
+			 
+			</script>
+  
+
+
+			<script>
+				window.dotsGoingUp = true;
+				var dots = window.setInterval( function() {
+					var wait = document.getElementById("wait");
+					if ( window.dotsGoingUp ) 
+						wait.innerHTML += ".";
+					else {
+						wait.innerHTML = wait.innerHTML.substring(1, wait.innerHTML.length);
+						if ( wait.innerHTML === "")
+							window.dotsGoingUp = true;
+					}
+					if ( wait.innerHTML.length > 9 )
+						window.dotsGoingUp = false;
+
+
+
+					}, 100);
+			</script>
+  
+  
+  
+  
   {% else %}
 
 		<h1>Please log in</h1>

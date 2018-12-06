@@ -80,8 +80,8 @@ def consistencycheck():
 			tabletoremove.append(tablename1)
 
 	#print " ---------------------------------------------------------------------<----------------<-----------______________"
-	#print "to add ", tabletoadd
-	#print "to remove " , tabletoremove
+	#print " ################## autowatering to add ", tabletoadd
+	#print " ################## autowatering to remove " , tabletoremove
 	#print "WTdata ", WTdata
 	
 	# get the dictionary line with an element as reference (from default file)

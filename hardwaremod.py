@@ -68,7 +68,7 @@ HW_FUNC_TIME="time"  #function group , optional, description of time or interval
 
 USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "powercontrol", "N/A"]
 MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture","Percentage"]
-MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs", "Volt"]
+MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs", "Volt","F"]
 
 
 HWdataKEYWORDS[HW_INFO_IOTYPE]=["input"  , "output" ]
@@ -108,6 +108,51 @@ IOdatarow={}
 # ///////////////// --- END GLOBAL VARIABLES ------
 
 
+# ///////////////// -- STATUS VARIABLES UTILITY --  ///////////////////////////////
+Servo_Status={}
+Servo_Status["default"]={'duty':"3"}
+
+Stepper_Status={}
+Stepper_Status["default"]={'position':"0"}
+
+
+def read_status_data(data,element,variable):
+	print data
+	if element in data:
+		print " element present"
+		elementdata=data[element]
+		if variable in elementdata:
+			return elementdata[variable]
+		else:
+			# variable not in elementdata
+			return ""
+	else:
+		print " element NOT present"
+		# element not present in the data use the default
+		data[element]=data["default"].copy()
+		elementdata=data[element]
+		print data
+		if variable in elementdata:
+			return elementdata[variable]
+		else:
+			# variable not in elementdata
+			return ""
+		
+def write_status_data(data,element,variable,value):
+	if element in data:
+		data[element][variable]=value
+	else:
+		data[element]=data["default"].copy()
+		data[element][variable]=value
+
+
+# ///////////////// --- END STATUS VARIABLES ------
+
+
+
+
+	
+	
 
 #-- start filestorage utility--------////////////////////////////////////////////////////////////////////////////////////	
 
@@ -193,7 +238,7 @@ def sendcommand(cmd,sendstring,recdata):
 
 	
 def getsensordata(sensorname,attemptnumber): #needed
-	# this procedure was initially uit to communicate using the serial interface with a module in charge of HW control (e.g. Arduino)
+	# this procedure was initially built to communicate using the serial interface with a module in charge of HW control (e.g. Arduino)
 	# To lower the costs, I used the PI hardware itself but I still like the way to communicate with the HWcontrol module that is now a SW module not hardware
 	cmd=searchdata(HW_INFO_NAME,sensorname,HW_CTRL_CMD)
 	Thereading=""	
@@ -201,7 +246,8 @@ def getsensordata(sensorname,attemptnumber): #needed
 		pin=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_PIN))
 		arg1=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_ADCCH))
 		arg2=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_PWRPIN))
-		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2
+		arg3=str(searchdata(HW_INFO_NAME,sensorname,HW_INFO_MEASUREUNIT))
+		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3
 		recdata=[]
 		ack=False
 		i=0
@@ -276,49 +322,56 @@ def makepulse(target,duration):
 
 def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
 	#search the data in IOdata
-	
+	isok=False
 	
 	print "Move Servo - ", target #normally is servo1
 	
-	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
-
-
-	try:
-
-		FREQ=searchdata(HW_INFO_NAME,target,HW_CTRL_FREQ)	
-		MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
-		MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
-
-		dutycycle= str(int(MIN)+(int(MAX)-int(MIN))*int(percentage)/float(100))
-
-		if 0<=int(percentage)<=100:
-			print "range OK"
-		else:
-			print " No valid data for Servo ", target
-			return "error"
-
-	except ValueError:
-		print " No valid data for Servo", target
-		return "error"
-
-
-	sendstring="servo:"+PIN+":"+FREQ+":"+dutycycle+":"+str(delay)
-	print " sendstring " , sendstring
-
-	isok=False
-	i=0
-	while (not(isok))and(i<2):
-		i=i+1
-		recdata=[]
-		ack= HWcontrol.sendcommand("servo",sendstring,recdata) #11 is the command to activate relay, 12 is the PIN to activate, 1000 is the ms the pulse is lasting
-		print "returned data " , recdata
-		if ack and recdata[1]!="e":
-			print target, "correctly activated"
-			isok=True
-			return "Servo angle set"
-			
-	return "error"
+	# check if servo is belonging to servolist
+	servolist=searchdatalist(HW_CTRL_CMD,"servo",HW_INFO_NAME)
 	
+	if target in servolist:
+	
+		PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
+
+		try:
+
+			FREQ=searchdata(HW_INFO_NAME,target,HW_CTRL_FREQ)	
+			MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
+			MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+
+			previousduty=getservoduty(target) 
+			dutycycle= str(int(MIN)+(int(MAX)-int(MIN))*int(percentage)/float(100))
+			stepsnumber="40" # this should be a string
+
+			if 0<=int(percentage)<=100:
+				print "range OK"
+			else:
+				print " No valid data for Servo ", target
+				return "error" , isok
+
+		except ValueError:
+			print " No valid data for Servo", target
+			return "error" , isok
+
+
+		sendstring="servo:"+PIN+":"+FREQ+":"+dutycycle+":"+str(delay)+":"+previousduty+":"+stepsnumber
+		print " sendstring " , sendstring
+
+		i=0
+		while (not(isok))and(i<2):
+			i=i+1
+			recdata=[]
+			ack= HWcontrol.sendcommand("servo",sendstring,recdata) #11 is the command to activate relay, 12 is the PIN to activate, 1000 is the ms the pulse is lasting
+			print "returned data " , recdata
+			if ack and recdata[1]!="e":
+				print target, "correctly activated"
+				# save duty as new status
+				write_status_data(Servo_Status,target,'duty',dutycycle)
+				isok=True
+				return percentage , isok
+			
+	return "error" , isok
+
 def getservopercentage(target):
 	percentage="50"
 	MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
@@ -328,7 +381,7 @@ def getservopercentage(target):
 		#print " MIN ", MIN , " MAX ", MAX
 		try:
 			den=(int(MAX)-int(MIN))
-			percentage_num=int((100*(float(HWcontrol.get_servo_duty())-int(MIN)))/den)
+			percentage_num=int((100*(float(getservoduty(target))-int(MIN)))/den)
 			if percentage_num<0:
 				percentage_num=0
 			if percentage_num>100:
@@ -339,6 +392,88 @@ def getservopercentage(target):
 
 	print "servo percntage " , percentage
 	return percentage
+
+def getservoduty(element):
+	return read_status_data(Servo_Status,element,'duty')
+
+def GO_stepper_position(target,position):
+	prev_position_string=getstepperposition(target)
+	prev_position=int(prev_position_string)
+	steps=position-prev_position
+	isdone=False
+	if steps>0:
+		out , isdone=GO_stepper(target,steps,"FORWARD")
+	else:
+		steps=abs(steps)	
+		out , isdone=GO_stepper(target,steps,"BACKWARD")
+		
+	return out , isdone
+
+def GO_stepper(target,steps,direction): 
+	#search the data in IOdata
+	isok=False
+	print "Move Stepper - ", target #only supported the I2C default address, the module supports 2 stepper interfaces: 1,2
+	
+	position_string=getstepperposition(target)
+	
+	print " position " , position_string
+ 
+	try:
+		Interface_Number=searchdata(HW_INFO_NAME,target,HW_CTRL_ADCCH)	
+		FREQ=searchdata(HW_INFO_NAME,target,HW_CTRL_FREQ)	
+		MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
+		MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+
+		steps=int(steps)
+		
+		if steps<=0:
+			print " No valid range for Stepper ", target
+			return "Out of Range" , isok
+		
+		# simulate endpoints
+		position=int(position_string)
+		
+		if direction=="FORWARD":
+			position=position+steps
+		elif direction=="BACKWARD":
+			position=position-steps
+
+		if int(MIN)<=(position)<=int(MAX):
+			print "range OK"
+		else:
+			print " No valid range for Stepper ", target
+			return "Out of Range" , isok
+
+	except ValueError:
+		print " No valid data for Servo", target
+		return "error" , isok
+
+
+	sendstring="stepper:"+Interface_Number+":"+direction+":"+FREQ+":"+str(steps)
+	print " sendstring " , sendstring
+
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= HWcontrol.sendcommand("stepper",sendstring,recdata) 
+		print "returned data " , recdata
+		if ack and recdata[1]!="e":
+			print target, "correctly activated"
+			# save position as new status
+			write_status_data(Stepper_Status,target,'position',str(position))
+			
+			isok=True
+			return str(position) , isok
+			
+	return isok
+
+def getstepperposition(element):
+	return read_status_data(Stepper_Status,element,'position')
+
+def setstepperposition(element, position):
+	global Stepper_Status
+	return write_status_data(Stepper_Status,element,'position',position)
 
 
 def getpinstate(target):
@@ -721,6 +856,7 @@ def takephoto():
 		servo=cameradbmod.searchdata("camname",video,"servo")
 		vdirection=searchdata(HW_FUNC_USEDFOR,"photocontrol",HW_CTRL_LOGIC)
 		print "Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection
+		logger.info("Camera: %s Resolution %s Position %s Vertical direction %s " , video , resolution , position , vdirection)
 		positionlist=position.split(",")
 		if (positionlist)and(servo!="none"):
 			for positionvalue in positionlist:
@@ -780,11 +916,11 @@ def get_image_size(picturepath):
 	with open(fname, 'rb') as fhandle:
 		head = fhandle.read(24)
 		if len(head) != 24:
-			return
+			return 0,0
 		if imghdr.what(fname) == 'png':
 			check = struct.unpack('>i', head[4:8])[0]
 			if check != 0x0d0a1a0a:
-				return
+				return 0,0
 			width, height = struct.unpack('>ii', head[16:24])
 		elif imghdr.what(fname) == 'gif':
 			width, height = struct.unpack('<HH', head[6:10])
@@ -804,9 +940,9 @@ def get_image_size(picturepath):
 				fhandle.seek(1, 1)  # Skip `precision' byte.
 				height, width = struct.unpack('>HH', fhandle.read(4))
 			except Exception: #IGNORE:W0703
-				return
+				return 0,0
 		else:
-			return
+			return 0,0
 		return width, height
 		
 def additionalRowInit():

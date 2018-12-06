@@ -18,6 +18,46 @@ def videodevlist():
 		if "video" in files:
 			videolist.append(files)
 	return videolist # item1 (path) item2 (name) item3 (datetime)
+	
+
+def checkPIcam(device):
+	cmd = ['v4l2-ctl', '-d', '/dev/'+device, '-D']
+	wordtofind="bm2835"
+	isfound=executeandsearch(cmd,wordtofind)
+	return isfound
+	
+def findPIcam():
+	devicelist=videodevlist()
+	# v4l2-ctl -d /dev/video0 -D
+	for device in devicelist:
+		cmd = ['v4l2-ctl', '-d', '/dev/'+device, '-D']
+		wordtofind="bm2835"
+		isfound=executeandsearch(cmd,wordtofind)
+		if isfound:
+			return device
+	return ""
+
+def executeandsearch(cmd,wordtofind):
+	try:
+		scanoutput = subprocess.check_output(cmd).decode('utf-8')
+	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return False
+
+	for line in scanoutput.split('\n'):
+		#print " line ",line
+		strstart=line.find(wordtofind)
+		if strstart>-1:
+			#found
+			return True
+	return False
+	
+	
+	
+	
+	
+	
  
 def saveshot(filepath, video, realshot, resolution, positionvalue, vdirection):
 	shottaken=False
@@ -81,11 +121,14 @@ def saveshot(filepath, video, realshot, resolution, positionvalue, vdirection):
 		# raspberry camera is on video0 only
 		# there is no reliable way to detect the raspicam, then just try to get a picture first with raspistill
 		
-		if (video=="video0"):
+		
+		if checkPIcam(video):
+			# the video device should be PI camera
 			shottaken=takeshotandsave_raspistill(filepath,filenamenopath3, video, resolution,rotdeg)
-			if not shottaken:
+			if not shottaken: # gives it a second chance :)
 				shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution,rotdeg)	
 		else:
+			# Should be USB camera
 			shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution,rotdeg)		
 		
 		#shottaken=takeshotandsave_mjpg_streamer(filepath,filenamenopath, video, resolution)	
@@ -113,57 +156,49 @@ def takeshotandsave_raspistill(filepath,filenamenopath, video, resolution, rotde
 	print "flip ", vflip
 		
 
-	if (video=="video0"):
-		cam_list = "/dev/" + video			
-	
-		i=0
-		while (not shottaken)and(i<3):
-			i=i+1
-			filename=os.path.join(filepath, filenamenopath)
-			print "FILE : ", filename		
+	cam_list = "/dev/" + video			
 
+	i=0
+	while (not shottaken)and(i<3):
+		i=i+1
+		filename=os.path.join(filepath, filenamenopath)
+		print "FILE : ", filename		
+
+		shottaken=False
+		w=resolution.split("x")[0]
+		h=resolution.split("x")[1]			
+
+		print "try raspistill"
+
+
+		filenamebase=filenamenopath.split(".")[0]
+		extension=filename.split(".")[1]
+
+		# create the picture files
+		try:
+			myproc = subprocess.check_output("raspistill "+vflip+" -w "+w+" -h "+h+" -q 95 -a 12 -a \"%Y-%m-%d %X (UTC)\" -o " + filename, shell=True, stderr=subprocess.STDOUT)
+		except:
+			print "problem to execute command"
+			myproc = "error"
+
+		newfilexist=os.path.isfile(filename)
+		print "file was created = ", newfilexist
+				
+
+		if (myproc=="")and(newfilexist):
+			print "raspistill got picture"
+			shottaken=True
+			# make thumbnail
+			ExistandThumb(filepath,filenamenopath,shottaken)			
+
+		else:
+			print "raspistill not able to get picture"
 			shottaken=False
-			w=resolution.split("x")[0]
-			h=resolution.split("x")[1]			
-
-			print "try raspistill"
 
 
-			filenamebase=filenamenopath.split(".")[0]
-			extension=filename.split(".")[1]
-			
-			#fswebcam option
-			if i==1:
-				S="15"
-			else:
-				S="5"
-			
-			# create the picture files
-			try:
-				myproc = subprocess.check_output("raspistill "+vflip+" -w "+w+" -h "+h+" -q 95 -a 12 -a \"%Y-%m-%d %X (UTC)\" -o " + filename, shell=True, stderr=subprocess.STDOUT)
-			except:
-				print "problem to execute command"
-				myproc = "error"
-
-			newfilexist=os.path.isfile(filename)
-			print "file was created = ", newfilexist
-					
-
-			if (myproc=="")and(newfilexist):
-				print "raspistill got picture"
-				shottaken=True
-				# make thumbnail
-				ExistandThumb(filepath,filenamenopath,shottaken)			
-
-			else:
-				print "raspistill not able to get picture"
-				shottaken=False
-
-
-			print "RASPISTILL Picture take = " ,shottaken, "  Attempt ", i
+		print "RASPISTILL Picture take = " ,shottaken, "  Attempt ", i
 	
-	else:
-		print "camera not connected"	
+
 	return shottaken
 
 
@@ -396,18 +431,5 @@ if __name__ == '__main__':
 	"""
 	prova funzioni di camera
 	"""
-	#Determine if the application is a py/pyw or a frozen exe.
-	if hasattr(sys, 'frozen'):
-		# If run from exe
-		dir_path = os.path.dirname(sys.executable)
-	elif '__file__' in locals():
-		# If run from py
-		dir_path =  os.path.dirname(os.path.realpath(__file__))
-	else:
-		# If run from command line
-		dir_path = sys.path[0]
-	
-	print dir_path
-
-	saveshot(dir_path,False)
+	print "PI cam device :" , findPIcam()
 	#saveshot()

@@ -9,13 +9,9 @@ OPERATING SYSTEM LEVEL:
 HYDROSYSTEM SW LEVEL:
 
 2) Check in basicsetting.py if the debugmode is set to False
-3) (no needed) reset all data to default -> go to settings, scroll down, push reset button (not needed)
-4) check that the accounts are deleted -> go to defhwdata.txt in database,
-5) check that the database folder does not have files in it (delete all files, this will also delete database data)
-7) Hardware setting to be reduced to HUmid+Temp minimum configuration -> ensure that the file defhwdara.txt is the same as minimum config in database/default/presethwsetting
-9) remove all pictures -> go to 'images' and push deleteall or go to static/hydropicture/
-13) AP wifi to Network switch time to 180 sec (3 minutes) -> go to networkmod.py and check around row 18, WAITTOCONNECT=180
-14) bash, ensure the latest bash file is install_hydreosys4.sh
+3) delete all the files in database directory
+4) remove all pictures -> go to 'images' and push deleteall or go to static/hydropicture/
+5) bash, ensure the latest bash file is install_hydreosys4.sh
 
 
 START THE PROGRAM IN UBUNTU:

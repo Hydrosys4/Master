@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+Release="0.90"
+
+#---------------------
 from loggerconfig import LOG_SETTINGS
 import logging, logging.config, logging.handlers
 import basicSetting
 
-global DEBUGMODE
 DEBUGMODE=basicSetting.data["DEBUGMODE"]
-global PUBLICMODE
 PUBLICMODE=basicSetting.data["PUBLICMODE"]
 
 if DEBUGMODE:
@@ -44,9 +45,16 @@ import selectedplanmod
 import wateringdbmod
 import autowateringdbmod
 import autowateringmod
+
+import automationdbmod
+import automationmod
+
+import autofertilizerdbmod
+import autofertilizermod
 import fertilizerdbmod
 import advancedmod
 import networkmod
+import networkdbmod
 import emailmod
 import emaildbmod
 import logindbmod
@@ -54,6 +62,8 @@ import clockmod
 import clockdbmod
 import countryinfo
 import cameradbmod
+import sysconfigfilemod
+import debuggingmod
 
 # Raspberry Pi camera module (requires picamera package)
 from camera_pi import Camera
@@ -108,15 +118,16 @@ systemtimeMod.set_min_datetime()
 hardwaremod.initallGPIOoutput()
 
 # GET path ---------------------------------------------
-global MYPATH
 print "path ",hardwaremod.get_path()
 MYPATH=hardwaremod.get_path()
 
 wateringdbmod.consitencycheck()
 autowateringdbmod.consistencycheck()
+automationdbmod.consistencycheck()
 fertilizerdbmod.consitencycheck()
+autofertilizerdbmod.consistencycheck()
 #scheduler setup---------------------
-selectedplanmod.start()
+selectedplanmod.start_scheduler()
 selectedplanmod.setmastercallback()
 
 #setup network connecton --------------------
@@ -180,32 +191,40 @@ def show_entries():
 				#print photopanel
 				photopanellist.append(photopanel)
 
-	panelinfolist=[]
+
+	panelinfolist=[] # all the info relevant to a type of panel
 	
 	# temperature panels -------------------------------------------- (new version)
 	MeasureType="Temperature"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/temperature-transp.png"
 		paneldict["color"]="green"	
 		paneldict["type"]="sensor"		
-		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
+		paneldict["link"]=url_for('show_sensordata' , elementtype="",  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
-		paneldict["subtitle"]=name
+		paneldict["subtitle"]=""
 		paneldict["active"]="yes"
-		sensordata=[]
-		sensordbmod.getsensordbdatadays(name,sensordata,1)
-		#set date interval for average
+		paneldata=[]
 		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
-		paneldict["average"]=str('%.1f' % evaluateddata["average"])
-		paneldict["min"]=str('%.1f' % evaluateddata["min"])
-		paneldict["max"]=str('%.1f' % evaluateddata["max"])
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+		for name in namelist:	
+			sensordata=[]	
+			sensordbmod.getsensordbdatadays(name,sensordata,1)
+			#set date interval for average
+			starttime= endtime - timedelta(days=1)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
+			paneldatarow={}		
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % evaluateddata["average"])
+			paneldatarow["min"]=str('%.1f' % evaluateddata["min"])
+			paneldatarow["max"]=str('%.1f' % evaluateddata["max"])
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)
+			paneldata.append(paneldatarow)
+		paneldict["data"]=paneldata		
 		panelinfolist.append(paneldict)
 
 
@@ -214,26 +233,33 @@ def show_entries():
 	MeasureType="Humidity"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+	
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/humidity-transp.png"
 		paneldict["color"]="primary"	
 		paneldict["type"]="sensor"		
-		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
+		paneldict["link"]=url_for('show_sensordata' , elementtype="",  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
-		paneldict["subtitle"]=name
+		paneldict["subtitle"]=""
 		paneldict["active"]="yes"
-		sensordata=[]
-		sensordbmod.getsensordbdatadays(name,sensordata,1)
-		#set date interval for average
+		paneldata=[]
 		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
-		paneldict["average"]=str('%.1f' % evaluateddata["average"])
-		paneldict["min"]=str('%.1f' % evaluateddata["min"])
-		paneldict["max"]=str('%.1f' % evaluateddata["max"])
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+		for name in namelist:	
+			sensordata=[]
+			sensordbmod.getsensordbdatadays(name,sensordata,1)
+			#set date interval for average
+			starttime= endtime - timedelta(days=1)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
+			paneldatarow={}		
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % evaluateddata["average"])
+			paneldatarow["min"]=str('%.1f' % evaluateddata["min"])
+			paneldatarow["max"]=str('%.1f' % evaluateddata["max"])
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)
+			paneldata.append(paneldatarow)
+		paneldict["data"]=paneldata		
 		panelinfolist.append(paneldict)
 	
 	
@@ -242,26 +268,33 @@ def show_entries():
 	MeasureType="Pressure"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+	
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/pressure-transp.png"	
 		paneldict["color"]="yellow"	
 		paneldict["type"]="sensor"		
-		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
+		paneldict["link"]=url_for('show_sensordata' , elementtype="",  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
-		paneldict["subtitle"]=name
+		paneldict["subtitle"]=""
 		paneldict["active"]="yes"
-		sensordata=[]
-		sensordbmod.getsensordbdatadays(name,sensordata,1)
-		#set date interval for average
+		paneldata=[]
 		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
-		paneldict["average"]=str('%.1f' % evaluateddata["average"])
-		paneldict["min"]=str('%.1f' % evaluateddata["min"])
-		paneldict["max"]=str('%.1f' % evaluateddata["max"])
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+		for name in namelist:		
+			sensordata=[]
+			sensordbmod.getsensordbdatadays(name,sensordata,1)
+			#set date interval for average
+			starttime= endtime - timedelta(days=1)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
+			paneldatarow={}		
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % evaluateddata["average"])
+			paneldatarow["min"]=str('%.1f' % evaluateddata["min"])
+			paneldatarow["max"]=str('%.1f' % evaluateddata["max"])
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)
+			paneldata.append(paneldatarow)
+		paneldict["data"]=paneldata		
 		panelinfolist.append(paneldict)
 	
 	
@@ -271,26 +304,32 @@ def show_entries():
 	MeasureType="Light"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/light-transp.png"		
 		paneldict["color"]="red"	
 		paneldict["type"]="sensor"		
-		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
+		paneldict["link"]=url_for('show_sensordata' , elementtype="",  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
-		paneldict["subtitle"]=name
+		paneldict["subtitle"]=""
 		paneldict["active"]="yes"
-		sensordata=[]
-		sensordbmod.getsensordbdatadays(name,sensordata,1)
-		#set date interval for average
+		paneldata=[]
 		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
-		paneldict["average"]=str('%.1f' % evaluateddata["average"])
-		paneldict["min"]=str('%.1f' % evaluateddata["min"])
-		paneldict["max"]=str('%.1f' % evaluateddata["max"])
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+		for name in namelist:		
+			sensordata=[]
+			sensordbmod.getsensordbdatadays(name,sensordata,1)
+			#set date interval for average
+			starttime= endtime - timedelta(days=1)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
+			paneldatarow={}		
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % evaluateddata["average"])
+			paneldatarow["min"]=str('%.1f' % evaluateddata["min"])
+			paneldatarow["max"]=str('%.1f' % evaluateddata["max"])
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)
+			paneldata.append(paneldatarow)
+		paneldict["data"]=paneldata		
 		panelinfolist.append(paneldict)	
 	
 	
@@ -299,82 +338,103 @@ def show_entries():
 	MeasureType="Moisture"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,MeasureType,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/moisture-transp.png"	
 		paneldict["color"]="primary"	
 		paneldict["type"]="sensor"		
-		paneldict["link"]=url_for('show_sensordata' , elementtype=name,  period="Day", actionbtn="sensor")
+		paneldict["link"]=url_for('show_sensordata' , elementtype="",  period="Day", actionbtn="sensor")
 		paneldict["linktitle"]="Go to Sensordata"
 		paneldict["title"]=MeasureType
-		paneldict["subtitle"]=name
+		paneldict["subtitle"]="booooo"
 		paneldict["active"]="yes"
-		sensordata=[]
-		sensordbmod.getsensordbdatadays(name,sensordata,1)
-		#set date interval for average
+		paneldata=[]
 		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
-		paneldict["average"]=str('%.1f' % evaluateddata["average"])
-		paneldict["min"]=str('%.1f' % evaluateddata["min"])
-		paneldict["max"]=str('%.1f' % evaluateddata["max"])
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+		for name in namelist:		
+			sensordata=[]
+			sensordbmod.getsensordbdatadays(name,sensordata,1)
+			#set date interval for average
+			starttime= endtime - timedelta(days=1)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
+			paneldatarow={}
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % evaluateddata["average"])
+			paneldatarow["min"]=str('%.1f' % evaluateddata["min"])
+			paneldatarow["max"]=str('%.1f' % evaluateddata["max"])
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)
+			paneldata.append(paneldatarow)
+		paneldict["data"]=paneldata			
 		panelinfolist.append(paneldict)	
 	
+
+
 
 
 	# watertap panel --------------------------------------------
 	usedfor="watercontrol"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+	
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/watertap-transp.png"		
 		paneldict["color"]="primary"	
 		paneldict["type"]="actuator"		
-		paneldict["link"]=url_for('wateringplan' , selectedelement=name)
+		paneldict["link"]=url_for('wateringplan' , selectedelement=namelist[0])
 		paneldict["linktitle"]="Go to WateringPlan"
-		paneldict["title"]=name
+		paneldict["title"]="Water"
 		paneldict["active"]="yes"
-		sensordata=[]
+		paneldata=[]
 		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		data=[]
-		actuatordbmod.getActuatordbdata(name,data)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
-		paneldict["average"]=str('%.1f' % (evaluateddata["sum"]/1000))
-		paneldict["min"]=""
-		paneldict["max"]=""
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
-		panelinfolist.append(paneldict)	
-	
+		for name in namelist:			
+			sensordata=[]
+			starttime= endtime - timedelta(days=1)
+			data=[]
+			actuatordbmod.getActuatordbdata(name,data)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
+			paneldatarow={}
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]/1000))
+			paneldatarow["min"]=""
+			paneldatarow["max"]=""
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+			paneldata.append(paneldatarow)	
+		paneldict["data"]=paneldata			
+		panelinfolist.append(paneldict)		
 
 
 	# fertilizer panel --------------------------------------------
 	usedfor="fertilizercontrol"	
 	namelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
 	#print "------------------------- namelist " , namelist
-	for name in namelist:	
+
+	if namelist:
 		paneldict={}	
 		paneldict["icon"]="icons/fertilizer-transp.png"		
 		paneldict["color"]="green"	
 		paneldict["type"]="actuator"		
-		paneldict["link"]=url_for('fertilizerplan' , selectedelement=name)
+		paneldict["link"]=url_for('fertilizerplan' , selectedelement=namelist[0])
 		paneldict["linktitle"]="Go to FertilizerPlan"
-		paneldict["title"]=name
+		paneldict["title"]="Fertilizer"
 		paneldict["active"]="yes"
-		sensordata=[]
-		endtime=datetime.now()
-		starttime= endtime - timedelta(days=1)
-		data=[]
-		actuatordbmod.getActuatordbdata(name,data)
-		evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
-		paneldict["average"]=str('%.1f' % (evaluateddata["sum"]/1000))
-		paneldict["min"]=""
-		paneldict["max"]=""
-		paneldict["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
-		panelinfolist.append(paneldict)
-	
+		paneldata=[]
+		endtime=datetime.now()		
+		for name in namelist:		
+			sensordata=[]
+			starttime= endtime - timedelta(days=1)
+			data=[]
+			actuatordbmod.getActuatordbdata(name,data)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
+			paneldatarow={}
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]/1000))
+			paneldatarow["min"]=""
+			paneldatarow["max"]=""
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+			paneldata.append(paneldatarow)	
+		paneldict["data"]=paneldata			
+		panelinfolist.append(paneldict)	
 	
 
 	networklink=url_for('network')
@@ -395,8 +455,6 @@ def network():
 	print "visualizzazione menu network:"
 
 
-	wifilistencr=["s","a","d"]
-	wifilist=networkmod.wifilist_ssid()
 	iplocal=networkmod.get_local_ip()
 	iplocalwifi=networkmod.IPADDRESS
 	ipport=networkmod.PUBLICPORT
@@ -406,21 +464,12 @@ def network():
 	else:
 		connectedssid=""
 	
-	savedssid=networkmod.savedwifilist_ssid()
-	
-	savedwifilist=[]
-	for ssid in wifilist:
-		if ssid in savedssid:
-			savedwifilist.append("Saved")
-		else:
-			savedwifilist.append("Unknown")
-		
-		
 	
 	localwifisystem=networkmod.localwifisystem
+	print " localwifisystem = ", localwifisystem , " connectedssid ", connectedssid
 
 
-	return render_template('network.html',filenamelist=filenamelist, connectedssid=connectedssid,localwifisystem=localwifisystem, wifilist=wifilist, wifilistencr=wifilistencr,savedwifilist=savedwifilist, iplocal=iplocal, iplocalwifi=iplocalwifi , ipport=ipport)
+	return render_template('network.html',filenamelist=filenamelist, connectedssid=connectedssid,localwifisystem=localwifisystem,  iplocal=iplocal, iplocalwifi=iplocalwifi , ipport=ipport)
 
 
 
@@ -524,6 +573,48 @@ def echo():
 	print ret_data
 	return jsonify(ret_data)
 
+@application.route('/echodatabase/', methods=['GET'])
+def echodatabase():
+
+	element=request.args['element']
+	if element=="all":
+		# take reading for all sensors
+		ret_data = sensordbmod.readallsensorsdatabase()	
+	else:
+		ret_data={}
+
+
+	print ret_data
+	return jsonify(ret_data)
+
+@application.route('/echowifi/', methods=['GET'])
+def echowifi():
+	ret_data={}
+	element=request.args['element']
+	if element=="all":
+		# get wifi list
+		wifilist=[]
+		wifilist=networkmod.wifilist_ssid()
+		connectedssidlist=networkmod.connectedssid()
+		if len(connectedssidlist)>0:
+			connectedssid=connectedssidlist[0]
+		else:
+			connectedssid=""
+		
+		savedssid=networkmod.savedwifilist_ssid()
+		
+		for ssid in wifilist:
+			connected="0"
+			if ssid==connectedssid:
+				connected="1"
+			idstatus="Unknown"
+			if ssid in savedssid:
+				idstatus="Saved"
+				
+			ret_data[ssid]=[idstatus , connected]
+	
+	print "Wifi Data " , ret_data
+	return jsonify(ret_data)
 
 	
 @application.route('/doit/', methods=['GET'])
@@ -551,21 +642,63 @@ def doit():
 		element=request.args['element']		
 
 		print "starting pulse test " , testpulsetime
-		#answer=hardwaremod.makepulse(element,testpulsetime)
-		answer=selectedplanmod.pulsenutrient(element,testpulsetime)
+		answer=selectedplanmod.activateandregister(element,testpulsetime)
 		ret_data = {"answer": answer}
 
-	elif name=="servo":
+
+	elif name=="servo2":
 		print "want to test servo"
 		idx=1
 		if idx < len(argumentlist):
-			position=argumentlist[idx]
-		servo=request.args.getlist('servo')[0]		
-		print "Servo ", servo , " position ", position
+			steps=int(argumentlist[idx])
+		idx=2
+		if idx < len(argumentlist):
+			direction=argumentlist[idx]
+		
+		element=request.args['element']	
+		position=int(hardwaremod.getservopercentage(element))
+		
+		if direction=="FORWARD":
+			position=position+steps
+		elif direction=="BACKWARD":
+			position=position-steps
+
 		# move servo
 		delay=0.5
-		hardwaremod.servoangle(servo,position,delay)
+		position , isok=hardwaremod.servoangle(element,position,delay)		
+		ret_data = {"answer": position}			
+	
+		
+
+
+
+	elif name=="stepper":
+		print "want to test stepper"
+		idx=1
+		if idx < len(argumentlist):
+			steps=argumentlist[idx]
+		idx=2
+		if idx < len(argumentlist):
+			direction=argumentlist[idx]
+		
+		element=request.args['element']	
+		# move stepper
+		position , isok=hardwaremod.GO_stepper(element,steps,direction)
 		ret_data = {"answer": position}
+
+
+	elif name=="setstepper":
+		print "want to set stepper position"
+		idx=1
+		if idx < len(argumentlist):
+			newposition=argumentlist[idx]
+		
+		element=request.args['element']	
+		# set stepper position without moving it
+		hardwaremod.setstepperposition(element, newposition)
+		ret_data = {"answer": newposition}
+
+
 
 
 	elif name=="photo":
@@ -579,12 +712,15 @@ def doit():
 		vdirection=request.args.getlist('vdirection')[0]
 		print "resolution ", resolution , " position ", position
 		positionlist=position.split(",")
-		print "oly use the first position for testing " , positionlist[0]
-		# move servo
-		hardwaremod.servoangle(servo,positionlist[0],1)
+		position=""
+		if positionlist:
+			print "only use the first position for testing " , positionlist[0]
+			# move servo
+			position=positionlist[0]
+			hardwaremod.servoangle(servo,position,1)			
 		# take picture
 		#vdirection=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC)
-		ret_data=hardwaremod.shotit(video,True,resolution,positionlist[0],vdirection)
+		ret_data=hardwaremod.shotit(video,True,resolution,position,vdirection)
 		
 	elif name=="mail":
 		mailaname=request.args['element']
@@ -767,6 +903,20 @@ def downloadit():
 		dstfilenamelist=[]
 		dstfilenamelist.append("download/"+dstfilename)	
 
+	elif name=="downloadsyslog":
+		dstfilename="syslog"+datetime.now().strftime("%Y-%m-%d-time:%H:%M")+".txt"
+		folderpath=os.path.join(MYPATH, "static")
+		folderpath=os.path.join(folderpath, "download")
+		dst=os.path.join(folderpath, dstfilename)
+		print "prepare file for download, destination " , dst
+		# create the file using the tail command
+		isok=debuggingmod.createfiletailsyslog(dst)
+		if not isok:
+			answer="problem cretating file"
+		else:
+			answer="ready"
+		dstfilenamelist=[]
+		dstfilenamelist.append("download/"+dstfilename)	
 
 	ret_data = {"answer": answer, "filename": dstfilenamelist}
 	print "The actuator ", ret_data
@@ -835,12 +985,115 @@ def systemmailsetting():
 	address=emaildbmod.getaddress()
 	return render_template('systemmailsetting.html', address=address, password=password)	
 	
+@application.route('/networksetting/', methods=['GET', 'POST'])
+def networksetting():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	error = None
+	
+	Fake_password="AP-password"
+	
+	if request.method == 'POST':
+		print " here we are at network setting"
+		reqtype = request.form['button']
+		if reqtype=="save":
+			print "saving network advanced setting"
+			gotADDRESS=request.form['IPADDRESS']
+			AP_SSID=request.form['AP_SSID']
+			AP_PASSWORD=request.form['AP_PASSWORD']
+			AP_TIME=request.form['AP_TIME']
+			
+			
+			
+			# Check
+			isok1 , IPADDRESS = networkmod.IPv4fromString(gotADDRESS)
+			isok2=False
+			isok3=False
+			if len(AP_PASSWORD)>7:
+				isok2=True
+			if len(AP_SSID)>3:
+				isok3=True
+			
+			
+			
+			
+			
+			if isok1 and isok2 and isok3:
+				
+				# previous paramenters
+				IPADDRESSold=networkmod.IPADDRESS
+				AP_SSIDold=networkmod.localwifisystem	
+				AP_TIMEold=str(networkmod.WAITTOCONNECT)
+							
+				
+				print "save in network file in database"
+				networkdbmod.changesavesetting('LocalIPaddress',IPADDRESS)
+				networkdbmod.changesavesetting('LocalAPSSID',AP_SSID)
+				networkdbmod.changesavesetting('APtime',AP_TIME)				
+
+				
+				# save and change values in the HOSTAPD config file
+				sysconfigfilemod.hostapdsavechangerow("ssid",AP_SSID)
+				if AP_PASSWORD!=Fake_password:
+					# change password in the HOSTAPD config file
+					sysconfigfilemod.hostapdsavechangerow("wpa_passphrase",AP_PASSWORD)
+					print "password changed"
+				else:
+					AP_PASSWORD=""
+					
+				if IPADDRESSold!=IPADDRESS:
+					# save changes in DHCPCD confign file
+					sysconfigfilemod.modifydhcpcdconfigfile(IPADDRESSold, IPADDRESS)
+		
+					# save changes in DNSMASQ confign file				
+					sysconfigfilemod.modifydnsmasqconfigfile(IPADDRESSold, IPADDRESS)			
+				
+				# proceed with changes
+				networkmod.applyparameterschange(AP_SSID, AP_PASSWORD, IPADDRESS)
+				networkmod.WAITTOCONNECT=AP_TIME
+				
+				# Change hostapd file first row with HERE
+				data=[]
+				networkdbmod.readdata(data)
+				sysconfigfilemod.hostapdsavechangerow_spec(data)				
+
+				flash('Network setting Saved')   
+				return redirect(url_for('network'))
+			else:
+				if not isok1:
+					flash('please input valid IP address','danger') 				
+				if not isok2:
+					flash('please input password longer than 7 characters','danger') 
+				if not isok3:
+					flash('please input SSID longer than 3 characters','danger') 
+		elif reqtype=="cancel":
+			return redirect(url_for('network'))
+	
+
+
+	iplocal=networkmod.get_local_ip()
+	IPADDRESS=networkmod.IPADDRESS
+	PORT=networkmod.PUBLICPORT
+	AP_SSID=networkmod.localwifisystem	
+	AP_TIME=str(networkmod.WAITTOCONNECT)	
+	connectedssidlist=networkmod.connectedssid()
+	if len(connectedssidlist)>0:
+		connectedssid=connectedssidlist[0]
+	else:
+		connectedssid=""	
+	AP_PASSWORD=Fake_password
+
+
+
+	return render_template('networksetting.html', IPADDRESS=IPADDRESS, AP_SSID=AP_SSID, AP_PASSWORD=AP_PASSWORD, AP_TIME=AP_TIME)	
+	
+
 
 @application.route('/About/', methods=['GET', 'POST'])
 def show_about():
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	return render_template('About.html')
+	return render_template('About.html',Release=Release)
 	
 	
 @application.route('/ShowCalibration/', methods=['GET', 'POST'])
@@ -874,6 +1127,8 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 
 	actuatorlist=[]
 	actuatorlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"pulse",hardwaremod.HW_INFO_NAME)
+	
+
 	print " actuator list " , actuatorlist
 	lightsetting=[]
 	lightsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,"light1",hardwaremod.HW_FUNC_TIME))
@@ -891,9 +1146,19 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_MAILTITLE))
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD))
 		mailsettinglist.append(mailsetting)
-	
+		
+	# stepper	
+	stepperlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"stepper",hardwaremod.HW_INFO_NAME)
+	stepperstatuslist=[]
+	for stepper in stepperlist:
+		stepperstatuslist.append(hardwaremod.getstepperposition(stepper))	
+	# servo
 	servolist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"servo",hardwaremod.HW_INFO_NAME)
+	servostatuslist=[]
+	for servo in servolist:	
+		servostatuslist.append(hardwaremod.getservopercentage(servo))	
 	servolist.insert(0, "none")
+	servostatuslist.insert(0, "None")	
 	videolist=hardwaremod.videodevlist()
 	camerasettinglist=cameradbmod.getcameradata(videolist)
 	print camerasettinglist
@@ -917,9 +1182,29 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	print "Current timezone ->", timezone
 	
 	
-	return render_template('ShowCalibration.html',servolist=servolist , videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
+	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
 	
+	
+@application.route('/setstepper/', methods=['GET', 'POST'])
+def setstepper():  # set the stepper zero point
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print "visualizzazione menu set stepper:"
+	if request.method == 'POST':
+		requesttype=request.form['buttonsub']
+		if requesttype=="cancel":
+			return redirect(url_for('show_Calibration'))	
+
+	# stepper	
+	stepperlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"stepper",hardwaremod.HW_INFO_NAME)
+	stepperstatuslist=[]
+	for stepper in stepperlist:
+		stepperstatuslist.append(hardwaremod.getstepperposition(stepper))	
+
+	return render_template('setstepper.html',stepperlist=stepperlist,stepperstatuslist=stepperstatuslist)
+
+		
 	
 @application.route('/Sensordata/', methods=['GET', 'POST'])
 def show_sensordata():
@@ -1007,7 +1292,8 @@ def wateringplan():
 		
 	selectedelement = request.args.get('selectedelement')
 	if selectedelement==None:
-		selectedelement=elementlist[0]	
+		if elementlist:
+			selectedelement=elementlist[0]	
 	
 	print " watering plan - selectedelement ", selectedelement
 	
@@ -1126,7 +1412,9 @@ def autowatering():
 	
 	cyclestatuslist=[]
 	for element in elementlist:
-		cyclestatus=[]
+		if not (element in autowateringmod.AUTO_data):
+			autowateringmod.cyclereset(element)
+		cyclestatus=[]		
 		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestartdate"].strftime("%Y-%m-%d %H:%M:%S"))
 		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestatus"])
 		cyclestatus.append(autowateringmod.AUTO_data[element]["watercounter"])
@@ -1141,13 +1429,107 @@ def autowatering():
 
 
 
+@application.route('/automation/' , methods=['GET', 'POST'])
+def automation():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	title = "Auto Watering Setting"
+	elementlist= automationdbmod.getelementlist()		
+	selectedelement = request.args.get('selectedelement')
+	if selectedelement==None:
+		selectedelement=elementlist[0]	
+	
+
+	sensorlist=automationdbmod.sensorlist()	
+	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,"Moisturecontrol",hardwaremod.HW_INFO_NAME)
+	print "sensorlist ",sensorlist
+	
+	modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
+	formlist=["workmode", "sensor" , "sensor_threshold", "actuator_threshold", "stepnumber", "pausebetweenwtstepsmin", "averagesample", "allowedperiod" , "mailalerttype"  ]
+	alertlist=["infoandwarning", "warningonly"]
+
+
+	
+	if request.method == 'POST':	
+		actiontype=request.form['actionbtn']
+		print actiontype
+		
+		if actiontype == "save":
+			element=request.form['element']
+			print "save il form...:" , element
+			selectedelement=element	
+			
+			
+			#add proper formatting
+			dicttemp={}
+			dicttemp["element"]=element		
+			dicttemp["workmode"]=request.form[element+'_1']
+			dicttemp["sensor"]=request.form[element+'_2']
+			dicttemp["sensor_threshold"]=[request.form[element+'_3_1'],request.form[element+'_3_2']]
+			dicttemp["actuator_threshold"]=[request.form[element+'_4_1'],request.form[element+'_4_2']]
+			dicttemp["stepnumber"]=request.form[element+'_5']
+			dicttemp["pausebetweenwtstepsmin"]=request.form[element+'_6']
+			dicttemp["averagesample"]=request.form[element+'_7']			
+			dicttemp["allowedperiod"]=[request.form[element+'_8_1'],request.form[element+'_8_2']]
+			dicttemp["mailalerttype"]=request.form[element+'_9']
+
+			print "dicttemp ----->",dicttemp 
+			automationdbmod.replacerow(element,dicttemp)		
+			flash('Table as been saved')
+
+			#selectedplanmod.startnewselectionplan()
+			
+			
+		if actiontype == "reset":
+			element=request.form['element']
+			print "Reset the Cycle:" , element
+			selectedelement=element	
+			automationmod.cyclereset(element)
+			
+			
+
+			
+			
+			
+	watersettinglist=[]
+	for element in elementlist:
+		watersetting=[]
+		watersetting.append(element)
+		for item in formlist:
+			watersetting.append(automationdbmod.searchdata("element",element,item))
+
+		watersettinglist.append(watersetting)
+	
+	
+	cyclestatuslist=[]
+	for element in elementlist:
+		if not (element in automationmod.AUTO_data):
+			automationmod.cyclereset(element)
+		cyclestatus=[]		
+		cyclestatus.append(automationmod.AUTO_data[element]["lastactiontime"].strftime("%Y-%m-%d %H:%M:%S"))
+		cyclestatus.append(automationmod.AUTO_data[element]["status"])
+		cyclestatus.append(automationmod.AUTO_data[element]["actionvalue"])
+		cyclestatus.append(automationmod.AUTO_data[element]["alertcounter"])		
+		#{"cyclestartdate":datetime.utcnow(),"lastwateringtime":datetime.utcnow(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
+		cyclestatuslist.append(cyclestatus)
+
+
+		
+	return render_template("automation.html", title=title,selectedelement=selectedelement,modelist=modelist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist)
+
+
+
+
+
+
+
 
 @application.route('/fertilizerplan/' , methods=['GET', 'POST'])
 def fertilizerplan():
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
 	title = "Fertilizer Schedule"
-	elementlist= fertilizerdbmod.getelementlist()	
+	elementlist=fertilizerdbmod.getelementlist()	
 	paramlist= fertilizerdbmod.getparamlist()
 	argumentnumber=2
 	table=fertilizerdbmod.gettable(1)	
@@ -1155,7 +1537,23 @@ def fertilizerplan():
 	
 	selectedelement = request.args.get('selectedelement')
 	if selectedelement==None:
-		selectedelement=elementlist[0]	
+		if elementlist:
+			selectedelement=elementlist[0]	
+	
+	# Autofertilizer Function START
+	
+	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)	
+	linkemelementlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,"watercontrol",hardwaremod.HW_INFO_NAME)
+	print "linkemelementlist ",linkemelementlist
+	
+	modelist=["SceduledTime","BeforeWatering"]
+	formlist=["workmode","waterZone","minactivationsec","time"]
+	#alertlist=["infoandwarning", "warningonly"]
+
+
+	
+
+	# Autofertilizer function END
 	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
@@ -1176,18 +1574,40 @@ def fertilizerplan():
 				dicttemp[param]=thelist				
 				
 			fertilizerdbmod.replacerow(element,dicttemp)		
-			flash('Table as been saved')
 			table=fertilizerdbmod.gettable(1)	
 			table1=fertilizerdbmod.gettable(0)
 			#print "after",table
 			selectedplanmod.startnewselectionplan()
 			
+			
+			#add proper formatting for the Autofertilizer
+			dicttemp={}
+			dicttemp["element"]=element		
+			dicttemp["workmode"]=request.form[element+'_param1']
+			dicttemp["waterZone"]=request.form[element+'_param2']
+			dicttemp["minactivationsec"]=request.form[element+'_param3']
+			dicttemp["time"]=request.form[element+'_param4']
+
+			print "dicttemp ----->",dicttemp 
+			autofertilizerdbmod.replacerow(element,dicttemp) #modify autofertilizer row
+			flash('Table as been saved')
+
 		if actiontype == "advconfig":	
 			print "open advanced setting"
 			return redirect('/Advanced/')
 			
-		
-	return render_template("fertilizerplan.html", title=title,paramlist=paramlist,elementlist=elementlist,table=table,table1=table1, selectedelement=selectedelement)
+	
+			
+	fertilizersettinglist=[]
+	for element in elementlist:
+		fertilizersetting=[]
+		fertilizersetting.append(element)
+		for item in formlist:
+			fertilizersetting.append(autofertilizerdbmod.searchdata("element",element,item))
+
+		fertilizersettinglist.append(fertilizersetting)
+	
+	return render_template("fertilizerplan.html", title=title,paramlist=paramlist,elementlist=elementlist,table=table,table1=table1, selectedelement=selectedelement, formlist=formlist , fertilizersettinglist=fertilizersettinglist , linkemelementlist=linkemelementlist, modelist=modelist)
 
 
 
@@ -1335,6 +1755,7 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 	
 	fields=hardwaremod.HWdataKEYWORDS
 	hwdata=hardwaremod.IOdata
+	debugmode=DEBUGMODE
 
 	tablehead=[]
 	for key, value in fields.iteritems():
@@ -1342,6 +1763,10 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 	#print "tablehead ", tablehead
 	
 	HWfilelist=hardwaremod.HWpresetlist(MYPATH) #list of fiels (path , Name)
+	presetfilenamelist=[]
+	presetfilenamelist.append("-No Selection-")
+	for item in HWfilelist:
+		presetfilenamelist.append(item[1])		
 	#print "HW file list ---> ", HWfilelist
 	
 	if request.method == 'POST':
@@ -1353,26 +1778,32 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 				
 		if requesttype=="applyHWpreset":
 			print "Apply HW setting"
+			selectedpath=""
 			selectedfilename=request.form['HWfilelist']
 			for items in HWfilelist:
 				if items[1]==selectedfilename:
 					selectedpath=items[0]
 
-
-			
-			# copy file to the default HWdata
-			filename=os.path.join(MYPATH, selectedpath)
-			folderpath=os.path.join(MYPATH, hardwaremod.DATABASEPATH)
-			dstdef=os.path.join(folderpath, hardwaremod.DEFHWDATAFILENAME)
-			print "Source selected path ", filename , " Destination ", dstdef
-
 			isdone=False
-			try:
-				shutil.copyfile(filename, dstdef) #this is the default HW file
-				answer="ready"
-				isdone=True
-			except:
-				answer="problem copying file"
+			if selectedpath!="":
+			
+				# copy file to the default HWdata
+				filename=os.path.join(MYPATH, selectedpath)
+				folderpath=os.path.join(MYPATH, hardwaremod.DATABASEPATH)
+				dstdef=os.path.join(folderpath, hardwaremod.DEFHWDATAFILENAME)
+				print "Source selected path ", filename , " Destination ", dstdef
+
+
+				try:
+					shutil.copyfile(filename, dstdef) #this is the default HW file
+					answer="ready"
+					isdone=True
+				except:
+
+					answer="problem copying file"
+			else:
+				print "No file was selected"				
+				answer="No file selected"
 				
 				
 			# apply changes to the system
@@ -1381,6 +1812,7 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 				wateringdbmod.consitencycheck()
 				autowateringdbmod.consistencycheck()
 				fertilizerdbmod.consitencycheck()
+				autofertilizerdbmod.consistencycheck()
 				sensordbmod.consistencycheck()
 				actuatordbmod.consistencycheck()
 				#scheduler setup---------------------
@@ -1392,7 +1824,7 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 			return hardwaresettingedit()
 
 
-	return render_template('hardwaresetting.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , HWfilelist=HWfilelist)
+	return render_template('hardwaresetting.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , presetfilenamelist=presetfilenamelist, debugmode=debugmode)
 
 
 
@@ -1436,6 +1868,7 @@ def hardwaresettingedit():  #on the contrary of the name, this show the setting 
 			wateringdbmod.consitencycheck()
 			autowateringdbmod.consistencycheck()
 			fertilizerdbmod.consitencycheck()
+			autofertilizerdbmod.consistencycheck()
 			sensordbmod.consistencycheck()
 			actuatordbmod.consistencycheck()
 			#scheduler setup---------------------
@@ -1529,7 +1962,9 @@ def hardwaresettingeditfield():  #on the contrary of the name, this show the set
 
 			autowateringdbmod.replacewordandsave(oldnames,newnames)
 			wateringdbmod.replacewordandsave(oldnames,newnames)
+			autofertilizerdbmod.replacewordandsave(oldnames,newnames)
 			fertilizerdbmod.replacewordandsave(oldnames,newnames)
+			automationdbmod.replacewordandsave(oldnames,newnames)			
 			sensordbmod.consistencycheck()
 			actuatordbmod.consistencycheck()
 			#scheduler setup---------------------
@@ -1615,15 +2050,28 @@ def currentpath(filename):
 
 def functiontest():
 	print " testing "
-	mailname="mail1"
-	emailmod.sendallmail("alert","System detected IP address change, below the updated links")
-	#autowateringmod.autowateringcheck()
+	#mailname="mail1"
+	testo=[" riga 1 ", "riga 2 " , " Riga fine"]
+	emailmod.sendallmail("alert","prova mail", testo)
+	#autofertilizermod.AUTO_data["doser1"]["tobeactivated"]=True
+	#autofertilizermod.AUTO_data["doser1"]["duration"]=5000
+	#autowateringmod.activatewater("water2", 50000)
+	
+	#startdate=datetime.strptime('Sep 7 2018  5:00AM', '%b %d %Y %I:%M%p')
+	#enddate=datetime.strptime('Sep 7 2018  8:00AM', '%b %d %Y %I:%M%p')
+	#slopeOK=autowateringmod.checkinclination("hygroBalcFront",startdate,enddate)
+	#print "got array " , slopeOK
+	
 	#selectedplanmod.heartbeat()
+	sensorname="hygroBalcFrontR"
+	selectedplanmod.periodicdatarequest(sensorname)
+	
 	#selectedplanmod.removeallscheduledjobs()
 	#hardwaremod.takephoto()
 
-	return True
+	message = "OK"
 
+	return message
 
 # video part ---------------------------------- hello -------------------------------
 import videocontrolmod

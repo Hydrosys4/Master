@@ -229,6 +229,35 @@ echo "Confirmed Password: "$WiFiAPpsw
 
 }
 
+install_MotorShieldlib ()
+{
+
+# --- installing the python dev-library
+sudo apt-get -y install build-essential python-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+
+# check if file exist in local folder
+aconf="/home/pi/env/autonom/libraries/MotorHat/master.zip"
+if [ -f $aconf ]; then
+	cd /home/pi/env/autonom/libraries/MotorHat
+	unzip master.zip
+	cd Adafruit-Motor-HAT-Python-Library-master
+	sudo python setup.py install
+	cd /home/pi
+else
+	cd /home/pi
+	sudo rm -r MotorHat
+	mkdir MotorHat
+	cd MotorHat
+	wget https://github.com/adafruit/Adafruit-Motor-HAT-Python-Library/archive/master.zip
+	unzip master.zip
+	cd Adafruit-Motor-HAT-Python-Library-master
+	sudo python setup.py install
+	cd /home/pi
+fi
+}
+
+
+
 
 install_DHT22lib ()
 {
@@ -718,6 +747,7 @@ install_hydrosys4 # this should be called before the DHT22 , SPI and BMP due to 
 install_DHT22lib
 install_SPIlib
 install_BMPlib
+install_MotorShieldlib
 edit_defaultnetworkdb
 #edit_networkdb
 iptables_blockports

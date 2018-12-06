@@ -20,7 +20,10 @@ if localwifisystem=="":
 	logger.error("error the name of AP not found, double check the hostapd configuration")
 LOCALPORT=5020
 PUBLICPORT=networkdbmod.getPORT()
-WAITTOCONNECT=180 # should be 180 at least
+WAITTOCONNECT=networkdbmod.getWAITTOCONNECT()
+if WAITTOCONNECT=="":
+	WAITTOCONNECT=180 # should be 180 at least
+	networkdbmod.changesavesetting('APtime',WAITTOCONNECT) # if field not present it will be added
 IPADDRESS =networkdbmod.getIPaddress()
 EXTERNALIPADDR=""
 
@@ -94,8 +97,10 @@ def connect_preconditions():
 		#print " Scheme ", scheme
 		if ssid in ssids:
 			print "At least one of WIFI network detected have saved credentials, ssid=" , ssid
+			logger.info("At least one of WIFI network can be connected, ssid=%s" , ssid)
 			return ssid
-	print "No conditions to connect to wifi network"	
+	print "No conditions to connect to wifi network"
+	logger.info("No conditions to connect to wifi network")
 	return ""
 
 	
@@ -330,21 +335,26 @@ def findinline(line,string):
 	
 def init_network():
 	# initiate network connection as AP, then start a thread to switch to wifi connection if available
-	step1=connect_AP()
+	step1=connect_AP(True)
 	if step1:
 		thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with
 		if not thessid=="":
 			waitandconnect(WAITTOCONNECT) # parameter is the number of seconds, 5 minutes = 300 sec
 			print "wifi access point up, wait " ,WAITTOCONNECT, " sec before try to connect to wifi network"
-			logger.warning('wifi access point up, wait %d sec before try to connect to wifi network',WAITTOCONNECT)
+			logger.warning('wifi access point up, wait %s sec before try to connect to wifi network',WAITTOCONNECT)
 	else:
-		waitandconnect(2) # try to connet immeditely to netwrok as the AP failed
+		waitandconnect("2") # try to connet immeditely to netwrok as the AP failed
 		print "Not able to connect wifi access point , wait 2 sec before try to connect to wifi network"
 		logger.warning('Not able to connect wifi access point , wait 2 sec before try to connect to wifi network')
 	
 def waitandconnect(pulsesecond):
 	print "try to connect to wifi after " , pulsesecond , " seconds"
-	t = threading.Timer(pulsesecond, connect_network).start()
+	try:
+		f=float(pulsesecond)
+		secondint=int(f)
+	except:
+		secondint=180
+	t = threading.Timer(secondint, connect_network , [True, False]).start()
 
 def waitandremovewifi(pulsesecond,ssid):
 	print "try to switch to AP mode after " , pulsesecond , " seconds"
@@ -360,7 +370,7 @@ def waitandconnect_AP(pulsesecond):
 	t = threading.Timer(pulsesecond, connect_AP).start()
 
 
-def connect_AP():
+def connect_AP(firsttime=False):
 	print "try to start system as WiFi access point"
 	logger.info('try to start system as WiFi access point')
 	if localwifisystem=="":
@@ -378,16 +388,24 @@ def connect_AP():
 		ssid=""
 	if ssid==localwifisystem:
 		done=True
-		print "Already working as access point, only reset IP address ",localwifisystem
-		logger.info('Already working as access poin %s',localwifisystem)
-		addIP("wlan0")
-		#restart DNSmask, this should help to acquire the new IP address (needed for teh DHCP mode)
-		start_dnsmasq()
+		print "Already working as access point, only reset IP address ",ssid
+		logger.info('Already working as access poin %s',ssid)
+		currentipaddr=get_local_ip_raw()
+		logger.info('Target IP address= %s. Current access point IP addresses= %s', IPADDRESS,currentipaddr)		
+		if IPADDRESS not in currentipaddr:
+			#set IP address
+			logger.warning('Set Target IP address')
+			addIP("wlan0")
+
+		
+		if (not firsttime)or(IPADDRESS not in currentipaddr):	
+			#restart DNSmask, this should help to acquire the new IP address (needed for teh DHCP mode)
+			start_dnsmasq()
 		return True
 	
 	
 	# disable connected network with wpa_supplicant
-	logger.info('Try to disable current network %s',localwifisystem)
+	logger.info('Try to disable current network %s',ssid)
 	print "try to disable other network"
 	isOk=wpa_cli_mod.disable_all("wlan0")	
 	if not isOk:
@@ -411,7 +429,7 @@ def connect_AP():
 		ssids=connectedssid()
 		replaceIP("wlan0")
 		j=0
-		while (len(ssids)<=0)and(j<8):
+		while (len(ssids)<=0)and(j<4):
 			j=j+1
 			time.sleep(2+(j-1)*2)
 			logger.info('SSID empty, try again to get SSID')							
@@ -436,8 +454,124 @@ def connect_AP():
 	
 	
 
+def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 
-def connect_network():
+	# check what action to make
+	global localwifisystem
+	global IPADDRESS
+
+	print " New Data " , newlocalwifisystem ," ", newpassword," " , newIPaddress
+	restartAP=False
+	restartWiFi=False
+	if newlocalwifisystem!=localwifisystem:
+		restartAP=True
+	if newpassword!="":
+		restartAP=True
+	if newIPaddress!=IPADDRESS:
+		restartAP=True
+		restartWiFi=True		
+
+	isAPconnected=False
+	ssids=connectedssid()
+	if len(ssids)>0:
+		ssid=ssids[0]
+	else:
+		ssid=""
+	if ssid==localwifisystem:
+		isAPconnected=True
+		print "Currently working as access point",localwifisystem
+		logger.info('Currently working as access point %s',localwifisystem)
+
+	# update global variables with new paramaeters:
+	localwifisystem=newlocalwifisystem
+	IPADDRESS=newIPaddress
+
+
+	if isAPconnected:
+		if restartAP: # restart AP
+			print "restart AP"
+			logger.info('restart AP')
+			# action
+				
+			i=0	
+			done=False
+			while (i<2)and(not done):
+				print " loop ", i
+				#ifdown("wlan0")
+				#ifup("wlan0")			
+				start_dnsmasq()	
+				start_hostapd()
+				ssids=[]
+				replaceIP("wlan0")
+				j=0
+				while (len(ssids)<=0)and(j<3):
+					j=j+1
+					time.sleep(2+(j-1)*2)
+					logger.info('SSID empty, try again to get SSID')							
+					ssids=connectedssid()
+				
+					
+				if len(ssids)>0:			
+					ssid=ssids[0]
+				else:
+					ssid=""
+					
+				if ssid==localwifisystem:
+					done=True
+					print "Access point established:", localwifisystem
+					logger.info('Access point established: %s',localwifisystem)
+				else:
+					done=False
+					print "Access point failed to start, attempt: ", i
+					logger.info('Access point failed to start, attempt %d ',i)
+				i=i+1
+		else:
+			print " No need AP restart"
+				
+	else:
+		if restartWiFi:
+			# try to reset WiFi network
+			done=False
+			ssids=[]
+			i=0
+			while (i<3) and (len(ssids)==0):
+				done=connect_savedwifi(thessid) # return true when the command is executed
+				i=i+1					
+				if done:
+					time.sleep(1+i*5)				
+					print "wifi connection attempt ",i
+					print "check connected SSID"
+					logger.info('Connection command executed attempt %d, check connected SSID ',i)
+				else:
+					print "Connection command NOT executed properly , attempt ",i
+					logger.info('Connection command NOT executed properly , attempt %d ',i)							
+				ssids=connectedssid()
+		
+
+			if len(ssids)>0:
+				ssid=ssids[0]
+			else:
+				ssid=""
+				logger.info('NO connected SSID')
+			print "Connected to the SSID ", ssid
+			logger.info('Connected SSID: %s -- ', ssid)
+
+		else:
+			print " No need WiFi restart"
+				
+	# update global variable values
+	
+	localwifisystem=newlocalwifisystem
+	IPADDRESS=newIPaddress
+		
+		
+	return True
+
+
+
+
+
+def connect_network(internetcheck=False, backtoAP=False):
 	# this is the procedure that disable the AP and connect to wifi network 
 	connected=False
 	print " try to connect to wifi network"
@@ -510,35 +644,37 @@ def connect_network():
 			connect_AP()
 			connected=False
 		else:
-			logger.info('Connected to Wifi Network %s, now testing connectivity' , ssid )
-			print 'Connected to Wifi Network '  , ssid  ,' now testing connectivity'
+			logger.info('Connected to Wifi Network %s' , ssid )
+			print 'Connected to Wifi Network '  , ssid 
 			# here it is needed to have a real check of the internet connection as for example google 
-			connected=check_internet_connection(3)
-
-			if connected:
-				print "Google is reacheable !"
-				logger.info('Google is reacheable ! ')
-				#send first mail
-				print "Send first mail !"
-				logger.info('Send first mail ! ')
-				emailmod.sendallmail("alert", "System has been reconnected to wifi network")				
+			if internetcheck:
+				connected=check_internet_connection(3)
+				if connected:
+					print "Google is reacheable !"
+					logger.info('Google is reacheable ! ')
+					#send first mail
+					print "Send first mail !"
+					logger.info('Send first mail ! ')
+					emailmod.sendallmail("alert", "System has been reconnected to wifi network")				
+				else:
+					if backtoAP:
+						print "Connectivity problem with WiFi network " ,ssid[0] , "going back to wifi access point mode"
+						logger.info('Connectivity problem with WiFi network, %s, gong back to wifi access point mode' ,ssid )
+						connect_AP()
 			else:
-				print "Connectivity problem with WiFi network " ,ssid[0] , "going back to wifi access point mode"
-				logger.info('Connectivity problem with WiFi network, %s, gong back to wifi access point mode' ,ssid )
-				connect_AP()
+				connected=True
 
 	else:
 		print "No Saved Wifi Network available"
 		logger.info('No Saved Wifi Network available')	
 		print "try to fallback to AP mode"
 		# go back and connect in Access point Mode
-		logger.info('Going back to Access Point mode')
-		connect_AP()
+		#logger.info('Going back to Access Point mode')
+		#connect_AP()
 		connected=False
-
-
 			
 	return connected
+
 
 def internet_on_old():
 	try:
@@ -562,11 +698,11 @@ def internet_on():
 	return False
 
 def check_internet_connection(ntimes=3):
-	i=0
+	i=1
 	reachgoogle=internet_on()
 	while ((not reachgoogle) and (i<ntimes)):
 		i=i+1
-		time.sleep(3)
+		time.sleep(1)
 		reachgoogle=internet_on()
 	if not reachgoogle:
 		return False 
@@ -635,20 +771,36 @@ def get_local_ip():
 	print ipaddr
 	return ipaddr
 	
-	
+def get_local_ip_raw():
+	cmd = ["hostname -I"]	
+	try:
+		ipaddrlist = subprocess.check_output(cmd, shell=True).decode('utf-8')
+		print "IP addresses " , ipaddrlist			
+	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		print "Local IP Error "
+		logger.error('Error to get local IP')
+		return ""
+	print ipaddrlist
+	return ipaddrlist
+
+
 def IPv4fromString(ip_string):
 	print " Start -- "
 	iprows=ip_string.split('\n')
-	inde=0
 	ip_address=""
 	for ip in iprows:
 		print "String IP address ", ip
 		countdigit=0
 		countdot=0
 		start=-1
+		inde=0		
 		for i in ip:
 			if i.isdigit():
 				countdigit=countdigit+1
+				if countdigit==1:
+					start=inde						
 			else:
 				if countdigit>0: 
 					if i==".":
@@ -665,8 +817,7 @@ def IPv4fromString(ip_string):
 						start=-1	
 						countdigit=0
 						countdot=0
-			if countdigit==1:
-				start=inde
+
 			inde=inde+1
 
 
@@ -687,12 +838,17 @@ def checkstringIPv4(thestring):
 	print thestring
 	numbers=thestring.split(".")
 	if len(numbers)==4:
+		try:
+			if int(numbers[0])<1:
+				return False
+		except:
+			return False		
 		for num in numbers:
 			try:
 				value=int(num)
 			except:
 				return False
-			if value <1 or value >255:
+			if value <0 or value >255:
 				return False
 	else:
 		return False
@@ -705,6 +861,8 @@ def checkstringIPv4(thestring):
 if __name__ == '__main__':
 	# comment
 	#a=[]
-	ip_string="hello 1.2.3.125 ma chi siete"
+	ip_string="sad 23.3.2. ceh ca2cchio 12.2.0.12ma chi siete"
 	ip_address=""
-	IPv4fromString(ip_string,ip_address)
+	isok, string = IPv4fromString(ip_string)
+	print isok
+	print "the extracted string ",  string

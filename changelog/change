@@ -159,13 +159,81 @@ bug fixing, IP address sintax procedure rewritten
 
 Add the camera direction (up/down) by using pos e neg from the hardwaresetting
 
-
-
 Tested the "debug=False" in the basicSetting.py file (which removes the log file "scheduler")
 
 added automatic watering control based on the hygrometers feedback
 
 graph with values of the hygrometer and relevant valves activation in same color
+
+
+2018-08-11 -> release 84
+
+set to " No Selection " the setting in the dropbox menu of hardwaresetting, to avoid confusion there is no indication off loaded config 
+as this can be chnaged by user
+
+Hardsetting, increased the number of settings
+
+Fixed bugs when changing hardware name, now autowatering works
+
+fix bug for long watering period when "none"
+
+fix minor bug on Picture size.
+
+hardware setting choice fareneigh and celsius.
+
+2018-08-20 -> release 85
+
+open the fertilizer just before activation of the watering, with threshold for watering time in seconds.
+
+Takes more actions in case the sensor reading is under threshold after irrigation:
+- In case of below threshold after watering, check if the slope is positive and reset reset cycle, ask to increase the number of watering steps
+- In case of threshold below 50% in any case send a picture of dead.  
+
+2018-08-20 -> release 86
+
+reorganize the home page panels (grouping the same type)
+
+try to test with two DHT22 sensors (temp and humidity)
+
+2018-08-20 -> release 87
+
+Add interface to network config:
+IP address change
+AP network name change
+AP network password change
+AP network start time before connecting to WiFi
+
+2018-08-25 -> release 88
+
+Fixed various bugs
+
+Fixed the scheduler missed job problem, notifications in sys Journal took the 99% of the CPU for the journal notification (coelescence = False)
+
+Removed check of reach google, will not trigger anymore the wifi to reset or to go back to access point
+
+
+2018-10-22 -> release 89
+
+Add a more generic automation interface.
+
+Add support for stepper motor using the I2C inetrface and arduino stepper motor shield.
+
+Fixed issue with PIcamera not being video0, added way to identify PIcamera
+
+Added in bash file the installation of the shield module library (to be fully tested)
+
+Add interfece for reset of the stepper motor 
+
+Add log file with last 100 rows of syslog
+
+
+2018-10-22 -> release 90
+
+Change the apscheduler interval including end_date. This will avoid accidental duplication of the scheduler jobs and missfire problem in case of data change.
+
+add config with stepper motor
+
+
 
 
 

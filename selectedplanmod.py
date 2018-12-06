@@ -17,10 +17,16 @@ import SchedulerMod
 import wateringdbmod
 import autowateringmod
 import fertilizerdbmod
+import autofertilizermod
 import advancedmod
 import emailmod
 import networkmod
 import clockmod
+import automationmod
+import debuggingmod
+import basicSetting
+
+DEBUGMODE=basicSetting.data["DEBUGMODE"]
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
@@ -31,8 +37,7 @@ ITEMWEEKSROW=2
 global HEARTBEATINTERVAL
 HEARTBEATINTERVAL=15
 global schedulercallback
-global PRESETFILENAME
-PRESETFILENAME='presetsettings.txt'
+
 
 # ///////////////// --- END GLOBAL VARIABLES ------
 
@@ -41,14 +46,26 @@ logger = logging.getLogger("hydrosys4."+__name__)
 	
 #--start the scheduler call-back part--------////////////////////////////////////////////////////////////////////////////////////	
 
-def pulsenutrient(target,activationseconds):
+def activateandregister(target,activationseconds): # function to activate the actuators
 	duration=1000*hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
+	# start pulse
 	pulseok=hardwaremod.makepulse(target,duration)
 	# salva su database
-	actuatordbmod.insertdataintable(target,duration)
+	if "Started" in pulseok:
+		actuatordbmod.insertdataintable(target,duration)
 	return pulseok
+
+def pulsenutrient(target,activationseconds): #scheduled doser activity for fertilizer
+	duration=1000*hardwaremod.toint(activationseconds,0)
+	if autofertilizermod.isschedulermode(target):
+		autofertilizermod.activatedoser(target, duration)
+	else:
+		autofertilizermod.AUTO_data[target]["tobeactivated"]=True
+		autofertilizermod.AUTO_data[target]["duration"]=duration
+		autofertilizermod.AUTO_data[target]["triggerdate"]=datetime.now()
+	return True
 
 
 def dictionarydataforactuator(actuatorname,data1,data2, description):
@@ -129,6 +146,9 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 
 	
 	if pumpit:
+		# activation of the doser before the pump
+		doseron=autofertilizermod.checkactivate(target,duration)	
+		# watering
 		hardwaremod.makepulse(target,duration)
 		# salva su database
 		logger.info('Pump ON, optional time for sec = %s', duration)
@@ -144,15 +164,14 @@ def periodicdatarequest(sensorname):
 	sensorvalue=hardwaremod.getsensordata(sensorname,3)
 	if sensorvalue!="":
 		sensordbmod.insertdataintable(sensorname,sensorvalue)
-	
-	
-	
+		# Automation algoritm 
+		automationmod.automationcheck(sensorname)
+		# call to automatic algorithms for watering
+		autowateringmod.autowateringcheck(sensorname)
 	
 	
 	
 def heartbeat():
-	# here to include call to automatic algorithms for watering
-	autowateringmod.autowateringcheck()
 	print "start heartbeat check", " " , datetime.now()
 	logger.info('Start heartbeat routine %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	connectedssid=networkmod.connectedssid()
@@ -167,12 +186,13 @@ def heartbeat():
 			logger.info('Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network')
 			connected=networkmod.connect_network()
 		else:		
-			reachgoogle=networkmod.check_internet_connection(3)
+			reachgoogle=networkmod.check_internet_connection(1)
 
 			if not reachgoogle:
-				logger.warning('Heartbeat check , test ping not able to reach Google -------------- try to connect')
-				print 'Heartbeat check , no IP connection-------------- try to connect'
-				connected=networkmod.connect_network()
+				logger.warning('Heartbeat check , test ping not able to reach Google -------------- No action')
+				print 'Heartbeat check , no IP connection-------------- No action'
+				#connected=networkmod.connect_network() # use this in case you require the system to try connect wifi again in case no internet is reached
+				connected=False
 			else:
 				logger.info('Heartbeat check , wifi connection OK')
 				print 'Heartbeat check , wifi connection OK'
@@ -182,13 +202,19 @@ def heartbeat():
 		# Check if remote IP address is changed compared to previous communication and in such case resend the mail	
 		ipext=networkmod.get_external_ip()
 		logger.info('Heartbeat check , Check IP address change -%s- and previously sent -%s-', ipext , emailmod.IPEXTERNALSENT)
-		if ipext!="":
-			if ipext!=emailmod.IPEXTERNALSENT:
-				print "Heartbeat check, IP address change detected. Send email with updated IP address"
-				logger.info('Heartbeat check, IP address change detected. Send email with updated IP address')
-				emailmod.sendallmail("alert","System detected IP address change, below the updated links")
+		if (ipext!=""):
+			if (emailmod.IPEXTERNALSENT!=""):
+				if ipext!=emailmod.IPEXTERNALSENT:
+					print "Heartbeat check, IP address change detected. Send email with updated IP address"
+					logger.info('Heartbeat check, IP address change detected. Send email with updated IP address')
+					emailmod.sendallmail("alert","System detected IP address change, below the updated links")
+				else:
+					logger.info('Heartbeat check, IP address unchanged')	
 			else:
-				logger.info('Heartbeat check, IP address unchanged')				
+				# first mail has not been sent succesfully of IPEXTERNALSENT was not available by the time
+				print "System has been reconnected"
+				logger.info("System has been reconnected, IPEXTERNALSENT was empty")
+				emailmod.sendallmail("alert","System has been reconnected")							
 
 		# Check current time is less than 60 second different from NTP information
 		# try to get the clock from network
@@ -235,6 +261,21 @@ def heartbeat():
 		logger.warning('Heartbeat check , Master Scheduler Interrupted')
 		emailmod.sendallmail("alert","Master Scheduler has been interrupted, try to restart scheduler")
 		setmastercallback()
+	
+	# check if there have been errors in Syslog
+	if DEBUGMODE:
+		Errortextlist=debuggingmod.searchsyslogkeyword("error")
+		if Errortextlist:
+			print "found error in syslog"
+			logger.warning("ERROR: found error in syslog -------------------------")	
+			#send notification mail 
+			if debuggingmod.SENTERRORTEXT!=Errortextlist[0]:
+				emailmod.sendallmail("alert","Error found in Syslog",Errortextlist)
+				debuggingmod.SENTERRORTEXT=Errortextlist[0]
+		else:
+			print "No error found in syslog"
+			logger.info('Heartbeat check , SYSLOG ok')			
+				
 		
 	return True
 	
@@ -286,6 +327,7 @@ def setmastercallback():
 		logger.warning('Heartbeat check , Master Scheduler not Started properly')
 	mastercallback()
 
+
 #add_job(func, trigger=None, args=None, kwargs=None, id=None, name=None, misfire_grace_time=undefined, coalesce=undefined, max_instances=undefined, next_run_time=undefined, jobstore='default', executor='default', replace_existing=False, **trigger_args)
 
 
@@ -301,12 +343,12 @@ def mastercallback():
 
 	
 	# remove all jobs except masterscheduler
-	for job in SchedulerMod.sched.get_jobs():
-		if job.name != "master":
-			try:
-				job.remove()	
-			except:
-				logger.error('Not able to remove Job %s', job.name)
+	#for job in SchedulerMod.sched.get_jobs():
+	#	if job.name != "master":
+	#		try:
+	#			job.remove()	
+	#		except:
+	#			logger.error('Not able to remove Job %s', job.name)
 
 	# set the individual callback of the day
 	
@@ -330,11 +372,14 @@ def mastercallback():
 	hwnamelist=sensordbmod.gettablelist()
 	callback="sensor"
 	timeshift=300
-	shiftstep=2 #seconds	
+	shiftstep=5 #seconds	
+	# IMPORTANT
+	# the shiftstep is necessary to avoid thread collision which brings to sqlite3 db failure "database is locked" 
+	# this number is giving a limit to the sensor reading that should be higher than 1min
 	for hwname in hwnamelist:
 		calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_FUNC_SCHEDTYPE)
 		timelist=hardwaremod.gettimedata(hwname)
-		timelist[2]=timelist[2]+timeshift # avoid all the sensor thread to be called in the same time
+		timelist[2]=timeshift # avoid all the sensor thread to be called in the same time
 		argument=[]
 		argument.append(hwname)
 		setschedulercallback(calltype,timelist,argument,callback,hwname)
@@ -455,17 +500,14 @@ def mastercallback():
 			halfinterval=(dayinterval+1)/2
 			print "day=" , day , " dayinterval=", dayinterval, " half=", halfinterval		
 			if ((day+int(halfinterval)) % int(dayinterval)) == 0:				
-				timelist=hardwaremod.gettimedata("06:00:00")
+				#timelist=hardwaremod.gettimedata("06:00:00")
+				timelist=autofertilizermod.timelist(dosername)
 				argument=[]
 				argument.append(dosername)
 				argument.append(fertilizerpulsesecond)
 				if (fertilizerpulsesecond)>0: #check if the duration in second is >0
 					setschedulercallback(calltype,timelist,argument,callback,dosername)
 
-
-
-	
-	
 	
 def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 	# jobname is used as unique identifier of the job
@@ -476,13 +518,17 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 			theinterval=timelist[1]
 			randomsecond=timelist[2]
 			thedateloc=datetime.now()+timedelta(seconds=randomsecond)
+			enddateloc=thedateloc.replace(hour=23, minute=59, second=59)
 			#convert to UTC time
 			thedate=clockmod.convertLOCtoUTC_datetime(thedateloc)
+			#define end date for trigger
+			enddate=clockmod.convertLOCtoUTC_datetime(enddateloc)
+
 			try:
 				if not FASTSCHEDULER:
-					SchedulerMod.sched.add_job(callback, 'interval', minutes=theinterval, start_date=thedate, args=argument, misfire_grace_time=120, name=jobname)
+					SchedulerMod.sched.add_job(callback, 'interval', minutes=theinterval, start_date=thedate, end_date=enddate ,args=argument, misfire_grace_time=120, name=jobname)
 				else:
-					SchedulerMod.sched.add_job(callback, 'interval', seconds=theinterval, start_date=thedate, args=argument, misfire_grace_time=120, name=jobname)
+					SchedulerMod.sched.add_job(callback, 'interval', seconds=theinterval, start_date=thedate, end_date=enddate ,args=argument, misfire_grace_time=120, name=jobname)
 			except ValueError:
 				iserror=True
 				print 'Date value for job scheduler not valid'
@@ -511,10 +557,10 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 
 
 
-def start():
+def start_scheduler():
 	SchedulerMod.start_scheduler()
 	
-def stop():
+def stop_scheduler():
 	SchedulerMod.stop_scheduler()
 
 

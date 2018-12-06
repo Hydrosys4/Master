@@ -257,7 +257,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 			   location: 'n', 
 				placement: 'outside',
 				   rendererOptions: {
-					   numberRows: 2,
+					   numberRows: 4,
 						// set to true to replot when toggling series on/off
 						// set to an options object to pass in replot options.
 						seriesToggle: 'normal',
@@ -295,7 +295,8 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
 							tickOptions:{
 								fontSize:'8pt',
-								angle:0
+								angle:0,
+								//formatString:'%.1f'
 							}
 					},
 					
@@ -356,7 +357,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 			   location: 'n', 
 				placement: 'outside',
 				   rendererOptions: {
-					   numberRows: 2,
+					   numberRows: 3,
 						// set to true to replot when toggling series on/off
 						// set to an options object to pass in replot options.
 						seriesToggle: 'normal',
@@ -634,11 +635,52 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 // COMBO graph for HYGROMETER END
 
 
+</script>
 
 
 
+<script type="text/javascript">
+// download data to file txt	
+	
+$(function() {
 
-		
+			$(".downloadbutton").click(function() {
+				var selvalue=$(this).attr('name');
+				$('#postsensor').attr("value", selvalue);
+
+
+
+				var sensorchartdata={{sensordata|safe}};
+				var actuatorchartdata={{actuatordata|safe}};
+				var datatype="{{actiontype}}";
+
+				var sensorlist={{usedsensorlist|safe}};			
+				var actuatorlist={{usedactuatorlist|safe}};	
+
+
+			  // Create text document — only saves 1st link in text doc
+
+			  var datatext="";
+
+					for (var i = 0; i < sensorchartdata.length; i++) {
+					  datatext=datatext+sensorlist[i]+'\n';							
+							
+							for (var j = 0; j < sensorchartdata[i].length; j++) {
+								// Store links in variable
+								datatext=datatext+sensorchartdata[i][j]+'\n'
+					  }
+					  datatext=datatext+'\n'					  
+					}
+			  var textDoc = document.createElement('a');			  
+			  textDoc.href = 'data:attachment/text,' + datatext;
+			  textDoc.target = '_blank';
+			  textDoc.download = 'SensorData.txt';
+			  textDoc.click();
+			});  
+
+  });
+
+
 
 
 
@@ -651,6 +693,9 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 					  <h4>Data Trend ----</h4>
        
        </div>
+       
+       
+       
 		
 		<form novalidate="true" action="{{ url_for('show_sensordata') }}" id="menuForm" method="post" >
 	
@@ -675,6 +720,8 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 							
 						
 			</div>
+
+
 
 
 			<div class="well bs-component">
@@ -768,7 +815,9 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 							{% endif %}		
 							
 			</div>
-
+			
+			<!-- Download data button here-->
+			<button class="downloadbutton btn-sm btn btn-default" type="button" name="downloaddata">DownloadSensorData</button>
 
 
 

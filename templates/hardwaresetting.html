@@ -33,16 +33,16 @@
 	<div class="form-group">
 		
 		<select class="form-control input-sm dontwantgap" name="HWfilelist">
-		{% for name in HWfilelist %}	
+		{% for name in presetfilenamelist %}	
 			{% set option_i = loop %}
-			<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name[1]}}">{{name[1]}}</option>
+			<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 		{% endfor %}											
 		</select>
 		
 	</div>	
 														
 	<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="applyHWpreset">Apply Selected Hardware Setting</button>
-	<div>Please reboot the system after apply the new setting										
+	<div>All the customization and naming will be lost										
 	</div>													
 												
 </form>
@@ -239,6 +239,15 @@ function actionFormatter(value, row, index) {
 				</div>
 			</div>		
 
+			<!--  file 3 -->
+			<div class="row">
+				<div class="col-xs-6">
+					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadsyslog">SysLog file</button>
+				</div>
+				<div class="col-xs-6">
+					<a id="downloadlinkdownloadsyslog0" href="" ></a>
+				</div>
+			</div>	
 
 			<div class="row">
 				<div class="col-xs-4">
@@ -369,7 +378,19 @@ function actionFormatter(value, row, index) {
 		</form>
 
 
+			<div class="page-header">
+					  <h3>Running Status</h3>   
+			</div>
+			<!--  debugstatus -->
 
+			<div class="row">
+				<div class="col-xs-4">
+					<label>DebugStatus:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="testingstatus" for="input_3">{{debugmode}}</label>
+				</div>
+			</div>	
   
 
  

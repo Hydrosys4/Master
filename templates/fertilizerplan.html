@@ -2,6 +2,43 @@
 {% set active_page = "fertilizerplan" %}
 {% block body %}
    {% if session.logged_in %}
+
+{% if (elementlist|length)>0 %}
+
+		<script type=text/javascript>
+
+			
+			
+			$(document).ready(function()
+			{
+				$(".seltimeclass").each(function() {
+				var seltime=$(this).attr('valueinit');
+				//alert(seltime);
+				for (var i=0; i<48; i++)
+				  {
+					//Creates the time item and populate il select
+					var minh= (((i)%2)*3).toString() ;
+					var minl= "0";
+					var hourl=(((i/2) - (i/2) % 1) % 10).toString() ;
+					var hourh=((i/20) - (i/20) % 1).toString() ;
+					var time=hourh+hourl+":"+minh+minl
+					if (time==seltime)
+					{
+					var itemval= '<option selected="selected" value="'+time+'">' + time +'</option>';
+					} else
+					{
+					var itemval= '<option value="'+time+'">' + time +'</option>';
+					}
+					//Appends it within your select element
+					$(this).append(itemval);
+				  }
+				});	
+			});
+			
+	
+			
+			</script>
+
 <div class="container-fluid dontwantgap">
  
 
@@ -17,8 +54,15 @@
           	
         <div class="tab-content">
 			
-		{% for elem in elementlist %}
+		
+		{% for settingparam in fertilizersettinglist %}
 		{% set row_i = loop %}	
+		{% set elem = settingparam[0] %}
+		
+		
+		
+		
+		
          <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
 			 
 			 <!---- start panel  -->
@@ -117,14 +161,113 @@
 						  </tr>
 
 
-			
-
-				
-				<!-- -- end panel content --->
 				{% endfor %}				
 			  </tbody>
 				</table>			  
-			  </div>		  
+			  </div>		
+			  
+
+				<!-- autofertilizer part  OOOOOOOOOOOOOOOOOOOOOO-->
+				
+							<div class="well bs-component">
+				
+							<div class="form-group">			
+							<div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<legend>Parameters Setting</legend>  
+								</div>	
+							</div>	
+							</div>	
+							
+							<div class="form-group">
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Working Mode</label>
+								</div>		
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<select class="form-control input-sm dontwantgap" name="{{elem}}_param1">
+									{% for name in modelist %}	
+										<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+									{% endfor %}											
+									</select>
+								<div class="small">Activate doser according to the Schedulet time</div>
+								<div class="small">Activate doser according to scheduler, with time just before the associated watering</div>
+
+
+								</div>
+							</div>
+							</div>	
+
+						
+							<div class="form-group">
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Reference Watering</label>
+								</div>		
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<select class="form-control input-sm dontwantgap" name="{{elem}}_param2">
+									{% for name in linkemelementlist %}	
+										<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+									{% endfor %}											
+									</select>
+								</div>
+							</div>
+							</div>	
+
+							<div class="form-group">		
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Min watering (seconds):
+								</label>
+
+								
+								</div>
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								
+								{% set arr=["10","20","30","40","50","60","70","80","90","100"] %}	 			
+								  <select class="form-control input-sm dontwantgap" name="{{elem}}_param3">
+									{% for item in arr %}
+									<option {% if item==settingparam[3] %}selected="selected"{% endif %} >{{item}}</option>
+									{% endfor %}
+								  </select>
+								
+								
+								
+								
+								
+								<div class="small">Activation will be done only if the watering period is longer then this value </div>
+
+								</div>
+							</div>				
+							</div>
+			
+
+							<div class="form-group">		
+							<div class="row">
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Scheduled Activation Time:
+								</label>
+
+								
+								</div>
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<select class="form-control input-sm dontwantgap seltimeclass" valueinit="{{settingparam[4]}}" name="{{elem}}_param4">
+								</select>
+								<div class="small">Set the time of the activation of the doser, in case the sheduler time is selected </div>
+
+								</div>
+							</div>				
+							</div>
+
+
+							</div>	
+			  
+			  
+			  
+				<!-- -- end panel content --->			  
+			  
+		  
+			    
 			  <div class="panel-footer">
 				  <div class="row">
 					    <div class=" col-xs-9">
@@ -220,6 +363,17 @@
 
 </div>
 
+		{% else %}
+
+									<div class="row">
+										<div class="col-xs-12">
+											<div style="height:100px"><h4> No actuator available</h4></div>
+										
+										</div>
+									</div>
+
+
+		{% endif %}
 
 
 

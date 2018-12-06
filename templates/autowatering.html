@@ -162,7 +162,7 @@
 						</td>
 
 						 <td>	
-						  {% set arr=["1.0","1.5","1.75","2.0","2.25","2.5","2.75","3.0","3.25","3.5","3.75"] %}	 			
+						  {% set arr=["1.0","1.50","1.75","2.0","2.10","2.20","2.30","2.40","2.50","2.60","2.70","2.80","2.90","3.0","3.10","3.20","3.30","3.40","3.50","3.60","3.70"] %}	 			
 						  <select class="form-control input-sm" name="{{elem}}_3">
 						    {% for item in arr %}
 							<option {% if item==settingparam[3][0] %}selected="selected"{% endif %} >{{item}}</option>
@@ -171,7 +171,7 @@
 						 </td>	
 								
 						 <td>				
-						  {% set arr=["4.75","4.5","4.25","4.0","3.75","3.5","3.25","3.0","2.75","2.5","2.25"] %}	 			
+						  {% set arr=["4.70","4.60","4.50","4.40","4.30","4.20","4.10","4.0","3.90","3.80","3.70","3.60","3.50","3.40","3.30","3.20","3.10","3.0","2.75","2.50","2.25"] %}	 			
 						  <select class="form-control input-sm" name="{{elem}}_4">
 						    {% for item in arr %}
 							<option {% if item==settingparam[3][1] %}selected="selected"{% endif %} >{{item}}</option>
@@ -296,7 +296,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[8]}}" class="form-control input-sm" name="{{elem}}_10" type="text">
-				<div class="small">max number of days between watering, for alert </div>
+				<div class="small">max number of days between watering, send mail warning, if in full Auto mode activate the watering for one step period</div>
 
 				</div>
 			</div>				

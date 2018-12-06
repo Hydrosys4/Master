@@ -77,7 +77,17 @@ def create_htmlintro(intromessage):
 	"""
 	return html
 
-
+def create_htmlbody(bodytextlist):
+	# the input should be a list
+	html = """\
+	<p></p>   
+		"""
+	for textrow in bodytextlist:
+		html = html + """\
+			<p> """ + textrow + """</p>
+		   
+		"""
+	return html
 
 
 def create_htmladdresses(address1, address2, port):
@@ -86,7 +96,7 @@ def create_htmladdresses(address1, address2, port):
 	address2=address2+":"+port
 	html = """\
 
-		<p>Hi, below the links for System connection:</p>
+		<h3>Below the links for System connection:</h3>
 		<p></p>
 		   <a href="http://""" + address1 + """">link for remote connection </a>
 		<p></p>
@@ -191,7 +201,7 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 
 
 
-def send_email_main(address,title,cmd,mailtype,intromessage):
+def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 	
 	# mailtype option
 	# "report"
@@ -228,7 +238,7 @@ def send_email_main(address,title,cmd,mailtype,intromessage):
 	# subject of the mail
 	subject=starttitle +" " + title + "  " + currentdate
 	htmlbody=create_htmlopen()
-	htmlbody=htmlbody+create_htmlintro(intromessage)
+	htmlbody=htmlbody+create_htmlintro(intromessage)+create_htmlbody(bodytextlist)
 	
 	if showlink:
 		if ipext=="":
@@ -253,13 +263,13 @@ def send_email_main(address,title,cmd,mailtype,intromessage):
 	
 
 
-def sendallmail(mailtype,intromessage):
+def sendallmail(mailtype,intromessage,bodytextlist=[]):
 	usedfor="mailcontrol"
 	hwnamelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
 	for hwname in hwnamelist:
-		sendmail(hwname,mailtype,intromessage)
+		sendmail(hwname,mailtype,intromessage,bodytextlist)
 		
-def sendmail(hwname,mailtype,intromessage):
+def sendmail(hwname,mailtype,intromessage,bodytextlist=[]):
 	address=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_MAILADDR)
 	
 	if not address=="":
@@ -268,7 +278,7 @@ def sendmail(hwname,mailtype,intromessage):
 		print "mail title " , title
 		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_CMD)
 		print "mail type " , cmd
-		issent=send_email_main(address,title,cmd,mailtype,intromessage)
+		issent=send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist)
 		return issent
 	else:
 		print "No address specified"

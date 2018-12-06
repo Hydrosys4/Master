@@ -54,7 +54,7 @@
 
 				$.ajax({
 							type: "GET",
-							url: $SCRIPT_ROOT + "/echo/?element=" + "all" ,
+							url: $SCRIPT_ROOT + "/echodatabase/?element=" + "all" ,
 							contentType: "application/json; charset=utf-8",
 							data: { echoValue: "requestfordata" },
 							success: function(s) {
@@ -98,7 +98,7 @@
         <thead>
             <tr>
                 <th>Sensor</th>
-                <th>Value</th>
+                <th>Last Value (Database)</th>
                 <th>Unit</th>
                 <th>Action</th>
             </tr>
@@ -150,7 +150,7 @@
 		
 
   
-		<!-- Actuators test -->
+		<!-- Pulse Actuators test -->
   
   		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
 			<div class="page-header">
@@ -293,7 +293,273 @@
 			
 		</form>
   
+		<!-- END -->
+			
+			
+			
+			
+			
+		<!-- Stepper Actuators test -->
+  
+  		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
+			<div class="page-header">
+					  <h3>Stepper Actuators Test</h3>   
+			</div>
+			
+			<div class="well bs-component">
+			
+						<!--  Actuator table   -->
+			<table class="table" margin: 20px;>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Steps</th>
+					<th><===</th>
+					<th>===></th>
+					<th>Position</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
 
+			{% for item in stepperlist %}	
+			<tr>
+
+				<td>
+					<label>{{ item }}</label>
+				</td>
+
+
+				  <td>
+		  					  				
+				  <select class="form-control input-sm" id="selsteps_{{ item }}">
+					<option>1</option>
+					<option>2</option>
+					<option>3</option>
+					<option>20</option>
+					<option>40</option>
+					<option>60</option>
+					<option>100</option>
+					<option>200</option>
+					<option>300</option>
+				  </select>
+				  </td>	
+				  		
+							
+				<td>
+					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="FORWARD"><<<</button>
+				</td>
+
+				<td>
+					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="BACKWARD">>>></button>
+
+
+				</td>
+
+				<td>
+						<label class="form-label-left" id="{{ item }}_stepperstatus" >{{stepperstatuslist[loop.index0]}}</label>
+				</td>
+
+			</tr>
+			{% endfor %}				
+
+        </tbody>
+    </table>
+	
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-8">
+					<label class="form-label-left" id="stepperstatus" for="input_3"></label>
+				</div>
+			</div>	
+
+			</div>
+			 <script type=text/javascript>
+			  $(function() {
+				$(".stepperbutton").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				
+					var prid=$(this).attr('name');
+					var elem=$(this).attr('element');
+					var direction=$(this).attr('direction');
+					var value = $("#selsteps_" + elem).val();					
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&name=" + direction + "&element=" + elem,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#stepperstatus').text(data.answer);
+									$('#' + elem +'_stepperstatus').text(data.answer);
+		
+									
+									
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown); $("#thebutton").attr('name')
+								//}
+							});    
+				  
+					
+							$('#stepperstatus').text("waiting ...");
+
+					
+				});
+			  });
+			   
+			  
+			  
+			</script>
+			
+
+
+		
+
+			
+		</form>			
+			
+		<!-- Button for stepper reset page -->
+		
+		<form novalidate="true" action="{{ url_for('setstepper') }}" id="setstepper" method="post" >
+
+			<div class="row">
+				<div class="col-xs-4">
+				
+					<!-- advanced setting stepper button -->
+			
+					<button id="setsteppebtn" name="buttonsub" value="setstepper" type="submit" class="btn btn-success btn-sm btn-warp">
+						Stepper Position Reset
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+			</div>
+		</form>  			
+		
+		
+		<!-- Servo Actuators test -->
+  
+  		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
+			<div class="page-header">
+					  <h3>Servo Actuators Test</h3>   
+			</div>
+			
+			<div class="well bs-component">
+			
+						<!--  Actuator table   -->
+			<table class="table" margin: 20px;>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Step</th>
+					<th><===</th>
+					<th>===></th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
+
+			{% for item in servolist %}	
+			{% if (item != "none") %}
+			<tr>
+
+				<td>
+					<label>{{ item }}</label>
+				</td>
+
+
+				  <td>
+		  					  				
+				  <select class="form-control input-sm" id="selsteps_{{ item }}">
+					<option>5</option>
+					<option>10</option>
+					<option>15</option>
+					<option>20</option>
+
+				  </select>
+				  </td>	
+				  		
+							
+				<td>
+					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" direction="FORWARD"><<<</button>
+				</td>
+
+				<td>
+					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" direction="BACKWARD">>>></button>
+
+
+				</td>
+
+				<td>
+						<label class="form-label-left" id="{{ item }}_servostatus" >{{servostatuslist[loop.index0]}}</label>
+				</td>
+
+			</tr>
+			{% endif %}
+			{% endfor %}				
+
+        </tbody>
+    </table>
+	
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-8">
+					<label class="form-label-left" id="servostatus" for="input_3"></label>
+				</div>
+			</div>	
+
+			</div>
+			 <script type=text/javascript>
+			  $(function() {
+				$(".servobutton").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				
+					var prid=$(this).attr('name');
+					var elem=$(this).attr('element');
+					var direction=$(this).attr('direction');
+					var value = $("#selsteps_" + elem).val();					
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&name=" + direction + "&element=" + elem,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#servostatus').text(data.answer);
+									$('#' + elem +'_servostatus').text(data.answer);
+		
+									
+									
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown); $("#thebutton").attr('name')
+								//}
+							});    
+				  
+					
+							$('#servostatus').text("waiting ...");
+
+					
+				});
+			  });
+			   
+			  
+			  
+			</script>
+			
+			
+		</form>			
+			
 			
 		<!-- light setting
 		

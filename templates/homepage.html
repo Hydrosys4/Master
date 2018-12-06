@@ -44,27 +44,49 @@
 				{% endfor %}
 				
 				{% for panelinfo in panelinfolist %}
-				<!-- sensor panel -->
+				<!-- sensor and actuators panel -->
 				{% if panelinfo.active=="yes" %}
-				<div class="col-lg-3 col-md-3 col-sm-4 col-xs-6">
+				<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
                     <div class="panel panel-{{panelinfo.color}}">
-                        <div class="panel-heading smallgap">
-								<div class="col-xs-12 text-center">{{panelinfo.title}} ({{panelinfo.unit}})
-								</div>
-								<div class="col-xs-12 text-center">{{panelinfo.subtitle}}
+                        <div class="panel-heading ">
+								<!-- Picture-->
+								<div class="row dontwantgap">
+									<div class="col-lg-6 col-xs-6 dontwantgapleft">
+										<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 dontwantgapleft">
+										<img src="{{ url_for('static', filename=panelinfo.icon)}}" class="img-responsive left-block">
+										</div>
+									</div>
+									<!-- Title-->
+
+									<div class="col-lg-6 col-xs-6 text-left dontwantgapright dontwantgapleft top-buffer huge">{{panelinfo.title}}
+									</div>
+									
+								</div>									
+									<!-- data list here -->
+								<hr class="dontwantgaptop"></hr>
+								{% for paneldata in panelinfo.data %}
+								<div class="row dontwantgap">
+									<div class="col-xs-6 text-left dontwantgap big">{{paneldata.name}}:
+									</div>
+									<div class="col-lg-6 col-xs-6 text-left dontwantgap">
+										<span class="big">{{paneldata.average}}</span><span class="small">({{paneldata.unit}})</span>
+					
+									</div>
 								</div>
 								<div class="row dontwantgap">
-									<div class="col-lg-4 col-xs-4 dontwantgap ">
-										<!--<i class="fa fa-comments fa-5x"></i>-->
-										<img src="{{ url_for('static', filename=panelinfo.icon)}}" class="img-responsive center-block">
+									
+									{% if paneldata.min!="" %}
+									<div class="col-lg-6 col-xs-6 text-left dontwantgap"></div>
+									<div class="col-lg-6 col-xs-6 text-left dontwantgap">
+									<div class="small">MIN={{paneldata.min}} MAX={{paneldata.max}}</div>
 									</div>
-									<div class="col-lg-8 col-xs-8 text-right dontwantgap">
-										<span class="huge">{{panelinfo.average}}</span>
-										{% if panelinfo.min!="" %}
-										<div class="small">MIN={{panelinfo.min}} MAX={{panelinfo.max}}</div>
-										{% endif %}
-									</div>
-								</div>
+									{% endif %}	
+											
+								</div>									
+								{% endfor %}
+									
+									
+
                         </div>
                         <div class="panel-footer smallgap">
 							<a href="{{panelinfo.link}}">								

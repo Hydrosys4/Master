@@ -130,85 +130,108 @@ def get_db(filename):
 	conn = None
 	try:
 		conn = sqlite3.connect(dbpath(filename))
-		return conn
-	except lite.Error, e:
-		print "Error %s:" % e.args[0]
+		return conn, True
+	except:
+		print "Error Reading database"
+		return conn, False
 		
 def getvaluelist(filename,table,field,valuelist):
 	print "visualizzazione field ", field
-	db = get_db(filename)
-	cur = db.execute('select distinct "' + field + '" from "' + table + '" order by "' + field + '"')
-	namelistsql = cur.fetchall()
-	del valuelist[:]
-	for na in namelistsql:
-		valuelist.append(str(na[0]))
+	db, connected = get_db(filename)
+	if connected:
+		cur = db.execute('select distinct "' + field + '" from "' + table + '" order by "' + field + '"')
+		namelistsql = cur.fetchall()
+		del valuelist[:]
+		for na in namelistsql:
+			valuelist.append(str(na[0]))
+		conn.close()
+	else:
+		print "not able to connect to database ", filename
 
 		
 def getdatafromfields(filename,table,fieldlist,valuelist):
-	db = get_db(filename)
-	fieldsstr= ', '.join(fieldlist)
-	query_string = 'select %s from %s' % (fieldsstr, table)	
-	cur = db.execute(query_string)
-	db.commit()
-	datarow = cur.fetchall()
-	del valuelist[:]
-	for rowdata in datarow:
-		row=[]
-		for i in range(len(fieldlist)):
-			row.append(str(rowdata[i]))
-		valuelist.append(row)
+	db, connected = get_db(filename)
+	if connected:
+		del valuelist[:]	
+		if db:
+			fieldsstr= ', '.join(fieldlist)
+			query_string = 'select %s from %s' % (fieldsstr, table)	
+			try:
+				cur = db.execute(query_string)
+				db.commit()
+				datarow = cur.fetchall()
+				for rowdata in datarow:
+					row=[]
+					for i in range(len(fieldlist)):
+						row.append(str(rowdata[i]))
+					valuelist.append(row)
+			except:
+				print "problem reading database " , table
+		db.close()
+		
 
 def getdatafromfieldslimit(filename,table,fieldlist,valuelist,limit):
-	db = get_db(filename)
-	fieldsstr= ', '.join(fieldlist)
-	limitstr=str(limit)
-	query_string = 'select %s from %s ORDER BY ROWID DESC LIMIT %s' % (fieldsstr, table,limitstr)	
-	cur = db.execute(query_string)
-	db.commit()
-	datarow = cur.fetchall()
-	del valuelist[:]
-	for rowdata in datarow:
-		row=[]
-		for i in range(len(fieldlist)):
-			row.append(str(rowdata[i]))
-		valuelist.append(row)
+	db, connected = get_db(filename)
+	if connected:
+		fieldsstr= ', '.join(fieldlist)
+		limitstr=str(limit)
+		query_string = 'select %s from %s ORDER BY ROWID DESC LIMIT %s' % (fieldsstr, table,limitstr)	
+		cur = db.execute(query_string)
+		db.commit()
+		datarow = cur.fetchall()
+		del valuelist[:]
+		for rowdata in datarow:
+			row=[]
+			for i in range(len(fieldlist)):
+				row.append(str(rowdata[i]))
+			valuelist.append(row)
+		db.close()
 
 
 
 		
 def deleterowwithfield(filename,table,field,value):
 	print "delete field ", field , " with value ", value
-	db = get_db(filename)
-	#remove old items from database in case the same name is already present
-	db.execute('DELETE FROM "' + table + '" WHERE "' + field + '"="%s" ' % value.strip())
-	db.commit()
+	db, connected = get_db(filename)
+	if connected:
+		#remove old items from database in case the same name is already present
+		db.execute('DELETE FROM "' + table + '" WHERE "' + field + '"="%s" ' % value.strip())
+		db.commit()
+		db.close()
 	
 def deleteallrow(filename,table):
 	print "delete all row in table  ", table
-	db = get_db(filename)
-	#remove old items from database in case the same name is already present
-	db.execute('DELETE FROM ' + table)
-	db.commit()
+	db, connected = get_db(filename)
+	if connected:
+		#remove old items from database in case the same name is already present
+		db.execute('DELETE FROM ' + table)
+		db.commit()
+		db.close()
 
 def insertrowfields(filename,table,rowfield,rowvalue):
-	db = get_db(filename)
-	listfield=[]
-	for itemfield in rowfield:
-		listfield.append("'"+itemfield+"'")
-	questionmarks=', '.join('?' * len(rowvalue))
-	var_string = ', '.join(listfield)
-	query_string = 'INSERT INTO %s (%s) VALUES (%s);' % (table, var_string, questionmarks)
-	print query_string
-	print var_string
-	db.execute(query_string, rowvalue)					
-	db.commit()
+	db, connected = get_db(filename)
+	if connected:
+		listfield=[]
+		for itemfield in rowfield:
+			listfield.append("'"+itemfield+"'")
+		questionmarks=', '.join('?' * len(rowvalue))
+		var_string = ', '.join(listfield)
+		query_string = 'INSERT INTO %s (%s) VALUES (%s);' % (table, var_string, questionmarks)
+		print query_string
+		print var_string
+		db.execute(query_string, rowvalue)					
+		db.commit()
+		db.close()
+		
 
 	
 def gettable(filename,dbtable,searchfield,searchvalue):  #get table with column the values of searchfiled, and row the database row values, serchvalue is the output table
-	db = get_db(filename)
-	cur = db.execute('select * from "' + dbtable + '" WHERE "' + searchfield +'"="' + searchvalue +'"')
-	table = cur.fetchall()
-	return table
+	db, connected = get_db(filename)
+	if connected:
+		cur = db.execute('select * from "' + dbtable + '" WHERE "' + searchfield +'"="' + searchvalue +'"')
+		table = cur.fetchall()
+		db.close()
+		return table
 
 
 

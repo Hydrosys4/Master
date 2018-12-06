@@ -3,7 +3,8 @@
 {% block body %}
   {% if session.logged_in %}
  
- 
+	{% if (elementlist|length)>0 %}
+
 
 
 			<ul class="nav nav-pills">
@@ -235,7 +236,17 @@
 		</script>  
 
 
+		{% else %}
 
+									<div class="row">
+										<div class="col-xs-12">
+											<div style="height:100px"><h4> No actuator available</h4></div>
+										
+										</div>
+									</div>
+
+
+		{% endif %}
 
 
 
