@@ -233,7 +233,9 @@ Change the apscheduler interval including end_date. This will avoid accidental d
 
 add config with stepper motor
 
+2018-12-15 -> release 91
 
+Start scheduler after internet connection to avoid sudden time readjustment
 
 
 

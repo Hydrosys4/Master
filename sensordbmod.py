@@ -138,7 +138,6 @@ def readallsensorsdatabase():
 		for value in databasevalues:
 			sensorvalues[sensorname]=value[1]
 			sensortimestamp[sensorname]=value[0]
-		print sensorvalues[sensorname] , sensortimestamp[sensorname]
 	return sensorvalues
 	
 def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):

@@ -6,6 +6,7 @@ selected plan utility
 import logging
 import os
 import os.path
+import threading
 import string
 from datetime import datetime,date,timedelta
 import time
@@ -155,7 +156,7 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		print 'Pump ON, optional time for sec =', duration
 		actuatordbmod.insertdataintable(target,duration)
 		
-
+	return True
 
 	
 def periodicdatarequest(sensorname):
@@ -168,7 +169,8 @@ def periodicdatarequest(sensorname):
 		automationmod.automationcheck(sensorname)
 		# call to automatic algorithms for watering
 		autowateringmod.autowateringcheck(sensorname)
-	
+		
+	return True	
 	
 	
 def heartbeat():
@@ -260,7 +262,7 @@ def heartbeat():
 		print "No next run for master scheduler"
 		logger.warning('Heartbeat check , Master Scheduler Interrupted')
 		emailmod.sendallmail("alert","Master Scheduler has been interrupted, try to restart scheduler")
-		setmastercallback()
+		resetmastercallback()
 	
 	# check if there have been errors in Syslog
 	if DEBUGMODE:
@@ -286,15 +288,17 @@ def sendmail(target):
 	if issent:
 		actuatordbmod.insertdataintable(target,1)
 		print "Action", target , " " , datetime.now()
-	
+		
+	return True	
 	
 def takephoto(target):
 	logger.info('take picture %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	hardwaremod.takephoto()
 	# save action in database
 	actuatordbmod.insertdataintable(target,1)
-	print "Action", target ," " , datetime.now()
-
+	print "Action", target ," " , datetime.now()	
+	return True
+	
 def setlight(MinimumLightinde,MaximumLightONinde):
 	# removed because obsolete
 	return True
@@ -314,8 +318,8 @@ schedulercallback={"heartbeat":heartbeat,"doser":pulsenutrient,"waterpump":start
 def setmastercallback():
 	logger.info('Master Scheduler - Setup daily jobs')
 	#set daily call for mastercallback at midnight
-	starttime=datetime(datetime.now().year, datetime.now().month, datetime.now().day, 0, 0, 0)
-	starttimeloc=starttime + timedelta(seconds=1)
+	thedateloc=datetime.now()
+	starttimeloc=thedateloc.replace(hour=23, minute=59, second=59)
 	#convert to UTC time
 	starttime=clockmod.convertLOCtoUTC_datetime(starttimeloc)
 	print "setup master job"
@@ -326,21 +330,49 @@ def setmastercallback():
 		print 'Date value for job scheduler not valid'
 		logger.warning('Heartbeat check , Master Scheduler not Started properly')
 	mastercallback()
+		
+	return True
 
 
-#add_job(func, trigger=None, args=None, kwargs=None, id=None, name=None, misfire_grace_time=undefined, coalesce=undefined, max_instances=undefined, next_run_time=undefined, jobstore='default', executor='default', replace_existing=False, **trigger_args)
+def waitandsetmastercallback(pulsesecond, offset):
+
+	try:
+		f=float(pulsesecond)
+		secondint=int(f)+offset
+	except:
+		secondint=200
+	print "try to setmastercallback after " , secondint , " seconds"		
+	t = threading.Timer(secondint, setmastercallback ).start()
+
+def resetmastercallback():
+	logger.info('Reset Master Scheduler')
+	# remove all the current jobs
+	print "selected new table"
+	SchedulerMod.removealljobs()
+	print "are still jobs there"
+	SchedulerMod.sched.print_jobs()
+	setmastercallback()	
+	print "new jobs there"
+	SchedulerMod.sched.print_jobs()			
+	return True
+
 
 
 def mastercallback():
 	
 	# clean old data of the database (pastdays)
+	logger.info('Remove data in exceed of one year')
+
 	
 	pastdays=364
-	sensordbmod.RemoveSensorDataPeriod(pastdays)
-	actuatordbmod.RemoveActuatorDataPeriod(pastdays)
-	hardwaremod.removephotodataperiod(364)
+	#sensordbmod.RemoveSensorDataPeriod(pastdays)
+	logger.info('Sensor Remove data in exceed of one year')	
+	#actuatordbmod.RemoveActuatorDataPeriod(pastdays)
+	logger.info('Actuator Remove data in exceed of one year')
+	#hardwaremod.removephotodataperiod(364)
+	logger.info('Photo Remove data in exceed of one year')
 
-
+	logger.info('Start other scheduler activities')
 	
 	# remove all jobs except masterscheduler
 	#for job in SchedulerMod.sched.get_jobs():
@@ -365,7 +397,7 @@ def mastercallback():
 	
 	setschedulercallback(calltype,timelist,argument,callback,callback)
 	
-	
+	logger.info('Start other scheduler activities - sensor')
 	
 	# info file dedicate call-back --------------------------------------------- (sensor)
 	
@@ -385,6 +417,8 @@ def mastercallback():
 		setschedulercallback(calltype,timelist,argument,callback,hwname)
 		timeshift=timeshift+shiftstep
 
+	logger.info('Start other scheduler activities - photo')
+
 	#<------>
 	# info file dedicate quinto call-back ----------------------------------(takephoto)
 	usedfor="photocontrol"
@@ -397,6 +431,7 @@ def mastercallback():
 		argument.append(hwname)
 		setschedulercallback(calltype,timelist,argument,callback,hwname)
 
+	logger.info('Start other scheduler activities - mail')
 
 	# info ne file dedicate quarto call-back ---------------------------------------(sendmail)
 	
@@ -416,6 +451,8 @@ def mastercallback():
 
 	# empty
 	#<---->
+	
+	logger.info('Start other scheduler activities - pump')
 	
 	# info file dedicate call-back ------------------------------------------------ (waterpump)
 	
@@ -470,7 +507,7 @@ def mastercallback():
 					setschedulercallback(calltype,timelist,argument,callback,pumpname)
 
 
-
+	logger.info('Start other scheduler activities - doser')
 	# info file dedicate call-back ------------------------------------------------ (pulsenutrient)
 	
 
@@ -507,7 +544,9 @@ def mastercallback():
 				argument.append(fertilizerpulsesecond)
 				if (fertilizerpulsesecond)>0: #check if the duration in second is >0
 					setschedulercallback(calltype,timelist,argument,callback,dosername)
-
+					
+	logger.info('Start other scheduler activities - finish')
+	return True
 	
 def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 	# jobname is used as unique identifier of the job
@@ -559,9 +598,11 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 
 def start_scheduler():
 	SchedulerMod.start_scheduler()
-	
+	return True
+
 def stop_scheduler():
-	SchedulerMod.stop_scheduler()
+	SchedulerMod.stop_scheduler()		
+	return True
 
 
 def readselectedmaininfo(maininfo):
@@ -570,17 +611,10 @@ def readselectedmaininfo(maininfo):
 	maininfo.append("Status")
 	return True
 
-def startnewselectionplan():
-	print "selected new table"
-	SchedulerMod.removealljobs()
-	print "are still jobs there"
-	SchedulerMod.sched.print_jobs()
-	setmastercallback()
-	print "new jobs there"
-	SchedulerMod.sched.print_jobs()	
 
 def removeallscheduledjobs():
-	SchedulerMod.removealljobs()
+	SchedulerMod.removealljobs()		
+	return True
 	
 #--end --------////////////////////////////////////////////////////////////////////////////////////		
 

@@ -315,13 +315,15 @@ def autowateringexecute(refsensor,element):
 
 		# implment alert message for the cycle exceeding days, and reset the cycle
 		if workmode!="None":
-			if sensordbmod.timediffdays(datetime.now(),AUTO_data[element]["cyclestartdate"]) > maxdays:
+			timedeltadays=sensordbmod.timediffdays(datetime.now(),AUTO_data[element]["cyclestartdate"])
+			if (timedeltadays > maxdays): #the upper limit is set in case of abrupt time change
 				textmessage="WARNING "+ sensor + " watering cycle is taking too many days, watering system: " + element + ". Reset watering cycle"
 				print textmessage
 				# in case of full Auto, activate pump for minimum pulse period
 				if workmode=="Full Auto":
-					textmessage="WARNING "+ sensor + " watering cycle is taking too many days, watering system: " + element + ". Activate Min pulse + Reset watering cycle"					
-					activatewater(element, duration)
+					if (timedeltadays < maxdays+2): #the upper limit is set in case of abrupt time change					
+						textmessage="WARNING "+ sensor + " watering cycle is taking too many days, watering system: " + element + ". Activate Min pulse + Reset watering cycle"					
+						activatewater(element, duration)
 				#send alert mail notification
 				if mailtype!="warningonly":
 					emailmod.sendallmail("alert", textmessage)							

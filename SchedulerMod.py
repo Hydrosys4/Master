@@ -6,6 +6,7 @@ import os.path
 import apscheduler
 
 from apscheduler.schedulers.background import BackgroundScheduler
+logger = logging.getLogger("hydrosys4."+__name__)
 
 
 # The "apscheduler." prefix is hard coded
@@ -25,29 +26,27 @@ sched = BackgroundScheduler({
 
 
 
-	
-logger = logging.getLogger("hydrosys4."+__name__)
-
-
-
-
 def print_job():
 	global sched
-	sched.print_jobs()
+	sched.print_jobs()		
+	return True
 
 def start_scheduler():
 	global sched
-	sched.start()
+	sched.start()		
+	return True
 	
 def removealljobs():
 	global sched
 	for job in sched.get_jobs():
-		job.remove()
+		job.remove()		
+	return True
 	
 def stop_scheduler():
 	global sched	
 	if sched.running:
-		sched.shutdown(wait=False)
+		sched.shutdown(wait=False)		
+	return True
 	
 def get_next_run_time(jobname):
 	global sched

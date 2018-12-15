@@ -5,6 +5,7 @@ OPERATING SYSTEM LEVEL:
 1) disable SSH -> sudo raspi-config -> advanced -> disable SSH server
 2) Check wifi password (AP mode) is "hydrosystem"-> sudo nano /etc/hostapd/hostapd.conf
 4) check that the wifi account is deleted -> nano /etc/wpa_supplicant/wpa_supplicant.conf
+5) set ownership of the files:  sudo chown -R $USER ~/env/autonomMaster2
 
 HYDROSYSTEM SW LEVEL:
 

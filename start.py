@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.90"
+Release="0.91"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -99,7 +99,15 @@ logger.error('This is a sample ERROR message')
 
 # finish logging init
 
-
+def runallconsistencycheck():
+	wateringdbmod.consitencycheck()
+	autowateringdbmod.consistencycheck()
+	automationdbmod.consistencycheck()
+	fertilizerdbmod.consitencycheck()
+	autofertilizerdbmod.consistencycheck()
+	sensordbmod.consistencycheck()
+	actuatordbmod.consistencycheck()
+	return True
 
 
 
@@ -121,14 +129,8 @@ hardwaremod.initallGPIOoutput()
 print "path ",hardwaremod.get_path()
 MYPATH=hardwaremod.get_path()
 
-wateringdbmod.consitencycheck()
-autowateringdbmod.consistencycheck()
-automationdbmod.consistencycheck()
-fertilizerdbmod.consitencycheck()
-autofertilizerdbmod.consistencycheck()
-#scheduler setup---------------------
-selectedplanmod.start_scheduler()
-selectedplanmod.setmastercallback()
+# RUN ALL consistency chacks ------------------------
+runallconsistencycheck()
 
 #setup network connecton --------------------
 try:
@@ -136,6 +138,11 @@ try:
 	networkmod.init_network()
 except:
 	print "No WiFi available"
+	
+#scheduler setup---------------------
+selectedplanmod.start_scheduler()
+selectedplanmod.waitandsetmastercallback(networkmod.WAITTOCONNECT, 40)	# plus 40 seconds respect to internet connection
+	
 	
 #prove varie qui ---------------------------------------------------
 #selectedplanmod.startpump("1","10","25","10")
@@ -830,7 +837,12 @@ def downloadit():
 	if not session.get('logged_in'):
 		ret_data = {"answer":"Login Needed"}
 		return jsonify(ret_data)
-    # send command to the actuator for test
+    # check the download destination folder exist otherwise create it
+	folderpath=os.path.join(MYPATH, "static")
+	folderpath=os.path.join(folderpath, "download")
+	if not os.path.exists(folderpath):
+		os.makedirs(folderpath)
+    
 	recdata=[]
 	ret_data={}
 	
@@ -1118,7 +1130,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 			wateringdbmod.consitencycheck()
 			fertilizerdbmod.consitencycheck()
 			#scheduler setup---------------------
-			selectedplanmod.setmastercallback()
+			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
 			hardwaremod.initallGPIOoutput()	
 		
@@ -1326,7 +1338,7 @@ def wateringplan():
 			table1=wateringdbmod.gettable(0) # watering schema
 			table2=wateringdbmod.gettable(2) # watering schema
 			#print "after",table
-			selectedplanmod.startnewselectionplan()
+			selectedplanmod.resetmastercallback()
 			
 		if actiontype == "advconfig":	
 			print "open advanced setting"
@@ -1386,7 +1398,7 @@ def autowatering():
 			autowateringdbmod.replacerow(element,dicttemp)		
 			flash('Table as been saved')
 
-			#selectedplanmod.startnewselectionplan()
+			#selectedplanmod.resetmastercallback()
 			
 			
 		if actiontype == "reset":
@@ -1477,7 +1489,7 @@ def automation():
 			automationdbmod.replacerow(element,dicttemp)		
 			flash('Table as been saved')
 
-			#selectedplanmod.startnewselectionplan()
+			#selectedplanmod.resetmastercallback()
 			
 			
 		if actiontype == "reset":
@@ -1577,7 +1589,7 @@ def fertilizerplan():
 			table=fertilizerdbmod.gettable(1)	
 			table1=fertilizerdbmod.gettable(0)
 			#print "after",table
-			selectedplanmod.startnewselectionplan()
+			selectedplanmod.resetmastercallback()
 			
 			
 			#add proper formatting for the Autofertilizer
@@ -1809,14 +1821,9 @@ def hardwaresetting():  #on the contrary of the name, this show the setting menu
 			# apply changes to the system
 			if isdone:
 				hardwaremod.restoredefault() # copy default to normal file and reload HWdata
-				wateringdbmod.consitencycheck()
-				autowateringdbmod.consistencycheck()
-				fertilizerdbmod.consitencycheck()
-				autofertilizerdbmod.consistencycheck()
-				sensordbmod.consistencycheck()
-				actuatordbmod.consistencycheck()
+				runallconsistencycheck()
 				#scheduler setup---------------------
-				selectedplanmod.setmastercallback()
+				selectedplanmod.resetmastercallback()
 				#initiate the GPIO OUT pins
 				hardwaremod.initallGPIOoutput()			
 
@@ -1864,15 +1871,9 @@ def hardwaresettingedit():  #on the contrary of the name, this show the setting 
 			hardwaremod.IOdatafromtemp()	
 				
 			# apply changes to the system
-
-			wateringdbmod.consitencycheck()
-			autowateringdbmod.consistencycheck()
-			fertilizerdbmod.consitencycheck()
-			autofertilizerdbmod.consistencycheck()
-			sensordbmod.consistencycheck()
-			actuatordbmod.consistencycheck()
+			runallconsistencycheck()
 			#scheduler setup---------------------
-			selectedplanmod.setmastercallback()
+			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
 			hardwaremod.initallGPIOoutput()	
 			return redirect(url_for('hardwaresetting'))
@@ -1958,7 +1959,7 @@ def hardwaresettingeditfield():  #on the contrary of the name, this show the set
 			hardwaremod.IOdatafromtemp()	
 				
 			# apply changes to the system
-			# basically instead of the consistencycheck procedure it should be simply the rename procedure -- to be improved
+			# basically instead of the consistencycheck procedure it should be simply the rename procedure -- Done
 
 			autowateringdbmod.replacewordandsave(oldnames,newnames)
 			wateringdbmod.replacewordandsave(oldnames,newnames)
@@ -1968,7 +1969,7 @@ def hardwaresettingeditfield():  #on the contrary of the name, this show the set
 			sensordbmod.consistencycheck()
 			actuatordbmod.consistencycheck()
 			#scheduler setup---------------------
-			selectedplanmod.setmastercallback()
+			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
 			hardwaremod.initallGPIOoutput()	
 			return redirect(url_for('show_Calibration'))

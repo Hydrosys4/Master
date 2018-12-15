@@ -58,10 +58,11 @@ def get_networks(iface, retry=1):
 	Grab a list of wireless networks within range, and return a list of dicts describing them.
 	"""
 	while retry > 0:
-		if "OK" in run_program(['wpa_cli', '-i' + iface , 'scan']):
+		output=run_program(['wpa_cli', '-i' + iface , 'scan'])
+		time.sleep(0.2)		
+		if ("OK" in output.upper()):
 			time.sleep(1)
 			networks=[]
-			
 			lines = run_program(['wpa_cli', '-i' + iface , 'scan_result']).split("\n")
 			if lines:
 				for line in lines[1:-1]:

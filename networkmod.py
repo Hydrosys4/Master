@@ -34,7 +34,7 @@ EXTERNALIPADDR=""
 def wifilist_ssid():
 	# get all cells from the air
 	ssids=[]
-	network = wpa_cli_mod.get_networks("wlan0")
+	network = wpa_cli_mod.get_networks("wlan0",2)
 	for item in network:
 		ssids.append(item["ssid"])
 	return ssids
