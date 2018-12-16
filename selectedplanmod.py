@@ -318,8 +318,8 @@ schedulercallback={"heartbeat":heartbeat,"doser":pulsenutrient,"waterpump":start
 def setmastercallback():
 	logger.info('Master Scheduler - Setup daily jobs')
 	#set daily call for mastercallback at midnight
-	thedateloc=datetime.now()
-	starttimeloc=thedateloc.replace(hour=23, minute=59, second=59)
+	thedateloc=datetime.now()+timedelta(days=1)
+	starttimeloc=thedateloc.replace(hour=0, minute=5, second=0)
 	#convert to UTC time
 	starttime=clockmod.convertLOCtoUTC_datetime(starttimeloc)
 	print "setup master job"

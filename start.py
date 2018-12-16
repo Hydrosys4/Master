@@ -141,6 +141,7 @@ except:
 	
 #scheduler setup---------------------
 selectedplanmod.start_scheduler()
+# after internet connection because ofter the time is abruptly changed after connection
 selectedplanmod.waitandsetmastercallback(networkmod.WAITTOCONNECT, 40)	# plus 40 seconds respect to internet connection
 	
 	
@@ -768,6 +769,8 @@ def doit():
 			print "Set timezone ->" ,timezone
 			answer=clockmod.settimezone(timezone)
 			clockdbmod.changesavesetting("timezone",timezone)
+			# reset scheduling 
+			selectedplanmod.resetmastercallback()
 		ret_data = {"answer":"Saved"}
 
 	return jsonify(ret_data)
