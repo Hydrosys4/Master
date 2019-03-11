@@ -113,9 +113,10 @@
 						<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
 					</select>
-				<div class="small">Full Auto will disable the watering scheduling</div>
-				<div class="small">Emergency will activate watering only if sensor reading is lower that the threshold, watering schedule still used</div>
-				<div class="small">Alert Only will send email notification in case the sensor reading is lower than threshold</div>
+				<div class="small"><b>Full Auto:</b>Disable the watering scheduling and use the autowatering algorithm</div>
+				<div class="small"><b>Under MIN over MAX:</b> Watering schedule set in the WateringPlan is still used, plus activate watering if sensor reading is lower that the MIN threshold and stop scheduled watering if the sensor reading is above MAX threshold</div>
+				<div class="small"><b>Emergency Activation:</b> Activate watering only if sensor reading is lower that the threshold, watering schedule in WateringPlan is still used</div>
+				<div class="small"><b>Alert Only:</b> Send email notification in case the sensor reading is lower than threshold</div>
 
 				</div>
 			</div>
@@ -148,7 +149,7 @@
 					<table class="table" margin: 20px;>
 					<thead>
 						<tr>
-							<th>Threshold</th>
+							<th>Sensor Threshold</th>
 							<th>Minimum</th>
 							<th>Maximum</th>
 						</tr>
@@ -202,7 +203,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[4]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
-				<div class="small">System will use this number of seconds for a first watering step </div>
+				<div class="small">Number of seconds for each watering activation step </div>
 
 				</div>
 			</div>				
@@ -218,7 +219,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_6" type="text">
-				<div class="small">max number of watering periods used in one cycle </div>
+				<div class="small">max number of watering periods used in one cycle (one cycle starts from the first watering activation after sensor reading below threshold and finish when the sensor reading is back below threshold, or the max period between cycles is expired)</div>
 
 				</div>
 			</div>				
@@ -234,7 +235,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[6]}}" class="form-control input-sm" name="{{elem}}_7" type="text">
-				<div class="small">waiting a number of minutes between watering steps, let the hygrometer reading to stabilize</div>
+				<div class="small">wait a number of minutes between watering steps to let the hygrometer reading stabilize</div>
 
 				</div>
 			</div>				
@@ -296,7 +297,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[8]}}" class="form-control input-sm" name="{{elem}}_10" type="text">
-				<div class="small">max number of days between watering, send mail warning, if in full Auto mode activate the watering for one step period</div>
+				<div class="small">if the number of days from last watering activation exceed this value, send warning mail. If in full Auto mode it activates the watering for one step period</div>
 
 				</div>
 			</div>				
@@ -306,7 +307,7 @@
 			<div class="form-group">		
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Min value of sensor consiered valid reading:
+				<label>Valid reading Min threshold:
 				</label>
 
 				
@@ -319,7 +320,7 @@
 					{% endfor %}
 				  </select>
 					
-				<div class="small">below the value, reading will not be considered valid for the algorithm </div>
+				<div class="small">below this value the sensor reading will not be considered valid for the algorithm </div>
 
 				</div>
 			</div>				

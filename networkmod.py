@@ -3,6 +3,7 @@ import subprocess
 import threading
 import emailmod
 import networkdbmod
+import selectedplanmod
 # stuff for the IP detection
 import shlex
 import re
@@ -646,6 +647,9 @@ def connect_network(internetcheck=False, backtoAP=False):
 		else:
 			logger.info('Connected to Wifi Network %s' , ssid )
 			print 'Connected to Wifi Network '  , ssid 
+
+		
+			
 			# here it is needed to have a real check of the internet connection as for example google 
 			if internetcheck:
 				connected=check_internet_connection(3)
@@ -663,6 +667,14 @@ def connect_network(internetcheck=False, backtoAP=False):
 						connect_AP()
 			else:
 				connected=True
+			logger.info('wait and check if the heartbeat job is still scheduled')				
+			#pulsesecond=180
+			#selectedplanmod.waitandcheckheartbeat(pulsesecond)
+			#use CPU cycles as way to delay, cannot be based on clock info, clock jumps happen as soon as NTP is providing the datatime to the system
+			pausecycles=10000000
+			for i in range(1,pausecycles):
+				b=i*0.1
+			selectedplanmod.checkheartbeat()
 
 	else:
 		print "No Saved Wifi Network available"

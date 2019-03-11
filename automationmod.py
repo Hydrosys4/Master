@@ -78,7 +78,9 @@ def automationexecute(refsensor,element):
 		maxstepnumber=hardwaremod.toint(automationdbmod.searchdata("element",element,"stepnumber"),1)
 		waitingtime=hardwaremod.toint(automationdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),1)
 		mailtype=automationdbmod.searchdata("element",element,"mailalerttype")
-		averagesample=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"averagesample"),1)
+		averageminutes=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"averagesample"),1)
+		mathoperation=automationdbmod.searchdata("element",element,"mathoperation")
+
 		
 		# Calculated Variables
 		if maxstepnumber<1:
@@ -105,71 +107,75 @@ def automationexecute(refsensor,element):
 			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 			if timeok:
 				logger.info('inside allowed time')
-				sensorvalue=sensorreading(sensor,averagesample) # average of sensor readings for a number of sample
-				print "Sensor Value ", sensorvalue
-				
-				if sensorminthreshold<=sensormaxthreshold:
-					print "Algorithm , element: " , element
-					logger.info("Forward algorithm  , element: %s " , element)
-				
-					Inde=0
-					maxs=sensorminthreshold+Inde*interval
-					if sensorvalue<=maxs:
-						status="belowthreshold"
-						logger.info('below Minthreshold')
-						value=P[Inde]
-						# do relevant stuff	
-						CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
+				isok,sensorvalue=sensorreading(sensor,averageminutes,mathoperation) # operation of sensor readings for a number of sample
+				if isok:
+					print "Sensor Value ", sensorvalue
 					
-					Inde=Inde+1
-					for I in range(Inde, maxstepnumber):
-						mins=sensorminthreshold+(I-1)*interval
-						maxs=sensorminthreshold+I*interval
-						if mins<sensorvalue<=maxs:
-							value=P[I]					
+					if sensorminthreshold<=sensormaxthreshold:
+						print "Algorithm , element: " , element
+						logger.info("Forward algorithm  , element: %s " , element)
+						
+					
+						Inde=0
+						maxs=sensorminthreshold+Inde*interval
+						if sensorvalue<=maxs:
+							status="belowthreshold"
+							logger.info('below Minthreshold')
+							value=P[Inde]
 							# do relevant stuff	
-							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
-					
-					Inde=maxstepnumber
-					mins=sensorminthreshold+(Inde-1)*interval										
-					if mins<sensorvalue:
-						print "INDE:",Inde
-						value=P[Inde]
-						# do relevant stuff	
-						CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-					# END MAIN ALGORITHM
-					
-				else: # to be added case of inverse sensor condition, where the sensorminthreshold is higher than the sensormaxthreshold
-					print "Reverse Algorithm , element: " , element
-					logger.info("Reverse Algorithm  , element: %s " , element)						
-								
-					Inde=0
-					maxs=sensorminthreshold+Inde*interval
-					if sensorvalue>=maxs:
-						status="belowthreshold"
-						logger.info('Above MAXthreshold')
-						value=P[Inde]
-						# do relevant stuff	
-						CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-					
-					Inde=Inde+1
-					for I in range(Inde, maxstepnumber):
-						mins=sensorminthreshold+(I-1)*interval
-						maxs=sensorminthreshold+I*interval
-						if mins>sensorvalue>=maxs:
-							value=P[I]					
+							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
+						
+						Inde=Inde+1
+						for I in range(Inde, maxstepnumber):
+							mins=sensorminthreshold+(I-1)*interval
+							maxs=sensorminthreshold+I*interval
+							if mins<sensorvalue<=maxs:
+								value=P[I]					
+								# do relevant stuff	
+								CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
+						
+						Inde=maxstepnumber
+						mins=sensorminthreshold+(Inde-1)*interval										
+						if mins<sensorvalue:
+							print "INDE:",Inde
+							value=P[Inde]
 							# do relevant stuff	
-							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
-					
-					Inde=maxstepnumber
-					mins=sensorminthreshold+(Inde-1)*interval										
-					if mins>sensorvalue:
-						print "INDE:",Inde
-						value=P[Inde]
-						# do relevant stuff	
-						CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-					# END MAIN ALGORITHM - Reverse				
-			
+							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
+						# END MAIN ALGORITHM
+						
+					else: # to be added case of inverse sensor condition, where the sensorminthreshold is higher than the sensormaxthreshold
+						print "Reverse Algorithm , element: " , element
+						logger.info("Reverse Algorithm  , element: %s " , element)						
+									
+						Inde=0
+						maxs=sensorminthreshold+Inde*interval
+						if sensorvalue>=maxs:
+							status="belowthreshold"
+							logger.info('Above MAXthreshold')
+							value=P[Inde]
+							# do relevant stuff	
+							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
+						
+						Inde=Inde+1
+						for I in range(Inde, maxstepnumber):
+							mins=sensorminthreshold+(I-1)*interval
+							maxs=sensorminthreshold+I*interval
+							if mins>sensorvalue>=maxs:
+								value=P[I]					
+								# do relevant stuff	
+								CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
+						
+						Inde=maxstepnumber
+						mins=sensorminthreshold+(Inde-1)*interval										
+						if mins>sensorvalue:
+							print "INDE:",Inde
+							value=P[Inde]
+							# do relevant stuff	
+							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
+						# END MAIN ALGORITHM - Reverse				
+			else:
+				logger.info('No valid calculation operation on the stored sensor data')
+				
 		elif workmode=="Emergency Activation":
 			print "Emergency Activation"		
 		
@@ -180,27 +186,28 @@ def automationexecute(refsensor,element):
 
 		# implment Critical alert message in case the sensor value is one interval more than Max_threshold
 
-		sensorvalue=sensorreading(sensor,averagesample) # average of sensor readings for a number of sample
-		if sensorminthreshold<=sensormaxthreshold:
-			if sensorvalue>sensormaxthreshold+interval:
-				logger.info('sensor %s exceeding limits', sensor)
-				textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
-				print textmessage
-				#send alert mail notification
-				if AUTO_data[element]["alertcounter"]<2:
-					emailmod.sendallmail("alert", textmessage)							
-					logger.error(textmessage)
-					AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1
-		else:
-			if sensorvalue<sensormaxthreshold+interval:
-				logger.info('sensor %s exceeding limits', sensor)
-				textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
-				print textmessage
-				#send alert mail notification
-				if AUTO_data[element]["alertcounter"]<2:
-					emailmod.sendallmail("alert", textmessage)							
-					logger.error(textmessage)
-					AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1			
+		isok,sensorvalue=sensorreading(sensor,averageminutes,mathoperation) # operation of sensor readings for a number of sample
+		if isok:
+			if sensorminthreshold<=sensormaxthreshold:
+				if sensorvalue>sensormaxthreshold+interval:
+					logger.info('sensor %s exceeding limits', sensor)
+					textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
+					print textmessage
+					#send alert mail notification
+					if AUTO_data[element]["alertcounter"]<2:
+						emailmod.sendallmail("alert", textmessage)							
+						logger.error(textmessage)
+						AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1
+			else:
+				if sensorvalue<sensormaxthreshold+interval:
+					logger.info('sensor %s exceeding limits', sensor)
+					textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
+					print textmessage
+					#send alert mail notification
+					if AUTO_data[element]["alertcounter"]<2:
+						emailmod.sendallmail("alert", textmessage)							
+						logger.error(textmessage)
+						AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1			
 
 	return
 
@@ -218,17 +225,19 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 		# action					
 		print "Implement Actuator Value ", value
 		logger.info('Procedure to start actuator %s, for value = %s', element, value)		
-		activateactuator(element, value)
+		isok=activateactuator(element, value)
 			
 		# invia mail, considered as info, not as alert
 		if mailtype!="warningonly":
 			textmessage="INFO: " + sensor + " value " + str(sensorvalue) + ", activating:" + element + " with Value " + str(value)
 			emailmod.sendallmail("alert", textmessage)
-		AUTO_data[element]["lastactiontime"]=datetime.now()
-		AUTO_data[element]["actionvalue"]=value
+		if isok:
+			AUTO_data[element]["lastactiontime"]=datetime.now()
+			AUTO_data[element]["actionvalue"]=value
 
-def activateactuator(target, value):
-	# check the actuator type
+def activateactuator(target, value):  # return true in case the state change: activation is >0 or a different position from prevoius position.
+	# check the actuator 
+	isok=False
 	actuatortype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,target,hardwaremod.HW_CTRL_CMD)
 	supportedactuators=["pulse","servo","stepper"]
 	# stepper motor
@@ -245,12 +254,15 @@ def activateactuator(target, value):
 		# salva su database
 		if "Started" in pulseok:
 			actuatordbmod.insertdataintable(target,duration)
+			isok=True
 		
 	# servo motor 
 	if actuatortype=="servo":
 		out, isok = hardwaremod.servoangle(target,value,0.5)
 		if isok:
 			actuatordbmod.insertdataintable(target,value)
+			
+	return isok
 
 
 def isNowInTimePeriod(startTime, endTime, nowTime):
@@ -260,18 +272,28 @@ def isNowInTimePeriod(startTime, endTime, nowTime):
         return nowTime >= startTime or nowTime <= endTime
 
 
-def sensorreading(sensorname,samplenumber):
-	quantity=0
-	if samplenumber>0:
+def sensorreading(sensorname,MinutesOfAverage,operation):
+	isok=False	
+	# operation "average", "min" , "max" , "sum"
+	if sensorname:
 		timelist=hardwaremod.gettimedata(sensorname)	
 		theinterval=timelist[1] # minutes
-		MinutesOfAverage=theinterval*samplenumber+theinterval/2
-		if sensorname:
+		if theinterval>0:
+			samplesnumber=int(MinutesOfAverage/theinterval+1)
+		else:
+			samplesnumber=1
+			theinterval=15
+		quantity=0
+		MinutesOfAverage=samplesnumber*theinterval
+		if samplesnumber>0:
 			sensordata=[]		
-			sensordbmod.getsensordbdatasamplesN(sensorname,sensordata,samplenumber)
+			sensordbmod.getsensordbdatasamplesN(sensorname,sensordata,samplesnumber)
 			starttimecalc=datetime.now()-timedelta(minutes=MinutesOfAverage)
-			quantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
-	return quantity
+			quantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())[operation]	
+			isok=True	
+	return isok , quantity
+
+
 
 def lastsensorreading(sensorname):
 	if sensorname:

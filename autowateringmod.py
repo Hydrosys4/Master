@@ -16,6 +16,7 @@ elementlist= autowateringdbmod.getelementlist()
 AUTO_data={} # dictionary of dictionary
 for element in elementlist:
 	AUTO_data[element]={"cyclestartdate":datetime.now(),"lastwateringtime":datetime.now(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
+allowwateringplan={} # define th flat that control the waterscheduling activation
 # cyclestartdate, datetime of the latest cycle start
 # cyclestatus, describe the status of the cycle: lowthreshold, rampup, done
 #     "lowthreshold" means that the cycle is just started with lowthreshold activation, if the lowthreshold persists for several checks them alarm should be issued  
@@ -89,6 +90,8 @@ def autowateringexecute(refsensor,element):
 		
 		# ------------------------ Workmode split
 		if workmode=="Full Auto":
+			# block the wateringplan activation as by definition of "Full Auto"
+			allowwateringplan[element]=False
 			# check if inside the allowed time period
 			print "full Auto Mode"
 			logger.info('full auto mode --> %s', element)
@@ -282,6 +285,80 @@ def autowateringexecute(refsensor,element):
 						AUTO_data[element]["watercounter"]=0
 						AUTO_data[element]["alertcounter"]=0				
 		
+			
+		elif workmode=="under MIN over MAX":
+			# normally watering plan is allowed unless over MAX threshold
+			allowwateringplan[element]=True
+			# check if inside the allow time period
+			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
+			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
+			if timeok:			
+				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
+				if valid:
+					if belowthr:
+						# wait to seek a more stable reading of hygrometer
+						# check if time between watering events is larger that the waiting time (minutes)			
+						if sensordbmod.timediffinminutes(AUTO_data[element]["lastwateringtime"],datetime.now())>waitingtime:
+							# activate watering in case the maxstepnumber is not exceeded					
+							if maxstepnumber>AUTO_data[element]["watercounter"]:			
+								#activate pump		
+								activatewater(element, duration)
+								# invia mail, considered as info, not as alert
+								if mailtype!="warningonly":
+									textmessage="INFO: " + sensor + " value below the minimum threshold " + str(minthreshold) + ", activating the watering :" + element
+									emailmod.sendallmail("alert", textmessage)
+								AUTO_data[element]["watercounter"]=AUTO_data[element]["watercounter"]+1
+								AUTO_data[element]["lastwateringtime"]=datetime.now()
+							else:
+
+								logger.info('Number of watering time per cycle has been exceeeded')
+								# read hystory data and calculate the slope
+								isslopeok=checkinclination(sensor,AUTO_data[element]["cyclestartdate"])
+								
+								if isslopeok:
+									# invia mail if couner alert is lower than 1
+									if AUTO_data[element]["alertcounter"]<1:
+										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
+										print textmessage
+										#send alert mail notification
+										emailmod.sendallmail("alert", textmessage)							
+										logger.error(textmessage)
+										AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1
+										
+									# reset watering cycle
+									status="done"
+									AUTO_data[element]["watercounter"]=0
+									AUTO_data[element]["checkcounter"]=-1
+									AUTO_data[element]["alertcounter"]=0
+									AUTO_data[element]["cyclestartdate"]=datetime.now()	
+																			
+								else: # slope not OK, probable hardware problem
+									
+									if AUTO_data[element]["alertcounter"]<3:
+										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										print textmessage
+										#send alert mail notification
+										emailmod.sendallmail("alert", textmessage)							
+										logger.error(textmessage)
+										AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1				
+		
+									
+						# update the status
+						AUTO_data[element]["cyclestatus"]="lowthreshold"
+						AUTO_data[element]["checkcounter"]=AUTO_data[element]["checkcounter"]+1
+					else: # above minimum threshold
+						# update the status
+						AUTO_data[element]["cyclestatus"]="done"
+						AUTO_data[element]["checkcounter"]=0
+						AUTO_data[element]["watercounter"]=0
+						AUTO_data[element]["alertcounter"]=0	
+						
+						if sensorreading(sensor)>maxthreshold:
+							# do not activate the irrigation scheduled in the time plan
+							allowwateringplan[element]=False
+							
+						
+
 		elif workmode=="Alert Only":
 			belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
 			if valid:

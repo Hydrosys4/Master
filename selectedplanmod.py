@@ -39,6 +39,7 @@ global HEARTBEATINTERVAL
 HEARTBEATINTERVAL=15
 global schedulercallback
 
+SETMASTERBUSY=False
 
 # ///////////////// --- END GLOBAL VARIABLES ------
 
@@ -82,15 +83,19 @@ def dictionarydataforactuator(actuatorname,data1,data2, description):
 
 
 def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
-	# check if water actuator is full auto mode
-	workmode=autowateringmod.checkworkmode(target)
-	if workmode=="Full Auto":
-		pumpit=False
-		return False
+
+	logger.info('WateringPlan Startpump evaluation: %s', target)	
+	#workmode=autowateringmod.checkworkmode(target)
+	#if workmode=="Full Auto":
+	if target in autowateringmod.allowwateringplan:
+		if not autowateringmod.allowwateringplan[target]:
+			logger.info('WateringPlan: %s pump activation blocked by automation', target)
+			pumpit=False
+			return False
 	
 	duration=1000*hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
-	logger.info('Startpump evaluation')
+
 	# evaluate parameters
 	#MinAverageLight=500 not used now
 	MinutesOfAverage=120 #minutes in which the average data is calculated from sensor sampling
@@ -102,6 +107,12 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 
 	print "Check Humidity and Temperature"
 	
+	MinAveragetempnum=hardwaremod.tonumber(MinAveragetemp,"NA")
+	MaxAverageHumidnum=hardwaremod.tonumber(MaxAverageHumid,"NA")
+	
+	# all the below conditions should be verified to start the PUMP
+	pumpit=True	
+	
 	hsensornamelist=hardwaremod.getsensornamebymeasure(hardwaremod.MEASURELIST[1])
 	if hsensornamelist:
 		sensordata=[]		
@@ -111,6 +122,15 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		humquantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
 		logger.info('Waterpump Check parameter if humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))
 		print 'Waterpump Check parameter if humquantity=',humquantity,' < MaxAverageHumid=' ,MaxAverageHumid
+		
+		if (MaxAverageHumidnum!="NA"):
+			if (humquantity<MaxAverageHumidnum):		
+				logger.info('Humidity check PASSED, humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))			
+			else:
+				logger.info('Humidity check FAILED')
+				print 'Humidity check FAILED'
+				pumpit=False			
+		
 	
 	tsensornamelist=hardwaremod.getsensornamebymeasure(hardwaremod.MEASURELIST[0])
 	if tsensornamelist:
@@ -121,38 +141,23 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		tempquantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
 		logger.info('Waterpump Check parameter if tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))
 		print 'Waterpump Check parameter if tempquantity=',tempquantity,' > MinAveragetemp=' ,MinAveragetemp
-	
-	MinAveragetempnum=hardwaremod.tonumber(MinAveragetemp,"NA")
-	MaxAverageHumidnum=hardwaremod.tonumber(MaxAverageHumid,"NA")
-	
-	# all the below conditions should be verified to start the PUMP
-	pumpit=True
-	
-	if (MinAveragetempnum!="NA"):
-		if (tempquantity>MinAveragetempnum):		
-			logger.info('Temperature check PASSED, tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))			
-		else:
-			logger.info('Temperature check FAILED')
-			print 'Temperature check FAILED'
-			pumpit=False	
-			
-	if (MaxAverageHumidnum!="NA"):
-		if (humquantity<MaxAverageHumidnum):		
-			logger.info('Humidity check PASSED, humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))			
-		else:
-			logger.info('Humidity check FAILED')
-			print 'Humidity check FAILED'
-			pumpit=False			
-	
+		
+		if (MinAveragetempnum!="NA"):
+			if (tempquantity>MinAveragetempnum):		
+				logger.info('Temperature check PASSED, tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))			
+			else:
+				logger.info('Temperature check FAILED')
+				print 'Temperature check FAILED'
+				pumpit=False	
+				
 
-	
 	if pumpit:
 		# activation of the doser before the pump
 		doseron=autofertilizermod.checkactivate(target,duration)	
 		# watering
 		hardwaremod.makepulse(target,duration)
 		# salva su database
-		logger.info('Pump ON, optional time for sec = %s', duration)
+		logger.info('Switch Pump %s ON, optional time for sec = %s', target, duration)
 		print 'Pump ON, optional time for sec =', duration
 		actuatordbmod.insertdataintable(target,duration)
 		
@@ -342,21 +347,58 @@ def waitandsetmastercallback(pulsesecond, offset):
 	except:
 		secondint=200
 	print "try to setmastercallback after " , secondint , " seconds"		
-	t = threading.Timer(secondint, setmastercallback ).start()
+	t = threading.Timer(secondint, resetmastercallback ).start()
 
 def resetmastercallback():
+	global SETMASTERBUSY	
+	#check Busy flag
+	if SETMASTERBUSY:
+		return True
+	# busy flag up
+	SETMASTERBUSY=True
 	logger.info('Reset Master Scheduler')
 	# remove all the current jobs
-	print "selected new table"
+	print "Reset scheduler, List existing jobs to be removed:"
+	SchedulerMod.sched.print_jobs()
 	SchedulerMod.removealljobs()
-	print "are still jobs there"
+	print "list of jobs after removal:"
 	SchedulerMod.sched.print_jobs()
 	setmastercallback()	
-	print "new jobs there"
-	SchedulerMod.sched.print_jobs()			
+	print "new jobs to be set in scheduler"
+	SchedulerMod.sched.print_jobs()		
+	SETMASTERBUSY=False	
 	return True
 
 
+def checkheartbeat():
+	# check heartbeat job has a next run"
+	logger.info('Check of the heartbeat routine schedule')
+	isok, datenextrun = SchedulerMod.get_next_run_time("heartbeat")
+	if isok:
+		datenow=datetime.utcnow()
+		datenextrun = datenextrun.replace(tzinfo=None)
+		print "Master heartbeat Next run " , datenextrun , " Now (UTC) ", datenow
+		datenowplusone = datenow + timedelta(days=2)
+		if (datenextrun>datenow)and(datenextrun<datenowplusone):
+			print "heartbeat next RUN confirmed"
+			logger.info('After connection heartbeat Scheduler OK')
+		else:
+			isok=False
+			
+	if not isok:
+		print "No next run for heartbeat job"
+		logger.warning('heartbeat job Interrupted, restarting the overall scheduler ')
+		resetmastercallback()
+	return isok
+
+def waitandcheckheartbeat(pulsesecond):
+	print "wait " , pulsesecond , " seconds"
+	try:
+		f=float(pulsesecond)
+		secondint=int(f)
+	except:
+		secondint=180
+	t = threading.Timer(secondint, checkheartbeat).start()
 
 def mastercallback():
 	

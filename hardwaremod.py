@@ -251,24 +251,26 @@ def getsensordata(sensorname,attemptnumber): #needed
 		recdata=[]
 		ack=False
 		i=0
-		while (not ack)and(i<attemptnumber):
+		while (not ack)and(i<attemptnumber): # old check when the serial interface was used, in this case ack only indicates that the trasmission was correct, not the sensor value
 			ack=HWcontrol.sendcommand(cmd,sendstring,recdata)
 			i=i+1
 		if ack:
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
-				if recdata[2]>0:
+				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
 					Thereading=recdata[1]
 					print " Sensor " , sensorname  , "reading ",Thereading					
 				else:
 					print "Problem with sensor reading ", sensorname
+					logger.error("Problem with sensor reading: %s", sensorname)
 			else:
 				print "Problem with response consistency ", sensorname , " cmd " , cmd
+				logger.error("Problem with response consistency : %s", sensorname)
 		else:
-			print "no answer from Hardware control module", sensorname					
-
+			print "no answer from Hardware control module", sensorname
+			logger.error("no answer from Hardware control module: %s", sensorname)
 	else:
 		print "sensor name not found in list of sensors ", sensorname
-	
+		logger.error("sensor name not found in list of sensors : %s", sensorname)
 	return Thereading
 
 def makepulse(target,duration):
@@ -342,7 +344,14 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 			previousduty=getservoduty(target) 
 			dutycycle= str(int(MIN)+(int(MAX)-int(MIN))*int(percentage)/float(100))
 			stepsnumber="40" # this should be a string
-
+			
+			difference=float(previousduty)-float(dutycycle)
+			percentagediff=abs(float(100)*(difference-int(MIN))/(int(MAX)-int(MIN)))
+			
+			if percentagediff<1: # one percent difference
+				print " No difference with prevoius position ", target , " percentage difference ", percentagediff
+				return "same" , isok				
+			
 			if 0<=int(percentage)<=100:
 				print "range OK"
 			else:
@@ -409,6 +418,43 @@ def GO_stepper_position(target,position):
 		
 	return out , isdone
 
+
+def get_stepper_busystatus(target): 
+	tempdict , isok=get_stepper_HWstatus(target)
+	if isok:
+		if "busyflag" in tempdict:
+			return tempdict["busyflag"]
+	return ""
+	
+	
+	
+def get_stepper_HWstatus(target): 
+	#search the data in IOdata
+	isok=False
+	
+	try:
+		Interface_Number=searchdata(HW_INFO_NAME,target,HW_CTRL_ADCCH)
+	except ValueError:
+		return "error" , isok
+		
+	sendstring="stepperstatus:"+Interface_Number
+	print " sendstring " , sendstring
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= HWcontrol.sendcommand("stepperstatus",sendstring,recdata) 
+		print "returned data " , recdata
+		if ack:
+			print target, "correctly activated"	
+			print "get stepper status : " , recdata[1]
+			isok=True
+			return recdata[1], isok
+			
+	return "Error" , isok
+
+
+
 def GO_stepper(target,steps,direction): 
 	#search the data in IOdata
 	isok=False
@@ -466,7 +512,7 @@ def GO_stepper(target,steps,direction):
 			isok=True
 			return str(position) , isok
 			
-	return isok
+	return "Error" , isok
 
 def getstepperposition(element):
 	return read_status_data(Stepper_Status,element,'position')

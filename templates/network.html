@@ -21,7 +21,7 @@
 	
 	
 			<div id="wifilistplace"></div>
-			<div id="wifilistwait">Scanning wifi networks <span id="wait">.</span> </div>
+			<div id="wifilistwait"><b style="color:red">Scanning wifi networks <span id="wait">.</span></b> </div>
 			
 			<div class="page-header">
 				<h3>Local System Access Point</h3>   
@@ -161,22 +161,23 @@
 				window.dotsGoingUp = true;
 				var dots = window.setInterval( function() {
 					var wait = document.getElementById("wait");
-					if ( window.dotsGoingUp ) 
-						wait.innerHTML += ".";
-					else {
-						wait.innerHTML = wait.innerHTML.substring(1, wait.innerHTML.length);
-						if ( wait.innerHTML === "")
-							window.dotsGoingUp = true;
+						if (wait !== null && wait !== '') {
+						if ( window.dotsGoingUp ) 
+							wait.innerHTML += ".";
+						else {
+							wait.innerHTML = wait.innerHTML.substring(1, wait.innerHTML.length);
+							if ( wait.innerHTML === "")
+								window.dotsGoingUp = true;
+						}
+						if ( wait.innerHTML.length > 9 )
+							window.dotsGoingUp = false;
+
 					}
-					if ( wait.innerHTML.length > 9 )
-						window.dotsGoingUp = false;
-
-
 
 					}, 100);
 			</script>
   
-  
+	
   
   
   {% else %}

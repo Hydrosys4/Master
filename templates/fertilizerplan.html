@@ -190,8 +190,8 @@
 										<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 									{% endfor %}											
 									</select>
-								<div class="small">Activate doser according to the Schedulet time</div>
-								<div class="small">Activate doser according to scheduler, with time just before the associated watering</div>
+								<div class="small">ScheduledTime: Activate doser according to the Scheduled time.</div>
+								<div class="small">BeforeWatering: Activate the doser N times per month according to schedule, activation time just before the reference watering activation</div>
 
 
 								</div>
@@ -253,7 +253,7 @@
 								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 								<select class="form-control input-sm dontwantgap seltimeclass" valueinit="{{settingparam[4]}}" name="{{elem}}_param4">
 								</select>
-								<div class="small">Set the time of the activation of the doser, in case the sheduler time is selected </div>
+								<div class="small">Set the time of the activation of the doser, in case the working mode above is set to ScheduledTime</div>
 
 								</div>
 							</div>				

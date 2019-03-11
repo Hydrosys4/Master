@@ -113,8 +113,8 @@
 						<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
 					</select>
-				<div class="small">Full Auto will activate the automation according to the below parameters</div>
-				<div class="small">Emergency: not implemented</div>
+				<div class="small">Full Auto: Activate the automation according to the below parameters</div>
+				<div class="small">Emergency Activation: not implemented</div>
 				<div class="small">Alert Only: not implemented</div>
 
 				</div>
@@ -225,7 +225,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
-				<div class="small">max number of steps between Min adn Max </div>
+				<div class="small">Number of actuator steps between Min and Max </div>
 
 				</div>
 			</div>				
@@ -241,7 +241,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[6]}}" class="form-control input-sm" name="{{elem}}_6" type="text">
-				<div class="small">waiting a number of minutes between activations</div>
+				<div class="small">Actuator wait a number of minutes between activations</div>
 
 				</div>
 			</div>				
@@ -250,20 +250,15 @@
 			<div class="form-group">		
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Average Sensor Data:
+				<label>Interval for Sensor Data evaluation:
 				</label>
 
 				
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				
-					 {% set arr=["1","2","3","4","5"] %}	 			
-						  <select class="form-control input-sm" name="{{elem}}_7">
-						    {% for item in arr %}
-							<option {% if item==settingparam[7] %}selected="selected"{% endif %} >{{item}}</option>
-							{% endfor %}
-						  </select>
-				<div class="small">Number of sensor samples to calculate the average value for the automation algorithm</div>
+					<input value="{{settingparam[7]}}" class="form-control input-sm" name="{{elem}}_7" type="text">
+				<div class="small">Number of past minutes in which the sensor values are taken and evaluated (average/min/max) for the automation algorithm</div>
 
 				</div>
 			</div>				
@@ -320,16 +315,12 @@
 			<div class="form-group">		
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Alert preferences:
-				</label>
-
-				
+				<label>Alert preferences:</label>
 				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				{% set arr=["infoandwarning","warningonly"] %}	 			
-				  <select class="form-control input-sm" name="{{elem}}_9">
-					{% for item in arr %}
-					<option {% if item==settingparam[9] %}selected="selected"{% endif %} >{{item}}</option>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">	 			
+				  <select class="form-control input-sm dontwantgap" name="{{elem}}_9">
+					{% for name in alertlist %}	
+					<option {% if name==settingparam[9] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}
 				  </select>
 				<div class="small">send by email the info plus warning or the warning only </div>
@@ -338,7 +329,23 @@
 			</div>				
 			</div>	
 		
-			
+			<div class="form-group">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Math operation on samples</label>
+				</div>		
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<select class="form-control input-sm dontwantgap" name="{{elem}}_10">
+					{% for name in operationlist %}	
+						<option {% if name==settingparam[10] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+					{% endfor %}											
+					</select>
+				<div class="small">Operation between the samples to calculate the sensor value</div>
+
+
+				</div>
+			</div>
+			</div>	
 			
 <!---- Status section -->
 

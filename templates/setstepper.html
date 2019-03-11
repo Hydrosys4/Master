@@ -20,6 +20,7 @@
 				<tr>
 					<th>Stepper</th>
 					<th>Position</th>
+					<th>Busy</th>
 					<th>SetTo</th>
 					<th>Set</th></th>
 				</tr>
@@ -37,8 +38,14 @@
 				</td>
 				
 				<td>
-						<label class="form-label-left" id="{{ item }}_stepperstatus" >{{stepperstatuslist[loop.index0]}}</label>
+						<label class="form-label-left" id="{{ item }}_stepperstatus" >{{stepperstatuslist[loop.index0]["position"]}}</label>
+						
 				</td>
+
+				<td>
+						<label class="form-label-left" id="{{ item }}_stepperbusy" >{{stepperstatuslist[loop.index0]["busy"]}}</label>
+				</td>
+
 
 				  <td>
 							<input value="0" class="form-control input-sm" id="newposition_{{ item }}" name="title" type="text">

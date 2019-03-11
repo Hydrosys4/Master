@@ -237,15 +237,30 @@ add config with stepper motor
 
 Start scheduler after internet connection to avoid sudden time readjustment
 
+2019-02-02 -> release 92
 
+double check for "heartbeat" presence after every internet connection.
+
+Add the MIN-MAX option in the AutoWatering 
+
+Add math operations over sample sensors in automation
+
+2019-02-24 -> release 93
+
+extend syslor error search with "Error"
+
+fix HWcontrol debugging info.
+
+2019-03-10 -> release 94
+
+Better naming for the GUI
+
+Adjust the pre-setting hardware config for the 8xhygrometers
 
 
 ------- Future releases: -----------
 
-
-
-add in the setting page the MIN-MAX setting for the servo (add also the reset button)
-
+fix the test photo in setting, sometimes the servo does not move
 
 enable HTTPS, not public version
 

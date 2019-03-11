@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.91"
+Release="0.94"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -706,14 +706,22 @@ def doit():
 		hardwaremod.setstepperposition(element, newposition)
 		ret_data = {"answer": newposition}
 
+#	elif name=="stepperbusyflagdown":
+#		print "want to set stepper busyfleg to false"
+		
+#		element=request.args['element']	
 
+#		hardwaremod.setstepperbusyflag(element, False)
+#		ret_data = {"answer": "busyflag Down"}  """
 
 
 	elif name=="photo":
 		print "want to test photo"
+
 		idx=1
 		if idx < len(argumentlist):
 			video=argumentlist[idx]
+		logger.info('testing photo %s', video)			
 		resolution=request.args.getlist('resolution')[0]
 		position=request.args.getlist('position')[0]
 		servo=request.args.getlist('servo')[0]
@@ -725,6 +733,7 @@ def doit():
 			print "only use the first position for testing " , positionlist[0]
 			# move servo
 			position=positionlist[0]
+			logger.info('Move servo to position %s', position)
 			hardwaremod.servoangle(servo,position,1)			
 		# take picture
 		#vdirection=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC)
@@ -759,6 +768,7 @@ def doit():
 			print "datetime Local ->" ,datetime
 			answer=clockmod.setsystemclock(datetime)
 			answer=clockmod.setHWclock(datetime)
+			selectedplanmod.checkheartbeat()
 
 		ret_data = {"answer":answer, "value":datetime}
 
@@ -1215,7 +1225,12 @@ def setstepper():  # set the stepper zero point
 	stepperlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"stepper",hardwaremod.HW_INFO_NAME)
 	stepperstatuslist=[]
 	for stepper in stepperlist:
-		stepperstatuslist.append(hardwaremod.getstepperposition(stepper))	
+		tempdict={}
+		tempdict["position"]=hardwaremod.getstepperposition(stepper)
+		tempdict["busy"]=hardwaremod.get_stepper_busystatus(stepper)		
+		stepperstatuslist.append(tempdict)	
+	
+	print stepperstatuslist
 
 	return render_template('setstepper.html',stepperlist=stepperlist,stepperstatuslist=stepperstatuslist)
 
@@ -1367,7 +1382,7 @@ def autowatering():
 	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,"Moisturecontrol",hardwaremod.HW_INFO_NAME)
 	print "sensorlist ",sensorlist
 	
-	modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
+	modelist=["None", "Full Auto" , "under MIN over MAX" , "Emergency Activation" , "Alert Only"]
 	formlist=["workmode", "sensor" , "threshold", "wtstepsec", "maxstepnumber", "pausebetweenwtstepsmin", "allowedperiod" , "maxdaysbetweencycles", "sensorminacceptedvalue", "mailalerttype"  ]
 	alertlist=["infoandwarning", "warningonly"]
 
@@ -1460,7 +1475,8 @@ def automation():
 	print "sensorlist ",sensorlist
 	
 	modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
-	formlist=["workmode", "sensor" , "sensor_threshold", "actuator_threshold", "stepnumber", "pausebetweenwtstepsmin", "averagesample", "allowedperiod" , "mailalerttype"  ]
+	operationlist=["average", "min" , "max" ]
+	formlist=["workmode", "sensor" , "sensor_threshold", "actuator_threshold", "stepnumber", "pausebetweenwtstepsmin", "averagesample", "allowedperiod" , "mailalerttype" ,"mathoperation" ]
 	alertlist=["infoandwarning", "warningonly"]
 
 
@@ -1487,6 +1503,8 @@ def automation():
 			dicttemp["averagesample"]=request.form[element+'_7']			
 			dicttemp["allowedperiod"]=[request.form[element+'_8_1'],request.form[element+'_8_2']]
 			dicttemp["mailalerttype"]=request.form[element+'_9']
+			dicttemp["mathoperation"]=request.form[element+'_10']
+
 
 			print "dicttemp ----->",dicttemp 
 			automationdbmod.replacerow(element,dicttemp)		
@@ -1530,7 +1548,7 @@ def automation():
 
 
 		
-	return render_template("automation.html", title=title,selectedelement=selectedelement,modelist=modelist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist)
+	return render_template("automation.html", title=title,selectedelement=selectedelement,modelist=modelist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist, operationlist=operationlist , alertlist=alertlist)
 
 
 
@@ -2055,8 +2073,8 @@ def currentpath(filename):
 def functiontest():
 	print " testing "
 	#mailname="mail1"
-	testo=[" riga 1 ", "riga 2 " , " Riga fine"]
-	emailmod.sendallmail("alert","prova mail", testo)
+	#testo=[" riga 1 ", "riga 2 " , " Riga fine"]
+	#emailmod.sendallmail("alert","prova mail", testo)
 	#autofertilizermod.AUTO_data["doser1"]["tobeactivated"]=True
 	#autofertilizermod.AUTO_data["doser1"]["duration"]=5000
 	#autowateringmod.activatewater("water2", 50000)
@@ -2067,13 +2085,13 @@ def functiontest():
 	#print "got array " , slopeOK
 	
 	#selectedplanmod.heartbeat()
-	sensorname="hygroBalcFrontR"
-	selectedplanmod.periodicdatarequest(sensorname)
+	target="water1"
+	selectedplanmod.startpump(target,"30","10","5")
 	
 	#selectedplanmod.removeallscheduledjobs()
 	#hardwaremod.takephoto()
 
-	message = "OK"
+	message = "ok"
 
 	return message
 
@@ -2174,4 +2192,4 @@ if __name__ == '__main__':
 		application.run(debug=DEBUGMODE,use_reloader=False,port=80)	
 
 	print "close"
-	selectedplanmod.stop()
+

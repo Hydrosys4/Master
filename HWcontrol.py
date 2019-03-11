@@ -23,7 +23,8 @@ except ImportError:
 else:
 	import Adafruit_DHT #humidity temperature sensor
 	import Adafruit_BMP.BMP085 as BMP085 #pressure sensor
-	from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
+	#from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
+	from stepperDOUBLEmod import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
 	import spidev
 	import smbus
 	import RPi.GPIO as GPIO
@@ -31,7 +32,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","photo","mail+info+link","mail+info"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info"]
 RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
@@ -39,6 +40,11 @@ ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 inpu
 # status variables
 DHT22_data={}
 DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.datetime.now() - datetime.timedelta(seconds=2)}
+
+stepper_data={}
+stepper_data["default"]={'busyflag':False}
+
+
 
 #" GPIO_data is an array of dictionary, total 40 items in the array
 GPIO_data=[{"level":None, "state":None} for k in range(40)]
@@ -70,10 +76,27 @@ def read_status_data(data,element,variable):
 			# variable not in elementdata
 			return ""
 
+def read_status_dict(data,element):
+	print data
+	if element in data:
+		print " element present"
+		elementdata=data[element]
+		return elementdata
+	else:
+		print " element NOT present"
+		return {}
+
+def write_status_data(data,element,variable,value):
+	if element in data:
+		data[element][variable]=value
+	else:
+		data[element]=data["default"].copy()
+		data[element][variable]=value
 
 def execute_task(cmd, message, recdata):
 	global DHT22_data
 	global Servo_data
+	global stepper_data
 	
 	
 	if cmd==HWCONTROLLIST[0]:
@@ -102,8 +125,10 @@ def execute_task(cmd, message, recdata):
 		return gpio_set_servo(cmd, message, recdata)
 
 	elif cmd==HWCONTROLLIST[8]: #stepper	
-		return gpio_set_stepper(cmd, message, recdata)
+		return gpio_set_stepper(cmd, message, recdata, stepper_data)
 
+	elif cmd==HWCONTROLLIST[9]: #stepper status	
+		return get_stepper_status(cmd, message, recdata, stepper_data)
 
 	else:
 		print "Command not found"
@@ -164,24 +189,37 @@ def get_DHT22_reading(cmd, message, recdata, DHT22_data):
 		humidity=None
 		temperature=None
 		
-		try:
-			sensor = Adafruit_DHT.DHT22
-			humidity, temperature = Adafruit_DHT.read(sensor, pin)
-			if (TemperatureUnit=="F") and (temperature is not None):
-				temperature=temperature*1.8+32
-		except:
-			print "error reading the DHT sensor (Humidity,Temperature)"
-			logger.error("error reading the DHT sensor (Humidity,Temperature)")
-			
-		# if reading OK, update status variable
-		if (humidity is not None) and (temperature is not None):
-			print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
-			DHT22_data[element]['humidity']=('{:3.2f}'.format(humidity / 1.))
-			DHT22_data[element]['temperature']=('{:3.2f}'.format(temperature / 1.))
-			DHT22_data[element]['lastupdate']=datetime.datetime.now()
-			successflag=1
-		else:
-			print 'Failed to get DHT22 reading'			
+		readingattempt=3
+		inde=0
+		while (inde<readingattempt) and (successflag==0):
+			inde=inde+1
+			try:
+				sensor = Adafruit_DHT.DHT22
+				humidity, temperature = Adafruit_DHT.read(sensor, pin)
+				if (TemperatureUnit=="F") and (temperature is not None):
+					temperature=temperature*1.8+32
+
+			except:
+				print "error reading the DHT sensor (Humidity,Temperature)"
+				logger.error("error reading the DHT sensor (Humidity,Temperature)")
+				
+			# if reading OK, update status variable
+			if (humidity is not None) and (temperature is not None):
+				# further checks
+				if (humidity>=0)and(humidity<=100)and(temperature>-20)and(temperature<200):
+					print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
+					DHT22_data[element]['humidity']=('{:3.2f}'.format(humidity / 1.))
+					DHT22_data[element]['temperature']=('{:3.2f}'.format(temperature / 1.))
+					DHT22_data[element]['lastupdate']=datetime.datetime.now()
+					successflag=1
+				else:
+					print 'Failed to get DHT22 reading'	
+					logger.error("Failed to get DHT22 reading, values in wrong range")					
+			else:
+				print 'Failed to get DHT22 reading'	
+				logger.error("Failed to get DHT22 reading")
+			time.sleep(1)
+		
 		# data in status variable will not be used in case of failure reading, only in case of reading request less than 10sec
 	else:
 		# use the data in memory, reading less than 10 sec ago
@@ -529,16 +567,48 @@ def gpio_set_servo(cmd, message, recdata):
 	
 
 	
-def gpio_set_stepper(cmd, message, recdata):
+def gpio_set_stepper(cmd, message, recdata , stepper_data):
 			
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
-	Interface_Number=int(msgarray[1]) # this is the interface on same I2C board
+	Interface=msgarray[1]
+	Interface_Number=int(Interface) # this is the interface on same I2C board
 	direction=msgarray[2]
 	speed=int(msgarray[3])
 	steps=int(msgarray[4])
+
+	waitstep=0.1
+	waittime=0
+	maxwait=2.5
+	while (read_status_data(stepper_data,Interface,"busyflag")==True)and(waittime<maxwait):
+		time.sleep(waitstep)
+		waittime=waittime+waitstep
+		
 	
+	print "Stepper wait time -----> ", waittime
+		
+	if (waittime>=maxwait):
+		#something wrog, wait too long, avoid initiate further processing
+		# check how long the busyflag has been True
+		lasttime=read_status_data(stepper_data,Interface,"busyflagtime")	
+		deltat=datetime.datetime.now()-lasttime
+		if deltat.total_seconds()>600: # 600 seconds = 10 minutes
+			# someting wrong, try to reset the stepper controller
+			logger.warning("Stepper busy status Time exceeded, reset stepper controller: %s  ************", Interface)
+			write_status_data(stepper_data,Interface,"busyflag",False)
+			#reset
+			mh = Adafruit_MotorHAT()
+			mh.reset()
+		else:
+			print "Stepper wait time EXCEEDED "
+			logger.warning("Stepper Wait Time exceeded, not proceeding with stepper: %s", Interface)
+			return False
 	
+	write_status_data(stepper_data,Interface,"busyflag",True)
+	write_status_data(stepper_data,Interface,"busyflagtime",datetime.datetime.now())
+
+	# stepper is no busy, proceed
+
 	# create a default object, no changes to I2C address or frequency
 	mh = Adafruit_MotorHAT()
 	
@@ -562,12 +632,23 @@ def gpio_set_stepper(cmd, message, recdata):
 	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
 	mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
 	mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
+	
+	del mh
+	
+	write_status_data(stepper_data,Interface,"busyflag",False)
+	
 	return True	
 
 
-
-
-
+def get_stepper_status(cmd, message, recdata , stepper_data):
+	print "get stepper status"
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	Interface=msgarray[1]
+	returndata=read_status_dict(stepper_data,Interface)
+	recdata.append(cmd)
+	recdata.append(returndata)
+	return True
 
 
 def sendcommand(cmd, message, recdata):

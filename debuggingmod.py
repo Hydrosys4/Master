@@ -26,7 +26,7 @@ def searchsyslogkeyword(keyword):
 	countdown=0
 	extract=[]
 	for row in data:
-		if (keyword in row)or(keyword.lower() in row)or(keyword.upper() in row):
+		if keyword.lower() in row.lower():
 			countdown=numrowafter
 		if countdown:
 			extract.append(row)
