@@ -1,5 +1,5 @@
-{"IOtype": "input" ,"name": "tempsensor1", "unit" : "C", "measure":"Temperature",  "controllercmd": "tempsensor", "pin": "24" , "usedfor" : "temperaturecontrol", "schedulingtype":"periodic", "time":"00:15:05"}
-{"IOtype": "input" ,"name": "humidsensor1", "unit" : "%", "measure":"Humidity",  "controllercmd": "humidsensor", "pin": "24" , "usedfor" : "humiditycontrol", "schedulingtype":"periodic", "time":"00:15:03"}
+{"IOtype": "input" ,"name": "tempsensor1", "unit" : "C", "measure":"Temperature",  "controllercmd": "tempsensor", "pin": "24" , "usefor" : "temperaturecontrol", "schedulingtype":"periodic", "time":"00:15:05"}
+{"IOtype": "input" ,"name": "humidsensor1", "unit" : "%", "measure":"Humidity",  "controllercmd": "humidsensor", "pin": "24" , "usefor" : "humiditycontrol", "schedulingtype":"periodic", "time":"00:15:03"}
 {"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water1", "pin": "5", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
 {"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water2", "pin": "6", "usefor": "watercontrol",  "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
 {"IOtype": "output" , "controllercmd": "pulse",  "logic": "neg", "name": "water3", "pin": "13", "usefor": "watercontrol", "measure": "Time" , "unit" : "sec", "schedulingtype":"oneshot"}
@@ -12,3 +12,4 @@
 {"IOtype": "output" ,"usefor": "mailcontrol", "mailaddress": "", "controllercmd": "mail+info","name": "mail2", "time": "10:00", "mailtitle": "Hydrosys today report", "measure" : "Mail"  , "unit" : "pcs" , "schedulingtype":"oneshot"}
 {"IOtype": "output" ,"usefor": "photocontrol", "controllercmd": "photo", "name": "photo", "time": "09:30", "measure" : "Photo"  , "unit" : "pcs", "schedulingtype":"oneshot"}
 {"ADCchannel": "0", "IOtype": "output", "controllercmd": "servo", "frequency": "50", "logic": "pos", "mailaddress": "", "mailtitle": "", "max": "12", "measure": "Percentage", "min": "2", "name": "servo1", "pin": "21", "powerpin": "N/A", "schedulingtype": "oneshot", "time": "", "unit": "C", "usefor": "N/A"}
+{"IOtype": "input" ,"name": "TimeTrigger", "unit" : "%", "measure":"Time",  "controllercmd": "returnzero", "pin": "N/A" , "usefor" : "N/A", "schedulingtype":"periodic", "time":"00:05:00"}

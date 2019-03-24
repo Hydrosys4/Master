@@ -21,3 +21,6 @@ cd env/autonomMaster2
 sudo python start.py
 go to http://127.0.0.1:5020/
 
+
+REMOVE FOLDER ROOT PERMISSIONS
+sudo chown -R $USER ~/env/autonomMaster2

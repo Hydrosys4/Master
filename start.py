@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.94"
+Release="0.95"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -142,7 +142,7 @@ except:
 #scheduler setup---------------------
 selectedplanmod.start_scheduler()
 # after internet connection because ofter the time is abruptly changed after connection
-selectedplanmod.waitandsetmastercallback(networkmod.WAITTOCONNECT, 40)	# plus 40 seconds respect to internet connection
+selectedplanmod.waitandsetmastercallback(networkmod.WAITTOCONNECT, 15)	# plus 40 seconds respect to internet connection
 	
 	
 #prove varie qui ---------------------------------------------------
@@ -725,7 +725,7 @@ def doit():
 		resolution=request.args.getlist('resolution')[0]
 		position=request.args.getlist('position')[0]
 		servo=request.args.getlist('servo')[0]
-		vdirection=request.args.getlist('vdirection')[0]
+		vdirection=request.args.getlist('vflip')[0]
 		print "resolution ", resolution , " position ", position
 		positionlist=position.split(",")
 		position=""
@@ -812,21 +812,26 @@ def saveit():
 		# save photo time
 		phototime=""
 		phototime=request.args['time']
-		vdirection=request.args['vdirection']
-		print "save photo setting, time=" , phototime , " Vertical direction " , vdirection
+
+		print "save photo setting, time=" , phototime
 		hwname=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_INFO_NAME)
 		hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_FUNC_TIME,phototime)
-		hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_CTRL_LOGIC,vdirection)
+		#hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_CTRL_LOGIC,vdirection)
 				
 		camname=request.args['element']
 		resolution=request.args['resolution']
 		position=request.args['position']
 		servo=request.args['servo']
-		print "save camera name " ,camname , " resolution=" , resolution , " position=" , position , " servo=" , servo ," time=", phototime
+		active=request.args['active']
+		vflip=request.args['vflip']
+		
+		print "save camera name " ,camname , " resolution=" , resolution , " position=" , position , " servo=" , servo ," time=", phototime ," Active=", active, " vflip ", vflip
 		cameradbmod.changecreatesetting("camera",camname,"resolution",resolution)
 		cameradbmod.changecreatesetting("camera",camname,"position",position)
 		cameradbmod.changecreatesetting("camera",camname,"servo",servo)
 		cameradbmod.changecreatesetting("camera",camname,"time",phototime)
+		cameradbmod.changecreatesetting("camera",camname,"active",active)
+		cameradbmod.changecreatesetting("camera",camname,"vflip",vflip)		
 		cameradbmod.savesetting()
 		
 		
@@ -2085,11 +2090,13 @@ def functiontest():
 	#print "got array " , slopeOK
 	
 	#selectedplanmod.heartbeat()
-	target="water1"
-	selectedplanmod.startpump(target,"30","10","5")
+	#target="water1"
+	#selectedplanmod.startpump(target,"30","10","5")
 	
 	#selectedplanmod.removeallscheduledjobs()
 	#hardwaremod.takephoto()
+
+	automationmod.automationcheck("TimeTrigger")
 
 	message = "ok"
 

@@ -867,6 +867,15 @@ def removephotodataperiod(removebeforedays):
 
 			
 	
+
+	
+def videodevlist():
+	return photomod.videodevlist()
+	
+def  thumbconsistency(apprunningpath):
+	return photomod.thumbconsistency(apprunningpath)
+			
+
 def shotit(video,istest,resolution,positionvalue,vdirection):
     # send command to the actuator for test
 	if istest:
@@ -885,35 +894,35 @@ def shotit(video,istest,resolution,positionvalue,vdirection):
 		ret_data = {"answer": "Camera not detected"}	
 	print "The photo ", ret_data
 	return ret_data
-	
-def videodevlist():
-	return photomod.videodevlist()
-	
-def  thumbconsistency(apprunningpath):
-	return photomod.thumbconsistency(apprunningpath)
-			
+
+
 			
 def takephoto():
 	print "take photo", " " , datetime.now()
 	videolist=videodevlist()
 	for video in videolist:
-		resolution=cameradbmod.searchdata("camname",video,"resolution") # if not found return ""
-		position=cameradbmod.searchdata("camname",video,"position")
-		servo=cameradbmod.searchdata("camname",video,"servo")
-		vdirection=searchdata(HW_FUNC_USEDFOR,"photocontrol",HW_CTRL_LOGIC)
-		print "Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection
-		logger.info("Camera: %s Resolution %s Position %s Vertical direction %s " , video , resolution , position , vdirection)
-		positionlist=position.split(",")
-		if (positionlist)and(servo!="none"):
-			for positionvalue in positionlist:
-			# move servo
-				servoangle(servo,positionvalue,2)
+		if cameradbmod.isCameraActive(video):
+			resolution=cameradbmod.searchdata("camname",video,"resolution") # if not found return ""
+			position=cameradbmod.searchdata("camname",video,"position")
+			servo=cameradbmod.searchdata("camname",video,"servo")
+			vdirection=cameradbmod.searchdata("camname",video,"vflip")
+			print "Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection 
+			logger.info("Camera: %s Resolution %s Position %s Vertical direction %s " , video , resolution , position , vdirection)
+			positionlist=position.split(",")
+			if (positionlist)and(servo!="none"):
+				for positionvalue in positionlist:
+				# move servo
+					servoangle(servo,positionvalue,2)
+					ret_data={}
+					ret_data=shotit(video,False,resolution,positionvalue,vdirection)
+			else:
 				ret_data={}
-				ret_data=shotit(video,False,resolution,positionvalue,vdirection)
+				ret_data=shotit(video,False,resolution,"0",vdirection)			
+			logger.info(ret_data["answer"])
 		else:
-			ret_data={}
-			ret_data=shotit(video,False,resolution,"0",vdirection)			
-		logger.info(ret_data["answer"])
+			logger.info("Camera: %s not activated " , video)				
+
+		
 
 def resetandbackuplog_bak():
 	#setup log file ---------------------------------------

@@ -59,6 +59,7 @@ def automationexecute(refsensor,element):
 			logger.info("No Action required, workmode set to None, element: %s " , element)
 			return
 
+		logger.info('Automantion, Get all the parameters')
 		sensormaxthreshold=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"sensor_threshold")[1],0)
 		sensorminthreshold=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"sensor_threshold")[0],sensormaxthreshold)
 		actuatormaxthreshold=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"actuator_threshold")[1],0)
@@ -81,6 +82,17 @@ def automationexecute(refsensor,element):
 		averageminutes=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"averagesample"),1)
 		mathoperation=automationdbmod.searchdata("element",element,"mathoperation")
 
+		# check sensor timetrigger
+		sensorcontrolcommand=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,refsensor,hardwaremod.HW_CTRL_CMD)
+		logger.info('Sensor control command: %s , Sensor: %s', sensorcontrolcommand, sensor)
+		if sensorcontrolcommand=="returnzero":
+			logger.info('Modify parameter for the timetrigger')			
+			#adjust the parameters in the way the activation condition is always obtained
+			sensormaxthreshold=1
+			sensorminthreshold=-1
+			maxstepnumber=1
+			averageminutes=0
+
 		
 		# Calculated Variables
 		if maxstepnumber<1:
@@ -93,7 +105,6 @@ def automationexecute(refsensor,element):
 		P=[]
 		for I in range(0, maxstepnumber+1):
 			P.append(actuatorminthreshold+I*actuatorinterval)
-		
 		
 		
 		
@@ -234,6 +245,9 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 		if isok:
 			AUTO_data[element]["lastactiontime"]=datetime.now()
 			AUTO_data[element]["actionvalue"]=value
+	else:
+		logger.info('Need to wait more time')		
+		
 
 def activateactuator(target, value):  # return true in case the state change: activation is >0 or a different position from prevoius position.
 	# check the actuator 
@@ -288,7 +302,7 @@ def sensorreading(sensorname,MinutesOfAverage,operation):
 		if samplesnumber>0:
 			sensordata=[]		
 			sensordbmod.getsensordbdatasamplesN(sensorname,sensordata,samplesnumber)
-			starttimecalc=datetime.now()-timedelta(minutes=MinutesOfAverage)
+			starttimecalc=datetime.now()-timedelta(minutes=(MinutesOfAverage+theinterval)) #if Minutes of average is zero, it allows to have at least one sample
 			quantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())[operation]	
 			isok=True	
 	return isok , quantity

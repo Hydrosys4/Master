@@ -1,1 +1,1 @@
-{"name": "default", "position": "20", "resolution": "320x240", "time": "10:30", "servo" : "none"}
+{"name": "default", "position": "20", "resolution": "320x240", "time": "10:30", "servo" : "none", "active" : "False" ,  "vflip" : "pos"}

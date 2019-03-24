@@ -32,7 +32,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero"]
 RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
@@ -129,6 +129,14 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[9]: #stepper status	
 		return get_stepper_status(cmd, message, recdata, stepper_data)
+
+	elif cmd==HWCONTROLLIST[13]: #return zero	
+		print "returnzero"
+		returndata="0"
+		recdata.append(cmd)
+		recdata.append(returndata)
+		recdata.append(1) # confirm data for acknowledge
+		return True
 
 	else:
 		print "Command not found"

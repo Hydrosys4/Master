@@ -258,6 +258,15 @@ Better naming for the GUI
 Adjust the pre-setting hardware config for the 8xhygrometers
 
 
+2019-03-22 -> release 95
+
+Add activation for the cameras
+
+Add timetrigger in the automation
+
+
+
+
 ------- Future releases: -----------
 
 fix the test photo in setting, sometimes the servo does not move

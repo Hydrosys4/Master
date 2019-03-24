@@ -80,6 +80,7 @@ def saveshot(filepath, video, realshot, resolution, positionvalue, vdirection):
 		filenamenopath3=filenamenopath
 		
 	filename=os.path.join(filepath, filenamenopath)
+	print "Start Photo procedure: ", video , " ************************************************"
 	print "FILE : ", filename		
 
 	
@@ -123,12 +124,12 @@ def saveshot(filepath, video, realshot, resolution, positionvalue, vdirection):
 		
 		
 		if checkPIcam(video):
-			# the video device should be PI camera
+			print "The video device should be PI camera"
 			shottaken=takeshotandsave_raspistill(filepath,filenamenopath3, video, resolution,rotdeg)
 			if not shottaken: # gives it a second chance :)
 				shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution,rotdeg)	
 		else:
-			# Should be USB camera
+			print " The video device should be USB camera"
 			shottaken=takeshotandsave_fswebcam(filepath,filenamenopath2, video, resolution,rotdeg)		
 		
 		#shottaken=takeshotandsave_mjpg_streamer(filepath,filenamenopath, video, resolution)	
@@ -137,7 +138,7 @@ def saveshot(filepath, video, realshot, resolution, positionvalue, vdirection):
 			if filexist:
 				os.rename(filename + ".bak", filename)
 		
-		print "Picture take = " ,shottaken
+		print "Picture acknowledge return = " ,shottaken
 		
 				
 
@@ -251,7 +252,7 @@ def takeshotandsave_fswebcam(filepath,filenamenopath, video, resolution, rotdeg)
 			# -r resoltion
 			# -F takes frames
 
-			print "output: " , myproc
+			print "output from subprocess: " , myproc
 
 			newfilexist=os.path.isfile(filename)
 			print "file was created = ", newfilexist

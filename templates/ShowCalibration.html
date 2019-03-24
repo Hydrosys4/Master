@@ -649,30 +649,47 @@
 
 			
 
-			<table class="table" margin: 10px;>
-			<thead>
-				<tr>
-					<th>Device</th>
-					<th>Resol</th>
-					<th>Position%</th>
-					<th>Servo</th>
-					<th>CTRL</th>
-				</tr>
-			</thead>
-			<tbody>
+
 			
 			
 			
 
 			{% for dict_item in camerasettinglist %}	
-			{% set item = dict_item['camname'] %}
-			{% set resolution = dict_item['resolution'] %}
-			{% set position = dict_item['position'] %}
-			{% set servo = dict_item['servo'] %}
+				{% set item = dict_item['camname'] %}
+				{% set resolution = dict_item['resolution'] %}
+				{% set position = dict_item['position'] %}
+				{% set servo = dict_item['servo'] %}
+				{% set active = dict_item['active'] %}
+				{% set vflip = dict_item['vflip'] %}
+				
+			<!--  title of camera  -->
+
+			<div class="form-group">			
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>Camera: {{item}}</legend>  
+				</div>	
+			</div>	
+			</div>	
+				
+				
+				
+			<table class="table" margin: 10px;>
+
+			<tbody>				
+				
+				<!-- 
+					<th>Device</th>
+					<th>Resol</th>
+					<th>Position%</th>
+					<th>Servo</th>
+					<th>Active</th>
+					<th>CTRL</th>			
+			    -->
 			<tr>
 
 				<td>
-					<label>{{ item }}</label>
+					<label>Resol</label>
 				</td>
 
 
@@ -689,13 +706,22 @@
 				  </select>
 				  
 				  </td>	
-				  		
-							
+			</tr>
+			<tr>				
+				<td>
+					<label>Position%</label>
+				</td>
 				<td>		
 				  
 				  <input value="{{position}}" class="form-control input-sm dontwantgap" id="selsettingpos_{{ item }}" name="position" type="text">
-
+					<div class="small">Multiple positions separated by comma (,) Values from 0 to 100</div>
 				 </td>	 	
+
+			</tr>
+			<tr>
+				<td>
+					<label>Servo</label>
+				</td>
 
 				<td>		
 				  <select class="form-control input-sm dontwantgap" id="selsettingservo_{{ item }}">
@@ -704,28 +730,92 @@
 					{% endfor %}
 				  </select>
 				 </td>	 
+			</tr>
+			<tr>
 
-							
 				<td>
-					<!-- start/stop button-->										
+					<label>Active</label>
+				</td>
+				<td>
+
+					{% if active=="True" %}
+					<input id="toggle-event_{{ item }}" checked="checked" type="checkbox">
+					<input value="True" id="selsettingactive_{{ item }}" type="hidden">					
+					{% else %}						
+					<input id="toggle-event_{{ item }}" type="checkbox">
+					<input value="False" id="selsettingactive_{{ item }}" type="hidden">	
+					{% endif %}
+
+
+					<script>
+					  $(function() {
+						$('#toggle-event_{{ item }}').change(function() {
+							var togglevalue=$(this).prop('checked');
+				
+							if (togglevalue==true) {
+								$("#selsettingactive_{{ item }}").val("True");										
+							} else {
+								$("#selsettingactive_{{ item }}").val("False");	
+							}
+						})
+					  })
+					</script>
+							
+
+				</td>
+			</tr>
+			
+			<tr>
+
+				<td>
+					<label>vFlip</label>
+				</td>
+				<td>
+
+				  <select class="form-control input-sm dontwantgap" id="selsettingvflip_{{ item }}">
+					<option {% if vflip=="pos" %} selected="selected"{% endif %}>pos</option>
+					<option {% if vflip=="neg" %} selected="selected"{% endif %}>neg</option>			
+				  </select>
+							
+
+				</td>
+			</tr>
+			
+			
+			
+			
+			<tr>
+				<td>
+					<label>Test</label>
+				</td>
+				<td>
+					<!-- Test button-->										
 					<button class="startphoto btn-sm btn btn-default" type="button" name="photo" video="{{item}}">Test</button>
 
 				</td>
 
-
 			</tr>
 
 			
-			{% endfor %}				
+			
 
 					
 
 
-        </tbody>
+				</tbody>
 			</table>
-	
+	{% endfor %}		
 	<!--  end table 1 -->	
-	<div class="small">Multiple positions separated by comma (,) numbers from 0 to 100</div>
+
+	<div class="form-group">			
+	<div class="row">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+		<legend>Common:</legend>  
+		</div>	
+	</div>	
+	</div>	
+
+
 	<table class="table" margin: 10px;>
 		<tbody>
 
@@ -780,32 +870,6 @@
 									$("#imgtest").addClass("img-responsive");										
 								} else {
 									$("#imgtest").removeClass("img-responsive");	
-								}
-							})
-						  })
-						</script>
-						
-
-			</td>
-			
-			<td>
-						<label>Vertical Flip
-						{% if photosetting[1]=="neg" %}
-						<input id="toggle-event2" checked="checked" type="checkbox">
-						{% else %}						
-						<input id="toggle-event2" type="checkbox">
-						{% endif %}
-						<input value="{{photosetting[1]}}" id="vdirection" name="vdirection" type="hidden">
-						</label>
-						<script>
-						  $(function() {
-							$('#toggle-event2').change(function() {
-								var togglevalue=$(this).prop('checked');
-					
-								if (togglevalue==true) {
-									$("#vdirection").val("neg");										
-								} else {
-									$("#vdirection").val("pos");	
 								}
 							})
 						  })
@@ -885,7 +949,7 @@
 					$.ajax({
 								type: "GET",
 								// url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&" + "name=" + value ,
-								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val() + "&vdirection=" + $('#vdirection').val(),
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&name=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val() + "&vflip=" + $('#selsettingvflip_' + elem).val(),
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {
@@ -942,7 +1006,7 @@
 					
 						$.ajax({
 									type: "GET",
-									url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val() + "&vdirection=" + $('#vdirection').val(),
+									url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&resolution=" + $('#selsettingres_' + elem).val() + "&position=" + $('#selsettingpos_' + elem).val() + "&servo=" + $('#selsettingservo_' + elem).val() + "&time=" + $('#SelTime1').val() + "&active=" + $('#selsettingactive_' + elem).val() + "&vflip=" + $('#selsettingvflip_' + elem).val(),
 									contentType: "application/json; charset=utf-8",
 									data: { echoValue: "requestfordata" },
 									success: function(data) {

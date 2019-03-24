@@ -21,6 +21,8 @@ import filestoragemod
 
 DATAFILENAME="camdata.txt"
 DEFDATAFILENAME="default/defcamdata.txt"
+CAMERAPARAMETERS=["camname","resolution","position","servo","time","active","vflip"]
+
 
 global data
 data=[]
@@ -84,25 +86,22 @@ def getcameradata(videolist):
 			i=i+1
 			if (line["name"]==name)and(line["camname"]==video):
 				newline={}
-				newline["camname"]=line["camname"]
-				newline["resolution"]=line["resolution"]
-				newline["position"]=line["position"]
-				newline["servo"]=line["servo"]
-				newline["time"]=line["time"]
+				for param in CAMERAPARAMETERS:
+					if param in line:
+						newline[param]=line[param]			
+					else:
+						newline[param]=""
 				exportdata.append(newline)
 				found=True
 		if (not found):
 			newline={}
-			newline["camname"]=video
-			newline["resolution"]=searchdata("name","default","resolution")
-			newline["position"]=searchdata("name","default","position")
-			newline["servo"]=searchdata("name","default","servo")
-			newline["time"]=searchdata("name","default","time")
+			for param in CAMERAPARAMETERS:
+				if param=="camname":
+					newline[param]=video
+				else:
+					newline[param]=searchdata("name","default",param)
 			exportdata.append(newline)			
-		
 	return exportdata
-
-
 
 
 def getcameraname():
@@ -175,6 +174,14 @@ def searchdata(recordkey,recordvalue,keytosearch):
 				if keytosearch in ln:
 					return ln[keytosearch]	
 	return ""
+
+def isCameraActive(video):
+	param=searchdata("camname",video,"active")
+	if param=="True":
+		return True
+	else:
+		return False
+
 
 def gettimedata(name):
 	# return list with three integer values: hour , minute, second
