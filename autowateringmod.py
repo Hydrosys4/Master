@@ -48,7 +48,8 @@ def autowateringcheck(refsensor):
 	return
 		
 		
-def autowateringexecute(refsensor,element):		
+def autowateringexecute(refsensor,element):	
+	global AUTO_data
 	sensor=autowateringdbmod.searchdata("element",element,"sensor")	
 	# check the sensor
 	if refsensor==sensor:	
@@ -222,6 +223,7 @@ def autowateringexecute(refsensor,element):
 			
 		elif workmode=="Emergency Activation":
 			# check if inside the allow time period
+			logger.info('Emergency Mode')
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
 			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 			if timeok:			
@@ -244,8 +246,11 @@ def autowateringexecute(refsensor,element):
 							else:
 
 								logger.info('Number of watering time per cycle has been exceeeded')
-								# read hystory data and calculate the slope
-								isslopeok=checkinclination(sensor,AUTO_data[element]["cyclestartdate"])
+								# read hystory data and calculate the slop
+								timelist=hardwaremod.gettimedata(sensor)
+								startdate=AUTO_data[element]["cyclestartdate"] - timedelta(minutes=timelist[1])
+								enddate=AUTO_data[element]["lastwateringtime"] + timedelta(minutes=waitingtime)
+								isslopeok=checkinclination(sensor,startdate,enddate)
 								
 								if isslopeok:
 									# invia mail if couner alert is lower than 1
@@ -287,20 +292,26 @@ def autowateringexecute(refsensor,element):
 		
 			
 		elif workmode=="under MIN over MAX":
+			logger.info('under MIN over MAX')
 			# normally watering plan is allowed unless over MAX threshold
 			allowwateringplan[element]=True
 			# check if inside the allow time period
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
 			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 			if timeok:			
+				logger.info('Insede operative time')
 				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
 				if valid:
+					logger.info('valid sensor reading')
 					if belowthr:
+						logger.info('sensor reading below threshold')
 						# wait to seek a more stable reading of hygrometer
 						# check if time between watering events is larger that the waiting time (minutes)			
 						if sensordbmod.timediffinminutes(AUTO_data[element]["lastwateringtime"],datetime.now())>waitingtime:
+							logger.info('enough time between activations')
 							# activate watering in case the maxstepnumber is not exceeded					
-							if maxstepnumber>AUTO_data[element]["watercounter"]:			
+							if maxstepnumber>AUTO_data[element]["watercounter"]:
+								logger.info('water Count not exceeded')			
 								#activate pump		
 								activatewater(element, duration)
 								# invia mail, considered as info, not as alert
@@ -313,7 +324,10 @@ def autowateringexecute(refsensor,element):
 
 								logger.info('Number of watering time per cycle has been exceeeded')
 								# read hystory data and calculate the slope
-								isslopeok=checkinclination(sensor,AUTO_data[element]["cyclestartdate"])
+								timelist=hardwaremod.gettimedata(sensor)
+								startdate=AUTO_data[element]["cyclestartdate"] - timedelta(minutes=timelist[1])
+								enddate=AUTO_data[element]["lastwateringtime"] + timedelta(minutes=waitingtime)
+								isslopeok=checkinclination(sensor,startdate,enddate)
 								
 								if isslopeok:
 									# invia mail if couner alert is lower than 1
@@ -347,6 +361,7 @@ def autowateringexecute(refsensor,element):
 						AUTO_data[element]["cyclestatus"]="lowthreshold"
 						AUTO_data[element]["checkcounter"]=AUTO_data[element]["checkcounter"]+1
 					else: # above minimum threshold
+						logger.info('sensor reading above min threshold')
 						# update the status
 						AUTO_data[element]["cyclestatus"]="done"
 						AUTO_data[element]["checkcounter"]=0
@@ -354,6 +369,7 @@ def autowateringexecute(refsensor,element):
 						AUTO_data[element]["alertcounter"]=0	
 						
 						if sensorreading(sensor)>maxthreshold:
+							logger.info('sensor reading above MAX threshold, deactivate scheduled irrigation')
 							# do not activate the irrigation scheduled in the time plan
 							allowwateringplan[element]=False
 							
@@ -551,7 +567,7 @@ def checkworkmode(element):
 
 
 def activatewater(element, duration):
-	# activation of the doser before the pump
+	# check the activation of the doser before the pump
 	doseron=autofertilizermod.checkactivate(element,duration)
 	#activate pump		
 	hardwaremod.makepulse(element,duration)

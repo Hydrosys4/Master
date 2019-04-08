@@ -113,7 +113,7 @@
 						<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
 					</select>
-				<div class="small">Full Auto: Activate the automation according to the below parameters</div>
+				<div class="small">Full Auto: Activate full automation</div>
 				<div class="small">Emergency Activation: not implemented</div>
 				<div class="small">Alert Only: not implemented</div>
 
@@ -149,8 +149,8 @@
 					<thead>
 						<tr>
 							<th>Range</th>
-							<th>Minimum</th>
-							<th>Maximum</th>
+							<th>BEGIN</th>
+							<th>END</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -172,7 +172,7 @@
 							<input value="{{settingparam[3][1]}}" class="form-control input-sm" name="{{elem}}_3_2" type="text">
 						 </td>	
 
-						 </td>	
+
 
 
 						</tr>
@@ -196,19 +196,22 @@
 						  
 						 	<input value="{{settingparam[4][1]}}" class="form-control input-sm" name="{{elem}}_4_2" type="text">
 						  
+						  
 						 </td>	
 
-						 </td>	
+
+
 
 
 						</tr>
-				
-				
-				
-				
+
 
 						</tbody>
 					</table>
+						<div class="small">If actuator is pulse type, the unit is in seconds </div>
+						<div class="small">If actuator is Servo type, the unit is in position percentage </div>
+						<div class="small">If actuator is Stepper type, the unit is the number of steps </div>
+				
 
 				</div>
 			</div>	
@@ -225,7 +228,7 @@
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
-				<div class="small">Number of actuator steps between Min and Max </div>
+				<div class="small">Number of actuator steps between BEGIN and END </div>
 
 				</div>
 			</div>				

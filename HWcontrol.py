@@ -32,7 +32,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse"]
 RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
@@ -47,7 +47,7 @@ stepper_data["default"]={'busyflag':False}
 
 
 #" GPIO_data is an array of dictionary, total 40 items in the array
-GPIO_data=[{"level":None, "state":None} for k in range(40)]
+GPIO_data=[{"level":None, "state":None, "threadID":None} for k in range(40)]
 #" PowerPIN_Status is an array of dictionary, total 40 items in the array, the array is used to avoid comflict between tasks using same PIN 
 # each time the pin is activated the level is increased by 1 unit.
 PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
@@ -138,6 +138,10 @@ def execute_task(cmd, message, recdata):
 		recdata.append(1) # confirm data for acknowledge
 		return True
 
+	elif cmd==HWCONTROLLIST[14]:	# stoppulse
+		return gpio_stoppulse(cmd, message, recdata)
+
+
 	else:
 		print "Command not found"
 		recdata.append(cmd)
@@ -160,6 +164,10 @@ def execute_task_fake(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[6]:	
 		gpio_pin_level(cmd, message, recdata)
 		return True;
+
+	elif cmd==HWCONTROLLIST[14]:	
+		gpio_stoppulse(cmd, message, recdata)
+		return True;
 		
 	else:
 		print "no fake command available" , cmd
@@ -167,6 +175,7 @@ def execute_task_fake(cmd, message, recdata):
 		recdata.append("e")
 		recdata.append(0)
 		return False;
+		
 	return True
 
 
@@ -487,14 +496,16 @@ def GPIO_setup(PIN, state):
 	return True
 
 def endpulse(PIN,logic,POWERPIN):
-
+	
+	GPIO_data[PIN]["threadID"]=None
 	if logic=="pos":
 		level=0
 	else:
 		level=1
 	GPIO_output(PIN, level)
 	
-	powerPIN_stop(POWERPIN,0)	
+	powerPIN_stop(POWERPIN,0)
+
 	print "pulse ended", time.ctime() , " PIN=", PIN , " Logic=", logic , " Level=", level
 	return True
 
@@ -505,6 +516,42 @@ def gpio_pulse(cmd, message, recdata):
 	PIN=int(msgarray[1])
 	testpulsetime=msgarray[2]
 	pulsesecond=int(testpulsetime)/1000
+	if messagelen>3:
+		if msgarray[3]=="0":
+			logic="neg"
+		elif msgarray[3]=="1":
+			logic="pos"	
+	
+	POWERPIN=-1	
+	if messagelen>4:	
+		POWERPIN=int(msgarray[4])	
+	
+
+	# in case another timer is active on this PIN, cancel it 
+	if not GPIO_data[PIN]["threadID"]==None:
+		print "cancel the Thread of PIN=",PIN
+		GPIO_data[PIN]["threadID"].cancel()
+	
+	else:
+		powerPIN_start(POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
+		GPIO_setup(PIN, "out")
+		if logic=="pos":
+			level=1
+		else:
+			level=0
+		GPIO_output(PIN, level)
+
+	GPIO_data[PIN]["threadID"] = threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN])
+	GPIO_data[PIN]["threadID"].start()
+	print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
+	recdata.append(cmd)
+	recdata.append(PIN)
+	return True	
+
+def gpio_stoppulse(cmd, message, recdata):
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN=int(msgarray[1])
 	
 	if messagelen>3:
 		if msgarray[3]=="0":
@@ -516,21 +563,15 @@ def gpio_pulse(cmd, message, recdata):
 	if messagelen>4:	
 		POWERPIN=int(msgarray[4])
 	
-	powerPIN_start(POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
-	
+	if not GPIO_data[PIN]["threadID"]==None:
+		print "cancel the Thread of PIN=",PIN
+		GPIO_data[PIN]["threadID"].cancel()
 		
-	GPIO_setup(PIN, "out")
-	if logic=="pos":
-		level=1
-	else:
-		level=0
-	GPIO_output(PIN, level)
-		
-	t = threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN]).start()
-	print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic , " Level=", level
+	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
 	recdata.append(cmd)
 	recdata.append(PIN)
 	return True	
+
 
 def gpio_pin_level(cmd, message, recdata):
 	msgarray=message.split(":")

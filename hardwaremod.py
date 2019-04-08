@@ -273,7 +273,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 		logger.error("sensor name not found in list of sensors : %s", sensorname)
 	return Thereading
 
-def makepulse(target,duration):
+def makepulse(target,duration,addtime=True):
 	#search the data in IOdata
 	
 	print "Check target is already ON ", target
@@ -281,7 +281,11 @@ def makepulse(target,duration):
 	if activated=="error":
 		return "error"
 	if activated=="on":
-		return "Already ON"
+		if not addtime:
+			print "Already ON, no action"
+			return "Already ON"
+		else:
+			print "Already ON, add time"
 
 	
 	print "Fire Pulse - ", target
@@ -319,6 +323,49 @@ def makepulse(target,duration):
 				print target, "correctly activated"
 				isok=True
 				return "Pulse Started"
+			
+	return "error"
+	
+	
+def stoppulse(target):
+	#search the data in IOdata
+	
+	print "Check target is already OFF ", target
+	activated=getpinstate(target)
+	if activated=="error":
+		return "error"
+	if activated=="off":
+		print "Already OFF"
+		return "Already OFF"
+
+	print "Stop Pulse - ", target
+	
+	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
+	
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
+	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
+	if POWERPIN=="":
+		POWERPIN="-1"
+	
+	if logic=="neg":
+		sendstring="stoppulse:"+PIN+":"+"0"+":0"+":"+POWERPIN
+	elif logic=="pos":
+		sendstring="stoppulse:"+PIN+":"+"0"+":1"+":"+POWERPIN
+	print "logic " , logic , " sendstring " , sendstring
+	isok=False	
+
+
+	isok=False
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= HWcontrol.sendcommand("stoppulse",sendstring,recdata)
+		print "returned data " , recdata
+		if ack and recdata[1]!="e":
+			print target, "correctly activated"
+			isok=True
+			return "Stopped"
 			
 	return "error"
 

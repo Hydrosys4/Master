@@ -165,8 +165,8 @@
 				<tr>
 					<th>Name</th>
 					<th>Time Seconds</th>
-					<th>Button</th>
-					<th>Bar</th>
+					<th>TEST</th>
+					<th>STOP</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -179,6 +179,18 @@
 
 				<td>
 					<label>{{ item }}</label>
+					
+					<!--  progress bar bootstrap-->
+		
+					<div class="progress" style="height:16px;">
+					  <div id="{{ item }}progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;font-size:10px;">
+					  </div>
+					</div>
+
+					<!-- progress-->
+					
+					
+					
 				</td>
 
 
@@ -186,30 +198,22 @@
 		  					  				
 				  <select class="form-control input-sm" id="selseconds_{{ item }}">
 					<option>1</option>
-					<option>2</option>
 					<option>3</option>
-					<option>20</option>
-					<option>40</option>
-					<option>60</option>
+					<option>10</option>
+					<option>50</option>
 					<option>100</option>
-					<option>200</option>
 					<option>300</option>
+					<option>600</option>
 				  </select>
 				  </td>	
 				  		
 							
 				<td>
-					<button class="thebutton btn-sm btn btn-default" type="button" name="pulse" element="{{item}}">Start</button>
+					<button class="thebutton btn-sm btn btn-success" type="button" name="pulse" element="{{item}}">Start</button>
 				</td>
 				<td>
-					<!--  progress bar bootstrap-->
-		
-					<div class="progress">
-					  <div id="{{ item }}progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-					  </div>
-					</div>
 
-					<!-- progress-->
+					<button class="thebutton btn-sm btn btn-warning" type="button" name="stoppulse" element="{{item}}">Stop</button>
 
 				</td>
 
@@ -232,13 +236,17 @@
 			</div>
 			 <script type=text/javascript>
 			  $(function() {
+				var pGress={};	
+				var pCnt = {};
+				var sec = {};				  
 				$(".thebutton").click(function() {
 				
 				// send ajax interrupt to flask to initiate the actuator test
 				
 					var prid=$(this).attr('name');
 					var elem=$(this).attr('element');
-					var value = $("#selseconds_" + elem).val();					
+					var value = $("#selseconds_" + elem).val();	
+			
 					$.ajax({
 								type: "GET",
 								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&element=" + elem,
@@ -251,25 +259,35 @@
 									if (answer.includes("Started")) {
 									// Answer from server succesfull started pulse
 									// increment status bar bootstrap
+									clearInterval(pGress[elem]);
 									$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
 									$('#' + elem + "progress").text('0')
-									var pCnt = 0;
-									var sec = 0;
-									var pGress = setInterval(function() {
+									pCnt[elem] = 0;
+									sec[elem] = 0;
+								
+									pGress[elem] = setInterval(function() {
 											//var pVal = parseInt($('#' + elem + "progress").attr('aria-valuenow'));
-											sec=sec+1;
+											sec[elem]=sec[elem]+1;
 											var maxsec = parseInt( $("#selseconds_" + elem).val());
-											pCnt = (pCnt + 100.0/maxsec);
-											if (pCnt > 100) {
-												clearInterval(pGress);
+											pCnt[elem] = (pCnt[elem] + 100.0/maxsec);
+											if (pCnt[elem] > 100) {
+												clearInterval(pGress[elem]);
 												$('#actuatorstatus').text("Done");							
 											} else {
-												$('#' + elem + "progress").css('width', pCnt+'%').attr('aria-valuenow', pCnt);
-												$('#' + elem + "progress").text(sec + 's')
+												$('#' + elem + "progress").css('width', pCnt[elem]+'%').attr('aria-valuenow', pCnt[elem]);
+												$('#' + elem + "progress").text(sec[elem] + 's')
 											}
 										},1000);									
-									}
-									
+									} else {
+									if (!answer.includes("Already ON")) {
+									clearInterval(pGress[elem]);
+									if (!answer.includes("Stopped")) {
+									$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
+									$('#' + elem + "progress").text('0')
+									}							
+									}	
+									}	
+
 									
 								},
 								//error: function(jqXHR, textStatus, errorThrown) {
@@ -277,11 +295,12 @@
 								//}
 							});    
 				  
-					
+							if (prid=="pulse") {		
 							$('#actuatorstatus').text("waiting ...");
 							$('#' + elem + "progress").addClass("progress-bar-warning")
 							$('#' + elem + "progress").css('width','100%').attr('aria-valuenow', 100);					
 							$('#' + elem + "progress").text('wait')
+							}
 					
 				});
 			  });

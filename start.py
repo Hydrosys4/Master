@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.95"
+Release="0.96"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -113,8 +113,6 @@ def runallconsistencycheck():
 
 
 # Setup mode of operation------------------------------
-DEBUGMODE=True
-PUBLICMODE=True
 selectedplanmod.FASTSCHEDULER=False
 	
 # set minimum time in case the clock is gone, in future might be improved ------------------
@@ -651,6 +649,14 @@ def doit():
 
 		print "starting pulse test " , testpulsetime
 		answer=selectedplanmod.activateandregister(element,testpulsetime)
+		ret_data = {"answer": answer}
+
+	elif name=="stoppulse":
+		idx=1
+		element=request.args['element']		
+
+		print "stop pulse  " , element
+		answer=hardwaremod.stoppulse(element)
 		ret_data = {"answer": answer}
 
 
