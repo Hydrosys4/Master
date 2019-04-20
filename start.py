@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.96"
+Release="0.97"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -1484,6 +1484,9 @@ def automation():
 	sensorlist=automationdbmod.sensorlist()	
 	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,"Moisturecontrol",hardwaremod.HW_INFO_NAME)
 	print "sensorlist ",sensorlist
+	timetriggerlist=automationdbmod.sensorlisttriggertime()
+	
+	
 	
 	modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
 	operationlist=["average", "min" , "max" ]
@@ -1559,7 +1562,7 @@ def automation():
 
 
 		
-	return render_template("automation.html", title=title,selectedelement=selectedelement,modelist=modelist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist, operationlist=operationlist , alertlist=alertlist)
+	return render_template("automation.html", title=title,selectedelement=selectedelement,modelist=modelist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist, operationlist=operationlist , alertlist=alertlist, timetriggerlist=timetriggerlist)
 
 
 
@@ -1948,7 +1951,7 @@ def hardwaresettingedit():  #on the contrary of the name, this show the setting 
 	return render_template('hardwaresettingedit.html',fields=fields, hwdata=hwdata, tablehead=tablehead , additionalrow=additionalrow)
 
 @application.route('/hardwaresettingeditfield/', methods=['GET', 'POST'])
-def hardwaresettingeditfield():  #on the contrary of the name, this show the setting menu
+def hardwaresettingeditfield():  
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
 	print "visualizzazione menu hardwareSettingedit:"
@@ -2095,14 +2098,18 @@ def functiontest():
 	#slopeOK=autowateringmod.checkinclination("hygroBalcFront",startdate,enddate)
 	#print "got array " , slopeOK
 	
-	#selectedplanmod.heartbeat()
+	selectedplanmod.heartbeat()
 	#target="water1"
 	#selectedplanmod.startpump(target,"30","10","5")
 	
 	#selectedplanmod.removeallscheduledjobs()
 	#hardwaremod.takephoto()
+	
+	#refsensor="TimeTrigger"
+	#element="water1234567"
+	#automationmod.automationexecute(refsensor,element)
 
-	automationmod.automationcheck("TimeTrigger")
+	#automationmod.automationcheck("TimeTrigger")
 
 	message = "ok"
 

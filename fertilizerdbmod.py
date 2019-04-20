@@ -113,12 +113,14 @@ def consitencycheck():
 			
 			
 def replacewordandsave(oldword,newword):
+	global FTdata
 	filestoragemod.replacewordandsave(FTDATAFILENAME,oldword,newword)
 	filestoragemod.readfiledata(FTDATAFILENAME,FTdata)
 
 
 	
 def restoredefault():
+	global FTdata
 	filestoragemod.deletefile(FTDATAFILENAME)
 	filestoragemod.readfiledata(DEFFTDATAFILENAME,FTdata)
 	consitencycheck()

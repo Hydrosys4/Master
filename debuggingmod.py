@@ -33,13 +33,29 @@ def searchsyslogkeyword(keyword):
 			countdown=countdown-1
 	return extract
 
+def searchLOGkeyword(filename,keyword):
+	rownumber="300"
+	data=tailLOGcmd(filename,rownumber)
+	numrowafter=10
+	countdown=0
+	extract=[]
+	for row in data:
+		if keyword.lower() in row.lower():
+			countdown=numrowafter
+		if countdown:
+			extract.append(row)
+			countdown=countdown-1
+	return extract
 
 
 def tailsyslogcmd(rownumber):
 	syslogfile="/var/log/syslog"
 	cmd = ['tail', syslogfile , '-n '+ str(rownumber)]
 	return execcommand(cmd)
-	
+
+def tailLOGcmd(filename,rownumber):
+	cmd = ['tail', filename , '-n '+ str(rownumber)]
+	return execcommand(cmd)	
 
 
 def execcommand(cmd):

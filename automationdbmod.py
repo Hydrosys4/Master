@@ -113,12 +113,14 @@ def consistencycheck():
 
 
 def replacewordandsave(oldword,newword):
+	global WTdata
 	filestoragemod.replacewordandsave(WTDATAFILENAME,oldword,newword)
 	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
 
 
 	
 def restoredefault():
+	global WTdata
 	filestoragemod.deletefile(WTDATAFILENAME)
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
 	#print "WT data -----------------------------------> ",  WTdata
@@ -149,6 +151,15 @@ def getelementlist():
 def sensorlist():
 	tablelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
 	return tablelist
+
+def sensorlisttriggertime():
+	tablelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
+	timetriggerlist=[]
+	for item in tablelist:
+		timelist=hardwaremod.gettimedata(item)	
+		theinterval=timelist[1] # minutes
+		timetriggerlist.append(theinterval)
+	return timetriggerlist
 
 
 def gethygrosensorfromactuator(actuatorname):

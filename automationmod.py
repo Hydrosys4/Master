@@ -8,6 +8,8 @@ import automationdbmod
 import sensordbmod
 import actuatordbmod
 import autofertilizermod
+import statusdataDBmod
+
 
 
 logger = logging.getLogger("hydrosys4."+__name__)
@@ -15,8 +17,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 # status array, required to check the ongoing actions 
 elementlist= automationdbmod.getelementlist()
 AUTO_data={} # dictionary of dictionary
-for element in elementlist:
-	AUTO_data[element]={"lastactiontime":datetime.now(),"actionvalue":0, "alertcounter":0, "infocounter":0, "status":"ok"}
+AUTO_data["default"]={"lastactiontime":datetime.now(),"actionvalue":0, "alertcounter":0, "infocounter":0, "status":"ok"}
 
 
 
@@ -34,7 +35,6 @@ def cycleresetall():
 
 
 def automationcheck(refsensor):
-	global AUTO_data
 	logger.info('Starting Automation Evaluation, Sensor: %s' , refsensor)
 	# iterate among the actuators
 	elementlist= automationdbmod.getelementlist()	
@@ -48,15 +48,18 @@ def automationexecute(refsensor,element):
 	# check the sensor
 	if refsensor==sensor:		
 		logger.info('automation Pairing OK ---> Actuator: %s , Sensor: %s', element, sensor)
-		print AUTO_data[element]
 		# check the watering mode
 		modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
 		workmode=checkworkmode(element)
 
-		if workmode=="None":
+		if (workmode=="None"):
 			# None case
 			print "No Action required, workmode set to None, element: " , element
 			logger.info("No Action required, workmode set to None, element: %s " , element)
+			return
+
+		if (workmode==""):
+			logger.info("Not able to get the workmode: %s " , element)
 			return
 
 		logger.info('Automantion, Get all the parameters')
@@ -136,12 +139,13 @@ def automationexecute(refsensor,element):
 							# do relevant stuff	
 							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
 						
-						Inde=Inde+1
+						Inde=1
 						for I in range(Inde, maxstepnumber):
 							mins=sensorminthreshold+(I-1)*interval
 							maxs=sensorminthreshold+I*interval
 							if mins<sensorvalue<=maxs:
-								value=P[I]					
+								value=P[I]			
+								logger.info('inside Range')		
 								# do relevant stuff	
 								CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
 						
@@ -150,6 +154,7 @@ def automationexecute(refsensor,element):
 						if mins<sensorvalue:
 							print "INDE:",Inde
 							value=P[Inde]
+							logger.info('beyond Range')
 							# do relevant stuff	
 							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
 						# END MAIN ALGORITHM
@@ -205,20 +210,23 @@ def automationexecute(refsensor,element):
 					textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
 					print textmessage
 					#send alert mail notification
-					if AUTO_data[element]["alertcounter"]<2:
+					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
+					if alertcounter<2:
 						emailmod.sendallmail("alert", textmessage)							
 						logger.error(textmessage)
-						AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1
+						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
+
 			else:
 				if sensorvalue<sensormaxthreshold+interval:
 					logger.info('sensor %s exceeding limits', sensor)
 					textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
 					print textmessage
 					#send alert mail notification
-					if AUTO_data[element]["alertcounter"]<2:
+					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
+					if alertcounter<2:
 						emailmod.sendallmail("alert", textmessage)							
 						logger.error(textmessage)
-						AUTO_data[element]["alertcounter"]=AUTO_data[element]["alertcounter"]+1			
+						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 
 	return
 
@@ -226,8 +234,9 @@ def automationexecute(refsensor,element):
 def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 	global AUTO_data
 	# check if time between watering events is larger that the waiting time (minutes)
-	print ' Previous action: ' , AUTO_data[element]["lastactiontime"] , ' Now: ', datetime.now()
-	timedifference=sensordbmod.timediffinminutes(AUTO_data[element]["lastactiontime"],datetime.now())
+	lastactiontime=statusdataDBmod.read_status_data(AUTO_data,element,"lastactiontime")
+	print ' Previous action: ' , lastactiontime , ' Now: ', datetime.now()
+	timedifference=sensordbmod.timediffinminutes(lastactiontime,datetime.now())
 	print 'Time interval between actions', timedifference ,'. threshold', waitingtime
 	logger.info('Time interval between Actions %d threshold %d', timedifference,waitingtime)		
 	if timedifference>=waitingtime: # sufficient time between actions
@@ -243,8 +252,9 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 			textmessage="INFO: " + sensor + " value " + str(sensorvalue) + ", activating:" + element + " with Value " + str(value)
 			emailmod.sendallmail("alert", textmessage)
 		if isok:
-			AUTO_data[element]["lastactiontime"]=datetime.now()
-			AUTO_data[element]["actionvalue"]=value
+			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.now())
+			statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
+
 	else:
 		logger.info('Need to wait more time')		
 		
@@ -264,7 +274,7 @@ def activateactuator(target, value):  # return true in case the state change: ac
 	if actuatortype=="pulse":
 		duration=1000*hardwaremod.toint(value,0)
 		# check the fertilizer doser flag before activating the pulse
-		doseron=autofertilizermod.checkactivate(element,duration)
+		doseron=autofertilizermod.checkactivate(target,duration)
 		# start pulse
 		pulseok=hardwaremod.makepulse(target,duration)	
 		# salva su database

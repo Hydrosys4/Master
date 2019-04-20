@@ -131,7 +131,7 @@
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 					<select class="form-control input-sm dontwantgap" name="{{elem}}_2">
 					{% for name in sensorlist %}	
-						<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+						<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}({{timetriggerlist[loop.index0]}}min)</option>
 					{% endfor %}											
 					</select>
 				</div>

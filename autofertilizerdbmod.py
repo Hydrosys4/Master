@@ -113,13 +113,15 @@ def consistencycheck():
 
 
 
-def replacewordandsave(oldword,newword):  # used when names are chenged in start.py
+def replacewordandsave(oldword,newword):  # used when names are changed in start.py
+	global WTdata
 	filestoragemod.replacewordandsave(WTDATAFILENAME,oldword,newword)
 	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
 
 
 	
 def restoredefault():
+	global WTdata
 	filestoragemod.deletefile(WTDATAFILENAME)
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
 	#print "WT data -----------------------------------> ",  WTdata

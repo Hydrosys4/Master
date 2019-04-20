@@ -281,7 +281,25 @@ def heartbeat():
 				debuggingmod.SENTERRORTEXT=Errortextlist[0]
 		else:
 			print "No error found in syslog"
-			logger.info('Heartbeat check , SYSLOG ok')			
+			logger.info('Heartbeat check , SYSLOG ok')		
+			
+	# check if there have been errors in Schedulerlog
+	if DEBUGMODE:
+		filename="logfiles/apscheduler_hydrosystem.log"
+		MYPATH=hardwaremod.get_path()
+		filenameandpath=os.path.join(MYPATH, filename)
+		Errortextlist=debuggingmod.searchLOGkeyword(filenameandpath,"error")
+		if Errortextlist:
+			print "found error in LOG ",filename
+			logger.warning("ERROR: found error in LOG , %s -------------------------",filename)	
+			#send notification mail 
+			if debuggingmod.SENTERRORTEXT!=Errortextlist[0]:
+				emailmod.sendallmail("alert","Error found in LOG",Errortextlist)
+				debuggingmod.SENTERRORTEXT=Errortextlist[0]
+		else:
+			print "No error found in LOG", filename
+			logger.info('Heartbeat check , LOG ok')					
+				
 				
 		
 	return True
