@@ -39,7 +39,7 @@ ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 inpu
 
 # status variables
 DHT22_data={}
-DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.datetime.now() - datetime.timedelta(seconds=2)}
+DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.datetime.utcnow() - datetime.timedelta(seconds=2)}
 
 stepper_data={}
 stepper_data["default"]={'busyflag':False}
@@ -199,9 +199,15 @@ def get_DHT22_reading(cmd, message, recdata, DHT22_data):
 		TemperatureUnit=msgarray[4]
 		
 	lastupdate=read_status_data(DHT22_data,element,'lastupdate')	
-	deltat=datetime.datetime.now()-lastupdate
+	deltat=datetime.datetime.utcnow()-lastupdate
 	
-	if deltat.total_seconds()>10:
+	if deltat.total_seconds()<0:
+		logger.warning("last reading DHT sensor was in the past? maybe due to time change, go to reset lastupdate time")
+		lastupdate=datetime.datetime.utcnow() - datetime.timedelta(seconds=3)
+		DHT22_data[element]['lastupdate']=lastupdate	
+		deltat=datetime.datetime.utcnow()-lastupdate
+
+	if deltat.total_seconds()>3:
 		
 		humidity=None
 		temperature=None
@@ -227,7 +233,7 @@ def get_DHT22_reading(cmd, message, recdata, DHT22_data):
 					print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
 					DHT22_data[element]['humidity']=('{:3.2f}'.format(humidity / 1.))
 					DHT22_data[element]['temperature']=('{:3.2f}'.format(temperature / 1.))
-					DHT22_data[element]['lastupdate']=datetime.datetime.now()
+					DHT22_data[element]['lastupdate']=datetime.datetime.utcnow()
 					successflag=1
 				else:
 					print 'Failed to get DHT22 reading'	
@@ -640,7 +646,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 		#something wrog, wait too long, avoid initiate further processing
 		# check how long the busyflag has been True
 		lasttime=read_status_data(stepper_data,Interface,"busyflagtime")	
-		deltat=datetime.datetime.now()-lasttime
+		deltat=datetime.datetime.utcnow()-lasttime
 		if deltat.total_seconds()>600: # 600 seconds = 10 minutes
 			# someting wrong, try to reset the stepper controller
 			logger.warning("Stepper busy status Time exceeded, reset stepper controller: %s  ************", Interface)
@@ -654,7 +660,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 			return False
 	
 	write_status_data(stepper_data,Interface,"busyflag",True)
-	write_status_data(stepper_data,Interface,"busyflagtime",datetime.datetime.now())
+	write_status_data(stepper_data,Interface,"busyflagtime",datetime.datetime.utcnow())
 
 	# stepper is no busy, proceed
 
