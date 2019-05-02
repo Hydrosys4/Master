@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.97"
+Release="0.98"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
