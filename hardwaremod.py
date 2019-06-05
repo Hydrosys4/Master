@@ -53,8 +53,8 @@ HW_CTRL_ADCCH="ADCchannel" # HW control  group , optional, specify the arg1 boar
 HW_CTRL_PWRPIN="powerpin"  # HW control  group , optional, specify PIN that is set ON before starting tasks relevant to ADC convert, Actuator pulse, then is set OFF when the task is finished -> "ADCpowerpin"
 HW_CTRL_LOGIC="logic"  # HW control  group , optional, in case the relay works in negative logic
 #"settingaction", # HW control  group , use the controllercmd instead -> to be removed
-HW_CTRL_MAILADDR="mailaddress" # HW control  group , optional, specify this info for the HWControl if needed -> mailaddress
-HW_CTRL_MAILTITLE="mailtitle" # HW control  group , optional, specify this info for the HWControl if needed (mail title) -> "mailtitle"
+HW_CTRL_ADDR="address" # HW control  group , optional, specify this info for the HWControl if needed -> mailaddress, I2C address
+HW_CTRL_TITLE="title" # HW control  group , optional, specify this info for the HWControl if needed (mail title) -> "mailtitle"
 
 #servo
 HW_CTRL_FREQ="frequency" # HW control  group , optional, working frequency of the servo
@@ -66,7 +66,7 @@ HW_FUNC_USEDFOR="usefor" # function group , optional, description of main usage 
 HW_FUNC_SCHEDTYPE="schedulingtype" # function group , optional, between "oneshot" and "periodic" 
 HW_FUNC_TIME="time"  #function group , optional, description of time or interval to activate the item depending on the "schedulingtype" item, in case of interval information the minutes are used for the period, seconds are used for start offset
 
-USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "powercontrol", "N/A"]
+USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "powercontrol", "N/A", "Other"]
 MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture","Percentage"]
 MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs", "Volt","F"]
 
@@ -80,8 +80,8 @@ HWdataKEYWORDS[HW_CTRL_PIN]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 HWdataKEYWORDS[HW_CTRL_ADCCH]=HWcontrol.ADCCHANNELLIST
 HWdataKEYWORDS[HW_CTRL_PWRPIN]=HWcontrol.RPIMODBGPIOPINLIST
 HWdataKEYWORDS[HW_CTRL_LOGIC]=["pos","neg"]
-HWdataKEYWORDS[HW_CTRL_MAILADDR]=[]
-HWdataKEYWORDS[HW_CTRL_MAILTITLE]=[]
+HWdataKEYWORDS[HW_CTRL_ADDR]=[]
+HWdataKEYWORDS[HW_CTRL_TITLE]=[]
 HWdataKEYWORDS[HW_FUNC_USEDFOR]=USAGELIST #used for
 HWdataKEYWORDS[HW_FUNC_SCHEDTYPE]=["oneshot", "periodic"] #scheduling type
 HWdataKEYWORDS[HW_FUNC_TIME]=[] #time in format hh:mm:ss
@@ -190,8 +190,7 @@ def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fie
 					message="Same name is already present"
 					return False, message
 					
-	#dictdata[HW_CTRL_MAILADDR]=[]
-	#dictdata[HW_CTRL_MAILTITLE]=[]		
+	
 	fieldname=HW_FUNC_TIME
 	correlatedfield=HW_INFO_IOTYPE	
 	if (fieldtocheck==fieldname)or(fieldtocheck==""):
@@ -257,8 +256,28 @@ def getsensordata(sensorname,attemptnumber): #needed
 		if ack:
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
 				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
+					scale=100
 					Thereading=recdata[1]
-					print " Sensor " , sensorname  , "reading ",Thereading					
+					print " Sensor " , sensorname  , "reading ",Thereading
+					Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN))
+					Maximum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MAX))
+					Logic=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_LOGIC))
+					Minvalue=tonumber(Minimum, 0)
+					Maxvalue=tonumber(Maximum, 0)
+					if abs(Minvalue-Maxvalue)>0.01:
+						if Logic!="neg":
+							readingvalue=tonumber(Thereading, 0)
+							den=Maxvalue-Minvalue
+							readingvalue=(readingvalue-Minvalue)/den
+							readingvalue=readingvalue*scale
+						else:
+							readingvalue=tonumber(Thereading, 0)
+							den=Maxvalue-Minvalue
+							readingvalue=1-(readingvalue-Minvalue)/den
+							readingvalue=readingvalue*scale
+						Thereading=str(readingvalue)
+					print " Sensor " , sensorname  , "Normalized reading ",Thereading										
+					
 				else:
 					print "Problem with sensor reading ", sensorname
 					logger.error("Problem with sensor reading: %s", sensorname)
@@ -273,7 +292,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 		logger.error("sensor name not found in list of sensors : %s", sensorname)
 	return Thereading
 
-def makepulse(target,duration,addtime=True):
+def makepulse(target,duration,addtime=True): # pulse in seconds
 	#search the data in IOdata
 	
 	print "Check target is already ON ", target
@@ -299,6 +318,8 @@ def makepulse(target,duration,addtime=True):
 		print " No valid data or zero for Doser ", target
 		return "error"
 
+
+	testpulsetime=testpulsetime # durantion in seconds  
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
 	if POWERPIN=="":
@@ -317,7 +338,7 @@ def makepulse(target,duration,addtime=True):
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
-			ack= HWcontrol.sendcommand("pulse",sendstring,recdata) #11 is the command to activate relay, 12 is the PIN to activate, 1000 is the ms the pulse is lasting
+			ack= HWcontrol.sendcommand("pulse",sendstring,recdata)
 			print "returned data " , recdata
 			if ack and recdata[1]!="e":
 				print target, "correctly activated"
@@ -417,7 +438,7 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
-			ack= HWcontrol.sendcommand("servo",sendstring,recdata) #11 is the command to activate relay, 12 is the PIN to activate, 1000 is the ms the pulse is lasting
+			ack= HWcontrol.sendcommand("servo",sendstring,recdata)
 			print "returned data " , recdata
 			if ack and recdata[1]!="e":
 				print target, "correctly activated"
@@ -581,7 +602,7 @@ def getpinstate(target):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= HWcontrol.sendcommand("readpin",sendstring,recdata) #11 is the command to activate relay, 12 is the PIN to activate, 1000 is the ms the pulse is lasting
+		ack= HWcontrol.sendcommand("readpin",sendstring,recdata)
 		print "returned data " , recdata
 		if ack and recdata[1]!="e":
 			value=recdata[1]
@@ -774,6 +795,14 @@ def searchdatalist(recordkey,recordvalue,keytosearch):
 					datalist.append(str(ln[keytosearch]))	
 	return datalist
 
+def searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch):
+	datalist=[]
+	for ln in IOdata:
+		if (recordkey in ln)and(recordkey1 in ln):
+			if (ln[recordkey]==recordvalue)and(ln[recordkey1]==recordvalue1):
+				if keytosearch in ln:
+					datalist.append(str(ln[keytosearch]))	
+	return datalist
 
 
 

@@ -270,11 +270,11 @@ def sendallmail(mailtype,intromessage,bodytextlist=[]):
 		sendmail(hwname,mailtype,intromessage,bodytextlist)
 		
 def sendmail(hwname,mailtype,intromessage,bodytextlist=[]):
-	address=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_MAILADDR)
+	address=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_ADDR)
 	
 	if not address=="":
 		print "mail recipient ", address
-		title=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_MAILTITLE)
+		title=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_TITLE)
 		print "mail title " , title
 		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_CMD)
 		print "mail type " , cmd

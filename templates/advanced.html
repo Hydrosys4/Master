@@ -44,7 +44,7 @@
 					</div>
 				</div>
 			  </div>
-			  <div class="panel-body">
+			  <div class="panel-body dontwantgapleft dontwantgapright">
 
 				
 				<!---- panel  body -->
@@ -84,7 +84,7 @@
 																		</th>																		
 																		<th>
 																		<img src="/static/time BW.png" style="width:45px;height:40px" class="center-block"/>
-																		<div align="center">(sec)</div>
+																		<div align="center">(min:sec)</div>
 																		</th>
 																		<th>
 																		<img src="/static/temperature BW.png" style="width:45px;height:40px" class="center-block"/>
@@ -103,30 +103,82 @@
 																	{% set rowp_i = loop %}
 																	<tr>
 
-																		{% for colp in rowp %}
-																		{% set colp_i = loop %}
 
-																			{% if loop.index0 == 0 %}
 																			<td class="col-xs-3 ">
-																				<div class="form-group">
-																					<select class="form-control input-sm dontwantgap seltimeclass" valueinit="{{ colp }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}{{colp_i.index0}}">
-																					</select>
-																				</div>	
+																			
+
+																				<!-- new -->
+
+																						<div style="width: 100%" class="input-group clockpicker" data-autoclose="true">
+																							<input readonly="readonly" type="text" class="form-control input-sm dontwantgap " id="SelTime1" value="{{ rowp[0] }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}0">
+																							<script type="text/javascript">
+																							$('.clockpicker').clockpicker({ placement: 'top'});
+																							</script>								
+																						</div>
+
+																				<!-- new -->
+																					
 																			</td>																			
-																			{% else %}
+																	
 																			<td class="col-xs-3 ">
 																				<div class="form-group">
 																					<div class="controls">
-																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{ colp }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}{{colp_i.index0}}" />
+																					<table class="dontwantgap" style="width: 100%">
+																					<tr class="dontwantgap">
+																					<td>	
+																					<input style="text-align:left" type="number" class="form-control  dontwantgap input-sm" min="0" max="599"  step="1" value="0" id="{{elem}}{{ name }}_{{rowp_i.index0}}1minutes" />
+																					</td>
+																					<td>	
+																					<b>:<b/>
+																					</td>
+																					<td>
+																					<input type="number" class="form-control  dontwantgap input-sm" min="0" step="1" max="59" value="0" id="{{elem}}{{ name }}_{{rowp_i.index0}}1seconds" />
+																					</td>
+																					</tr>
+																					</table>
+																					</div>
+																					
+																					<!-- real value sent to the system -->
+																					<input type="hidden" class="calculatetime " min="0" step="1" value="{{  rowp[1]  }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}1" />
+
+																				</div>																	
+
+																					<script type=text/javascript>
+																						var timeinsecstr={{rowp[1]}};
+																						var timeinsec = parseInt(timeinsecstr, 10);
+																						if (isNaN(timeinsec)) { timeinsec=0; }
+																						var minutes = Math.floor(timeinsec / 60);
+																						var seconds = timeinsec - minutes * 60;
+																						$("#{{elem}}{{ name }}_{{rowp_i.index0}}1seconds").val(seconds)
+																						$("#{{elem}}{{ name }}_{{rowp_i.index0}}1minutes").val(minutes)
+	
+								
+																					</script>
+																			
+																			</td>
+
+																			<td class="col-xs-3 ">
+																				<div class="form-group">
+																					<div class="controls">
+																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{  rowp[2]  }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}2" />
 																					</div>
 																					<div class="help-block with-errors"></div>
 																				</div>																	
 
 																		
 																			</td>
-																			{% endif%}
 
-																		{% endfor %}
+																			<td class="col-xs-3 ">
+																				<div class="form-group">
+																					<div class="controls">
+																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{  rowp[3]  }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}3" />
+																					</div>
+																					<div class="help-block with-errors"></div>
+																				</div>																	
+
+																		
+																			</td>
+
 
 																	</tr>
 																	{% endfor %}
@@ -207,31 +259,6 @@
 		<script type="text/javascript">
 
 		
-			$(document).ready(function()
-			{
-				$(".seltimeclass").each(function() {
-				var seltime=$(this).attr('valueinit');
-				//alert(seltime);
-				for (var i=0; i<48; i++)
-				  {
-					//Creates the time item and populate il select
-					var minh= (((i)%2)*3).toString() ;
-					var minl= "0";
-					var hourl=(((i/2) - (i/2) % 1) % 10).toString() ;
-					var hourh=((i/20) - (i/20) % 1).toString() ;
-					var time=hourh+hourl+":"+minh+minl
-					if (time==seltime)
-					{
-					var itemval= '<option selected="selected" value="'+time+'">' + time +'</option>';
-					} else
-					{
-					var itemval= '<option value="'+time+'">' + time +'</option>';
-					}
-					//Appends it within your select element
-					$(this).append(itemval);
-				  }
-				});	
-			});
 		
 			$(function() {
 				$(".thebutton").click(function() {
@@ -239,8 +266,27 @@
 					//alert(selvalue);
 					var idref=$(this).attr('idref');
 					$('#' + idref).attr("value", selvalue);
+					timetoseconds();
 				});  
 			}); 
+	
+			function timetoseconds() {
+				
+			   $(".calculatetime").each(function() {
+				   var namevalue=$(this).attr('name');
+				   var sec_num = parseInt($("#"+namevalue+"seconds").val(), 10);
+				   var min_num = parseInt($("#"+namevalue+"minutes").val(), 10);
+				   if (isNaN(sec_num)) { sec_num=0; }
+				   if (isNaN(min_num)) { min_num=0; }
+				   var totseconds=sec_num + min_num * 60;																
+					
+				$(this).val(totseconds)
+
+
+				});	
+
+				
+			}
 	
 		
 		</script>  

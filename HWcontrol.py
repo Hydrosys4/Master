@@ -33,7 +33,7 @@ else:
 
 
 HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse"]
-RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
+RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A","V1","V2","V3","V4","V5","V6","V7","V8"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
 
@@ -521,7 +521,7 @@ def gpio_pulse(cmd, message, recdata):
 	messagelen=len(msgarray)
 	PIN=int(msgarray[1])
 	testpulsetime=msgarray[2]
-	pulsesecond=int(testpulsetime)/1000
+	pulsesecond=int(testpulsetime)
 	if messagelen>3:
 		if msgarray[3]=="0":
 			logic="neg"

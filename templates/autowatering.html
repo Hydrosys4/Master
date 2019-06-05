@@ -163,21 +163,22 @@
 						</td>
 
 						 <td>	
-						  {% set arr=["1.0","1.50","1.75","2.0","2.10","2.20","2.30","2.40","2.50","2.60","2.70","2.80","2.90","3.0","3.10","3.20","3.30","3.40","3.50","3.60","3.70"] %}	 			
-						  <select class="form-control input-sm" name="{{elem}}_3">
-						    {% for item in arr %}
-							<option {% if item==settingparam[3][0] %}selected="selected"{% endif %} >{{item}}</option>
-							{% endfor %}
-						  </select>
+						  
+						  	</div>
+								<input value="{{settingparam[3][0]}}" class="form-control input-sm" name="{{elem}}_3" type="text">
+							</div>
+						  
+						  
 						 </td>	
 								
 						 <td>				
-						  {% set arr=["4.70","4.60","4.50","4.40","4.30","4.20","4.10","4.0","3.90","3.80","3.70","3.60","3.50","3.40","3.30","3.20","3.10","3.0","2.75","2.50","2.25"] %}	 			
-						  <select class="form-control input-sm" name="{{elem}}_4">
-						    {% for item in arr %}
-							<option {% if item==settingparam[3][1] %}selected="selected"{% endif %} >{{item}}</option>
-							{% endfor %}
-						  </select>
+						  
+						  	</div>
+								<input value="{{settingparam[3][1]}}" class="form-control input-sm" name="{{elem}}_4" type="text">
+							</div>
+						  
+						  
+						  
 						 </td>	
 
 						 </td>	
@@ -467,52 +468,7 @@
 
 
 		<script type="text/javascript">
-			$(document).ready(function(){
-				var imgtext='<img src="/static/dropv3 xs.jpg" style="height:30px;width:22px"/>';
-				$(".drop").each(function() {  // fill the element with waterdropo images
-				var thisid=$(this).attr('id');
-				var val = $('#' + thisid +"_input").val();
-				var num = parseInt(val);
-				//alert(seltime);
-				for (var i=0; i<num; i++)
-				  {
-					$(this).append(imgtext);
-				  }
-				});	
 
-				
-				$('.qtybutton').click(function(){ // quantity button pressed, add or remove water drop image
-					var idbut=$(this).attr('id');
-					var idimg=idbut.split("_")[0];
-					var action=idbut.split("_")[1];
-					//alert(idimg);
-					if (action=="plus") {
-					var val = $('#' + idimg +"_input").val();
-					var num = parseInt(val)+1;						
-						
-						if (num<7) {
-								$('#' + idimg).append(imgtext);
-								$('#' + idimg +"_input").val(num.toString());
-						} 
-						
-
-					} else {
-	
-					var val = $('#' + idimg +"_input").val();
-					var num = parseInt(val)-1;
-					
-						if (num>-1) {
-							$('#' + idimg).children("img:first").remove();							
-							$('#' + idimg +"_input").val(num.toString());
-						} 
-	
-					
-
-					}
-					
-					
-				});
-			})
 			
 			$(function() {
 					$(".thebutton").click(function() {

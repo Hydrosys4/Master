@@ -229,32 +229,7 @@ echo "Confirmed Name: "$WiFiAPname
 read -p "System WiFi AP password, to confirm press [ENTER] or modify: " -e -i hydrosystem WiFiAPpsw
 echo "Confirmed Password: "$WiFiAPpsw
 
-read -p "Do you want to change hostname? (y,n): " -e -i y ChangeHostName
-echo "Confirmed Answer: "$ChangeHostName
-
-if [ "$ChangeHostName" == "y" ]; then
-	read -p "System Hostname, to confirm press [ENTER] or modify: " -e -i hydrosys4-172 NewHostName
-	echo "Confirmed Hostname: "$NewHostName
-fi
-
 }
-
-
-apply_newhostname ()
-{
-
-# --- change system hostname
-if [ "$ChangeHostName" == "y" ]; then
-	sudo hostnamectl set-hostname $NewHostName
-fi
-
-}
-
-
-
-
-
-
 
 install_MotorShieldlib ()
 {
@@ -778,5 +753,5 @@ install_MotorShieldlib
 edit_defaultnetworkdb
 #edit_networkdb
 iptables_blockports
-apply_newhostname
+
 echo "installation is finished!!! "

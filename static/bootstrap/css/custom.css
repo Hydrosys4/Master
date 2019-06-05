@@ -30,6 +30,16 @@
    padding: 2px !important;
 }
 
+.smallgapright {
+    margin-right: 1px !important;
+   padding-right: 2px !important;
+}
+
+.smallgapleft {
+    margin-left: 1px !important;
+   padding-left: 2px !important;
+}
+
 .min20px {
     min-width: 20px;
 } 
@@ -143,6 +153,165 @@ font-size:      1.2em;
     color: #df8a13;
 }
 
+.panel-aqua {
+    border-color: #00c0ef;
+}
+
+.panel-aqua .panel-heading {
+    border-color: #00c0ef;
+    color: #fff;
+    background-color: #00c0ef;
+}
+
+.panel-aqua a {
+    color: #00c0ef;
+}
+
+.panel-aqua a:hover {
+    color: #df8a13;
+}
+
+.panel-blue {
+    border-color: #0073b7;
+}
+
+.panel-blue .panel-heading {
+    border-color: #0073b7;
+    color: #fff;
+    background-color: #0073b7;
+}
+
+.panel-blue a {
+    color: #0073b7;
+}
+
+.panel-blue a:hover {
+    color: #df8a13;
+}
+
+.panel-teal {
+    border-color: #39CCCC;
+}
+
+.panel-teal .panel-heading {
+    border-color: #39CCCC;
+    color: #fff;
+    background-color: #39CCCC;
+}
+
+.panel-teal a {
+    color: #39CCCC;
+}
+
+.panel-teal a:hover {
+    color: #df8a13;
+}
+
+.panel-olive {
+    border-color: #3D9970;
+}
+
+.panel-olive .panel-heading {
+    border-color: #3D9970;
+    color: #fff;
+    background-color: #3D9970;
+}
+
+.panel-olive a {
+    color: #3D9970;
+}
+
+.panel-olive a:hover {
+    color: #df8a13;
+}
+
+.panel-lime {
+    border-color: #01FF70;
+}
+
+.panel-lime .panel-heading {
+    border-color: #01FF70;
+    color: #fff;
+    background-color: #01FF70;
+}
+
+.panel-lime a {
+    color: #01FF70;
+}
+
+.panel-lime a:hover {
+    color: #df8a13;
+}
+
+.panel-orange {
+    border-color: #FF851B;
+}
+
+.panel-orange .panel-heading {
+    border-color: #FF851B;
+    color: #fff;
+    background-color: #FF851B;
+}
+
+.panel-orange a {
+    color: #FF851B;
+}
+
+.panel-orange a:hover {
+    color: #df8a13;
+}
+
+.panel-purple {
+    border-color: #605ca8;
+}
+
+.panel-purple .panel-heading {
+    border-color: #605ca8;
+    color: #fff;
+    background-color: #605ca8;
+}
+
+.panel-purple a {
+    color: #605ca8;
+}
+
+.panel-purple a:hover {
+    color: #df8a13;
+}
 
 
+.panel-maroon {
+    border-color: #D81B60;
+}
 
+.panel-maroon .panel-heading {
+    border-color: #D81B60;
+    color: #fff;
+    background-color: #D81B60;
+}
+
+.panel-maroon a {
+    color: #D81B60;
+}
+
+.panel-maroon a:hover {
+    color: #df8a13;
+}
+
+.panel-gray {
+    border-color: #d2d6de;
+}
+
+.panel-gray .panel-heading {
+    border-color: #d2d6de;
+    color: #fff;
+    background-color: #d2d6de;
+}
+
+.panel-gray a {
+    color: #d2d6de;
+}
+
+.panel-gray a:hover {
+    color: #df8a13;
+}

@@ -272,7 +272,7 @@ def activateactuator(target, value):  # return true in case the state change: ac
 	
 	# pulse
 	if actuatortype=="pulse":
-		duration=1000*hardwaremod.toint(value,0)
+		duration=hardwaremod.toint(value,0)
 		# check the fertilizer doser flag before activating the pulse
 		doseron=autofertilizermod.checkactivate(target,duration)
 		# start pulse

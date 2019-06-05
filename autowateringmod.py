@@ -81,7 +81,7 @@ def autowateringexecute(refsensor,element):
 		starttime=time(starttimeh,starttimem)
 		endtime=time(endtimeh,endtimem)		
 		
-		duration=1000*hardwaremod.toint(autowateringdbmod.searchdata("element",element,"wtstepsec"),0)
+		duration=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"wtstepsec"),0)
 		maxstepnumber=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"maxstepnumber"),0)
 		maxdays=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"maxdaysbetweencycles"),0)
 		waitingtime=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)

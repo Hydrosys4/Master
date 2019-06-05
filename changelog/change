@@ -271,6 +271,35 @@ GUI change BEGIN & END in automation
 Fixed the DEBUGMODE indicator
 
 
+2019-05-15 -> release 99
+
+Add the Normalization of the sensor reading using the MIN,MAX and POS/Neg, if MIN=MAX then no normalization.
+
+possibility to set the hostname: (hostnamectl set-hostname hydrosys4-172)
+
+Removed the dropdown set numbers in Autowatering
+
+
+2019-05-26 -> release 100
+
+fixed the sensordata "delete all" data button
+
+sensordata, added non paired hygrometers in hygrometer chart
+
+Added Minutes in the watering plan interface
+
+homepage, added the used for for others use
+
+
+
+
+
+
+
+
+
+
+
 
 ------- Future releases: -----------
 

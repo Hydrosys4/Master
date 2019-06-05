@@ -445,6 +445,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 
 	var hygrosensornumlist={{hygrosensornumlist}};
 	var hygroactuatornumlist={{hygroactuatornumlist}};
+	var hygrosensornumlistwithout={{hygrosensornumlistwithout}};
 	var seriesColors= [ "#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"]
 	
 	var fLen, i, seriedict;
@@ -458,6 +459,16 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 			sensorchartdatah.push(sensorchartdata[hygrosensornumlist[i]]);
 
 	} 
+	var continu_i=fLen
+	fLen = hygrosensornumlistwithout.length;
+	for (i = 0; i < fLen; i++) {
+
+			seriedict={"label": sensorlist[hygrosensornumlistwithout[i]], "color":seriesColors[(continu_i+i) % seriesColors.length] , "showLine":true, "linePattern" : 'dashed', "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 1 }};
+			sensorseriesh.push(seriedict);
+			sensorchartdatah.push(sensorchartdata[hygrosensornumlistwithout[i]]);
+
+	} 
+
 
 	var fLen, i, seriedict;
 	var actuatorseriesh=[];
@@ -799,7 +810,7 @@ $(function() {
 
 							<!-- graph here-->
 
-							{% if (hygrosensornumlist|length + hygroactuatornumlist|length)>0%}	
+							{% if (hygrosensornumlist|length + hygroactuatornumlist|length + hygrosensornumlistwithout|length)>0%}		
 							<div  class="row">
 								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Auto water Control Chart</div>
 							</div>						
@@ -828,7 +839,7 @@ $(function() {
 							</div>
 							<div class="row">							
 									<div class="col-xs-12">
-									<button class="thebutton btn btn-default" type="submit" name="delete">Delete all data</button>
+									<button class="thebutton btn btn-default" idref="actionbtn"  type="submit" name="delete">Delete all data</button>
 									</div>
 									
 
@@ -836,6 +847,23 @@ $(function() {
 
 				
 		</form>	
+		
+		
+		<script type="text/javascript">
+			
+			$(function() {
+					$(".thebutton").click(function() {
+						var selvalue=$(this).attr('name');
+						//alert(selvalue);
+						var idref=$(this).attr('idref');
+						$('#' + idref).attr("value", selvalue);
+					});  
+				}); 
+		
+		</script>  
+
+		
+		
 		
 		
   </div>

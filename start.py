@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="0.98"
+Release="1.00"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -375,11 +375,13 @@ def show_entries():
 	
 
 
-
-
+	# OUTPUT panels below
+	partialnamelist=[]
 	# watertap panel --------------------------------------------
-	usedfor="watercontrol"	
-	namelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
+	usedfor="watercontrol"
+	iotype="output"
+	namelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_IOTYPE,iotype,hardwaremod.HW_INFO_NAME)
+	partialnamelist.extend(namelist)
 	#print "------------------------- namelist " , namelist
 	
 	if namelist:
@@ -401,7 +403,7 @@ def show_entries():
 			evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
 			paneldatarow={}
 			paneldatarow["name"]=name
-			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]/1000))
+			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]))
 			paneldatarow["min"]=""
 			paneldatarow["max"]=""
 			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
@@ -412,7 +414,9 @@ def show_entries():
 
 	# fertilizer panel --------------------------------------------
 	usedfor="fertilizercontrol"	
-	namelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
+	iotype="output"
+	namelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_IOTYPE,iotype,hardwaremod.HW_INFO_NAME)
+	partialnamelist.extend(namelist)
 	#print "------------------------- namelist " , namelist
 
 	if namelist:
@@ -434,7 +438,81 @@ def show_entries():
 			evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
 			paneldatarow={}
 			paneldatarow["name"]=name
-			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]/1000))
+			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]))
+			paneldatarow["min"]=""
+			paneldatarow["max"]=""
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+			paneldata.append(paneldatarow)	
+		paneldict["data"]=paneldata			
+		panelinfolist.append(paneldict)	
+
+
+	# Light actuator panel --------------------------------------------
+	usedfor="lightcontrol"	
+	iotype="output"
+	namelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_IOTYPE,iotype,hardwaremod.HW_INFO_NAME)
+	partialnamelist.extend(namelist)
+	#print "------------------------- namelist " , namelist
+
+	if namelist:
+		paneldict={}	
+		paneldict["icon"]="icons/bulb1.png"		
+		paneldict["color"]="orange"	
+		paneldict["type"]="actuator"		
+		paneldict["link"]=url_for('show_Calibration')
+		paneldict["linktitle"]="Go to Setting"
+		paneldict["title"]="Light Control"
+		paneldict["active"]="yes"
+		paneldata=[]
+		endtime=datetime.now()		
+		for name in namelist:		
+			sensordata=[]
+			starttime= endtime - timedelta(days=1)
+			data=[]
+			actuatordbmod.getActuatordbdata(name,data)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
+			paneldatarow={}
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]))
+			paneldatarow["min"]=""
+			paneldatarow["max"]=""
+			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
+			paneldata.append(paneldatarow)	
+		paneldict["data"]=paneldata			
+		panelinfolist.append(paneldict)		
+	
+	
+	
+	
+	# OTHERS panel (all outputs) --------------------------------------------
+	iotype="output"	
+	namelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,iotype,hardwaremod.HW_INFO_NAME)
+	#remove the nemas already in partialnamelist
+	for item in partialnamelist:
+		if item in namelist:
+			namelist.remove(item)
+	#print "------------------------- namelist " , namelist
+
+	if namelist:
+		paneldict={}	
+		paneldict["icon"]="icons/tools3-sm.png"		
+		paneldict["color"]="olive"	
+		paneldict["type"]="actuator"		
+		paneldict["link"]=url_for('show_Calibration')
+		paneldict["linktitle"]="Go to setting"
+		paneldict["title"]="Other Outputs"
+		paneldict["active"]="yes"
+		paneldata=[]
+		endtime=datetime.now()		
+		for name in namelist:		
+			sensordata=[]
+			starttime= endtime - timedelta(days=1)
+			data=[]
+			actuatordbmod.getActuatordbdata(name,data)
+			evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
+			paneldatarow={}
+			paneldatarow["name"]=name
+			paneldatarow["average"]=str('%.1f' % (evaluateddata["sum"]))
 			paneldatarow["min"]=""
 			paneldatarow["max"]=""
 			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)		
@@ -442,6 +520,16 @@ def show_entries():
 		paneldict["data"]=paneldata			
 		panelinfolist.append(paneldict)	
 	
+	
+	# available panel colors in CSS custom:
+	#aqua: #00c0ef; blue: #0073b7; teal: #39CCCC; olive: #3D9970; lime: #01FF70; orange: #FF851B; purple: #605ca8; maroon: #D81B60; gray: #d2d6de;
+	
+	
+	
+	
+	
+	
+	# system tabs
 
 	networklink=url_for('network')
 	settinglink=url_for('show_Calibration')
@@ -809,8 +897,8 @@ def saveit():
 		mailtitle=request.args['title']
 		mailtime=request.args['time']
 		print "save mail, name " ,mailaname , " address=" , mailaddress , " Title=" , mailtitle , " Time=", mailtime
-		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_MAILADDR,mailaddress)
-		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_MAILTITLE,mailtitle)
+		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_ADDR,mailaddress)
+		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_TITLE,mailtitle)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_FUNC_TIME,mailtime)
 		
 	elif name=="photo":
@@ -1178,8 +1266,8 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 		mailsetting=[]
 		mailsetting.append(element)
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_FUNC_TIME))
-		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_MAILADDR))
-		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_MAILTITLE))
+		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_ADDR))
+		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_TITLE))
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD))
 		mailsettinglist.append(mailsetting)
 		
@@ -1269,16 +1357,20 @@ def show_sensordata():
 			periodtype=periodlist[0]
 
 	sensordata=[]
+	usedsensorlist=[]
+	usedactuatorlist=[]
+	actuatordata=[]	
+	hygroactuatornumlist=[]
+	hygrosensornumlist=[]
+	hygrosensornumlistwithout=[]
+	
 	if actiontype=="delete":
 		print "delete all records"
 		sensordbmod.deleteallrow()
 		actuatordbmod.deleteallrow()
 		actiontype="show"
 		periodtype=periodlist[0]
-		usedsensorlist=[]
-		usedactuatorlist=[]
-		sensordata=[]
-		actuatordata=[]
+
 		
 	else:
 	#if actiontype=="sensor":
@@ -1296,8 +1388,7 @@ def show_sensordata():
 
 		#Usedfor="Moisturecontrol"	
 		#hygrosensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,Usedfor,hardwaremod.HW_INFO_NAME)
-		hygroactuatornumlist=[]
-		hygrosensornumlist=[]
+
 		actuatorlisth= autowateringdbmod.getelementlist()
 		for inde in range(len(usedactuatorlist)):
 			element=usedactuatorlist[inde]
@@ -1306,10 +1397,17 @@ def show_sensordata():
 				if linkedsensor in usedsensorlist: # if the actuator has an associated sensor hygro
 					hygroactuatornumlist.append(inde)
 					hygrosensornumlist.append(usedsensorlist.index(linkedsensor))
+		
+		#select hygrometers without associated actuator
+		sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)
+		for hygro in sensorlist:
+			if hygro in usedsensorlist:
+				if not usedsensorlist.index(hygro) in hygrosensornumlist:
+					hygrosensornumlistwithout.append(usedsensorlist.index(hygro))
 				
 		print "hygrosensornumlist " , hygrosensornumlist
 		print "hygroactuatornumlist " , hygroactuatornumlist
-	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,usedsensorlist=usedsensorlist,sensordata=json.dumps(sensordata),usedactuatorlist=usedactuatorlist,actuatordata=json.dumps(actuatordata), hygrosensornumlist=hygrosensornumlist, hygroactuatornumlist=hygroactuatornumlist)
+	return render_template('showsensordata.html',actiontype=actiontype,periodtype=periodtype,periodlist=periodlist,usedsensorlist=usedsensorlist,sensordata=json.dumps(sensordata),usedactuatorlist=usedactuatorlist,actuatordata=json.dumps(actuatordata), hygrosensornumlist=hygrosensornumlist, hygroactuatornumlist=hygroactuatornumlist, hygrosensornumlistwithout=hygrosensornumlistwithout)
 
 
 @application.route('/wateringplan/' , methods=['GET', 'POST'])
@@ -2148,6 +2246,7 @@ def videocontrol():
 	sendstring=""
 	argumentlist=request.args.getlist('name')
 	name=argumentlist[0]
+
 
 	if name=="testing":
 		print "testing video stop"

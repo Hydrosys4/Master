@@ -49,7 +49,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 #--start the scheduler call-back part--------////////////////////////////////////////////////////////////////////////////////////	
 
 def activateandregister(target,activationseconds): # function to activate the actuators
-	duration=1000*hardwaremod.toint(activationseconds,0)
+	duration=hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
 	# start pulse
@@ -60,7 +60,7 @@ def activateandregister(target,activationseconds): # function to activate the ac
 	return pulseok
 
 def pulsenutrient(target,activationseconds): #scheduled doser activity for fertilizer
-	duration=1000*hardwaremod.toint(activationseconds,0)
+	duration=hardwaremod.toint(activationseconds,0)
 	if autofertilizermod.isschedulermode(target):
 		autofertilizermod.activatedoser(target, duration)
 	else:
@@ -93,7 +93,7 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 			pumpit=False
 			return False
 	
-	duration=1000*hardwaremod.toint(activationseconds,0)
+	duration=hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
 
 	# evaluate parameters

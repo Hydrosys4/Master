@@ -126,7 +126,7 @@ def getAllActuatorDataPeriodv2(enddate,pastdays):
 			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
 			if (dateref>=startdate)and(dateref<=enddate):
 				try:
-					value=float(rowdata[1])/1000
+					value=float(rowdata[1])
 					dateinsecepoch=(dateref - datetime(1970,1,1)).total_seconds()
 					templist=[rowdata[0], value]
 					sensordata.append(templist)
@@ -258,7 +258,7 @@ def sensorsysinfomatrix():
 		getActuatordbdata(name,data)
 		evaluateddata=EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
 
-		row.append(str('%.1f' % (evaluateddata["sum"]/1000)))
+		row.append(str('%.1f' % (evaluateddata["sum"])))
 
 		matrix.append(row)
 	

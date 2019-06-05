@@ -45,14 +45,14 @@ def checkactivate(elementwater,durationwater):
 		minwaterduration=hardwaremod.toint(autofertilizerdbmod.searchdata("element",element,"minactivationsec"),0)
 		if not isschedulermode(element): #setup is not for scheduled time
 			print " Fertilizer " ,element ," set to autowater"
-			print " Check Water duration ", durationwater ,">", minwaterduration*1000
-			if durationwater>minwaterduration*1000: # watering time above the set threshold
+			print " Check Water duration ", durationwater ,">", minwaterduration
+			if durationwater>minwaterduration: # watering time above the set threshold
 				print " OK Water duration "
 				if AUTO_data[element]["tobeactivated"]: #if flag is ON
 					print " Activate ", element
 					durationfer=AUTO_data[element]["duration"]
 					activatedoser(element,durationfer)
-					time.sleep(durationfer/1000) #this blocks the system (and watering activation) for n seconds ... not best practice
+					time.sleep(durationfer) #this blocks the system (and watering activation) for n seconds ... not best practice
 				else:
 					print " No pending request to activate ", element
 			
