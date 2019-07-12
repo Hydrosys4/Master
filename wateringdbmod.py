@@ -49,6 +49,9 @@ if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering settin
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
 
+def readfromfile():
+	global WTdata
+	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
 
 def consitencycheck():
 	
@@ -143,8 +146,10 @@ def getparamlist():
 def getelementlist():
 	recordkey=hardwaremod.HW_FUNC_USEDFOR
 	recordvalue="watercontrol"
+	recordkey1=hardwaremod.HW_INFO_IOTYPE
+	recordvalue1="output"	
 	keytosearch=hardwaremod.HW_INFO_NAME
-	datalist=hardwaremod.searchdatalist(recordkey,recordvalue,keytosearch)
+	datalist=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
 	print "elementlist= ",datalist
 	return datalist
 

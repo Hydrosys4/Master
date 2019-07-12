@@ -34,6 +34,7 @@ def searchsyslogkeyword(keyword):
 	return extract
 
 def searchLOGkeyword(filename,keyword):
+	print "debugging check errors in: ", filename
 	rownumber="300"
 	data=tailLOGcmd(filename,rownumber)
 	numrowafter=10

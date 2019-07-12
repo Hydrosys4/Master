@@ -67,7 +67,7 @@ HW_FUNC_SCHEDTYPE="schedulingtype" # function group , optional, between "oneshot
 HW_FUNC_TIME="time"  #function group , optional, description of time or interval to activate the item depending on the "schedulingtype" item, in case of interval information the minutes are used for the period, seconds are used for start offset
 
 USAGELIST=["sensorquery", "watercontrol", "fertilizercontrol", "lightcontrol", "temperaturecontrol", "humiditycontrol", "photocontrol", "mailcontrol", "powercontrol", "N/A", "Other"]
-MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture","Percentage"]
+MEASURELIST=["Temperature", "Humidity" , "Light" , "Pressure" , "Time", "Quantity", "Moisture","Percentage","Events"]
 MEASUREUNITLIST=["C", "%" , "Lum" , "hPa" , "Sec", "Pcs", "Volt","F"]
 
 
@@ -115,9 +115,13 @@ Servo_Status["default"]={'duty':"3"}
 Stepper_Status={}
 Stepper_Status["default"]={'position':"0"}
 
+Blocking_Status={}
+Blocking_Status["default"]={'priority':0} # priority level, the commands are executed only if the command priority is higher or equlal to the blocking status priority
+
+
 
 def read_status_data(data,element,variable):
-	print data
+	#print data
 	if element in data:
 		print " element present"
 		elementdata=data[element]
@@ -232,8 +236,21 @@ def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fie
 	#dictdata[HW_FUNC_SCHEDTYPE]=["oneshot", "periodic"] #scheduling type
 	return True, ""
 
-def sendcommand(cmd,sendstring,recdata):
-	return HWcontrol.sendcommand(cmd,sendstring,recdata)
+def sendcommand(cmd,sendstring,recdata,target="", priority=0):
+	if target!="":
+		prioritystatus=read_status_data(Blocking_Status,target,'priority')
+		#print " Target output ", target , "priority status: ", prioritystatus , " Command Priority: ", priority
+		#check if the actions are blocked
+		if priority>=prioritystatus:
+			return HWcontrol.sendcommand(cmd,sendstring,recdata)
+		else:
+			successflag=0
+			recdata.append(cmd)
+			recdata.append("blocked")
+			recdata.append(successflag)
+			return True
+	else:
+		return HWcontrol.sendcommand(cmd,sendstring,recdata)
 
 	
 def getsensordata(sensorname,attemptnumber): #needed
@@ -251,7 +268,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 		ack=False
 		i=0
 		while (not ack)and(i<attemptnumber): # old check when the serial interface was used, in this case ack only indicates that the trasmission was correct, not the sensor value
-			ack=HWcontrol.sendcommand(cmd,sendstring,recdata)
+			ack=sendcommand(cmd,sendstring,recdata,sensorname,0)
 			i=i+1
 		if ack:
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
@@ -292,11 +309,11 @@ def getsensordata(sensorname,attemptnumber): #needed
 		logger.error("sensor name not found in list of sensors : %s", sensorname)
 	return Thereading
 
-def makepulse(target,duration,addtime=True): # pulse in seconds
+def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , addtime=True extend the pulse time with new time , addtime=False let the current pulse finish , 
 	#search the data in IOdata
 	
 	print "Check target is already ON ", target
-	activated=getpinstate(target)
+	activated=getpinstate(target, priority)
 	if activated=="error":
 		return "error"
 	if activated=="on":
@@ -338,12 +355,17 @@ def makepulse(target,duration,addtime=True): # pulse in seconds
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
-			ack= HWcontrol.sendcommand("pulse",sendstring,recdata)
+			ack= sendcommand("pulse",sendstring,recdata,target,priority)
 			print "returned data " , recdata
-			if ack and recdata[1]!="e":
+			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
+			if ack and recdata[2]:
 				print target, "correctly activated"
 				isok=True
 				return "Pulse Started"
+			else:
+				if not recdata[2]:
+					return recdata[1]
+			
 			
 	return "error"
 	
@@ -381,7 +403,7 @@ def stoppulse(target):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= HWcontrol.sendcommand("stoppulse",sendstring,recdata)
+		ack= sendcommand("stoppulse",sendstring,recdata,target,5)
 		print "returned data " , recdata
 		if ack and recdata[1]!="e":
 			print target, "correctly activated"
@@ -390,7 +412,7 @@ def stoppulse(target):
 			
 	return "error"
 
-def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
+def servoangle(target,percentage,delay,priority=0): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
 	#search the data in IOdata
 	isok=False
 	
@@ -414,7 +436,7 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 			stepsnumber="40" # this should be a string
 			
 			difference=float(previousduty)-float(dutycycle)
-			percentagediff=abs(float(100)*(difference-int(MIN))/(int(MAX)-int(MIN)))
+			percentagediff=abs(float(100)*difference/(int(MAX)-int(MIN)))
 			
 			if percentagediff<1: # one percent difference
 				print " No difference with prevoius position ", target , " percentage difference ", percentagediff
@@ -423,8 +445,8 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 			if 0<=int(percentage)<=100:
 				print "range OK"
 			else:
-				print " No valid data for Servo ", target
-				return "error" , isok
+				print " No valid data for Servo ", target , " out of Range"
+				return "Out of Range" , isok
 
 		except ValueError:
 			print " No valid data for Servo", target
@@ -438,7 +460,7 @@ def servoangle(target,percentage,delay): #percentage go from zeo to 100 and is t
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
-			ack= HWcontrol.sendcommand("servo",sendstring,recdata)
+			ack= sendcommand("servo",sendstring,recdata,target,priority)
 			print "returned data " , recdata
 			if ack and recdata[1]!="e":
 				print target, "correctly activated"
@@ -473,16 +495,16 @@ def getservopercentage(target):
 def getservoduty(element):
 	return read_status_data(Servo_Status,element,'duty')
 
-def GO_stepper_position(target,position):
+def GO_stepper_position(target,position,priority=0):
 	prev_position_string=getstepperposition(target)
 	prev_position=int(prev_position_string)
 	steps=position-prev_position
 	isdone=False
 	if steps>0:
-		out , isdone=GO_stepper(target,steps,"FORWARD")
+		out , isdone=GO_stepper(target,steps,"FORWARD",priority)
 	else:
 		steps=abs(steps)	
-		out , isdone=GO_stepper(target,steps,"BACKWARD")
+		out , isdone=GO_stepper(target,steps,"BACKWARD",priority)
 		
 	return out , isdone
 
@@ -511,7 +533,7 @@ def get_stepper_HWstatus(target):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= HWcontrol.sendcommand("stepperstatus",sendstring,recdata) 
+		ack= sendcommand("stepperstatus",sendstring,recdata,target,0) 
 		print "returned data " , recdata
 		if ack:
 			print target, "correctly activated"	
@@ -523,7 +545,7 @@ def get_stepper_HWstatus(target):
 
 
 
-def GO_stepper(target,steps,direction): 
+def GO_stepper(target,steps,direction,priority=0): 
 	#search the data in IOdata
 	isok=False
 	print "Move Stepper - ", target #only supported the I2C default address, the module supports 2 stepper interfaces: 1,2
@@ -570,7 +592,7 @@ def GO_stepper(target,steps,direction):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= HWcontrol.sendcommand("stepper",sendstring,recdata) 
+		ack= sendcommand("stepper",sendstring,recdata,target,priority) 
 		print "returned data " , recdata
 		if ack and recdata[1]!="e":
 			print target, "correctly activated"
@@ -590,7 +612,7 @@ def setstepperposition(element, position):
 	return write_status_data(Stepper_Status,element,'position',position)
 
 
-def getpinstate(target):
+def getpinstate(target, priority=0):
 	#search the data in IOdata
 	print "Check PIN state ", target
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
@@ -602,7 +624,7 @@ def getpinstate(target):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= HWcontrol.sendcommand("readpin",sendstring,recdata)
+		ack= sendcommand("pinstate",sendstring,recdata,target,priority)
 		print "returned data " , recdata
 		if ack and recdata[1]!="e":
 			value=recdata[1]
@@ -626,6 +648,30 @@ def getpinstate(target):
 				
 	return activated
 
+def readinputpin(PIN):
+	#search the data in IOdata
+	
+	print "Read input PIN ", PIN
+	sendstring=str(PIN)
+
+	isok=False
+	value=0
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= sendcommand("readinputpin",sendstring,recdata,target="")
+		print "returned data " , recdata
+		if ack and recdata[2]:
+			value=recdata[1]
+			isok=True
+		else:
+			value="error"
+			
+	return value # either "0" or "1"
+	
+	
+	
 
 def getsensornamebymeasure(measure):
 	# MEASURELIST is the list with valid values for the "measure" parameter
@@ -687,7 +733,6 @@ def initallGPIOoutput():
 
 
 
-	
 def restoredefault():
 	filestoragemod.deletefile(HWDATAFILENAME)
 	filestoragemod.readfiledata(DEFHWDATAFILENAME,IOdata)
@@ -719,11 +764,15 @@ def changeIOdatatemp(IOname,IOparameter,IOvalue):  #needed
 
 def searchdata(recordkey,recordvalue,keytosearch):
 	for ln in IOdata:
-		if recordkey in ln:
+		if recordkey in ln:			
 			if ln[recordkey]==recordvalue:
 				if keytosearch in ln:
 					return ln[keytosearch]	
 	return ""
+
+
+def deepcopydict(dictin):
+	return copy.deepcopy(dictin)
 
 def searchrowtemp(recordkey,recordvalue):
 	for ln in IOdatatemp:
@@ -953,6 +1002,7 @@ def  thumbconsistency(apprunningpath):
 			
 
 def shotit(video,istest,resolution,positionvalue,vdirection):
+	shottaken=False
     # send command to the actuator for test
 	if istest:
 		filepath=os.path.join(get_path(), "static")
@@ -969,14 +1019,17 @@ def shotit(video,istest,resolution,positionvalue,vdirection):
 	else:
 		ret_data = {"answer": "Camera not detected"}	
 	print "The photo ", ret_data
-	return ret_data
+	return shottaken , ret_data
 
 
 			
 def takephoto():
+	isok=False
+	count=0
 	print "take photo", " " , datetime.now()
 	videolist=videodevlist()
 	for video in videolist:
+		isok=False
 		if cameradbmod.isCameraActive(video):
 			resolution=cameradbmod.searchdata("camname",video,"resolution") # if not found return ""
 			position=cameradbmod.searchdata("camname",video,"position")
@@ -989,14 +1042,20 @@ def takephoto():
 				for positionvalue in positionlist:
 				# move servo
 					servoangle(servo,positionvalue,2)
-					ret_data={}
-					ret_data=shotit(video,False,resolution,positionvalue,vdirection)
+					isok , ret_data=shotit(video,False,resolution,positionvalue,vdirection)
+
 			else:
-				ret_data={}
-				ret_data=shotit(video,False,resolution,"0",vdirection)			
+				isok , ret_data=shotit(video,False,resolution,"0",vdirection)			
+
 			logger.info(ret_data["answer"])
 		else:
-			logger.info("Camera: %s not activated " , video)				
+			logger.info("Camera: %s not activated " , video)
+			
+		if isok:
+			count = count +1
+	if count > 0:
+		isok=True
+	return isok	
 
 		
 
@@ -1077,22 +1136,22 @@ def get_image_size(picturepath):
 		return width, height
 		
 def additionalRowInit():
+	#initialize IOdatarow	
+	global IOdatarow	
 	fields=HWdataKEYWORDS
 	tablehead=[]
 	for key, value in fields.iteritems():
 		tablehead.append(key)
-	additionalrow={}
+	IOdatarow={}
 	for th in tablehead:
 		if len(fields[th])>1:
-			additionalrow[th]=fields[th][0]
+			IOdatarow[th]=fields[th][0]
 		else:
-			additionalrow[th]=""
-	#initialize IOdatarow
-	global IOdatarow
-	IOdatarow=additionalrow
+			IOdatarow[th]=""
 	return True
 
-def addrow(dicttemp, temp=True):
+def addrow(dictrow, temp=True):
+	dicttemp=copy.deepcopy(dictrow)
 	global IOdata
 	global IOdatatemp
 	if temp:

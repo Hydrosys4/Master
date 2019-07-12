@@ -57,7 +57,7 @@
 					<th class="col-xs-2">Month</th>
 					<th class="col-xs-2">Schema</th>
 					<th class="col-xs-1">+++</th>
-					<th class="col-xs-5">Multiplier____</th>
+					<th class="col-xs-5">__Multiplier__</th>
 					<th class="col-xs-1">+++</th>
 					<th class="col-xs-1">delay (Sec)</th>
 				  </tr>
@@ -98,7 +98,7 @@
 							
 							
 							<td>
-								<button id="{{ elem }}{{ name }}_min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
+								<button id="dropminus" name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
 								<span class="glyphicon glyphicon-minus"></span>
 								</button>
 						
@@ -118,7 +118,7 @@
 							
 							</td>
 							<td>
-								<button id="{{ elem }}{{ name }}_plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
+								<button id="dropplus" name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
 								<span class="glyphicon glyphicon-plus"></span>
 								</button>
 							
@@ -197,9 +197,9 @@
 
 				
 				$('.qtybutton').click(function(){ // quantity button pressed, add or remove water drop image
-					var idbut=$(this).attr('id');
-					var idimg=idbut.split("_")[0];
-					var action=idbut.split("_")[1];
+					var idbut=$(this).attr('name');
+					var idimg=idbut;
+					var action=$(this).attr('action');
 					//alert(idimg);
 					if (action=="plus") {
 					var val = $('#' + idimg +"_input").val();

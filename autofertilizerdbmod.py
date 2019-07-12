@@ -49,6 +49,10 @@ if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering settin
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
 
+def readfromfile():
+	global WTdata
+	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
+
 
 def consistencycheck():
 	

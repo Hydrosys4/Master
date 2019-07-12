@@ -131,13 +131,15 @@
 							</td>
 							
 							
+							
 							<td>
-								<button id="{{ elem }}{{ name }}_min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
+								<button id="dropminus" name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
 								<span class="glyphicon glyphicon-minus"></span>
 								</button>
 						
 							</td>
 							<td>
+								<!--Time multiplier column (table)-->
 									<div class="col-xs-12">
 									<div class="drop" id="{{ elem }}{{ name }}">
 										<!--{% for n in range(table[row_i.index0][col_i.index0]) %}
@@ -151,12 +153,15 @@
 							
 							</td>
 							<td>
-								<button id="{{ elem }}{{ name }}_plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
+								<button id="dropplus" name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
 								<span class="glyphicon glyphicon-plus"></span>
 								</button>
 							
 							
 							</td>
+							
+							
+							
 
 						  </tr>
 
@@ -316,10 +321,10 @@
 				});	
 
 				
-				$('.qtybutton').click(function(){ // quantity button pressed, ad or remove water drop image
-					var idbut=$(this).attr('id');
-					var idimg=idbut.split("_")[0];
-					var action=idbut.split("_")[1];
+				$('.qtybutton').click(function(){ // quantity button pressed, add or remove water drop image
+					var idbut=$(this).attr('name');
+					var idimg=idbut;
+					var action=$(this).attr('action');
 					//alert(idimg);
 					if (action=="plus") {
 					var val = $('#' + idimg +"_input").val();
@@ -365,12 +370,12 @@
 
 		{% else %}
 
-									<div class="row">
-										<div class="col-xs-12">
-											<div style="height:100px"><h4> No actuator available</h4></div>
-										
-										</div>
-									</div>
+			<div class="row">
+				<div class="col-xs-12">
+					<div style="height:100px"><h4> No actuator available</h4></div>
+				
+				</div>
+			</div>
 
 
 		{% endif %}

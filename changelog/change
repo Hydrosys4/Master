@@ -288,22 +288,44 @@ sensordata, added non paired hygrometers in hygrometer chart
 
 Added Minutes in the watering plan interface
 
-homepage, added the used for for others use
+homepage, added the used for for others use than watering and fertilizer
+
+
+2019-06-12 -> release 101
+
+Add the interrupt page & function
+
+Fixed bug in the Hardwaresetting when edit table - Addrow now fixed
+
+
+2019-07-12 -> release 105a
+
+fixed bug in "setting" name change
+
+fixed minor bug when using underscore in names
+
+fixed video page error when the servo not present in HW list
+
+Added download configuration button
+
+Added upload configuration (still to be tested properly)
 
 
 
 
 
 
+NOTE:
+So that meant using RPIO for PWM (DMA) and GPIO for GPIO.  Luckily a little bit of hackery made that easy:
 
-
+import RPIO.PWM as PWM
+import RPi.GPIO as RPIO
 
 
 
 
 ------- Future releases: -----------
 
-fix the test photo in setting, sometimes the servo does not move
 
 enable HTTPS, not public version
 

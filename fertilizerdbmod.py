@@ -49,6 +49,10 @@ if not filestoragemod.readfiledata(FTDATAFILENAME,FTdata): #read  setting file
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
 
+def readfromfile():
+	global FTdata
+	filestoragemod.readfiledata(FTDATAFILENAME,FTdata)
+
 
 def consitencycheck():
 	

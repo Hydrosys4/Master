@@ -49,6 +49,9 @@ if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering settin
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
 
+def readfromfile():
+	global WTdata
+	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
 
 def consistencycheck():
 	
@@ -148,6 +151,15 @@ def gethygrosensorfromactuator(actuatorname):
 	else:
 		return ""
 	
+def checkactivehygrosensor(sensorname):
+	recordkey="sensor"
+	recordvalue=sensorname
+	keytosearch="workmode"
+	workmode=searchdata(recordkey,recordvalue,keytosearch)
+	if workmode!="": #if result is "" then the item has not been found
+		if workmode!="None":
+			return True
+	return False
 	
 	
 

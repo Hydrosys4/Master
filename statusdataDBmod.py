@@ -8,7 +8,6 @@ logger = logging.getLogger("hydrosys4."+__name__)
 
 
 def read_status_data(data,element,variable):
-	print data
 	if element in data:
 		print " element present"
 		elementdata=data[element]

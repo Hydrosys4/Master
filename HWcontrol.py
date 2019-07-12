@@ -32,7 +32,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","readpin","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","interrupt","readinputpin"]
 RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A","V1","V2","V3","V4","V5","V6","V7","V8"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
@@ -140,6 +140,9 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[14]:	# stoppulse
 		return gpio_stoppulse(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[16]:	# readinputpin
+		return read_input_pin(cmd, message, recdata)
 
 
 	else:
@@ -364,7 +367,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 	MCP3008_busy_flag=True		
 
 	
-	powerPIN_start(POWERPIN,"pos",0.05)
+	powerPIN_start(POWERPIN,"pos",0)
 
 	refvoltage=5.0
 	
@@ -383,7 +386,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 		dataarray=[]
 		
 		print "Starting sample reading"
-		for x in range(0, 39):
+		for x in range(0, 29): #number of samples
 			
 			# read data from selected channel
 			adc = spi.xfer2([1,(8+channel)<<4,0])
@@ -517,6 +520,7 @@ def endpulse(PIN,logic,POWERPIN):
 
 
 def gpio_pulse(cmd, message, recdata):
+	successflag=0
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
 	PIN=int(msgarray[1])
@@ -550,8 +554,10 @@ def gpio_pulse(cmd, message, recdata):
 	GPIO_data[PIN]["threadID"] = threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN])
 	GPIO_data[PIN]["threadID"].start()
 	print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
+	successflag=1
 	recdata.append(cmd)
 	recdata.append(PIN)
+	recdata.append(successflag)
 	return True	
 
 def gpio_stoppulse(cmd, message, recdata):
@@ -589,6 +595,15 @@ def gpio_pin_level(cmd, message, recdata):
 	else:
 		recdata.append("e")
 		return False	
+
+def read_input_pin(cmd, message, recdata):
+	successflag=1
+	msgarray=message.split(":")
+	PIN=int(msgarray[0])
+	recdata.append(cmd)
+	recdata.append(str(GPIO.input(PIN)))
+	recdata.append(successflag)	
+	return True
 
 
 
@@ -632,18 +647,16 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 	speed=int(msgarray[3])
 	steps=int(msgarray[4])
 
-	waitstep=0.1
-	waittime=0
-	maxwait=2.5
-	while (read_status_data(stepper_data,Interface,"busyflag")==True)and(waittime<maxwait):
-		time.sleep(waitstep)
-		waittime=waittime+waitstep
+	# following instructions have been removed as in case there is cuncurrency, then better not to wait, automation will eventually repeat the command
+	#waitstep=0.1
+	#waittime=0
+	#maxwait=2.5
+	#while (read_status_data(stepper_data,Interface,"busyflag")==True)and(waittime<maxwait):
+	#	time.sleep(waitstep)
+	#	waittime=waittime+waitstep
 		
-	
-	print "Stepper wait time -----> ", waittime
 		
-	if (waittime>=maxwait):
-		#something wrog, wait too long, avoid initiate further processing
+	if read_status_data(stepper_data,Interface,"busyflag"):
 		# check how long the busyflag has been True
 		lasttime=read_status_data(stepper_data,Interface,"busyflagtime")	
 		deltat=datetime.datetime.utcnow()-lasttime
@@ -655,8 +668,8 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 			mh = Adafruit_MotorHAT()
 			mh.reset()
 		else:
-			print "Stepper wait time EXCEEDED "
-			logger.warning("Stepper Wait Time exceeded, not proceeding with stepper: %s", Interface)
+			print "Stepper busy "
+			logger.warning("Stepper Busy, not proceeding with stepper: %s", Interface)
 			return False
 	
 	write_status_data(stepper_data,Interface,"busyflag",True)

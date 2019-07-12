@@ -12,18 +12,13 @@
         
   
 <!-- select and load preset HW config -->
-    <div class="container-fluid">
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
+
+
+     <div class="page-header">
 						<h4 id="header">Select and Load preset HW config</h4>
-					</div>
-				</div>
-            </div>
-          </div>
-        </div>
+
+	</div>
+
   
 
 <form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
@@ -50,39 +45,22 @@
 
 
 
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
-						<h4 id="header">Hardwaresetting Configuration options</h4>
-					</div>
-				</div>
-            </div>
-          </div>
-        </div>
-  
+
 
   
 <!-- second section table with the content of hwsetting -->
 <form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="menuForm" method="post" >
   
-  
-  <div class="container-fluid">
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
-						<h4 id="header">Current Hardwaresetting</h4>
-					</div>
-				</div>
-            </div>
-          </div>
-        </div>
 
-											
-														
+            <div class="page-header">
+
+						<h4 id="header">Hardware Configuration</h4>
+
+            </div>
+
+    
+
+								
 														
 <!-- bootstrap-table -->	
 
@@ -191,7 +169,7 @@ function actionFormatter(value, row, index) {
 		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="dwform" class="jotform-form" method="post" >
 
 			<div class="page-header">
-					  <h3>Download file (debugging only)</h3>   
+					  <h4>Download file (debugging only)</h4>   
 			</div>
 			<!--  file 1 -->
 			<div class="row">
@@ -318,7 +296,7 @@ function actionFormatter(value, row, index) {
 		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="dwform" class="jotform-form" method="post" >
 
 			<div class="page-header">
-					  <h3>Function test (debugging only)</h3>   
+					  <h4>Function test (debugging only)</h4>   
 			</div>
 			<!--  button 1 -->
 			<div class="row">
@@ -379,7 +357,7 @@ function actionFormatter(value, row, index) {
 
 
 			<div class="page-header">
-					  <h3>Running Status</h3>   
+					  <h4>Running Status</h4>   
 			</div>
 			<!--  debugstatus -->
 

@@ -64,9 +64,8 @@ def pulsenutrient(target,activationseconds): #scheduled doser activity for ferti
 	if autofertilizermod.isschedulermode(target):
 		autofertilizermod.activatedoser(target, duration)
 	else:
-		autofertilizermod.AUTO_data[target]["tobeactivated"]=True
-		autofertilizermod.AUTO_data[target]["duration"]=duration
-		autofertilizermod.AUTO_data[target]["triggerdate"]=datetime.now()
+		logger.info('Book the %s activation', target)		
+		autofertilizermod.setActivationDurationDate(target,True,duration,datetime.now())
 	return True
 
 
@@ -119,7 +118,9 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		hsensorname=hsensornamelist[0]  # get first found sensor in the list
 		sensordbmod.getsensordbdata(hsensorname,sensordata)
 		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
-		humquantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
+		isok , quantitylist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())
+		humquantity=quantitylist["average"]
+
 		logger.info('Waterpump Check parameter if humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))
 		print 'Waterpump Check parameter if humquantity=',humquantity,' < MaxAverageHumid=' ,MaxAverageHumid
 		
@@ -138,7 +139,8 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		tsensorname=tsensornamelist[0]  # get first found sensor in the list
 		sensordbmod.getsensordbdata(tsensorname,sensordata)
 		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
-		tempquantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["average"]	
+		isok , quantitylist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())
+		tempquantity=quantitylist["average"]
 		logger.info('Waterpump Check parameter if tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))
 		print 'Waterpump Check parameter if tempquantity=',tempquantity,' > MinAveragetemp=' ,MinAveragetemp
 		
@@ -271,6 +273,7 @@ def heartbeat():
 	
 	# check if there have been errors in Syslog
 	if DEBUGMODE:
+		logger.info('Heartbeat check , check errors in Syslog file')
 		Errortextlist=debuggingmod.searchsyslogkeyword("error")
 		if Errortextlist:
 			print "found error in syslog"
@@ -285,6 +288,7 @@ def heartbeat():
 			
 	# check if there have been errors in Schedulerlog
 	if DEBUGMODE:
+		logger.info('Heartbeat check , check errors in Sched log file')
 		filename="logfiles/apscheduler_hydrosystem.log"
 		MYPATH=hardwaremod.get_path()
 		filenameandpath=os.path.join(MYPATH, filename)
@@ -316,9 +320,10 @@ def sendmail(target):
 	
 def takephoto(target):
 	logger.info('take picture %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-	hardwaremod.takephoto()
+	isok=hardwaremod.takephoto()
 	# save action in database
-	actuatordbmod.insertdataintable(target,1)
+	if isok:
+		actuatordbmod.insertdataintable(target,1)
 	print "Action", target ," " , datetime.now()	
 	return True
 	

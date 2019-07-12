@@ -113,6 +113,7 @@ def getAllActuatorDataPeriodv2(enddate,pastdays):
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
+	print " actuatordbmod"
 	print " stratdate " ,startdate
 	print " enddate ", enddate
 	outputallsensordata=[]
@@ -163,12 +164,12 @@ def RemoveActuatorDataPeriod(removebeforedays):
 
 	# sensor data --------------------------------------------
 	
-	
-	
 
 	
+
 def EvaluateDataPeriod(sensordata,startdate,enddate):
 	# sensor data --------------------------------------------
+	isok=False
 	outputdata={}
 	summa=0
 	inde=0
@@ -188,11 +189,12 @@ def EvaluateDataPeriod(sensordata,startdate,enddate):
 				summa=summa+number
 				inde=inde+1
 			except ValueError:
-				print "Error in database reading ",dateref , "  " ,data[1]
+				print "Evaluation : Error in database reading ",dateref , "  " ,data[1]
 	
 	
 	if inde>0:
 		average=summa/inde
+		isok=True
 	else:
 		average=0
 		mini=0
@@ -202,9 +204,15 @@ def EvaluateDataPeriod(sensordata,startdate,enddate):
 	outputdata["average"]=average
 	outputdata["min"]=mini
 	outputdata["max"]=maxi	
-	return outputdata
-	
-	
+	return isok , outputdata
+
+
+
+
+
+
+
+
 	
 def SumProductDataPeriod(sensordata,startdate,enddate,timeinterval):
 	# sensor data --------------------------------------------
@@ -256,7 +264,7 @@ def sensorsysinfomatrix():
 		starttime= endtime - timedelta(days=1)
 		data=[]
 		getActuatordbdata(name,data)
-		evaluateddata=EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
+		isok, evaluateddata=EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
 
 		row.append(str('%.1f' % (evaluateddata["sum"])))
 

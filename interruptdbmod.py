@@ -19,9 +19,9 @@ import hardwaremod
 
 
 global WTDATAFILENAME
-WTDATAFILENAME="automationdata.txt"
+WTDATAFILENAME="interruptdata.txt"
 global DEFWTDATAFILENAME
-DEFWTDATAFILENAME="default/defautomationdata.txt"
+DEFWTDATAFILENAME="default/definterruptdata.txt"
 
 global WTdata
 WTdata=[]
@@ -128,7 +128,7 @@ def restoredefault():
 	filestoragemod.deletefile(WTDATAFILENAME)
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
 	#print "WT data -----------------------------------> ",  WTdata
-	consitencycheck()
+	consistencycheck()
 	
 	
 def saveWTsetting():
@@ -153,13 +153,7 @@ def getelementlist():
 	return datalist
 
 def sensorlist():
-	tablelisttemp=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
-	# exclude the event input
-	inputeventlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"interrupt",hardwaremod.HW_INFO_NAME)
-	tablelist=[]
-	for element in tablelisttemp:
-		if not element in inputeventlist:
-			tablelist.append(element)
+	tablelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_INFO_IOTYPE,"input", hardwaremod.HW_CTRL_CMD, "interrupt" ,hardwaremod.HW_INFO_NAME)
 	return tablelist
 
 def sensorlisttriggertime():

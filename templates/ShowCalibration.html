@@ -2,6 +2,10 @@
 {% set active_page = "showcalibration" %}
 {% block body %}
   {% if session.logged_in %}
+  
+  
+  
+  
   <div class="container-fluid">
 	  
 	  
@@ -223,7 +227,6 @@
 
         </tbody>
     </table>
-	
 			<div class="row">
 				<div class="col-xs-4">
 					<label>Status:</label>
@@ -284,8 +287,8 @@
 									if (!answer.includes("Stopped")) {
 									$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
 									$('#' + elem + "progress").text('0')
-									}							
-									}	
+									} 					
+									} 
 									}	
 
 									
@@ -320,12 +323,12 @@
 			
 		<!-- Stepper Actuators test -->
   
-  		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
+		<form novalidate="true" action="{{ url_for('setstepper') }}" id="setstepper" method="post" >
 			<div class="page-header">
 					  <h3>Stepper Actuators Test</h3>   
 			</div>
 			
-			<div class="well bs-component dontwantgap">
+			<div class="well bs-component smallgap">
 			
 						<!--  Actuator table   -->
 			<table class="table" margin: 20px;>
@@ -397,8 +400,28 @@
 					<label class="form-label-left" id="stepperstatus" for="input_3"></label>
 				</div>
 			</div>	
+			
+			
+			
+		<!-- Button for stepper reset page -->
+		
+			<div class="row">
 
-			</div>
+				<div class="col-xs-12">
+				
+					<!-- advanced setting stepper button -->
+			
+					<button id="setsteppebtn" name="buttonsub" value="setstepper" type="submit" class="btn btn-success btn-sm btn-warp">
+						Stepper Position Reset
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+				</div>			
+			
+
+		</div>
+		
 			 <script type=text/javascript>
 			  $(function() {
 				$(".stepperbutton").click(function() {
@@ -441,25 +464,7 @@
 
 		
 
-			
-		</form>			
-			
-		<!-- Button for stepper reset page -->
-		
-		<form novalidate="true" action="{{ url_for('setstepper') }}" id="setstepper" method="post" >
 
-			<div class="row">
-				<div class="col-xs-4">
-				
-					<!-- advanced setting stepper button -->
-			
-					<button id="setsteppebtn" name="buttonsub" value="setstepper" type="submit" class="btn btn-success btn-sm btn-warp">
-						Stepper Position Reset
-					<span class="glyphicon glyphicon-cog"></span>
-					</button>
-		
-				</div>
-			</div>
 		</form>  			
 		
 		
@@ -753,7 +758,7 @@
 			<tr>
 
 				<td>
-					<label>Active</label>
+					<label>Activate database</label>
 				</td>
 				<td>
 
@@ -1463,12 +1468,174 @@
 		
 		
   
-		<!-- Restore original setting -->
+		<!-- Configuration management -->
+		 <form  action="{{ url_for('show_Calibration') }}" id="menuFormupload" enctype="multipart/form-data" method="post" >
+
+			<div class="page-header">
+					  <h3>System Configuration Upload</h3>   
+			</div>
+
+	<!-- New filestyle plugin -->
+	<script type=text/javascript src="{{url_for('static', filename='filestyle123/bootstrap-filestyle.min.js') }}"></script>
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label for="input_3">Upload Configuration</label>
+				</div>
+				<div class="col-xs-8">
+					<input class="filestyle" type="file" name="file">  
+					<!-- <input class="btn-sm btn btn-default" type = "submit" value="uploadfile" name="buttonsub">  -->
+				<!-- Button HTML (to Trigger Modal) -->
+					<a href="#myModal2" role="button" class="btn-sm btn btn-default" data-toggle="modal">Upload and Apply</a>					
+				
+					
+				</div>
+			</div>	
+			
+			
+				 
+				<!-- Modal HTML -->
+				<div id="myModal2" class="modal fade">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title">Confirmation</h4>
+							</div>
+							<div class="modal-body">
+								<p>Are you sure to replace the current setting?</p>
+								<p class="text-warning"><small>All the current setting will be lost</small></p>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button id="uploadbtn" name="buttonsub" value="uploadfile" type="submit" class="btn btn-primary">Apply uploaded Config</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			
+
+			
+		</form>
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
   		<form  action="{{ url_for('show_Calibration') }}" id="menuForm3" class="jotform-form" method="post" >
 
 			<div class="page-header">
-					  <h3>Restore all setting to default</h3>   
+					  <h3>System Configuration Download</h3>   
 			</div>
+
+
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label for="input_3">Download Configuration</label>
+				</div>
+				<div class="col-xs-8">
+
+				<!-- Button HTML -->
+				
+							<!--  file 1 -->
+					<div class="row">
+						<div class="col-xs-6">
+							<button class="downloadbutton btn-sm btn btn-default"  type="button" name="configzip">DownloadConfigFiles</button>
+						</div>
+						<div class="col-xs-6">
+							<a id="downloadlinkconfigzip0" href="" ></a>
+						</div>
+					</div>	
+					
+					
+				</div>
+			</div>	
+
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-4">
+					<label id="downloadstatus" for="input_3">Status</label>
+				</div>
+			</div>	
+
+
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".downloadbutton").click(function() {
+				
+				// send ajax interrupt to flask 
+				$('#downloadstatus').text("Status");
+
+					var prid=$(this).attr('name');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/downloadit/?name=" + prid,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#downloadstatus').text(data.answer);
+									if (data.answer=="ready"){
+										   setTimeout(function(){
+													d = new Date();
+													var filename=data.filename;
+													//var fileurl="{{ url_for('static', filename=filename)}}"+"?"+d.getTime();
+													
+													fLen = filename.length;
+													for (i = 0; i < fLen; i++) {
+														var fileurl="{{ url_for('static', filename="")}}"+filename[i]+"?"+d.getTime();
+														var filenameGUIlist=filename[i].split("/");
+														var filenameGUI=filenameGUIlist[filenameGUIlist.length-1];
+														$('#downloadlink'+prid+i.toString()).text(filenameGUI);
+														$('#downloadlink'+prid+i.toString()).attr("href", fileurl);
+
+
+													}
+													
+													
+													
+													
+													
+
+											}, 200);
+									}
+
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    
+				
+				// increment status bar should stay here
+
+
+					
+				});
+
+			  });
+			</script>
+
+
+			<div class="page-header">
+					  <h3>System Configuration Reset</h3>   
+			</div>
+
+
 
 			<div class="row">
 				<div class="col-xs-4">

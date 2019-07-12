@@ -17,21 +17,21 @@ logger = logging.getLogger("hydrosys4."+__name__)
 # status array, required to check the ongoing actions 
 elementlist= automationdbmod.getelementlist()
 AUTO_data={} # dictionary of dictionary
-AUTO_data["default"]={"lastactiontime":datetime.now(),"actionvalue":0, "alertcounter":0, "infocounter":0, "status":"ok"}
+AUTO_data["default"]={"lastactiontime":datetime.utcnow(),"actionvalue":0, "alertcounter":0, "infocounter":0, "status":"ok"}
 
 
 
 def cyclereset(element):
 	global AUTO_data
 	waitingtime=hardwaremod.toint(automationdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
-	AUTO_data[element]={"lastactiontime":datetime.now() - timedelta(minutes=waitingtime),"status":"ok","actionvalue":0, "alertcounter":0, "infocounter":0}
+	AUTO_data[element]={"lastactiontime":datetime.utcnow() - timedelta(minutes=waitingtime),"status":"ok","actionvalue":0, "alertcounter":0, "infocounter":0}
 
 def cycleresetall():
 	global AUTO_data
 	elementlist= automationdbmod.getelementlist()
 	for element in elementlist:
 		waitingtime=hardwaremod.toint(automationdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
-		AUTO_data[element]={"lastactiontime":datetime.now() - timedelta(minutes=waitingtime),"status":"ok","actionvalue":0, "alertcounter":0, "infocounter":0}
+		AUTO_data[element]={"lastactiontime":datetime.utcnow() - timedelta(minutes=waitingtime),"status":"ok","actionvalue":0, "alertcounter":0, "infocounter":0}
 
 
 def automationcheck(refsensor):
@@ -68,15 +68,10 @@ def automationexecute(refsensor,element):
 		actuatormaxthreshold=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"actuator_threshold")[1],0)
 		actuatorminthreshold=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"actuator_threshold")[0],actuatormaxthreshold)
 
-		# evaluate variables for operational period check
-		now = datetime.now()
-		nowtime = now.time()
-		starttimeh=hardwaremod.toint(automationdbmod.searchdata("element",element,"allowedperiod")[0].split(":")[0],0)
-		starttimem=hardwaremod.toint(automationdbmod.searchdata("element",element,"allowedperiod")[0].split(":")[1],0)
-		endtimeh=hardwaremod.toint(automationdbmod.searchdata("element",element,"allowedperiod")[1].split(":")[0],1)
-		endtimem=hardwaremod.toint(automationdbmod.searchdata("element",element,"allowedperiod")[1].split(":")[1],0)
-		starttime=time(starttimeh,starttimem)
-		endtime=time(endtimeh,endtimem)		
+		# evaluate variables for operational period check	
+		
+		starttime = datetime.strptime(automationdbmod.searchdata("element",element,"allowedperiod")[0], '%H:%M').time()
+		endtime = datetime.strptime(automationdbmod.searchdata("element",element,"allowedperiod")[1], '%H:%M').time()	
 		
 		# get other parameters
 		maxstepnumber=hardwaremod.toint(automationdbmod.searchdata("element",element,"stepnumber"),1)
@@ -117,7 +112,7 @@ def automationexecute(refsensor,element):
 			# check if inside the allowed time period
 			print "full Auto Mode"
 			logger.info('full auto mode --> %s', element)
-			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
+			timeok=isNowInTimePeriod(starttime, endtime, datetime.now().time())  # don't use UTC here!
 			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 			if timeok:
 				logger.info('inside allowed time')
@@ -189,8 +184,10 @@ def automationexecute(refsensor,element):
 							# do relevant stuff	
 							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
 						# END MAIN ALGORITHM - Reverse				
+				else:
+					logger.error('No valid calculation operation on the stored sensor data')
 			else:
-				logger.info('No valid calculation operation on the stored sensor data')
+				logger.info('Outside allowed Time, Stop')
 				
 		elif workmode=="Emergency Activation":
 			print "Emergency Activation"		
@@ -235,8 +232,8 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 	global AUTO_data
 	# check if time between watering events is larger that the waiting time (minutes)
 	lastactiontime=statusdataDBmod.read_status_data(AUTO_data,element,"lastactiontime")
-	print ' Previous action: ' , lastactiontime , ' Now: ', datetime.now()
-	timedifference=sensordbmod.timediffinminutes(lastactiontime,datetime.now())
+	print ' Previous action: ' , lastactiontime , ' Now: ', datetime.utcnow()
+	timedifference=sensordbmod.timediffinminutes(lastactiontime,datetime.utcnow())
 	print 'Time interval between actions', timedifference ,'. threshold', waitingtime
 	logger.info('Time interval between Actions %d threshold %d', timedifference,waitingtime)		
 	if timedifference>=waitingtime: # sufficient time between actions
@@ -252,7 +249,7 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 			textmessage="INFO: " + sensor + " value " + str(sensorvalue) + ", activating:" + element + " with Value " + str(value)
 			emailmod.sendallmail("alert", textmessage)
 		if isok:
-			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.now())
+			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
 			statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
 
 	else:
@@ -292,10 +289,11 @@ def activateactuator(target, value):  # return true in case the state change: ac
 
 
 def isNowInTimePeriod(startTime, endTime, nowTime):
-    if startTime < endTime:
-        return nowTime >= startTime and nowTime <= endTime
-    else: #Over midnight
-        return nowTime >= startTime or nowTime <= endTime
+	print startTime," ",  endTime," " ,  nowTime
+	if startTime < endTime:
+		return nowTime >= startTime and nowTime <= endTime
+	else: #Over midnight
+		return nowTime >= startTime or nowTime <= endTime
 
 
 def sensorreading(sensorname,MinutesOfAverage,operation):
@@ -314,9 +312,13 @@ def sensorreading(sensorname,MinutesOfAverage,operation):
 		if samplesnumber>0:
 			sensordata=[]		
 			sensordbmod.getsensordbdatasamplesN(sensorname,sensordata,samplesnumber)
-			starttimecalc=datetime.now()-timedelta(minutes=(MinutesOfAverage+theinterval)) #if Minutes of average is zero, it allows to have at least one sample
-			quantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())[operation]	
-			isok=True	
+			datenow=datetime.now() # dont put UTC here !!!
+			starttimecalc=datenow-timedelta(minutes=(MinutesOfAverage+theinterval)) #if Minutes of average is zero, it allows to have at least one sample
+			isok, quantitylist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datenow)
+			quantity=quantitylist[operation]
+			# sensor reading value
+			logger.info('Sensor reading <%s>=<%s>',sensorname,str(quantity))
+			print "sensor Reading ", sensorname, "=" , quantity	
 	return isok , quantity
 
 

@@ -9,14 +9,16 @@ import autofertilizerdbmod
 import sensordbmod
 import actuatordbmod
 import fertilizerdbmod
+import statusdataDBmod
 
 logger = logging.getLogger("hydrosys4."+__name__)
 
 # status array, required to check the ongoing actions within a watering cycle
 elementlist= autofertilizerdbmod.getelementlist()
 AUTO_data={} # dictionary of dictionary
-for element in elementlist:
-	AUTO_data[element]={"triggerdate":datetime.utcnow(),"tobeactivated":False, "duration":0, "alertcounter":0}
+#for element in elementlist:
+#	AUTO_data[element]={"triggerdate":datetime.utcnow(),"tobeactivated":False, "duration":0, "alertcounter":0}
+AUTO_data["default"]={"triggerdate":datetime.utcnow(),"tobeactivated":False, "duration":0, "alertcounter":0}
 # triggerdate, datetime when the doser have been triggered to start
 # tobeactivated, doser need to be activated in the next opportunity 
 
@@ -48,25 +50,31 @@ def checkactivate(elementwater,durationwater):
 			print " Check Water duration ", durationwater ,">", minwaterduration
 			if durationwater>minwaterduration: # watering time above the set threshold
 				print " OK Water duration "
-				if AUTO_data[element]["tobeactivated"]: #if flag is ON
+				if statusdataDBmod.read_status_data(AUTO_data,element,"tobeactivated"): #if flag is ON
 					print " Activate ", element
-					durationfer=AUTO_data[element]["duration"]
+					durationfer=statusdataDBmod.read_status_data(AUTO_data,element,"duration")
 					activatedoser(element,durationfer)
 					time.sleep(durationfer) #this blocks the system (and watering activation) for n seconds ... not best practice
 				else:
 					print " No pending request to activate ", element
 			
-def activatedoser(target, duration):
-	print target, " ",duration, " " , datetime.now() 
+def activatedoser(element, duration):
+	print element, " ",duration, " " , datetime.now() 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
-	pulseok=hardwaremod.makepulse(target,duration)
+	pulseok=hardwaremod.makepulse(element,duration)
 	# salva su database
-	actuatordbmod.insertdataintable(target,duration)
+	actuatordbmod.insertdataintable(element,duration)
 	# put flag down
 	global AUTO_data
-	AUTO_data[target]["tobeactivated"]=False
-	AUTO_data[target]["duration"]=0
-	AUTO_data[target]["triggerdate"]=datetime.now()
+	statusdataDBmod.write_status_data(AUTO_data,element,"tobeactivated",False)
+	statusdataDBmod.write_status_data(AUTO_data,element,"duration",0)
+	statusdataDBmod.write_status_data(AUTO_data,element,"triggerdate",datetime.now())
+
+def setActivationDurationDate(element,tobeactivated,duration,triggerdate):
+	global AUTO_data
+	statusdataDBmod.write_status_data(AUTO_data,element,"tobeactivated",tobeactivated) #true or false
+	statusdataDBmod.write_status_data(AUTO_data,element,"duration",duration)
+	statusdataDBmod.write_status_data(AUTO_data,element,"triggerdate",triggerdate)
 
 
 def checkworkmode(element):

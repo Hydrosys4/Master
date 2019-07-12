@@ -139,6 +139,30 @@ def iwcommand(cmd,wordtofind):
 			ssids.append(ssid)
 	return ssids
 
+def gethostname():
+	print "Get hostname"
+	cmd = ['hostname']	
+	try:
+		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
+		time.sleep(0.5)	
+		print output_string
+		return output_string
+	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return "error"
+
+def setnewhostname(HOSTNAME):
+	print "Set hostname"
+	# hostnamectl set-hostname $NewHostName
+	cmd = [ "hostnamectl" , 'set-hostname' , HOSTNAME]	
+	try:
+		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
+		return output_string
+	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return "error"
 
 
 def start_hostapd():
@@ -782,6 +806,26 @@ def get_local_ip():
 		return ""
 	print ipaddr
 	return ipaddr
+	
+	
+def get_local_ip_list():
+	cmd = ["hostname -I"]	
+	try:
+		cmd_output = subprocess.check_output(cmd, shell=True).decode('utf-8')	
+	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		print "Local IP Error "
+		logger.error('Error to get local IP')
+		return ""
+	ipaddrlist=[]
+	stringlist=cmd_output.split(" ")
+	for ipstrings in stringlist:
+		isaddress , ipaddr = IPv4fromString(ipstrings)
+		if isaddress:
+			ipaddrlist.append(ipaddr) 
+			print ipaddr
+	return ipaddrlist
 	
 def get_local_ip_raw():
 	cmd = ["hostname -I"]	

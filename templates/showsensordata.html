@@ -446,7 +446,14 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 	var hygrosensornumlist={{hygrosensornumlist}};
 	var hygroactuatornumlist={{hygroactuatornumlist}};
 	var hygrosensornumlistwithout={{hygrosensornumlistwithout}};
-	var seriesColors= [ "#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"]
+	var actuatornumlistwithout={{actuatornumlistwithout}};
+	var hygrosensornumlistwithoutactive={{hygrosensornumlistwithoutactive}}
+	//var seriesColors= [ "#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"]
+	
+	//var seriesColors= [ "#e6194B", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#42d4f4", "#f032e6", "#bfef45", "#469990", "#e6beff", "#9A6324", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#a9a9a9", "#000000"]
+	
+	var seriesColors= [ "#2d89ef", "#2b5797", "#ffc40d", "#e3a21a", "#da532c", "#ee1111", "#b91d47", "#99b433", "#00a300", "#1e7145", "#ff0097", "#9f00a7", "#7e3878", "#603cba", "#1d1d1d", "#00aba9", "#000000"]
+
 	
 	var fLen, i, seriedict;
 	var sensorseriesh=[];
@@ -468,7 +475,17 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 			sensorchartdatah.push(sensorchartdata[hygrosensornumlistwithout[i]]);
 
 	} 
+	var continu_i=continu_i+fLen // keep incremnting the number to avoid same colors	
+	fLen = hygrosensornumlistwithoutactive.length;
+	for (i = 0; i < fLen; i++) {
 
+			seriedict={"label": sensorlist[hygrosensornumlistwithoutactive[i]], "color":seriesColors[(continu_i+i) % seriesColors.length] , "showLine":true, "linePattern" : 'solid', "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 1 }};
+			sensorseriesh.push(seriedict);
+			sensorchartdatah.push(sensorchartdata[hygrosensornumlistwithoutactive[i]]);
+
+	} 	
+	var continu_i=continu_i+fLen // keep incremnting the number to avoid same colors
+	
 
 	var fLen, i, seriedict;
 	var actuatorseriesh=[];
@@ -479,7 +496,14 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 			actuatorseriesh.push(seriedict);
 			actuatorchartdatah.push(actuatorchartdata[hygroactuatornumlist[i]]);	
 	} 
-
+	
+	// actuators without , smaller size
+	fLen = actuatornumlistwithout.length;
+	for (i = 0; i < fLen; i++) {
+			seriedict={"label": actuatorlist[actuatornumlistwithout[i]], "color":seriesColors[(continu_i+i) % seriesColors.length] , "showLine":false, "yaxis" : 'y2axis', "markerOptions" : { "style": shapes[(continu_i+i) % shapes.length] , "size": 8  }};
+			actuatorseriesh.push(seriedict);
+			actuatorchartdatah.push(actuatorchartdata[actuatornumlistwithout[i]]);
+	} 
 
 
 	var combochartseriesh = actuatorseriesh.concat(sensorseriesh); 
@@ -708,7 +732,7 @@ $(function() {
        
        
 		
-		<form novalidate="true" action="{{ url_for('show_sensordata') }}" id="menuForm" method="post" >
+		<form novalidate="true" action="{{ url_for('show_sensordata') }}" id="menuForm" method="post" name="theForm">
 	
 			<div class="page-header">
 
@@ -721,15 +745,63 @@ $(function() {
 									<label></label>									
 							    {% for period in periodlist %}									
 									<label class="radio-inline">
-										<input onclick="this.form.submit()" type="radio" name="period" id="period" value="{{period}}" {% if period == periodtype %}checked{% endif %}>{{period}}
+										<input onclick="this.form.submit()" type="radio" name="period" id="radio{{period}}" value="{{period}}" {% if period == periodtype %}checked{% endif %}>{{period}}
 									</label>
 								{% endfor %}
+								
 								</div>
 								</div>
 
 							</div>
+					<div class="row">		
+						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 ">
+							<div class="form-group smallgap">
+								<div class='input-group date datetimepicker'>
+									<input id="startdate" name="startdate" type='text' class="setclock form-control" value="{{startdatestr}}" >
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+								</div>
+							</div>
+						</div>	
+						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 ">
+							<div class="form-group smallgap">
+								<div class='input-group date datetimepicker'>
+									<input id="enddate" name="enddate" type='text' class="setclock form-control" value="{{enddatestr}}" >
+									<span class="input-group-addon">
+										<span class="glyphicon glyphicon-calendar"></span>
+									</span>
+								</div>
+							</div>
+						</div>	
+						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 ">	
+							<div class="form-group smallgap">
+							<button id="setPeriod" class="clockbutton btn btn-default"  type="button" name="setPeriod" element="setHWClock">Selected Dates</button>
+							</div>	
+						</div>	
+					</div>					
+					<script type="text/javascript">
+						$(function () {
+							$('.datetimepicker').datetimepicker({
+								locale: 'en-gb',
+								useCurrent:false,
+								format: 'DD/MM/YYYY'
+
+							});
 							
-						
+							$(function() {
+								$("#setPeriod").click(function() {
+									//var selvalue=$(this).attr('name');
+									//alert("Custom");
+									//var idref=$(this).attr('idref');
+									$('#radioCustom').prop('checked',true);
+									document.theForm.submit();
+								});  
+							}); 
+							
+							
+						});
+					</script>					
 			</div>
 
 
@@ -810,7 +882,7 @@ $(function() {
 
 							<!-- graph here-->
 
-							{% if (hygrosensornumlist|length + hygroactuatornumlist|length + hygrosensornumlistwithout|length)>0%}		
+							{% if (hygrosensornumlist|length + hygroactuatornumlist|length + hygrosensornumlistwithout|length + hygrosensornumlistwithoutactive|length + actuatornumlistwithout|length)>0 %}	
 							<div  class="row">
 								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Auto water Control Chart</div>
 							</div>						
@@ -859,6 +931,9 @@ $(function() {
 						$('#' + idref).attr("value", selvalue);
 					});  
 				}); 
+				
+		
+				
 		
 		</script>  
 

@@ -188,7 +188,6 @@ def getdatafromfieldslimit(filename,table,fieldlist,valuelist,limit):
 		db.close()
 
 
-
 		
 def deleterowwithfield(filename,table,field,value):
 	print "delete field ", field , " with value ", value

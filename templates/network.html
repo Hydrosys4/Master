@@ -4,28 +4,32 @@
   {% if session.logged_in %}
   
   
-
-  
-  
-  
-  
   
   <div class="container-fluid">
 
 		
   		<form novalidate="true" action="{{ url_for('network') }}" id="menuForm" class="jotform-form" method="post" >
 			<div class="page-header">
-		        <h3>Available WiFi networks</h3>   
+		        <h3>WiFi Setting</h3>   
 			</div>
 			
-	
+		<div class="well bs-component well-sm ">
+			<div class="form-group">			
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>Available WiFi networks</legend>  
+				</div>	
+			</div>	
 	
 			<div id="wifilistplace"></div>
 			<div id="wifilistwait"><b style="color:red">Scanning wifi networks <span id="wait">.</span></b> </div>
-			
+	
 			<div class="page-header">
-				<h3>Local System Access Point</h3>   
-				</div>
+			<div class="form-group">			
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>Local System Access Point</legend>  
+				</div>	
+			</div>	
+			</div>			
 				<div class="row">
 					<div class="col-xs-12">
 						
@@ -36,31 +40,40 @@
 						<a>{{ localwifisystem }}</a>
 					</div>
 				</div>	
-
+		</div>	
 			
 			<div class="page-header">
-				<h3>Local IP address</h3>   
-				</div>
+				<h3>Connection parameters</h3>   
+			</div>	
+			<div class="well bs-component well-sm ">	
 				<div class="row">
 					<div class="col-xs-12">
+						<p>Local IP address: <a><strong>{{iplocalwifi}}</strong></a></p>						
+						<p>IP PORT: <a><strong>{{ipport}}</strong></a></p>
+						<p></p>				
+						<p>LocalHost: <a><strong>{{hostname}}</strong></a></p>	
+						<p>URL for LOCAL connection: <a><strong>{{hostname}}.local:{{ipport}}</strong></a></p>
+						<p></p>
+						{% for ipaddr in iplocallist %}
+							<p>URL for LOCAL Connection: <a><strong>{{ipaddr}}:{{ipport}}</strong></a></p>
+						{% endfor %}						
 						
-						
-						{% if localwifisystem==connectedssid %}
-						<p></p><a>Connected IP address {{iplocal}}</a>					
-						<p></p><a>IP address of the WiFi Acces point of this system {{iplocalwifi}}</a>
-						<a>IP PORT {{ipport}}</a>	
+						{% if localwifisystem == connectedssid %}
 						{% else %}
-						<p></p><a>Local IP address for router setting {{iplocal}}</a>
-						<a>IP PORT for router setting {{ipport}}</a>						
+						<p></p>
+							<p>In case of port forwarding enableb on your router</p>						
+							<p>URL for REMOTE Connection: <a><strong>{{ipext}}:{{ipport}}</strong></a></p>
 						{% endif %}
-					
 						
+						
+					</div>						
+				</div>						
+				</div>							
+				
 						
 						
 
-					</div>
-				</div>	
-			
+
 			
 			
 			
@@ -71,7 +84,7 @@
   
 		
 		<form novalidate="true" action="{{ url_for('networksetting') }}" id="networksetting" method="post" >
-
+            <div class="page-header">
 			<div class="row">
 				<div class="col-xs-4">
 				
@@ -83,6 +96,7 @@
 					</button>
 		
 				</div>
+			</div>
 			</div>
 		</form>  
 		

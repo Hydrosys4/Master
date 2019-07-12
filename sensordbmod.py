@@ -115,9 +115,15 @@ def getsensordbdatadays(selsensor,sensordata,days):
 	fieldlist.append(TIMEFIELD)
 	fieldlist.append(DATAFIELD)
 	sampletime=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,selsensor,hardwaremod.HW_FUNC_TIME)
-	samplingintervalminutes=int(sampletime.split(":")[1])
-	samplesnumber=(days*24*60)/samplingintervalminutes
-	databasemod.getdatafromfieldslimit(DBFILENAME,selsensor,fieldlist,sensordata,samplesnumber)
+	if sampletime!="":
+		samplingintervalminutes=int(sampletime.split(":")[1])
+		if samplingintervalminutes>=1:
+			samplesnumber=(days*24*60)/samplingintervalminutes
+			databasemod.getdatafromfieldslimit(DBFILENAME,selsensor,fieldlist,sensordata,samplesnumber)
+		else:
+			databasemod.getdatafromfields(DBFILENAME,selsensor,fieldlist,sensordata)		
+	else:
+		databasemod.getdatafromfields(DBFILENAME,selsensor,fieldlist,sensordata)
 
 def getsensordbdatasamplesN(selsensor,sensordata,samplesnumber):
 	fieldlist=[]
@@ -197,6 +203,7 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
+	print "sensordbmod "
 	print " stratdate " ,startdate
 	print " enddate ", enddate
 	outputallsensordata=[]
@@ -206,7 +213,9 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 	for selsensor in sensorlist:
 		allsensordata=[]
 		#getsensordbdata(selsensor,allsensordata)
-		getsensordbdatadays(selsensor,allsensordata,num)
+		#print " reading sensor database " , selsensor
+		getsensordbdatadays(selsensor,allsensordata,num+(datetime.now()-enddate).days+1)
+		#print " reading sensor database DONE!"		
 		sensordata=[]
 		# fetch raw data from database
 		for rowdata in allsensordata:
@@ -221,11 +230,13 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 						mintime=dateinsecepoch
 					if maxtime<dateinsecepoch:
 						maxtime=dateinsecepoch					
-			except ValueError:
+			except:
 				print "Error in database reading ",rowdata
 		if len(sensordata)>0:
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)
+
+	print 
 	return outputallsensordata,usedsensorlist,mintime,maxtime
 	# sensor data --------------------------------------------
 
@@ -254,6 +265,7 @@ def RemoveSensorDataPeriod(removebeforedays):
 	
 def EvaluateDataPeriod(sensordata,startdate,enddate):
 	# sensor data --------------------------------------------
+	isok=False
 	outputdata={}
 	summa=0
 	inde=0
@@ -278,6 +290,7 @@ def EvaluateDataPeriod(sensordata,startdate,enddate):
 	
 	if inde>0:
 		average=summa/inde
+		isok=True
 	else:
 		average=0
 		mini=0
@@ -287,7 +300,7 @@ def EvaluateDataPeriod(sensordata,startdate,enddate):
 	outputdata["average"]=average
 	outputdata["min"]=mini
 	outputdata["max"]=maxi	
-	return outputdata
+	return isok , outputdata
 	
 def SumProductDataPeriod(sensordata,startdate,enddate,timeinterval):
 	# sensor data --------------------------------------------
@@ -342,7 +355,7 @@ def sensorsysinfomatrix():
 		#set date interval for average
 		endtime=datetime.now()
 		starttime= endtime - timedelta(days=1)
-		evaluateddata=EvaluateDataPeriod(sensordata,starttime,endtime)
+		isok, evaluateddata=EvaluateDataPeriod(sensordata,starttime,endtime)
 		row.append(str('%.1f' % evaluateddata["average"]))
 		row.append(str('%.1f' % evaluateddata["min"]))
 		row.append(str('%.1f' % evaluateddata["max"]))

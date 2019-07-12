@@ -583,7 +583,8 @@ def sensorreading(sensorname):
 		sensordbmod.getsensordbdatasamplesN(sensorname,sensordata,samplesnumber)
 		# still necessary to filter the sample based on timestamp, due to the possibility of missing samples
 		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
-		quantity=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())["max"]	
+		isok, quantitylist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())
+		quantity=quantitylist["max"]	
 	return 	quantity
 
 def lastsensorreading(sensorname):

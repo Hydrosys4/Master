@@ -4,8 +4,11 @@
   {% if session.logged_in %}
 
 
-  <div class="container-fluid">
 
+
+
+  <div class="container-fluid">
+  {% if videolist|length > 0 %}
 
 		<div class="row">
           <div class="col-xs-12">
@@ -49,7 +52,7 @@
 
 			
 <div class="well bs-component">
-			
+		{% if servolist|length > 0 %}
 			
 		<!--  Servo table   -->
 			<table class="table" margin: 20px;>
@@ -75,11 +78,14 @@
 					{% endfor %}
 				  </select>					
 				</td>
+				
 				<td>
 
 					<!-- go left button-->										
 
-					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" value="5" direction="FORWARD"><<<</button>
+					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" value="5" direction="FORWARD">
+					<span class="glyphicon glyphicon-arrow-left"></span>
+					</button>
 				</td>
 
 
@@ -97,7 +103,9 @@
 				<td>
 					<!-- go right button-->										
 
-					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" value="5" direction="BACKWARD">>>></button>
+					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" value="5" direction="BACKWARD">
+					<span class="glyphicon glyphicon-arrow-right"></span>	
+					</button>
 				</td>
 
 
@@ -110,7 +118,7 @@
         </tbody>
 		</table>
 			
-			
+		{% endif %}
 			
 
 
@@ -192,9 +200,10 @@
 							
 				<td>		
 				  <select class="form-control input-sm dontwantgap" id="selsettingfps_{{ item }}">
-					<option>5</option>
+					<option>1</option>
+					<option selected="selected">5</option>
 					<option>10</option>
-					<option selected="selected">20</option>
+					<option>20</option>
 					<option>25</option>
 					<option>30</option>
 					<option>60</option>
@@ -338,10 +347,16 @@
 		}
 	</script>
 
+	  {% else %}
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h3 id="header">No Camera detected</h3>
+					</div>
+				</div>
+            </div>
 
-
-
-
+	  {% endif %}
 
 
   </div>
