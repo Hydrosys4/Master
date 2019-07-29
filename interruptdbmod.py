@@ -153,7 +153,7 @@ def getelementlist():
 	return datalist
 
 def sensorlist():
-	tablelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_INFO_IOTYPE,"input", hardwaremod.HW_CTRL_CMD, "interrupt" ,hardwaremod.HW_INFO_NAME)
+	tablelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_INFO_IOTYPE,"input", hardwaremod.HW_CTRL_CMD, "readinputpin" ,hardwaremod.HW_INFO_NAME)
 	return tablelist
 
 def sensorlisttriggertime():

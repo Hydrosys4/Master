@@ -47,7 +47,7 @@ def readfiledata(filename,filedata):
 # START Plain text file functions ---------------------------------------- Used for generic file manipulation
 
 
-def readfiledata_plaintext(pathfilename,filedata): 
+def readfiledata_plaintext(pathfilename,filedata): #return list with row of the file
 	if os.path.isfile(pathfilename): #file is there
 		# read the selected table file
 		in_file = open(pathfilename,"r")

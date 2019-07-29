@@ -75,6 +75,10 @@ def getNTPTime(host = "pool.ntp.org"):
 		print "No valid data in server answer "			
 		return ""				
 
+def getHWclock():
+	#need to check how to do it
+	print "not done"
+
 		
 def setHWclock(datetime_format):
 	
@@ -89,8 +93,16 @@ def setHWclock(datetime_format):
 	
 	try:
 		os.system('hwclock --set --date %s --localtime' % date_str)
-		#logger.info('HW clock set to = %s', date_str)
-		return "Done"	
+		#time.sleep(1)
+		#newdatetime=getHWclockUTC()
+		#delta=newdatetime-datetimetype
+		#timediff=abs(delta.total_seconds())
+		#print "time difference ", timediff , " System date " ,newdatetime , " Set Date" , datetimetype
+		#if timediff<60:
+		#	return "- Hardware Clock Set -"
+		#else:
+		#	return " - ERROR: not able to set Hardware Clock -"
+		return " - HardwareClock Set - "
 	except:
 		print "Not able to set Hardware Clock "
 		#logger.error('Not able to set Hardware Clock')
@@ -110,13 +122,23 @@ def setsystemclock(datetime_format):
 	
 	print "Datetime value format for date setting ", date_str
 
+
 	try:
-		os.system('date -s %s -u' % date_str)
-		return "Done"	
+		os.system('date --set %s -u' % date_str)
+		time.sleep(1)
+		newdatetime=datetime.utcnow()
+		delta=newdatetime-datetimetype
+		timediff=abs(delta.total_seconds())
+		print "time difference ", timediff , " System date " ,newdatetime , " Set Date" , datetimetype
+		if timediff<60:
+			return "- System Clock Set -"
+		else:
+			return " - ERROR: not able to set system Clock -"
+
 	except:
 		print "Not able to set system Clock "
 		#logger.error('Not able to set Hardware Clock')
-		return "ERROR: not able to set Hardware Clock"	
+		return "- ERROR: not able to set system Clock -"	
 
 	
 def settimezone(timezone):

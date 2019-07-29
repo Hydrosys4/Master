@@ -466,21 +466,30 @@ def mastercallback():
 	
 	# info file dedicate call-back --------------------------------------------- (sensor)
 	
-	hwnamelist=sensordbmod.gettablelist()
+
+	hwnamelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
+	
+	# GPIO input can be considered at all the aspects a binary input, therefor their stat collection are possible as any other input
+	# the input should be time periodic and time should be more than one minute
+	
+	
 	callback="sensor"
 	timeshift=300
-	shiftstep=5 #seconds	
+	shiftstep=7 #seconds	
 	# IMPORTANT
 	# the shiftstep is necessary to avoid thread collision which brings to sqlite3 db failure "database is locked" 
 	# this number is giving a limit to the sensor reading that should be higher than 1min
 	for hwname in hwnamelist:
 		calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_FUNC_SCHEDTYPE)
-		timelist=hardwaremod.gettimedata(hwname)
-		timelist[2]=timeshift # avoid all the sensor thread to be called in the same time
-		argument=[]
-		argument.append(hwname)
-		setschedulercallback(calltype,timelist,argument,callback,hwname)
-		timeshift=timeshift+shiftstep
+		if calltype=="periodic": #check the input to be periodic
+			timelist=hardwaremod.gettimedata(hwname)
+			timelist[2]=timeshift # avoid all the sensor thread to be called in the same time
+			argument=[]
+			argument.append(hwname)
+			setschedulercallback(calltype,timelist,argument,callback,hwname)
+			timeshift=timeshift+shiftstep
+		else:
+			logger.warning('The scheduler for the input %s is not set to PERIODIC, no log record of this input will be taken',hwname)
 
 	logger.info('Start other scheduler activities - photo')
 
@@ -618,9 +627,14 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 	iserror=False	
 	callback=schedulercallback[callbackname]
 	if calltype=="periodic":
+		theinterval=timelist[1]
+		randomsecond=timelist[2]
+		if theinterval<1: # the time interval is too short, no action
+			iserror=True
+			logger.warning('The scheduler for the input %s is not less than 1 minute, no log record of this input will be taken',jobname)
+			return iserror			
 		try:
-			theinterval=timelist[1]
-			randomsecond=timelist[2]
+
 			thedateloc=datetime.now()+timedelta(seconds=randomsecond)
 			enddateloc=thedateloc.replace(hour=23, minute=59, second=59)
 			#convert to UTC time

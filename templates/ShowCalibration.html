@@ -1234,7 +1234,7 @@
 				<h3>Clock Setting</h3>   
 			</div>
 
-			
+
 			
 			<div class="well bs-component ">
 			
@@ -1328,7 +1328,11 @@
 								</div>
 							</div>
 						
-							<button id="setHWClock" class="clockbutton btn btn-default"  type="button" name="clock" element="setHWClock">SetHWClock</button>
+							<button id="setHWClock" class="clockbutton btn btn-default"  type="button" name="clock" element="setHWClock">SetClock</button>
+							<div class="small">Set the clock will work only when NOT connected to internet, if connected the NTP protocol will update the time</div>
+							<div class="small"></div>
+					
+					
 					</div>					
 					<script type="text/javascript">
 						$(function () {
@@ -1359,6 +1363,13 @@
 					<label id="clockteststatus" for="input_3">Status</label>
 				</div>
 			</div>	
+			
+			<div class="small">NOTE: Raspberry PI hardware does not include an hardware clock with battery. If the system is not connected to internet
+			the clock will require to be set every time the system is powered on unless an external hardware clock is used. If system is connected to the internet the NTP protocol will keep the 
+			raspberry time updated.</div>
+			<div class="small"></div>
+			
+			
 			</div> <!-- end well -->
 			<script type=text/javascript> <!-- timezone -->
 			  $(function() {

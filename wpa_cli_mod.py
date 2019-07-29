@@ -59,11 +59,11 @@ def get_networks(iface, retry=1):
 	"""
 	while retry > 0:
 		output=run_program(['wpa_cli', '-i' + iface , 'scan'])
-		time.sleep(0.2)		
+		time.sleep(3)		
 		if ("OK" in output.upper()):
-			time.sleep(1)
 			networks=[]
 			lines = run_program(['wpa_cli', '-i' + iface , 'scan_result']).split("\n")
+			time.sleep(0.5)			
 			if lines:
 				for line in lines[1:-1]:
 					#bssid / frequency / signal level / flags / ssid
@@ -73,11 +73,12 @@ def get_networks(iface, retry=1):
 							b, fr, s, f, ss = line.split()[:5]
 							networks.append( {"bssid":b, "freq":fr, "sig":s, "ssid":ss, "flag":f} )												
 
-				return networks
+				if networks:
+					return networks
 		retry-=1
 		logger.debug("Couldn't retrieve networks, retrying")
 		time.sleep(0.5)
-	logger.error("Failed to list networks")
+	logger.warning("Failed to list networks")
 	return []
 
 

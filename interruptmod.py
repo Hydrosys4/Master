@@ -11,17 +11,8 @@ import autofertilizermod
 import statusdataDBmod
 import threading
 import time as t
+import threading
 
-global ISRPI
-
-try:
-	__import__("smbus")
-except ImportError:
-	ISRPI=False
-else:
-	import RPi.GPIO as GPIO
-	GPIO.setmode(GPIO.BCM) 
-	ISRPI=True
 
 
 ACTIONPRIORITYLEVEL=5
@@ -39,63 +30,69 @@ AUTO_data={} # dictionary of dictionary
 AUTO_data["default"]={"lasteventtime":datetime.utcnow()- timedelta(minutes=waitingtime),"lastactiontime":datetime.utcnow()- timedelta(minutes=waitingtime),"actionvalue":0, "alertcounter":0, "infocounter":0, "status":"ok" , "threadID":None , "blockingstate":False}
 
 
+
+
 def readstatus(element,item):
 	return statusdataDBmod.read_status_data(AUTO_data,element,item)
 	
+def savedata(sensorname,sensorvalue):
+	sensordbmod.insertdataintable(sensorname,sensorvalue)
+	return	
 
 def eventcallback(PIN):
 	t.sleep(0.05)
 	reading=hardwaremod.readinputpin(PIN)
+	recordkey=hardwaremod.HW_CTRL_PIN
+	recordvalue=str(PIN)	
+	keytosearch=hardwaremod.HW_INFO_NAME
+	refsensor=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
+	print "reference sensor:" , refsensor	
 	if reading=="1":      
 		print "*************************  Rising edge detected on PIN:", PIN  
-		recordkey=hardwaremod.HW_CTRL_PIN
-		recordvalue=str(PIN)	
-		keytosearch=hardwaremod.HW_INFO_NAME
-		refsensor=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
-		print "reference sensor:" , refsensor
 		if refsensor!="":
 			interruptcheck(refsensor)
 	else:                   
 		print "Falling edge detected on PIN" , PIN 
-	
-	
+	if refsensor!="":
+		x = threading.Thread(target=savedata, args=(refsensor,reading))
+		x.start()
 
 
 def setinterruptevents():
 	
-	if ISRPI:
-		alloutputpinlist=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
-		for channel in alloutputpinlist:
-			GPIO.remove_event_detect(hardwaremod.toint(channel,2))
-		
-		
-		interruptlist=hardwaremod.searchdatalist2keys(hardwaremod.HW_INFO_IOTYPE,"input", hardwaremod.HW_CTRL_CMD, "interrupt" ,hardwaremod.HW_INFO_NAME)
-		for item in interruptlist:
-			# get PIN number
-				recordkey=hardwaremod.HW_INFO_NAME
-				recordvalue=item	
-				keytosearch=hardwaremod.HW_CTRL_PIN
-				PINstr=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
-				PIN=hardwaremod.toint(PINstr,-1)			
-				if PIN>-1:	
+	hardwaremod.removeallinterruptevents()
+	
+	print "load interrupt list "
+	interruptlist=interruptdbmod.sensorlist()
+	print "len interrupt list "	, len(interruptlist)	
+	for item in interruptlist:
+		print "got into the loop "
+		# get PIN number
 
-					keytosearch=hardwaremod.HW_CTRL_LOGIC
-					logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
-					# set Sw pull up / down mode
-				
-					if logic=="pos":
-						GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-						evenslopetype=GPIO.BOTH
-					else:
-						GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-						evenslopetype=GPIO.BOTH
+		recordkey=hardwaremod.HW_INFO_NAME
+		recordvalue=item	
+		keytosearch=hardwaremod.HW_CTRL_PIN
+		PINstr=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
+		print "set event for the PIN ", PINstr
+		PIN=hardwaremod.toint(PINstr,-1)			
+		if PIN>-1:	
 
-					#GPIO.RISING, GPIO.FALLING or GPIO.BOTH.
-					# ignoring further edges for 200ms for switch bounce handling					
-					# link to the callback function
-					GPIO.add_event_detect(PIN, evenslopetype, callback=eventcallback, bouncetime=200)
-				
-				
+			keytosearch=hardwaremod.HW_CTRL_LOGIC
+			logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
+			# set Sw pull up / down mode
+		
+			if logic=="pos":
+				hardwaremod.GPIO_setup(PIN, "in", "pull_down")
+				evenslopetype="both"
+			else:
+				hardwaremod.GPIO_setup(PIN, "in" , "pull_up")
+				evenslopetype="both"
+
+			#GPIO.RISING, GPIO.FALLING or GPIO.BOTH.
+			# ignoring further edges for 200ms for switch bounce handling					
+			# link to the callback function
+			hardwaremod.GPIO_add_event_detect(PIN, evenslopetype, eventcallback)
+			
 	return ""
 
 
@@ -160,7 +157,15 @@ def interruptexecute(refsensor,element):
 	# get other parameters
 	seonsormode=interruptdbmod.searchdata("element",element,"sensor_mode")
 	
-	preemptiontime=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),1)
+	preemptiontimemin=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
+	
+	if preemptiontimemin==0:
+		# if relay, menanin cmd = pulse
+		actuatortype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD)
+		if actuatortype=="pulse":
+			preemptiontime=actuatoroutput # if set to zero then get the time as the actuator (in case of relay)
+	else:
+		preemptiontime=preemptiontimemin*60
 	
 	mailtype=interruptdbmod.searchdata("element",element,"mailalerttype")
 	
@@ -215,6 +220,8 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 			statusdataDBmod.write_status_data(AUTO_data,element,"lasteventtime",datetime.utcnow())
 			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
 			statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
+			
+			# start the blocking state
 			startblockingstate(element,preemptiontime)
 
 	else:
@@ -252,8 +259,9 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 	return isok
 		
 
-def startblockingstate(element,period):
-	if period>0:
+def startblockingstate(element,periodsecond):
+	
+	if periodsecond>0:
 		global AUTO_data
 		# in case another timer is active on this element, cancel it 
 		threadID=statusdataDBmod.read_status_data(AUTO_data,element,"threadID")
@@ -264,9 +272,8 @@ def startblockingstate(element,period):
 		statusdataDBmod.write_status_data(AUTO_data,element,"blockingstate",True)
 		statusdataDBmod.write_status_data(hardwaremod.Blocking_Status,element,"priority",ACTIONPRIORITYLEVEL) #increse the priority to execute a command
 		
-		periodsecond=period*60
 		nonblockingpriority=0
-		threadID = threading.Timer(periodsecond, endblocking, [element , period])
+		threadID = threading.Timer(periodsecond, endblocking, [element , periodsecond])
 		threadID.start()
 		statusdataDBmod.write_status_data(AUTO_data,element,"threadID",threadID)
 
@@ -276,6 +283,11 @@ def startblockingstate(element,period):
 def endblocking(element,  period):
 	if checkstopcondition(element):
 		global AUTO_data
+		threadID=statusdataDBmod.read_status_data(AUTO_data,element,"threadID")
+		if threadID!=None and threadID!="":
+			print "cancel the Thread of element=",element
+			threadID.cancel()
+
 		print "Start removing blocking status"
 		statusdataDBmod.write_status_data(hardwaremod.Blocking_Status,element,"priority",NONBLOCKINGPRIORITY) #put the priority to lower levels
 		statusdataDBmod.write_status_data(AUTO_data,element,"threadID",None)
@@ -328,14 +340,17 @@ def activateactuator(target, value):  # return true in case the state change: ac
 	# pulse
 	if actuatortype=="pulse":
 		duration=hardwaremod.toint(value,0)
-		# check the fertilizer doser flag before activating the pulse
-		doseron=autofertilizermod.checkactivate(target,duration)
-		# start pulse
-		pulseok=hardwaremod.makepulse(target,duration,priority=ACTIONPRIORITYLEVEL)	
-		# salva su database
-		if "Started" in pulseok:
-			actuatordbmod.insertdataintable(target,duration)
-			isok=True
+		if duration>0:
+			# check the fertilizer doser flag before activating the pulse
+			doseron=autofertilizermod.checkactivate(target,duration)
+			# start pulse
+			pulseok=hardwaremod.makepulse(target,duration,priority=ACTIONPRIORITYLEVEL)	
+			# salva su database
+			if "Started" in pulseok:
+				actuatordbmod.insertdataintable(target,duration)
+				isok=True
+		else:
+			pulseok=hardwaremod.stoppulse(target)
 		
 	# servo motor 
 	if actuatortype=="servo":

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.05a"
+Release="1.06e"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -135,11 +135,15 @@ selectedplanmod.FASTSCHEDULER=False
 
 systemtimeMod.set_min_datetime()
 
-#initiate the GPIO OUT pins
-hardwaremod.initallGPIOoutput()
+def initallGPIOpins():
+	hardwaremod.initallGPIOpins()
+	interruptmod.setinterruptevents()
 
-#initialize interrupt
-interruptmod.setinterruptevents()
+#initiate the GPIO OUT pins
+initallGPIOpins()
+
+print "Finish interrupt initialization"
+
 
 # GET path ---------------------------------------------
 print "path ",hardwaremod.get_path()
@@ -583,9 +587,9 @@ def network():
 	
 	localwifisystem=networkmod.localwifisystem
 	print " localwifisystem = ", localwifisystem , " connectedssid ", connectedssid
+	message=networkmod.networkdbmod.getstoredmessage()
 
-
-	return render_template('network.html',filenamelist=filenamelist, connectedssid=connectedssid,localwifisystem=localwifisystem, ipext=ipext, iplocallist=iplocallist , iplocal=iplocal, iplocalwifi=iplocalwifi , ipport=ipport , hostname=hostname)
+	return render_template('network.html',filenamelist=filenamelist, connectedssid=connectedssid,localwifisystem=localwifisystem, ipext=ipext, iplocallist=iplocallist , iplocal=iplocal, iplocalwifi=iplocalwifi , ipport=ipport , hostname=hostname, message=message)
 
 
 
@@ -710,7 +714,7 @@ def echowifi():
 	if element=="all":
 		# get wifi list
 		wifilist=[]
-		wifilist=networkmod.wifilist_ssid()
+		wifilist=networkmod.wifilist_ssid(2)
 		connectedssidlist=networkmod.connectedssid()
 		if len(connectedssidlist)>0:
 			connectedssid=connectedssidlist[0]
@@ -882,8 +886,9 @@ def doit():
 				answer="ready"
 		elif element=="setHWClock":
 			print "datetime Local ->" ,datetime
-			answer=clockmod.setsystemclock(datetime)
-			answer=clockmod.setHWclock(datetime)
+			answer1=clockmod.setsystemclock(datetime)
+			answer2=clockmod.setHWclock(datetime)
+			answer=answer1 + answer2
 			selectedplanmod.checkheartbeat()
 
 		ret_data = {"answer":answer, "value":datetime}
@@ -1285,8 +1290,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 			#scheduler setup---------------------
 			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
-			hardwaremod.initallGPIOoutput()	
-			interruptmod.setinterruptevents()
+			initallGPIOpins()
 		
 		if requesttype=="editnames":
 			return hardwaresettingeditfield()	
@@ -1322,8 +1326,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 						#scheduler setup---------------------
 						selectedplanmod.resetmastercallback()
 						#initiate the GPIO OUT pins
-						hardwaremod.initallGPIOoutput()	
-						interruptmod.setinterruptevents()	
+						initallGPIOpins()
 						
 					else:
 						flash('Allowed file types is .zip ')
@@ -1458,6 +1461,9 @@ def show_sensordata():
 		actuatordbmod.deleteallrow()
 		actiontype="show"
 		periodtype=periodlist[0]
+		daysinthepast=perioddaysdict[periodtype]
+		enddate=datetime.now()			
+		startdate = enddate - timedelta(days=daysinthepast)	
 
 		
 	else:
@@ -2192,8 +2198,7 @@ def hardwaresetting():
 				#scheduler setup---------------------
 				selectedplanmod.resetmastercallback()
 				#initiate the GPIO OUT pins
-				hardwaremod.initallGPIOoutput()	
-				interruptmod.setinterruptevents()		
+				initallGPIOpins()	
 
 		if requesttype=="edit":
 			return hardwaresettingedit()
@@ -2243,8 +2248,7 @@ def hardwaresettingedit():
 			#scheduler setup---------------------
 			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
-			hardwaremod.initallGPIOoutput()
-			interruptmod.setinterruptevents()	
+			initallGPIOpins()
 			return redirect(url_for('hardwaresetting'))
 
 		if requesttype=="reload":	
@@ -2343,8 +2347,7 @@ def hardwaresettingeditfield():
 			#scheduler setup---------------------
 			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
-			hardwaremod.initallGPIOoutput()	
-			interruptmod.setinterruptevents()
+			initallGPIOpins()
 			return redirect(url_for('show_Calibration'))
 		else:
 			# Alignt the hardwaremod IOdatatemp to IOdata

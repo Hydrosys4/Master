@@ -32,12 +32,17 @@ EXTERNALIPADDR=""
 
 
 	
-def wifilist_ssid():
-	# get all cells from the air
-	ssids=[]
-	network = wpa_cli_mod.get_networks("wlan0",2)
-	for item in network:
-		ssids.append(item["ssid"])
+def wifilist_ssid(retrynumber=1):
+	ssids=[]	
+	i=0
+	while (len(ssids)==0 and i<retrynumber):
+		i=i+1
+		ssids=[]	
+		# get all cells from the air
+		network = wpa_cli_mod.get_networks("wlan0")
+		for item in network:
+			ssids.append(item["ssid"])
+		logger.info("Number of scan SSID: %d, Attemps %d",len(ssids),i)
 	return ssids
 
 def savedwifilist_ssid():
@@ -77,29 +82,31 @@ def connect_savedwifi(thessid):
 	#ifdown("wlan0")
 	isok=wpa_cli_mod.enable_ssid("wlan0",thessid)
 	time.sleep(1)
-	#ifup("wlan0")			
-	addIP("wlan0")	
 	return isok
 
 	
 def connect_preconditions():
 	print "checking preconditions for WiFi connection"
-	# get all cells from the air
-	ssids=[]
-	i=0
-	while (len(ssids)==0 and i<3):
-		i=i+1
-		ssids=wifilist_ssid()
-
-	print "ssID on air =", ssids
-	logger.info("Number of scan SSID: %d",len(ssids))
+	# get list of saved networks
 	savedssids = wpa_cli_mod.listsavednetwork("wlan0")
-	for ssid in savedssids:
-		#print " Scheme ", scheme
-		if ssid in ssids:
-			print "At least one of WIFI network detected have saved credentials, ssid=" , ssid
-			logger.info("At least one of WIFI network can be connected, ssid=%s" , ssid)
-			return ssid
+	print "Saved ssID =", savedssids
+	if savedssids:
+		# get all cells from the air
+		ssids=[]
+		ssids=wifilist_ssid(3)
+
+		print "ssID on air =", ssids
+		logger.info("Final Number of scan SSID: %d",len(ssids))
+
+		for ssid in savedssids:
+			#print " Scheme ", scheme
+			if ssid in ssids:
+				print "At least one of WIFI network detected have saved credentials, ssid=" , ssid
+				logger.info("At least one of WIFI network can be connected, ssid=%s" , ssid)
+				return ssid
+	else:
+		print "No Saved wifi network to connect to"
+		logger.info("No Saved wifi network to connect to")
 	print "No conditions to connect to wifi network"
 	logger.info("No conditions to connect to wifi network")
 	return ""
@@ -324,8 +331,83 @@ def flushIP(interface): #-------------------
 		logger.error("error to execute the command %s",cmd)
 		print "IP flush failed: ", e
 		return False
+		
+		
+		
+def checkGWsubnet(interface): #-------------------
+	print "Check  if the Gateway IP address has same subnet of statip ip"
+	logger.info("Check  if the Gateway IP address has same subnet of statip ip")	
+	# the command -ip route- will provide the -default- gateway address, when in AP mode or this will not be present
+	# when connected to the WIFi router the "wlan0" will be present
+	# the check shoudl be: exec ip route, search for "default" and "wlan0" in the same row, the first IP address of thisrow id the GW IP
+	# if the GW IP has same subnet continue assigning static IP, otherwise raise issue.
+	# if no IP GW then proceed assigning static IP
+	
+	cmd = ['ip', 'route']
+	ifup_output=""
+	try:
+		ifup_output = subprocess.check_output(cmd).decode('utf-8')
+		time.sleep(2)
+	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return True, ipaddr
+		
+	wordtofind1="default"
+	wordtofind2=interface
+	isaddress=False
+	ipaddr=""
+	for line in ifup_output.split('\n'):
+		logger.info("IP route Output Line = %s", line)
+		if (wordtofind1 in line) and (wordtofind2 in line):
+			isaddress , ipaddr = IPv4fromString(line) # provide only the first IP address
+			break	
+
+	if isaddress:
+		print "got default Gateway for ",interface
+		logger.info("got default Gateway for wlan0 = %s", ipaddr)
+		#check if same subnet
+		staticIPlist=IPADDRESS.split(".")
+		gwIPlist=ipaddr.split(".")
+		samesubnet=False
+		i=0
+		minlen=min(len(staticIPlist), len(gwIPlist))
+		while (staticIPlist[i]==gwIPlist[i]) and (i<minlen):
+			print staticIPlist[i] , "   " , gwIPlist[i]			
+			i=i+1
+		
+		newstaticIP=""	
+		if minlen==4:
+			newstaticIP=str(gwIPlist[0])+"."+str(gwIPlist[1])+"."+str(gwIPlist[2])+"."+str(staticIPlist[3])
+
+		if i<3:
+			# not same subnet
+			print "Warning: not same subnet gw ip = ", ipaddr , " static ip =" , IPADDRESS
+			logger.warning("Warning: not same subnet gw ip = %s , static ip = %s", ipaddr , IPADDRESS)
+			logger.warning("STATIC ip address will not be set")
+			message="Warning: Last wifi connection, subnet not matching gateway ip = "+ ipaddr +" static ip =" + IPADDRESS +". Change the static IP address to match the Wifi GW subnet e.g " + newstaticIP
+			networkdbmod.storemessage(message)
+			return False , ipaddr
+		else:
+			logger.info("ok: same subnet")	
+			print "ok: same subnet"	
+			message=""
+			networkdbmod.storemessage(message)	
+		
+		
+	else:
+		print "No default Gateway for wlan0"
+		logger.info("No default Gateway for wlan0")		
+
+	return True, ipaddr
 
 def addIP(interface, brd=True): #-------------------
+
+	goON, GWipaddr=checkGWsubnet(interface)
+	
+	if not goON:
+		return
+	
 	print "try to set Static IP " , IPADDRESS
 	logger.info("try to set Static IP: %s" , IPADDRESS)
 	try:
@@ -421,6 +503,8 @@ def connect_AP(firsttime=False):
 			#set IP address
 			logger.warning('Set Target IP address')
 			addIP("wlan0")
+		else:
+			logger.warning('No need to set static IP address')
 
 		
 		if (not firsttime)or(IPADDRESS not in currentipaddr):	
@@ -556,6 +640,7 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 	else:
 		if restartWiFi:
 			# try to reset WiFi network
+			thessid=ssid
 			done=False
 			ssids=[]
 			i=0
@@ -579,7 +664,8 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 				ssid=""
 				logger.info('NO connected SSID')
 			print "Connected to the SSID ", ssid
-			logger.info('Connected SSID: %s -- ', ssid)
+			logger.info('Connected SSID: %s -- ', ssid)	
+			addIP("wlan0")	
 
 		else:
 			print " No need WiFi restart"
@@ -656,7 +742,8 @@ def connect_network(internetcheck=False, backtoAP=False):
 				ssid=""
 				logger.info('NO connected SSID')
 			print "Connected to the SSID ", ssid
-			logger.info('Connected SSID: %s -- ', ssid)
+			logger.info('Connected SSID: %s -- ', ssid)		
+			addIP("wlan0")	
 
 		else:
 			print "already connected to the SSID ", ssid
@@ -842,7 +929,7 @@ def get_local_ip_raw():
 	return ipaddrlist
 
 
-def IPv4fromString(ip_string):
+def IPv4fromString(ip_string): #extract the first valid IPv4 address in the string
 	print " Start -- "
 	iprows=ip_string.split('\n')
 	ip_address=""
@@ -917,8 +1004,11 @@ def checkstringIPv4(thestring):
 if __name__ == '__main__':
 	# comment
 	#a=[]
-	ip_string="sad 23.3.2. ceh ca2cchio 12.2.0.12ma chi siete"
+	ip_string="sad 23.3.2.1 ceh ca2cchio 12.2.0.12ma chi siete"
 	ip_address=""
 	isok, string = IPv4fromString(ip_string)
 	print isok
 	print "the extracted string ",  string
+	
+	print "NEXT TEST"
+	print checkGWsubnet("wlan0")

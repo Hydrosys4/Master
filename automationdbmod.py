@@ -153,9 +153,13 @@ def getelementlist():
 	return datalist
 
 def sensorlist():
+	tablelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
+	return tablelist
+
+def sensorlistwithout():
 	tablelisttemp=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
 	# exclude the event input
-	inputeventlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"interrupt",hardwaremod.HW_INFO_NAME)
+	inputeventlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"readinputpin",hardwaremod.HW_INFO_NAME)
 	tablelist=[]
 	for element in tablelisttemp:
 		if not element in inputeventlist:

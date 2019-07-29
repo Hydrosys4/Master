@@ -25,6 +25,7 @@ global DEFDATAFILENAME
 DEFDATAFILENAME="" # not neded, default read from the hpstapd config file
 
 BASICDATAFILENAME="/etc/hostapd/hostapd.conf"
+MESSAGEFILENAME="database/networkmessage.txt"
 
 
 	
@@ -40,6 +41,28 @@ else:
 	print "ERROR ----------------------------- not able to get network data"
 	logger.error('Not able to get basic network data ---------------------')
 # end read IOdata -----
+
+
+
+# START part relevant to Message file
+
+def getstoredmessage():
+	filedata=[]
+	isok=filestoragemod.readfiledata_plaintext(MESSAGEFILENAME,filedata)
+	outstring=""
+	for line in filedata:
+		outstring=outstring+line+'\n'
+	return outstring
+
+	
+def storemessage(message):
+	messagelist=[]
+	messagelist.append(message)
+	filestoragemod.savefiledata_plaintext(MESSAGEFILENAME,messagelist)
+
+
+# END part relevant to Message file
+
 
 	
 def savedata(filedata):
@@ -103,10 +126,15 @@ if __name__ == '__main__':
 	# comment
 	address="hello@mail.com"
 	password="haha"
-	changesavesetting("address",address)
-	changesavesetting("password",password)
-	print getaddress()
-	print getpassword()
+	#changesavesetting("address",address)
+	#changesavesetting("password",password)
+	#print getaddress()
+	#print getpassword()
+	
+	message="hello"
+	storemessage(message)
+	getstoredmessage()
+
 
 
 

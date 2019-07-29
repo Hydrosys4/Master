@@ -32,8 +32,8 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","interrupt","readinputpin"]
-RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A","V1","V2","V3","V4","V5","V6","V7","V8"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin"]
+RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
 
@@ -53,6 +53,15 @@ GPIO_data=[{"level":None, "state":None, "threadID":None} for k in range(40)]
 PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
 
 MCP3008_busy_flag=False
+
+
+def toint(thestring, outwhenfail):
+	try:
+		f=float(thestring)
+		n=int(f)
+		return n
+	except:
+		return outwhenfail
 
 def read_status_data(data,element,variable):
 	print data
@@ -141,7 +150,7 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[14]:	# stoppulse
 		return gpio_stoppulse(cmd, message, recdata)
 
-	elif cmd==HWCONTROLLIST[16]:	# readinputpin
+	elif cmd==HWCONTROLLIST[15]:	# readinputpin
 		return read_input_pin(cmd, message, recdata)
 
 
@@ -346,7 +355,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 	
 	POWERPIN=-1	
 	if messagelen>3:	
-		POWERPIN=int(msgarray[3])
+		POWERPIN=toint(msgarray[3],-1)	
 	
 	global MCP3008_busy_flag
 	waitstep=0.1
@@ -465,6 +474,7 @@ def powerPIN_start(POWERPIN,logic,waittime):
 				PowerPIN_Status[POWERPIN]["pinstate"]="0"
 				
 			PowerPIN_Status[POWERPIN]["state"]="on"
+			print "PowerPin activated ", POWERPIN
 			time.sleep(waittime)
 	return True	
 
@@ -495,14 +505,43 @@ def GPIO_output(PIN, level):
 	GPIO_data[PIN]["level"]=level
 	return True
 
-def GPIO_setup(PIN, state):
+def GPIO_setup(PIN, state, pull_up_down=""):
 	if ISRPI:
 		if state=="out":
 			GPIO.setup(PIN,  GPIO.OUT)
 		else:
-			GPIO.setup(PIN,  GPIO.IN)
+			if pull_up_down=="pull_down":
+				GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+			elif pull_up_down=="pull_up":
+				GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+			else:
+				GPIO.setup(PIN,  GPIO.IN)
 	GPIO_data[PIN]["state"]=state
 	return True
+
+
+
+def GPIO_add_event_detect(PIN, evenslopetype, eventcallback):
+	if ISRPI:
+		print "add event ", PIN
+		GPIO.add_event_detect(PIN, GPIO.BOTH, callback=eventcallback, bouncetime=200)
+
+
+def GPIO_remove_event_detect(PIN):
+	if ISRPI:
+		GPIO.remove_event_detect(PIN)
+
+
+
+
+
+
+
+
+
+
+
+
 
 def endpulse(PIN,logic,POWERPIN):
 	
@@ -534,7 +573,8 @@ def gpio_pulse(cmd, message, recdata):
 	
 	POWERPIN=-1	
 	if messagelen>4:	
-		POWERPIN=int(msgarray[4])	
+		POWERPIN=toint(msgarray[4],-1)	
+
 	
 
 	# in case another timer is active on this PIN, cancel it 
@@ -573,7 +613,7 @@ def gpio_stoppulse(cmd, message, recdata):
 	
 	POWERPIN=-1	
 	if messagelen>4:	
-		POWERPIN=int(msgarray[4])
+		POWERPIN=toint(msgarray[4],-1)	
 	
 	if not GPIO_data[PIN]["threadID"]==None:
 		print "cancel the Thread of PIN=",PIN
@@ -599,9 +639,14 @@ def gpio_pin_level(cmd, message, recdata):
 def read_input_pin(cmd, message, recdata):
 	successflag=1
 	msgarray=message.split(":")
-	PIN=int(msgarray[0])
+	print " read pin input ", message
+	PIN=int(msgarray[1])
 	recdata.append(cmd)
-	recdata.append(str(GPIO.input(PIN)))
+	if GPIO.input(PIN):
+		reading="1"
+	else:
+		reading="0"
+	recdata.append(reading)
 	recdata.append(successflag)	
 	return True
 
@@ -677,33 +722,39 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 
 	# stepper is no busy, proceed
 
-	# create a default object, no changes to I2C address or frequency
-	mh = Adafruit_MotorHAT()
-	
-	# set motor parameters
-	myStepper = mh.getStepper(200, Interface_Number)  # 200 steps/rev, motor port #1 or #2
-	myStepper.setSpeed(speed)             # 30 RPM
+	try:
+		# create a default object, no changes to I2C address or frequency
+		mh = Adafruit_MotorHAT()
+		
+		# set motor parameters
+		myStepper = mh.getStepper(200, Interface_Number)  # 200 steps/rev, motor port #1 or #2
+		myStepper.setSpeed(speed)             # 30 RPM
 
-	print "Double coil steps"
-	if direction=="FORWARD":
-		myStepper.step(steps, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
-	elif direction=="BACKWARD":
-		myStepper.step(steps, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)	
-	
+		print "Double coil steps"
+		if direction=="FORWARD":
+			myStepper.step(steps, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
+		elif direction=="BACKWARD":
+			myStepper.step(steps, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)	
+		
+		# turn off motors
+		mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+		mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+		mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+		mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
+		
+		del mh	
+		write_status_data(stepper_data,Interface,"busyflag",False)
+
+	except:
+		print "problem I2C stepper controller"
+		logger.error("problem I2C stepper controller")
+		write_status_data(stepper_data,Interface,"busyflag",False)
+		return False
+
 		
 	print "stepper: Interface", Interface_Number , " direction=", direction , " speed=", speed , " steps=", steps 
 	recdata.append(cmd)
 	recdata.append(Interface_Number)
-
-	# turn off motors
-	mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
-	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
-	mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
-	mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
-	
-	del mh
-	
-	write_status_data(stepper_data,Interface,"busyflag",False)
 	
 	return True	
 

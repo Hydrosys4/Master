@@ -19,6 +19,8 @@ import cameradbmod
 import struct
 import imghdr
 import copy
+import statusdataDBmod
+
 
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
@@ -118,38 +120,6 @@ Stepper_Status["default"]={'position':"0"}
 Blocking_Status={}
 Blocking_Status["default"]={'priority':0} # priority level, the commands are executed only if the command priority is higher or equlal to the blocking status priority
 
-
-
-def read_status_data(data,element,variable):
-	#print data
-	if element in data:
-		print " element present"
-		elementdata=data[element]
-		if variable in elementdata:
-			return elementdata[variable]
-		else:
-			# variable not in elementdata
-			return ""
-	else:
-		print " element NOT present"
-		# element not present in the data use the default
-		data[element]=data["default"].copy()
-		elementdata=data[element]
-		print data
-		if variable in elementdata:
-			return elementdata[variable]
-		else:
-			# variable not in elementdata
-			return ""
-		
-def write_status_data(data,element,variable,value):
-	if element in data:
-		data[element][variable]=value
-	else:
-		data[element]=data["default"].copy()
-		data[element][variable]=value
-
-
 # ///////////////// --- END STATUS VARIABLES ------
 
 
@@ -238,7 +208,7 @@ def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fie
 
 def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 	if target!="":
-		prioritystatus=read_status_data(Blocking_Status,target,'priority')
+		prioritystatus=statusdataDBmod.read_status_data(Blocking_Status,target,'priority')
 		#print " Target output ", target , "priority status: ", prioritystatus , " Command Priority: ", priority
 		#check if the actions are blocked
 		if priority>=prioritystatus:
@@ -292,7 +262,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 							den=Maxvalue-Minvalue
 							readingvalue=1-(readingvalue-Minvalue)/den
 							readingvalue=readingvalue*scale
-						Thereading=str(readingvalue)
+						Thereading=str(readingvalue)						
 					print " Sensor " , sensorname  , "Normalized reading ",Thereading										
 					
 				else:
@@ -395,8 +365,6 @@ def stoppulse(target):
 	elif logic=="pos":
 		sendstring="stoppulse:"+PIN+":"+"0"+":1"+":"+POWERPIN
 	print "logic " , logic , " sendstring " , sendstring
-	isok=False	
-
 
 	isok=False
 	i=0
@@ -413,6 +381,8 @@ def stoppulse(target):
 	return "error"
 
 def servoangle(target,percentage,delay,priority=0): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
+	
+	global Servo_Status
 	#search the data in IOdata
 	isok=False
 	
@@ -465,7 +435,7 @@ def servoangle(target,percentage,delay,priority=0): #percentage go from zeo to 1
 			if ack and recdata[1]!="e":
 				print target, "correctly activated"
 				# save duty as new status
-				write_status_data(Servo_Status,target,'duty',dutycycle)
+				statusdataDBmod.write_status_data(Servo_Status,target,'duty',dutycycle)
 				isok=True
 				return percentage , isok
 			
@@ -493,7 +463,7 @@ def getservopercentage(target):
 	return percentage
 
 def getservoduty(element):
-	return read_status_data(Servo_Status,element,'duty')
+	return statusdataDBmod.read_status_data(Servo_Status,element,'duty')
 
 def GO_stepper_position(target,position,priority=0):
 	prev_position_string=getstepperposition(target)
@@ -546,6 +516,7 @@ def get_stepper_HWstatus(target):
 
 
 def GO_stepper(target,steps,direction,priority=0): 
+	global Stepper_Status
 	#search the data in IOdata
 	isok=False
 	print "Move Stepper - ", target #only supported the I2C default address, the module supports 2 stepper interfaces: 1,2
@@ -597,7 +568,7 @@ def GO_stepper(target,steps,direction,priority=0):
 		if ack and recdata[1]!="e":
 			print target, "correctly activated"
 			# save position as new status
-			write_status_data(Stepper_Status,target,'position',str(position))
+			statusdataDBmod.write_status_data(Stepper_Status,target,'position',str(position),True,"Stepper_Status")
 			
 			isok=True
 			return str(position) , isok
@@ -605,11 +576,11 @@ def GO_stepper(target,steps,direction,priority=0):
 	return "Error" , isok
 
 def getstepperposition(element):
-	return read_status_data(Stepper_Status,element,'position')
+	return statusdataDBmod.read_status_data(Stepper_Status,element,'position',True,"Stepper_Status")
 
 def setstepperposition(element, position):
 	global Stepper_Status
-	return write_status_data(Stepper_Status,element,'position',position)
+	return statusdataDBmod.write_status_data(Stepper_Status,element,'position',position,True,"Stepper_Status")
 
 
 def getpinstate(target, priority=0):
@@ -652,7 +623,7 @@ def readinputpin(PIN):
 	#search the data in IOdata
 	
 	print "Read input PIN ", PIN
-	sendstring=str(PIN)
+	sendstring="inputpin:"+str(PIN)
 
 	isok=False
 	value=0
@@ -699,37 +670,98 @@ def checkallsensors():
 		sensorvalues[sensorname]=getsensordata(sensorname,3)
 	return sensorvalues
 
+		
+def initallGPIOpins():	
+	removeallinterruptevents()
+	setallGPIOinputs()
+	initallGPIOoutput()
+	return True
 
+def setallGPIOinputs():	
+	for pinstr in HWcontrol.RPIMODBGPIOPINLIST:
+		PINint=toint(pinstr,-1)  # set -1 in case of not possible to convert to int
+		if not PINint==-1:
+			HWcontrol.GPIO_setup(PINint, "in")
+	return True
 
 		
-def initallGPIOoutput():
+def initallGPIOoutput():	
 	for ln in IOdata:
 		iotype=ln[HW_INFO_IOTYPE]
 		if (iotype=="output") :
 			if (ln[HW_CTRL_CMD]=="pulse"):
-				HWcontrol.GPIO_setup(int(ln[HW_CTRL_PIN]), "out")
-				if ln[HW_CTRL_LOGIC]=="pos":
-					HWcontrol.GPIO_output(int(ln[HW_CTRL_PIN]), 0)
-				else:
-					HWcontrol.GPIO_output(int(ln[HW_CTRL_PIN]), 1)
+				# safe code in case of non int input
+				PINint=toint(ln[HW_CTRL_PIN],-1)  # set -1 in case of not possible to convert to int
+				if not PINint==-1:
+					HWcontrol.GPIO_setup(PINint, "out")
+					if ln[HW_CTRL_LOGIC]=="pos":
+						HWcontrol.GPIO_output(PINint, 0)
+					else:
+						HWcontrol.GPIO_output(PINint, 1)
 					
 		if (HW_CTRL_PWRPIN in ln):
-			try: 
-				HWcontrol.GPIO_setup(int(ln[HW_CTRL_PWRPIN]), "out")
+			PWRPINint=toint(ln[HW_CTRL_PWRPIN],-1)
+			if not PWRPINint==-1: 
+				HWcontrol.GPIO_setup(PWRPINint, "out")
 				if (HW_CTRL_LOGIC in ln):
 					if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
-						HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0)
+						HWcontrol.GPIO_output(PWRPINint, 0)
 						print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
 					else:
-						HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 1)
+						HWcontrol.GPIO_output(PWRPINint, 1)
 						print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
 				else:			
-					HWcontrol.GPIO_output(int(ln[HW_CTRL_PWRPIN]), 0) # assume logic is positive
+					HWcontrol.GPIO_output(PWRPINint, 0) # assume logic is positive
 					print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
-			except ValueError:
+			else:
 				print "powerpin not set because is not a number"
 	#print HWcontrol.GPIO_data
 	return True
+
+def GPIO_setup(PIN, state, pull_up_down):
+	HWcontrol.GPIO_setup(PIN, state, pull_up_down)
+
+def GPIO_add_event_detect(PIN, evenslopetype, eventcallback):
+	HWcontrol.GPIO_add_event_detect(PIN, evenslopetype, eventcallback)
+
+def GPIO_remove_event_detect(PIN):
+	HWcontrol.GPIO_remove_event_detect(PIN)
+
+def removeallinterruptevents():
+	for channel in HWcontrol.RPIMODBGPIOPINLIST: 
+		try:
+			print "try to remove event detect ", channel
+			GPIO_remove_event_detect(toint(channel,2))
+		except:
+			print "Warning, not able to remove the event detect"
+		
+	return ""
+
+
+def removeinterruptevents():
+	print "load interrupt list "
+	interruptlist=searchdatalist2keys(HW_INFO_IOTYPE,"input", HW_CTRL_CMD, "readinputpin" ,HW_INFO_NAME)
+	print "len interrupt list "	, len(interruptlist)	
+	for item in interruptlist:
+		print "got into the loop "
+		# get PIN number
+
+		recordkey=HW_INFO_NAME
+		recordvalue=item	
+		keytosearch=HW_CTRL_PIN
+		PINstr=searchdata(recordkey,recordvalue,keytosearch)
+		print "set event for the PIN ", PINstr
+		PIN=toint(PINstr,-1)			
+		if PIN>-1:	
+			try:
+				HWcontrol.GPIO_remove_event_detect(PIN)
+			except:
+				print "Warning, not able to remove the event detect"
+				logger.info('Warning, not able to remove the event detect')
+		
+	return ""
+
+
 
 
 
