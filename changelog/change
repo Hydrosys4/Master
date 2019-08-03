@@ -310,8 +310,14 @@ Added download configuration button
 
 Added upload configuration (still to be tested properly)
 
+2019-07-29 -> release 106e
 
-
+Fixes, 
+Added check and message in network for GW subnet mismatch with static IP address, 
+added persistent status for stepper the status is stored in a file, 
+added GPIO input data collection and event collection, this will appear in the sensordata log
+Checked connection using localhost instead of IP address, working for PC and Apple ipad
+Verified clock setting behavior, when the Internet connection is present the setting does not work because is overridden by NTP, this is OK
 
 
 

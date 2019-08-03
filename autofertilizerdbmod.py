@@ -141,7 +141,7 @@ def getelementlist():
 	recordvalue="fertilizercontrol"
 	keytosearch=hardwaremod.HW_INFO_NAME
 	datalist=hardwaremod.searchdatalist(recordkey,recordvalue,keytosearch)
-	print "elementlist= ",datalist
+	#print "elementlist= ",datalist
 	return datalist
 
 def gethygrosensorfromactuator(actuatorname):
@@ -166,7 +166,7 @@ def getrowdata(recordvalue,paramlist,index): #for parameters with array of integ
 					try:					
 						datalist.append(int(ln[param][index]))			
 					except Exception, e:
-						print 'Failed to load value, set value to zero. Error: '+ str(e)
+						print 'Failed to load value ',param ,' set value to zero. Error: '+ str(e)
 						datalist.append(0)							
 
 	return datalist

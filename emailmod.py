@@ -282,7 +282,7 @@ def sendmail(hwname,mailtype,intromessage,bodytextlist=[]):
 		return issent
 	else:
 		print "No address specified"
-		logger.error('No address specified')
+		logger.warning('No address specified')
 		return False
 
 

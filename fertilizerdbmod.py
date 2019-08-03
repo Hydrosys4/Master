@@ -152,7 +152,7 @@ def getelementlist():
 	recordvalue="fertilizercontrol"
 	keytosearch=hardwaremod.HW_INFO_NAME
 	datalist=hardwaremod.searchdatalist(recordkey,recordvalue,keytosearch)
-	print "elementlist= ",datalist
+	#print "elementlist= ",datalist
 	return datalist
 
 

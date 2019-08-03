@@ -370,13 +370,13 @@ def get_MCP3008_channel(cmd, message, recdata):
 	if (waittime>=maxwait):
 		#something wrog, wait too long, avoid initiate further processing
 		print "MCP3008 wait time EXCEEDED "
-		logger.info("Wait Time exceeded, not able to read ADCdata Channel: %d", channel)
+		logger.warning("Wait Time exceeded, not able to read ADCdata Channel: %d", channel)
 		return False
 
 	MCP3008_busy_flag=True		
 
 	
-	powerPIN_start(POWERPIN,"pos",0)
+	powerPIN_start(POWERPIN,"pos",0.2)
 
 	refvoltage=5.0
 	
@@ -395,7 +395,9 @@ def get_MCP3008_channel(cmd, message, recdata):
 		dataarray=[]
 		
 		print "Starting sample reading"
-		for x in range(0, 29): #number of samples
+		
+		samplesnumber=39
+		for x in range(0, samplesnumber): #number of samples
 			
 			# read data from selected channel
 			adc = spi.xfer2([1,(8+channel)<<4,0])

@@ -150,7 +150,7 @@ def getelementlist():
 	recordvalue1="output"	
 	keytosearch=hardwaremod.HW_INFO_NAME
 	datalist=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
-	print "elementlist= ",datalist
+	#print "elementlist= ",datalist
 	return datalist
 
 

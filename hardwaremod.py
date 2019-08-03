@@ -673,15 +673,49 @@ def checkallsensors():
 		
 def initallGPIOpins():	
 	removeallinterruptevents()
-	setallGPIOinputs()
+	checkGPIOconsistency()
 	initallGPIOoutput()
 	return True
 
-def setallGPIOinputs():	
+def setallGPIOinputs():	# this function sets all GPIO to input, actually it disable I2C and SPI as this functions are set using the PIN special mode Alt0
 	for pinstr in HWcontrol.RPIMODBGPIOPINLIST:
 		PINint=toint(pinstr,-1)  # set -1 in case of not possible to convert to int
 		if not PINint==-1:
 			HWcontrol.GPIO_setup(PINint, "in")
+	return True
+	
+def checkGPIOconsistency():	
+	# chek PIN in input and output cannot be the same
+	inputpinlist=[]
+	outputpinlist=[]	
+	for ln in IOdata:
+		if (HW_INFO_IOTYPE in ln) and (HW_CTRL_PIN in ln):
+			iotype=ln[HW_INFO_IOTYPE]
+			PINint=toint(ln[HW_CTRL_PIN],-1)
+			if not PINint==-1:
+				if (iotype=="input"):
+					if PINint in inputpinlist:
+						print "Warning input PIN duplicated", PINint
+						logger.warning('Warning, input PIN duplicated PIN=%d', PINint)					
+					inputpinlist.append(PINint)
+				if (iotype=="output"):
+					if PINint in outputpinlist:
+						print "Warning output PIN duplicated", PINint
+						logger.warning('Warning, output PIN duplicated PIN=%d', PINint)
+					outputpinlist.append(PINint)
+		if (HW_CTRL_PWRPIN in ln):
+			PWRPINint=toint(ln[HW_CTRL_PWRPIN],-1)
+			if not PWRPINint==-1:
+				outputpinlist.append(PWRPINint)
+				
+	#print inputpinlist
+	#print outputpinlist
+				
+	for inputpin in inputpinlist:
+		if inputpin in outputpinlist:
+			print "error output PIN and Input PIN are the same", inputpin
+			logger.error('Error, output PIN and Input PIN are the same PIN=%d', inputpin)
+
 	return True
 
 		
@@ -706,10 +740,10 @@ def initallGPIOoutput():
 				if (HW_CTRL_LOGIC in ln):
 					if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
 						HWcontrol.GPIO_output(PWRPINint, 0)
-						print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
+						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
 					else:
 						HWcontrol.GPIO_output(PWRPINint, 1)
-						print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
+						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
 				else:			
 					HWcontrol.GPIO_output(PWRPINint, 0) # assume logic is positive
 					print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
@@ -730,10 +764,11 @@ def GPIO_remove_event_detect(PIN):
 def removeallinterruptevents():
 	for channel in HWcontrol.RPIMODBGPIOPINLIST: 
 		try:
-			print "try to remove event detect ", channel
+			#print "try to remove event detect ", channel
 			GPIO_remove_event_detect(toint(channel,2))
 		except:
-			print "Warning, not able to remove the event detect"
+			#print "Warning, not able to remove the event detect"
+			a=1
 		
 	return ""
 

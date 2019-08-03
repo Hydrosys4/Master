@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.06e"
+Release="1.06h"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -2198,7 +2198,8 @@ def hardwaresetting():
 				#scheduler setup---------------------
 				selectedplanmod.resetmastercallback()
 				#initiate the GPIO OUT pins
-				initallGPIOpins()	
+				initallGPIOpins()
+				flash('New Hardware configuration has been Applied ')	
 
 		if requesttype=="edit":
 			return hardwaresettingedit()

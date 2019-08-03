@@ -218,8 +218,11 @@ def insertrowfields(filename,table,rowfield,rowvalue):
 		query_string = 'INSERT INTO %s (%s) VALUES (%s);' % (table, var_string, questionmarks)
 		print query_string
 		print var_string
-		db.execute(query_string, rowvalue)					
-		db.commit()
+		try:
+			db.execute(query_string, rowvalue)					
+			db.commit()
+		except:
+			print "Error reading the sensor database, sql querystring=",query_string 
 		db.close()
 		
 

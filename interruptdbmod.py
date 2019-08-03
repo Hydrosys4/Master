@@ -149,7 +149,7 @@ def getelementlist():
 		for element in removelist:
 			datalist.remove(element)
 	
-	print "elementlist= ",datalist
+	#print "elementlist= ",datalist
 	return datalist
 
 def sensorlist():
