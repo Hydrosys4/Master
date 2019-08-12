@@ -319,6 +319,10 @@ added GPIO input data collection and event collection, this will appear in the s
 Checked connection using localhost instead of IP address, working for PC and Apple ipad
 Verified clock setting behavior, when the Internet connection is present the setting does not work because is overridden by NTP, this is OK
 
+2019-07-29 -> release 107
+
+- Enable wifi connections with SSID having spaces in the name.
+
 
 
 NOTE:

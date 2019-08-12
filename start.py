@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.06h"
+Release="1.07"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -722,6 +722,7 @@ def echowifi():
 			connectedssid=""
 		
 		savedssid=networkmod.savedwifilist_ssid()
+		print "Saved SSIDs ", savedssid
 		
 		for ssid in wifilist:
 			connected="0"

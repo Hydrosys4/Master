@@ -68,9 +68,12 @@ def get_networks(iface, retry=1):
 				for line in lines[1:-1]:
 					#bssid / frequency / signal level / flags / ssid
 					if line:
-						linevect=line.split()
+						linevect=line.split('\t')
 						if len(linevect)>4:
-							b, fr, s, f, ss = line.split()[:5]
+							b, fr, s, f, ss = line.split('\t')[:5]
+							# according to the SSID naming, it is possible to have spaces in the SSID
+							# damn it
+							# SSID = final part of the line string, as separators "\t" seems to work
 							networks.append( {"bssid":b, "freq":fr, "sig":s, "ssid":ss, "flag":f} )												
 
 				if networks:
@@ -103,7 +106,7 @@ def get_saved_networks(iface):
 	networks=[]
 	if lines:
 		for line in lines[1:-1]:
-			datavect = line.split()
+			datavect = line.split("\t") # do not use space as separator, the SSID can have spaces inside
 			if len(datavect)>1:
 				# network id / ssid / bssid / flags
 				networks.append( {"net_id":datavect[0], "ssid":datavect[1]} )
@@ -115,6 +118,7 @@ def get_net_id(iface,ssid):
 	for item in networks:
 		if item["ssid"]==ssid:
 			net_id=item["net_id"]
+			print "Network ID of the SSID = ",ssid, " ID= ", net_id
 			return net_id
 	return ""
 
@@ -127,7 +131,7 @@ def remove_network_ssid(iface,ssid):
 		print "net id to remove ", net_id
 		remove_network(iface,net_id)
 		print "saved ",  saveconfig(iface)
-		updateconfig()	
+		updateconfig(iface)	
 		return True
 	return False
 
@@ -169,8 +173,8 @@ def enable_network(iface,net_id):
 	cmd=['wpa_cli', '-i' + iface , 'enable_network' , net_id]
 	run_program(cmd)
 
-def updateconfig():
-	cmd=['wpa_cli','reconfigure']
+def updateconfig(iface):
+	cmd=['wpa_cli', '-i' + iface ,'reconfigure']
 	run_program(cmd)
 	
 def saveconfig(iface):	
@@ -181,6 +185,8 @@ def saveconfig(iface):
 	return True
 	
 def save_network(iface,ssid,password):
+	# if same SSID already present then remove it before saving
+	remove_network_ssid(iface,ssid)
 	cmd=['wpa_cli', '-i' + iface , 'add_network']
 	net_id=run_program(cmd)
 	print "Net ID to add " , net_id
@@ -202,9 +208,8 @@ def save_network(iface,ssid,password):
 	if not saveconfig(iface):
 		return False
 	
-	updateconfig()
+	updateconfig(iface)
 	return True
-	
 	
 
 
@@ -214,7 +219,7 @@ def enable_ssid(iface, ssid):
     lines = run_program(cmd).split("\n")
     if lines:
         for line in lines[1:-1]:
-			strlist = line.split()
+			strlist = line.split("\t")  # do not use space as separator, the SSID can have spaces inside
 			if strlist:
 				net_id=strlist[0]			
 				ssidout=strlist[1]
@@ -224,13 +229,14 @@ def enable_ssid(iface, ssid):
 	return False
 
 def listsavednetwork(iface):
+    updateconfig(iface)
     cmd=['wpa_cli', '-i' + iface , 'list_networks']
     lines = run_program(cmd).split("\n")
     data=[]
     if lines:
         for line in lines[1:-1]:
-			strlist = line.split()
-			if strlist:
+			strlist = line.split("\t") # do not use space as separator, the SSID can have spaces inside
+			if len(strlist)>1:
 				net_id=strlist[0]			
 				ssidout=strlist[1]
 				if ssidout!="":
