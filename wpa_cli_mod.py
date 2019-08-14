@@ -229,7 +229,7 @@ def enable_ssid(iface, ssid):
 	return False
 
 def listsavednetwork(iface):
-    updateconfig(iface)
+    #updateconfig(iface)
     cmd=['wpa_cli', '-i' + iface , 'list_networks']
     lines = run_program(cmd).split("\n")
     data=[]
