@@ -73,25 +73,24 @@ def setinterruptevents():
 		recordvalue=item	
 		keytosearch=hardwaremod.HW_CTRL_PIN
 		PINstr=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
-		print "set event for the PIN ", PINstr
-		PIN=hardwaremod.toint(PINstr,-1)			
-		if PIN>-1:	
+		print "set event for the PIN ", PINstr		
+		if not PINstr=="":	
 
 			keytosearch=hardwaremod.HW_CTRL_LOGIC
 			logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
 			# set Sw pull up / down mode
 		
 			if logic=="pos":
-				hardwaremod.GPIO_setup(PIN, "in", "pull_down")
+				hardwaremod.GPIO_setup(PINstr, "in", "pull_down")
 				evenslopetype="both"
 			else:
-				hardwaremod.GPIO_setup(PIN, "in" , "pull_up")
+				hardwaremod.GPIO_setup(PINstr, "in" , "pull_up")
 				evenslopetype="both"
 
 			#GPIO.RISING, GPIO.FALLING or GPIO.BOTH.
 			# ignoring further edges for 200ms for switch bounce handling					
 			# link to the callback function
-			hardwaremod.GPIO_add_event_detect(PIN, evenslopetype, eventcallback)
+			hardwaremod.GPIO_add_event_detect(PINstr, evenslopetype, eventcallback)
 			
 	return ""
 

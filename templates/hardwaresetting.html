@@ -30,7 +30,7 @@
 		<select class="form-control input-sm dontwantgap" name="HWfilelist">
 		{% for name in presetfilenamelist %}	
 			{% set option_i = loop %}
-			<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+			<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name.filename}}">{{name.title}}</option>
 		{% endfor %}											
 		</select>
 		

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.07"
+Release="1.08d"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -118,6 +118,7 @@ def runallconsistencycheck():
 	return True
 
 def runallreadfile():
+	hardwaremod.readfromfile()
 	wateringdbmod.readfromfile()
 	autowateringdbmod.readfromfile()
 	automationdbmod.readfromfile()
@@ -1319,7 +1320,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 						#f.save(f.filename)  
 						f.save(os.path.join(uploadfolder, f.filename))
 						filemanagementmod.restoreconfigfilefromzip(fullfolderpath)
-						
+						print "Align the data to the new files config"
 						#align the files and memory 
 						runallreadfile()
 						# align the data
@@ -1634,7 +1635,7 @@ def autowatering():
 	print "sensorlist ",sensorlist
 	
 	modelist=["None", "Full Auto" , "under MIN over MAX" , "Emergency Activation" , "Alert Only"]
-	formlist=["workmode", "sensor" , "threshold", "wtstepsec", "maxstepnumber", "pausebetweenwtstepsmin", "allowedperiod" , "maxdaysbetweencycles", "sensorminacceptedvalue", "mailalerttype"  ]
+	formlist=["workmode", "sensor" , "threshold", "wtstepsec", "maxstepnumber", "pausebetweenwtstepsmin", "allowedperiod" , "maxdaysbetweencycles", "sensorminacceptedvalue", "mailalerttype","samplesminutes" ]
 	alertlist=["infoandwarning", "warningonly"]
 
 
@@ -1662,6 +1663,7 @@ def autowatering():
 			dicttemp["maxdaysbetweencycles"]=request.form[element+'_10']
 			dicttemp["sensorminacceptedvalue"]=request.form[element+'_11']
 			dicttemp["mailalerttype"]=request.form[element+'_12']
+			dicttemp["samplesminutes"]=request.form[element+'_13']
 
 			print "dicttemp ----->",dicttemp 
 			autowateringdbmod.replacerow(element,dicttemp)		
@@ -2150,10 +2152,17 @@ def hardwaresetting():
 	
 	HWfilelist=hardwaremod.HWpresetlist(MYPATH) #list of fiels (path , Name)
 	presetfilenamelist=[]
-	presetfilenamelist.append("-No Selection-")
+	listitem={}
+	listitem["title"]="-No Selection-"
+	listitem["filename"]="-No Selection-"	
+	presetfilenamelist.append(listitem)
 	for item in HWfilelist:
-		presetfilenamelist.append(item[1])		
-	#print "HW file list ---> ", HWfilelist
+		itemstr=item[1]
+		listitem={}
+		listitem["title"]=itemstr[10:len(itemstr)-4]
+		listitem["filename"]=itemstr	
+		presetfilenamelist.append(listitem)		
+	print "HW file list ---> ", presetfilenamelist
 	
 	if request.method == 'POST':
 		requestinfo=request.form['buttonsub']
@@ -2232,7 +2241,7 @@ def hardwaresettingedit():
 
 		if requestinfo=="edit":
 			#request coming from previous page, need init table from zero
-			print "the teporary Tables have been reset"
+			print "the temporary Tables have been reset"
 			#initialize IOdatarow
 			hardwaremod.additionalRowInit()
 
@@ -2260,14 +2269,15 @@ def hardwaresettingedit():
 			return redirect(url_for('hardwaresetting'))
 						
 		if requesttype=="delete":
-			name=requestinfo.split("_")[1]
+			strposition=len(requesttype)
+			name=requestinfo[strposition+1:]
 			#remove the row in IOdatatemp
 			print " Delete ", name
 			if hardwaremod.deleterow(name):
 				flash('Row has been correctly deleted')
 				print " deleted"
 			else:
-				flash('Errors to delelte the row','danger')
+				flash('Errors to delete the row','danger')
 			
 				
 		if requesttype=="addrow":
@@ -2532,7 +2542,7 @@ def videocontrol():
 		print "starting Stream " , data
 		vdirection=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC)
 		answer=videocontrolmod.stream_video(element,data) + "-" + element
-		time.sleep(2)
+		time.sleep(0.1)
 		
 
 	if name=="close":

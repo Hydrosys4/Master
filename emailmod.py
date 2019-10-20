@@ -162,7 +162,7 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 		global MYPATH
 			
 						
-		photolist=hardwaremod.photolist(MYPATH)
+		photolist=hardwaremod.photolist(MYPATH,3)
 		imgfiles=[]	
 		if photolist:
 			referencestr=photolist[0][0].split(",")[0]

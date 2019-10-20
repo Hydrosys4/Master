@@ -33,8 +33,12 @@ else:
 
 
 HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin"]
-RPIMODBGPIOPINLISTPLUS=["I2C", "SPI", "2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27", "N/A"]
-RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27","N/A"]
+RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
+NALIST=["N/A"]
+GPIOPLUSLIST=["I2C", "SPI"]
+RPIMODBGPIOPINLISTNA=RPIMODBGPIOPINLIST+NALIST
+RPIMODBGPIOPINLISTPLUS=RPIMODBGPIOPINLISTNA+GPIOPLUSLIST
+
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
 
 # status variables
@@ -44,13 +48,18 @@ DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.
 stepper_data={}
 stepper_data["default"]={'busyflag':False}
 
+GPIO_data={}
+GPIO_data["default"]={"level":None, "state":None, "threadID":None}
+
+PowerPIN_Status={}
+PowerPIN_Status["default"]={"level":0, "state":"off", "pinstate":None}
 
 
 #" GPIO_data is an array of dictionary, total 40 items in the array
-GPIO_data=[{"level":None, "state":None, "threadID":None} for k in range(40)]
+#GPIO_data=[{"level":None, "state":None, "threadID":None} for k in range(40)]
 #" PowerPIN_Status is an array of dictionary, total 40 items in the array, the array is used to avoid comflict between tasks using same PIN 
 # each time the pin is activated the level is increased by 1 unit.
-PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
+#PowerPIN_Status=[{"level":0, "state":"off", "pinstate":None} for k in range(40)]
 
 MCP3008_busy_flag=False
 
@@ -353,9 +362,15 @@ def get_MCP3008_channel(cmd, message, recdata):
 	SUBPIN=int(msgarray[2])
 	channel=SUBPIN	
 	
-	POWERPIN=-1	
+	POWERPIN=""
 	if messagelen>3:	
-		POWERPIN=toint(msgarray[3],-1)	
+		POWERPIN=msgarray[3]
+	
+	logic="pos"
+	if messagelen>5:
+		logic=msgarray[5]
+	
+	
 	
 	global MCP3008_busy_flag
 	waitstep=0.1
@@ -376,7 +391,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 	MCP3008_busy_flag=True		
 
 	
-	powerPIN_start(POWERPIN,"pos",0.2)
+	powerPIN_start(POWERPIN,logic,0.2)
 
 	refvoltage=5.0
 	
@@ -462,53 +477,82 @@ def normalize_average(lst):
 
 
 def powerPIN_start(POWERPIN,logic,waittime):
-
-	if POWERPIN>0:
-		PowerPIN_Status[POWERPIN]["level"]+=1
+	if POWERPIN!="":
+		PowerPINlevel=read_status_data(PowerPIN_Status,POWERPIN,"level")
+		write_status_data(PowerPIN_Status,POWERPIN,"level",PowerPINlevel+1)
+		#PowerPIN_Status[POWERPIN]["level"]+=1
 		#start power pin
-		if PowerPIN_Status[POWERPIN]["state"]=="off":
+		PowerPINstate=read_status_data(PowerPIN_Status,POWERPIN,"state")
+		if PowerPINstate=="off":
 			GPIO_setup(POWERPIN, "out")
 			if logic=="pos": 
 				GPIO_output(POWERPIN, 1)
-				PowerPIN_Status[POWERPIN]["pinstate"]="1"
+				write_status_data(PowerPIN_Status,POWERPIN,"pinstate","1")
+				#PowerPIN_Status[POWERPIN]["pinstate"]="1"
 			else:
 				GPIO_output(POWERPIN, 0)
-				PowerPIN_Status[POWERPIN]["pinstate"]="0"
+				write_status_data(PowerPIN_Status,POWERPIN,"pinstate","0")
+				#PowerPIN_Status[POWERPIN]["pinstate"]="0"
 				
-			PowerPIN_Status[POWERPIN]["state"]="on"
+			write_status_data(PowerPIN_Status,POWERPIN,"state","on")	
+			#PowerPIN_Status[POWERPIN]["state"]="on"
 			print "PowerPin activated ", POWERPIN
 			time.sleep(waittime)
 	return True	
 
 		
 def powerPIN_stop(POWERPIN,waittime):
-	
-	if POWERPIN>0:
+	if POWERPIN!="":
 		#set powerpin to zero again in case this is the last thread
-		PowerPIN_Status[POWERPIN]["level"]-=1		
-		#stop power pin
-		if PowerPIN_Status[POWERPIN]["level"]<=0:
-			if PowerPIN_Status[POWERPIN]["state"]=="on":
+		PowerPINlevel=read_status_data(PowerPIN_Status,POWERPIN,"level")
+		write_status_data(PowerPIN_Status,POWERPIN,"level",PowerPINlevel-1)
+		#PowerPIN_Status[POWERPIN]["level"]-=1		
+		#stop power pin	
+		if (PowerPINlevel-1)<=0:
+			PowerPINstate=read_status_data(PowerPIN_Status,POWERPIN,"state")
+			if PowerPINstate=="on":
 				time.sleep(waittime)
-				if PowerPIN_Status[POWERPIN]["pinstate"]=="1": 
+				PowerPINpinstate=read_status_data(PowerPIN_Status,POWERPIN,"pinstate")
+				if PowerPINpinstate=="1": 
 					GPIO_output(POWERPIN, 0)
-					PowerPIN_Status[POWERPIN]["pinstate"]="0"
-				elif PowerPIN_Status[POWERPIN]["pinstate"]=="0":
+					write_status_data(PowerPIN_Status,POWERPIN,"pinstate","0")
+					#PowerPIN_Status[POWERPIN]["pinstate"]="0"
+				elif PowerPINpinstate=="0":
 					GPIO_output(POWERPIN, 1)
-					PowerPIN_Status[POWERPIN]["pinstate"]="1"
-				PowerPIN_Status[POWERPIN]["state"]="off"
+					write_status_data(PowerPIN_Status,POWERPIN,"pinstate","1")
+					#PowerPIN_Status[POWERPIN]["pinstate"]="1"
+				write_status_data(PowerPIN_Status,POWERPIN,"state","off")
+				#PowerPIN_Status[POWERPIN]["state"]="off"
 
 	return True	
 
 
-def GPIO_output(PIN, level):
+def CheckRealHWpin(PIN=""):
 	if ISRPI:
-		GPIO.output(PIN, level)
-	GPIO_data[PIN]["level"]=level
-	return True
+		if PIN in RPIMODBGPIOPINLIST:
+			try:
+				PINint=int(PIN)
+				return True, PINint
+				print "Real * PIN *"
+			except:
+				return False, 0	
+	return False, 0		
 
-def GPIO_setup(PIN, state, pull_up_down=""):
-	if ISRPI:
+
+def GPIO_output(PINstr, level):
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	if isRealPIN:
+		GPIO.output(PIN, level)
+	#GPIO_data[PIN]["level"]=level
+	write_status_data(GPIO_data,PINstr,"level",level)
+	return True
+		
+
+
+
+def GPIO_setup(PINstr, state, pull_up_down=""):
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	if isRealPIN:
 		if state=="out":
 			GPIO.setup(PIN,  GPIO.OUT)
 		else:
@@ -518,53 +562,50 @@ def GPIO_setup(PIN, state, pull_up_down=""):
 				GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 			else:
 				GPIO.setup(PIN,  GPIO.IN)
-	GPIO_data[PIN]["state"]=state
+	
+	#GPIO_data[PIN]["state"]=state
+	write_status_data(GPIO_data,PINstr,"state",state)
 	return True
 
 
 
-def GPIO_add_event_detect(PIN, evenslopetype, eventcallback):
-	if ISRPI:
+def GPIO_add_event_detect(PINstr, evenslopetype, eventcallback):
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	if isRealPIN:
 		print "add event ", PIN
 		GPIO.add_event_detect(PIN, GPIO.BOTH, callback=eventcallback, bouncetime=200)
 
 
-def GPIO_remove_event_detect(PIN):
-	if ISRPI:
+def GPIO_remove_event_detect(PINstr):
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	if isRealPIN:
 		GPIO.remove_event_detect(PIN)
 
 
 
 
-
-
-
-
-
-
-
-
-
-def endpulse(PIN,logic,POWERPIN):
-	
-	GPIO_data[PIN]["threadID"]=None
+def endpulse(PINstr,logic,POWERPIN):
+	#GPIO_data[PIN]["threadID"]=None
+	write_status_data(GPIO_data,PINstr,"threadID",None)
 	if logic=="pos":
 		level=0
 	else:
 		level=1
-	GPIO_output(PIN, level)
+		
+	GPIO_output(PINstr, level)
 	
 	powerPIN_stop(POWERPIN,0)
 
-	print "pulse ended", time.ctime() , " PIN=", PIN , " Logic=", logic , " Level=", level
+	print "pulse ended", time.ctime() , " PIN=", PINstr , " Logic=", logic , " Level=", level
 	return True
 
 
 def gpio_pulse(cmd, message, recdata):
 	successflag=0
 	msgarray=message.split(":")
-	messagelen=len(msgarray)
-	PIN=int(msgarray[1])
+	messagelen=len(msgarray)	
+	PIN=msgarray[1]
+
 	testpulsetime=msgarray[2]
 	pulsesecond=int(testpulsetime)
 	if messagelen>3:
@@ -573,16 +614,17 @@ def gpio_pulse(cmd, message, recdata):
 		elif msgarray[3]=="1":
 			logic="pos"	
 	
-	POWERPIN=-1	
+	POWERPIN=""	
 	if messagelen>4:	
-		POWERPIN=toint(msgarray[4],-1)	
+		POWERPIN=msgarray[4]	
 
 	
 
 	# in case another timer is active on this PIN, cancel it 
-	if not GPIO_data[PIN]["threadID"]==None:
+	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
+	if not PINthreadID==None:
 		print "cancel the Thread of PIN=",PIN
-		GPIO_data[PIN]["threadID"].cancel()
+		PINthreadID.cancel()
 	
 	else:
 		powerPIN_start(POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
@@ -593,8 +635,10 @@ def gpio_pulse(cmd, message, recdata):
 			level=0
 		GPIO_output(PIN, level)
 
-	GPIO_data[PIN]["threadID"] = threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN])
-	GPIO_data[PIN]["threadID"].start()
+	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN])
+	NewPINthreadID.start()
+	write_status_data(GPIO_data,PIN,"threadID",NewPINthreadID)
+
 	print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
 	successflag=1
 	recdata.append(cmd)
@@ -605,7 +649,7 @@ def gpio_pulse(cmd, message, recdata):
 def gpio_stoppulse(cmd, message, recdata):
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
-	PIN=int(msgarray[1])
+	PIN=msgarray[1]
 	
 	if messagelen>3:
 		if msgarray[3]=="0":
@@ -613,13 +657,14 @@ def gpio_stoppulse(cmd, message, recdata):
 		elif msgarray[3]=="1":
 			logic="pos"	
 	
-	POWERPIN=-1	
+	POWERPIN=""
 	if messagelen>4:	
-		POWERPIN=toint(msgarray[4],-1)	
+		POWERPIN=msgarray[4]	
 	
-	if not GPIO_data[PIN]["threadID"]==None:
+	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
+	if not PINthreadID==None:
 		print "cancel the Thread of PIN=",PIN
-		GPIO_data[PIN]["threadID"].cancel()
+		PINthreadID.cancel()
 		
 	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
 	recdata.append(cmd)
@@ -629,10 +674,11 @@ def gpio_stoppulse(cmd, message, recdata):
 
 def gpio_pin_level(cmd, message, recdata):
 	msgarray=message.split(":")
-	PIN=int(msgarray[1])
+	PIN=msgarray[1]
 	recdata.append(msgarray[0])
-	if GPIO_data[PIN]["level"] is not None:
-		recdata.append(str(GPIO_data[PIN]["level"]))
+	PINlevel=read_status_data(GPIO_data,PIN,"level")
+	if PINlevel is not None:
+		recdata.append(str(PINlevel))
 		return True
 	else:
 		recdata.append("e")
@@ -642,14 +688,20 @@ def read_input_pin(cmd, message, recdata):
 	successflag=1
 	msgarray=message.split(":")
 	print " read pin input ", message
-	PIN=int(msgarray[1])
-	recdata.append(cmd)
-	if GPIO.input(PIN):
-		reading="1"
+	PINstr=msgarray[1]
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	recdata.append(cmd)		
+	if isRealPIN:
+		if GPIO.input(PIN):
+			reading="1"
+		else:
+			reading="0"
+		recdata.append(reading)
+		recdata.append(successflag)	
 	else:
-		reading="0"
-	recdata.append(reading)
-	recdata.append(successflag)	
+		successflag=0
+		recdata.append("e")
+		recdata.append(successflag)	
 	return True
 
 
@@ -667,7 +719,7 @@ def gpio_set_servo(cmd, message, recdata):
 	step=(duty-previousduty)/stepnumber
 	
 	
-	GPIO_setup(PIN, "out")
+	GPIO_setup(str(PIN), "out")
 	pwm = GPIO.PWM(PIN, frequency) # set the frequency
 	pwm.start(previousduty)
 	for inde in range(stepnumber):

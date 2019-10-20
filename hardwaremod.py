@@ -51,6 +51,7 @@ HW_INFO_MEASURE="measure"  # info group , mandatory, measurement type of info pa
 # HW_CTRL group includes info hardware to speak with HWcontrol module
 HW_CTRL_CMD="controllercmd" # HW control group , mandatory, command sent to the HWControl section to specify the function to select -> HW
 HW_CTRL_PIN="pin" # HW control  group ,optional, specify the PIN board for the HWControl if needed -> gpiopin
+HW_CTRL_PIN2="pin2" # HW control  group ,optional, specify the PIN board for the HWControl if needed -> gpiopin (new item in rel 1.08)
 HW_CTRL_ADCCH="ADCchannel" # HW control  group , optional, specify the arg1 board for the HWControl if needed -> "ADCchannel"
 HW_CTRL_PWRPIN="powerpin"  # HW control  group , optional, specify PIN that is set ON before starting tasks relevant to ADC convert, Actuator pulse, then is set OFF when the task is finished -> "ADCpowerpin"
 HW_CTRL_LOGIC="logic"  # HW control  group , optional, in case the relay works in negative logic
@@ -58,10 +59,14 @@ HW_CTRL_LOGIC="logic"  # HW control  group , optional, in case the relay works i
 HW_CTRL_ADDR="address" # HW control  group , optional, specify this info for the HWControl if needed -> mailaddress, I2C address
 HW_CTRL_TITLE="title" # HW control  group , optional, specify this info for the HWControl if needed (mail title) -> "mailtitle"
 
-#servo
+#servo/stepper/sensors
 HW_CTRL_FREQ="frequency" # HW control  group , optional, working frequency of the servo
-HW_CTRL_MIN="min"  # HW control  group , optional, minimum of the duty cycle
-HW_CTRL_MAX="max"  # HW control  group , optional, maximum of the duty cycle
+HW_CTRL_MIN="min"  # HW control  group , optional, minimum of the duty cycle, for sensor this is the min corresponding to zero
+HW_CTRL_MAX="max"  # HW control  group , optional, maximum of the duty cycle, for sensor this is the max corresponding to scale
+
+HW_CTRL_SCALE="scale"  # HW control  group , optional, for sensor this is the scale (new item in rel 1.08)
+HW_CTRL_OFFSET="offset"  # HW control  group , optional, for sensor not clear how to use TBD (new item in rel 1.08)
+HW_CTRL_DIR="direction"  # HW control  group , optional, invert the data min/max (new item in rel 1.08)
 
 
 HW_FUNC_USEDFOR="usefor" # function group , optional, description of main usage of the item and the actions associated with the plan "selectedplanmod"
@@ -79,8 +84,10 @@ HWdataKEYWORDS[HW_INFO_MEASUREUNIT]=MEASUREUNITLIST
 HWdataKEYWORDS[HW_INFO_MEASURE]=MEASURELIST
 HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST
 HWdataKEYWORDS[HW_CTRL_PIN]=HWcontrol.RPIMODBGPIOPINLISTPLUS
+HWdataKEYWORDS[HW_CTRL_PIN2]=HWcontrol.RPIMODBGPIOPINLISTPLUS
+
 HWdataKEYWORDS[HW_CTRL_ADCCH]=HWcontrol.ADCCHANNELLIST
-HWdataKEYWORDS[HW_CTRL_PWRPIN]=HWcontrol.RPIMODBGPIOPINLIST
+HWdataKEYWORDS[HW_CTRL_PWRPIN]=HWcontrol.RPIMODBGPIOPINLISTNA
 HWdataKEYWORDS[HW_CTRL_LOGIC]=["pos","neg"]
 HWdataKEYWORDS[HW_CTRL_ADDR]=[]
 HWdataKEYWORDS[HW_CTRL_TITLE]=[]
@@ -91,6 +98,10 @@ HWdataKEYWORDS[HW_FUNC_TIME]=[] #time in format hh:mm:ss
 HWdataKEYWORDS[HW_CTRL_FREQ]=[]
 HWdataKEYWORDS[HW_CTRL_MIN]=[]
 HWdataKEYWORDS[HW_CTRL_MAX]=[]
+
+HWdataKEYWORDS[HW_CTRL_SCALE]=[]
+HWdataKEYWORDS[HW_CTRL_OFFSET]=[]
+HWdataKEYWORDS[HW_CTRL_DIR]=["dir","inv"]
 
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
@@ -135,6 +146,11 @@ Blocking_Status["default"]={'priority':0} # priority level, the commands are exe
 # filestoragemod.appendfiledata(filename,filedata)
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
+
+def readfromfile():
+	global IOdata
+	filestoragemod.readfiledata(HWDATAFILENAME,IOdata)
+
 
 def IOdatatempalign():
 	global IOdatatemp
@@ -195,9 +211,10 @@ def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fie
 			if dictdata[correlatedfield]=="pulse":
 
 				fieldvalue=dictdata[fieldname]	
-				if searchmatch(fieldname,fieldvalue,temp):
-					message="Same PIN already used"
-					return False, message
+				if fieldvalue!="N/A":
+					if searchmatch(fieldname,fieldvalue,temp):
+						message="Same PIN already used"
+						return False, message
 		
 	#dictdata[HW_CTRL_ADCCH]=HWcontrol.ADCCHANNELLIST
 	#dictdata[HW_CTRL_PWRPIN]=HWcontrol.RPIMODBGPIOPINLIST
@@ -233,7 +250,8 @@ def getsensordata(sensorname,attemptnumber): #needed
 		arg1=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_ADCCH))
 		arg2=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_PWRPIN))
 		arg3=str(searchdata(HW_INFO_NAME,sensorname,HW_INFO_MEASUREUNIT))
-		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3
+		arg4=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_LOGIC))
+		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4
 		recdata=[]
 		ack=False
 		i=0
@@ -243,25 +261,35 @@ def getsensordata(sensorname,attemptnumber): #needed
 		if ack:
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
 				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
-					scale=100
+					scaledefault=100
+					offsetdefault=0
+					
 					Thereading=recdata[1]
 					print " Sensor " , sensorname  , "reading ",Thereading
-					Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN))
+					print " Sensor value post elaboration"
+					Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN)) # if not found searchdata return ""
 					Maximum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MAX))
-					Logic=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_LOGIC))
+					Direction=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_DIR)) # can be two values "inv" , "dir"
+					Scale=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_SCALE))
+					Offset=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_OFFSET))					
+					
 					Minvalue=tonumber(Minimum, 0)
 					Maxvalue=tonumber(Maximum, 0)
-					if abs(Minvalue-Maxvalue)>0.01:
-						if Logic!="neg":
+					Scalevalue=tonumber(Scale, scaledefault)
+					Offsetvalue=tonumber(Offset, offsetdefault)					
+					
+					if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consisten, stops here
+						if Direction!="inv":
 							readingvalue=tonumber(Thereading, 0)
 							den=Maxvalue-Minvalue
 							readingvalue=(readingvalue-Minvalue)/den
-							readingvalue=readingvalue*scale
+							readingvalue=readingvalue*Scalevalue
 						else:
 							readingvalue=tonumber(Thereading, 0)
 							den=Maxvalue-Minvalue
 							readingvalue=1-(readingvalue-Minvalue)/den
-							readingvalue=readingvalue*scale
+							readingvalue=readingvalue*Scalevalue
+						readingvalue=readingvalue+Offsetvalue
 						Thereading=str(readingvalue)						
 					print " Sensor " , sensorname  , "Normalized reading ",Thereading										
 					
@@ -309,8 +337,6 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 	testpulsetime=testpulsetime # durantion in seconds  
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
-	if POWERPIN=="":
-		POWERPIN="-1"
 	
 	if logic=="neg":
 		sendstring="pulse:"+PIN+":"+testpulsetime+":0"+":"+POWERPIN
@@ -357,8 +383,7 @@ def stoppulse(target):
 	
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
-	if POWERPIN=="":
-		POWERPIN="-1"
+
 	
 	if logic=="neg":
 		sendstring="stoppulse:"+PIN+":"+"0"+":0"+":"+POWERPIN
@@ -679,9 +704,7 @@ def initallGPIOpins():
 
 def setallGPIOinputs():	# this function sets all GPIO to input, actually it disable I2C and SPI as this functions are set using the PIN special mode Alt0
 	for pinstr in HWcontrol.RPIMODBGPIOPINLIST:
-		PINint=toint(pinstr,-1)  # set -1 in case of not possible to convert to int
-		if not PINint==-1:
-			HWcontrol.GPIO_setup(PINint, "in")
+		HWcontrol.GPIO_setup(pinstr, "in")
 	return True
 	
 def checkGPIOconsistency():	
@@ -691,22 +714,20 @@ def checkGPIOconsistency():
 	for ln in IOdata:
 		if (HW_INFO_IOTYPE in ln) and (HW_CTRL_PIN in ln):
 			iotype=ln[HW_INFO_IOTYPE]
-			PINint=toint(ln[HW_CTRL_PIN],-1)
-			if not PINint==-1:
-				if (iotype=="input"):
-					if PINint in inputpinlist:
-						print "Warning input PIN duplicated", PINint
-						logger.warning('Warning, input PIN duplicated PIN=%d', PINint)					
-					inputpinlist.append(PINint)
-				if (iotype=="output"):
-					if PINint in outputpinlist:
-						print "Warning output PIN duplicated", PINint
-						logger.warning('Warning, output PIN duplicated PIN=%d', PINint)
-					outputpinlist.append(PINint)
+			PIN=ln[HW_CTRL_PIN]
+			if (iotype=="input"):
+				if PIN in inputpinlist:
+					print "Warning input PIN duplicated", PIN
+					logger.warning('Warning, input PIN duplicated PIN=%s', PIN)					
+				inputpinlist.append(PIN)
+			if (iotype=="output"):
+				if PIN in outputpinlist:
+					print "Warning output PIN duplicated", PIN
+					logger.warning('Warning, output PIN duplicated PIN=%s', PIN)
+				outputpinlist.append(PIN)
 		if (HW_CTRL_PWRPIN in ln):
-			PWRPINint=toint(ln[HW_CTRL_PWRPIN],-1)
-			if not PWRPINint==-1:
-				outputpinlist.append(PWRPINint)
+			PWRPIN=ln[HW_CTRL_PWRPIN]
+			outputpinlist.append(PWRPIN)
 				
 	#print inputpinlist
 	#print outputpinlist
@@ -714,7 +735,7 @@ def checkGPIOconsistency():
 	for inputpin in inputpinlist:
 		if inputpin in outputpinlist:
 			print "error output PIN and Input PIN are the same", inputpin
-			logger.error('Error, output PIN and Input PIN are the same PIN=%d', inputpin)
+			logger.error('Error, output PIN and Input PIN are the same PIN=%s', inputpin)
 
 	return True
 
@@ -725,30 +746,27 @@ def initallGPIOoutput():
 		if (iotype=="output") :
 			if (ln[HW_CTRL_CMD]=="pulse"):
 				# safe code in case of non int input
-				PINint=toint(ln[HW_CTRL_PIN],-1)  # set -1 in case of not possible to convert to int
-				if not PINint==-1:
-					HWcontrol.GPIO_setup(PINint, "out")
-					if ln[HW_CTRL_LOGIC]=="pos":
-						HWcontrol.GPIO_output(PINint, 0)
-					else:
-						HWcontrol.GPIO_output(PINint, 1)
+				PIN=ln[HW_CTRL_PIN]
+				HWcontrol.GPIO_setup(PIN, "out")
+				if ln[HW_CTRL_LOGIC]=="pos":
+					HWcontrol.GPIO_output(PIN, 0)
+				else:
+					HWcontrol.GPIO_output(PIN, 1)
 					
 		if (HW_CTRL_PWRPIN in ln):
-			PWRPINint=toint(ln[HW_CTRL_PWRPIN],-1)
-			if not PWRPINint==-1: 
-				HWcontrol.GPIO_setup(PWRPINint, "out")
-				if (HW_CTRL_LOGIC in ln):
-					if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
-						HWcontrol.GPIO_output(PWRPINint, 0)
-						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
-					else:
-						HWcontrol.GPIO_output(PWRPINint, 1)
-						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
-				else:			
-					HWcontrol.GPIO_output(PWRPINint, 0) # assume logic is positive
-					print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
-			else:
-				print "powerpin not set because is not a number"
+			PWRPIN=ln[HW_CTRL_PWRPIN] 
+			HWcontrol.GPIO_setup(PWRPIN, "out")
+			if (HW_CTRL_LOGIC in ln):
+				if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
+					HWcontrol.GPIO_output(PWRPIN, 0)
+					#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
+				else:
+					HWcontrol.GPIO_output(PWRPIN, 1)
+					#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
+			else:			
+				HWcontrol.GPIO_output(PWRPIN, 0) # assume logic is positive
+				print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
+
 	#print HWcontrol.GPIO_data
 	return True
 
@@ -765,7 +783,7 @@ def removeallinterruptevents():
 	for channel in HWcontrol.RPIMODBGPIOPINLIST: 
 		try:
 			#print "try to remove event detect ", channel
-			GPIO_remove_event_detect(toint(channel,2))
+			GPIO_remove_event_detect(channel)
 		except:
 			#print "Warning, not able to remove the event detect"
 			a=1
@@ -786,13 +804,12 @@ def removeinterruptevents():
 		keytosearch=HW_CTRL_PIN
 		PINstr=searchdata(recordkey,recordvalue,keytosearch)
 		print "set event for the PIN ", PINstr
-		PIN=toint(PINstr,-1)			
-		if PIN>-1:	
-			try:
-				HWcontrol.GPIO_remove_event_detect(PIN)
-			except:
-				print "Warning, not able to remove the event detect"
-				logger.info('Warning, not able to remove the event detect')
+
+		try:
+			HWcontrol.GPIO_remove_event_detect(PIN)
+		except:
+			print "Warning, not able to remove the event detect"
+			logger.info('Warning, not able to remove the event detect')
 		
 	return ""
 
@@ -941,7 +958,7 @@ def getfieldinstringvalue(fielditem,stringtofind,valuelist):
 		if name.find(stringtofind)>-1:
 			valuelist.append(name)
 
-def photolist(apprunningpath):
+def photolist(apprunningpath, withindays=0):
 
 	folderpath=os.path.join(apprunningpath, "static")
 	folderpath=os.path.join(folderpath, "hydropicture")
@@ -955,22 +972,34 @@ def photolist(apprunningpath):
 	sortedlist.reverse()
 	for files in sortedlist:
 		if (files.endswith(".jpg") or files.endswith(".png")):
-			templist=[]
-			templist.append("hydropicture/"+files)
+			isok=False
 			if "@" in files:
-				templist.append("Image taken on "+files.split("@")[0])
 				datestr=files.split("@")[0]
 			else:
-				templist.append("Image taken on "+files.split(".")[0])
 				datestr=files.split(".")[0]
 			try:
 				dateref=datetime.strptime(datestr,'%y-%m-%d,%H:%M')
-				templist.append(dateref)
-				templist.append("hydropicture/thumb/"+files)
-				filenamelist.append(templist)				
+				# here check how long time ago the picture was taken
+				# if withindays==0 then is not applicable
+				if withindays>0:
+					todaydate=datetime.now()
+					tdelta=timedelta(days=withindays)
+					startdate=todaydate-tdelta
+					print " startdate " ,startdate
+					if dateref>=startdate:
+						isok=True
+				else:
+					isok=True
 			except:
 				print "file name format not compatible with date"
-				templist.append("")
+				
+			if isok:
+				templist=[]
+				templist.append("hydropicture/"+files)
+				templist.append("Image taken on "+datestr)
+				templist.append(dateref)
+				templist.append("hydropicture/thumb/"+files)		
+				filenamelist.append(templist)						
 			
 	return filenamelist # item1 (path+filename) item2 (name for title) item3 (datetime) item4 (thumbpath + filename)
 

@@ -14,11 +14,53 @@ def videodevlist():
 	folderpath="/dev"
 	videolist=[]
 	filelist=os.listdir(folderpath)
-	for files in filelist:
-		if "video" in files:
-			videolist.append(files)
+	for filename in filelist:
+		if "video" in filename:
+			
+			# following code was necessary starting from raspbian buster, by default there are video10,video11,video12 devices created
+			#get the video number 
+			videonumberstr=get_digits(filename)
+			try:
+				videonumber=int(videonumberstr)
+			except:
+				videonumber=-1				
+				print "not able to convert the video number"
+			if videonumber>-1:
+				if (videonumber<10):
+					print "check video " , filename						
+					# following code was necessary starting from raspbian buster, linux kernel v4l2 was updated, now one single webcam can show more than one videoXX dev
+					if checkvideoformatexist(videonumberstr):
+						print "OK video " , filename	
+						videolist.append(filename)
 	return videolist # item1 (path) item2 (name) item3 (datetime)
 	
+def get_digits(x):
+    return ''.join(ele for ele in x if ele.isdigit())
+
+def checkvideoformatexist(videonumberstr):
+	# v4l2-ctl -d /dev/video0 -D
+	DeviceType="Video Capture"
+	formats=['YU12','YUYV','RGB3','JPEG','H264','MJPG','YVYU','VYUY','UYVY','NV12','BGR3','YV12','NV21','BGR4']
+	
+	# v4l2-ctl --list-formats -d 1
+	cmd = ['v4l2-ctl', '--list-formats' , '-d', videonumberstr]
+	try:
+		scanoutput = subprocess.check_output(cmd).decode('utf-8')
+	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return False
+		
+	if 	not DeviceType in scanoutput:
+		print "not a video capture device =" , videonumberstr
+		return False
+		
+	# check if one of the format is inside the output string
+	for formatitem in formats:
+		if formatitem in scanoutput:
+			print "At least a format = ", formatitem ," for video capture device =" , videonumberstr			
+			return True
+	return False
 
 def checkPIcam(device):
 	cmd = ['v4l2-ctl', '-d', '/dev/'+device, '-D']

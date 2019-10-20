@@ -196,7 +196,7 @@ def replacerow(element,dicttemp):
 	for line in WTdata:
 		if searchfield in line:
 			if line[searchfield]==searchvalue:
-				for row in line:
+				for row in dicttemp: # modified, in this way it adds the new items is present
 					line[row]=dicttemp[row]
 					filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
 				return True

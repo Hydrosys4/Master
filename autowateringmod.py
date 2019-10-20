@@ -85,6 +85,7 @@ def autowateringexecute(refsensor,element):
 		maxstepnumber=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"maxstepnumber"),0)
 		maxdays=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"maxdaysbetweencycles"),0)
 		waitingtime=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
+		samplesminutes=hardwaremod.tonumber(autowateringdbmod.searchdata("element",element,"samplesminutes"),120) # new addition
 		mailtype=autowateringdbmod.searchdata("element",element,"mailalerttype")
 		minaccepted=hardwaremod.tonumber(autowateringdbmod.searchdata("element",element,"sensorminacceptedvalue"),0.1)
 		
@@ -100,7 +101,7 @@ def autowateringexecute(refsensor,element):
 			logger.info('full auto mode')
 			if timeok:
 				logger.info('inside allowed time')
-				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
+				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
 				if valid:
 					if belowthr:
 						status="lowthreshold"
@@ -172,7 +173,7 @@ def autowateringexecute(refsensor,element):
 						statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",checkcounter+1)
 						
 					# RAMPUP case above threshold but below maxthreshold
-					elif sensorreading(sensor)<maxthreshold: # intermediate state where the sensor is above the minthreshold but lower than the max threshold
+					elif sensorreading(sensor,samplesminutes)<maxthreshold: # intermediate state where the sensor is above the minthreshold but lower than the max threshold
 						# check the status of the automatic cycle
 						cyclestatus=statusdataDBmod.read_status_data(AUTO_data,element,"cyclestatus")
 						if cyclestatus!="done":
@@ -237,7 +238,7 @@ def autowateringexecute(refsensor,element):
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
 			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 			if timeok:			
-				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
+				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
 				if valid:
 					if belowthr:
 						# wait to seek a more stable reading of hygrometer
@@ -320,7 +321,7 @@ def autowateringexecute(refsensor,element):
 			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 			if timeok:			
 				logger.info('Insede operative time')
-				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
+				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
 				if valid:
 					logger.info('valid sensor reading')
 					if belowthr:
@@ -398,7 +399,7 @@ def autowateringexecute(refsensor,element):
 						statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)		
 						
-						if sensorreading(sensor)>maxthreshold:
+						if sensorreading(sensor,samplesminutes)>maxthreshold:
 							logger.info('sensor reading above MAX threshold, deactivate scheduled irrigation')
 							# do not activate the irrigation scheduled in the time plan
 							allowwateringplan[element]=False
@@ -406,7 +407,7 @@ def autowateringexecute(refsensor,element):
 						
 
 		elif workmode=="Alert Only":
-			belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted)
+			belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
 			if valid:
 				if belowthr:
 					# invia mail if couter alert is lower than
@@ -466,7 +467,7 @@ def autowateringexecute(refsensor,element):
 
 		# implment Critical alert message in case the threshold is below the 0.5 of the minimum
 		if workmode!="None":
-			belowthr,valid=checkminthreshold(sensor,minthreshold*0.5,minaccepted)
+			belowthr,valid=checkminthreshold(sensor,minthreshold*0.5,minaccepted,samplesminutes)
 			if valid:
 				if belowthr:
 					logger.info('sensor %s below half of the actual set threshold', sensor)
@@ -500,11 +501,11 @@ def isNowInTimePeriod(startTime, endTime, nowTime):
 
 	
 
-def checkminthreshold(sensor,minthreshold,minaccepted):
+def checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes):
 	belowthr=False
 	validity=True		
 	# check the hygrometer sensor levels 
-	sensorreadingaverage=sensorreading(sensor)
+	sensorreadingaverage=sensorreading(sensor,samplesminutes)
 	# if the average level after 4 measure (15 min each) is below threshold apply emergency 
 	print " Min accepted threshold " , minaccepted
 	if (sensorreadingaverage>minaccepted):
@@ -565,8 +566,8 @@ def checkinclination(sensorname,startdate,enddate):
 
 
 
-def sensorreading(sensorname):
-	MinutesOfAverage=70 #about one hour, 4 samples at 15min samples rate
+def sensorreading(sensorname,MinutesOfAverage):
+	#MinutesOfAverage=70 #about one hour, 4 samples at 15min samples rate
 	if sensorname:
 		# old
 		#sensordata=[]		

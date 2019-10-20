@@ -33,7 +33,7 @@
 
 <!-- Image and Video -->
 	<div style="width: 100%; overflow: auto;">
-	<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" />    
+	<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" isok="false" />    
 	</div>
 
 
@@ -265,6 +265,14 @@
 
 			</div>
 			 <script type=text/javascript>
+				 
+			  $("#videoimg").bind("error",function(){
+				// Set the default image
+				$(this).attr("isok","false");
+				console.log("error");
+			  });
+				 
+				 
 			  $(function() {
 				$(".thebutton").click(function() {
 				
@@ -300,11 +308,34 @@
 												'transform': rotate 
 											});
 										var linksrc="/?action=stream";
-										$("#videoimg").attr("src", linksrc+"?"+d.getTime());
-										$('#'+butid).text('Stop');										
-										$('#'+butid).attr("name", "stop");
-										$('#'+butid).removeClass('btn-primary');
-										$('#'+butid).addClass('btn-danger');
+										var attempts=10;
+										$("#videoimg").attr("isok", "false");
+										
+										var checkExist = setInterval(function() {
+												
+																											
+											var isok=$("#videoimg").attr("isok");																																					
+											 if ((attempts<1) || (isok=="true")) {
+												  console.log(isok);	
+												  clearInterval(checkExist);
+												  // move on and do what has to be done												  
+													$('#'+butid).text('Stop');										
+													$('#'+butid).attr("name", "stop");
+													$('#'+butid).removeClass('btn-primary');
+													$('#'+butid).addClass('btn-danger');												  
+												  
+											   };
+											 console.log(attempts);											 
+											 attempts=attempts-1;
+											$("#videoimg").attr("isok", "true");
+											$("#videoimg").attr("src", linksrc+"?"+d.getTime());
+											// need time to trigger the error function in case of errors
+											 
+										}, 500); // check every 300ms
+										
+										
+
+
 										}
 
 										

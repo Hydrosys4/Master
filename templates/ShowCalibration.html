@@ -331,13 +331,17 @@
 			<div class="well bs-component smallgap">
 			
 						<!--  Actuator table   -->
+						
+						
+		{% if stepperlist|length > 0 %}			
+						
 			<table class="table" margin: 20px;>
 			<thead>
 				<tr>
 					<th>Name</th>
 					<th>Steps</th>
-					<th><===</th>
-					<th>===></th>
+					<th><span class="glyphicon glyphicon-arrow-left"></span></th>
+					<th><span class="glyphicon glyphicon-arrow-right"></span></th>
 					<th>Position</th>
 				</tr>
 			</thead>
@@ -373,11 +377,15 @@
 				  		
 							
 				<td>
-					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="FORWARD"><<<</button>
+					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="FORWARD">
+					<span class="glyphicon glyphicon-arrow-left"></span>	
+					</button>
 				</td>
 
 				<td>
-					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="BACKWARD">>>></button>
+					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="BACKWARD">
+					<span class="glyphicon glyphicon-arrow-right"></span>
+					</button>
 
 
 				</td>
@@ -418,9 +426,20 @@
 		
 				</div>
 				</div>			
-			
+		
+		{% else %}
+				<div class="row">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<legend>No Stepper motor set</legend>  
+					</div>	
+				</div>
 
-		</div>
+		{% endif %}
+		
+		
+
+		</div> 
+		<!-- end wells -->
 		
 			 <script type=text/javascript>
 			  $(function() {

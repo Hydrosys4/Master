@@ -319,11 +319,54 @@ added GPIO input data collection and event collection, this will appear in the s
 Checked connection using localhost instead of IP address, working for PC and Apple ipad
 Verified clock setting behavior, when the Internet connection is present the setting does not work because is overridden by NTP, this is OK
 
-2019-07-29 -> release 107
+2019-08-10 -> release 107
 
 - Enable wifi connections with SSID having spaces in the name.
 
+2019-08-11 -> release 107a
 
+- Added the sampleminutes parameter in the automation alghorithm.
+
+2019-10-06 -> release 107b
+
+- Removed the "video10 to video12" devices that appear in the raspbian buster
+- Change the PIN status representation to str format
+- better presentation of the names in the HardwareSetting preset file list
+- fixed the hardware setting row delete problem with names including underscore
+
+2019-10-07 -> release 107c
+
+- Set a limit to how old the pictures are send in the mail (3 days).
+
+2019-10-07 -> release 107d
+
+- Setting page, in case stepper motor are not configured, remove the setting table.
+
+2019-10-07 -> release 108
+
+- fixed the upload all config, which did not update the HWdata
+- Addded new fields in the HWdata table, pin2, scale, direction, offset
+- reworked the sensor post elaboration based on new fields, removed dependency on "logic" which is reserved to logic ports definition
+
+2019-10-07 -> release 108a
+
+- fixed interrupt inizialization now sending PINstr
+
+2019-10-07 -> release 108b
+
+- added the powerpin option to the sensor reading, in case the sensor needs to be first activated
+- better video0 webcam selection
+
+2019-10-13 -> release 109
+
+- Support H-bridge with relays
+
+
+
+
+
+
+------- Future releases: -----------
 
 NOTE:
 So that meant using RPIO for PWM (DMA) and GPIO for GPIO.  Luckily a little bit of hackery made that easy:
@@ -331,13 +374,6 @@ So that meant using RPIO for PWM (DMA) and GPIO for GPIO.  Luckily a little bit 
 import RPIO.PWM as PWM
 import RPi.GPIO as RPIO
 
-
-
-
-------- Future releases: -----------
-
-
-enable HTTPS, not public version
 
 NOTE:
 
