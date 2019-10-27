@@ -1,1 +1,1 @@
-{"element": "", "workmode":"None" , "sensor":"" , "sensor_mode":"Edge", "actuator_output":"50", "preemptive_period":"0", "actionmode_afterfirst":"Remove and Follow-up", "folloup_output":"0", "allowedperiod": ["00:00","00:00"] , "mailalerttype":"None"}
+{"element": "", "workmode":"None" , "sensor":"" , "sensor_mode":"Edge", "actuator_output":"50", "preemptive_period":"0", "actionmode_afterfirst":"Remove and Follow-up", "folloup_output":"0", "allowedperiod": ["00:00","00:00"] , "mailalerttype":"none"}

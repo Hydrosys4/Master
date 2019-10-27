@@ -209,7 +209,8 @@ def automationexecute(refsensor,element):
 					#send alert mail notification
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<2:
-						emailmod.sendallmail("alert", textmessage)							
+						if (mailtype!="none"):
+							emailmod.sendallmail("alert", textmessage)							
 						logger.error(textmessage)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 
@@ -221,7 +222,8 @@ def automationexecute(refsensor,element):
 					#send alert mail notification
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<2:
-						emailmod.sendallmail("alert", textmessage)							
+						if (mailtype!="none"):
+							emailmod.sendallmail("alert", textmessage)							
 						logger.error(textmessage)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 
@@ -245,7 +247,7 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 		isok=activateactuator(element, value)
 			
 		# invia mail, considered as info, not as alert
-		if mailtype!="warningonly":
+		if (mailtype!="warningonly")and(mailtype!="none"):
 			textmessage="INFO: " + sensor + " value " + str(sensorvalue) + ", activating:" + element + " with Value " + str(value)
 			emailmod.sendallmail("alert", textmessage)
 		if isok:
@@ -255,6 +257,9 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 	else:
 		logger.info('Need to wait more time')		
 		
+
+
+
 
 def activateactuator(target, value):  # return true in case the state change: activation is >0 or a different position from prevoius position.
 	# check the actuator 
@@ -266,7 +271,13 @@ def activateactuator(target, value):  # return true in case the state change: ac
 		out, isok = hardwaremod.GO_stepper_position(target,value)
 		if isok:
 			actuatordbmod.insertdataintable(target,value)
-	
+
+	# hbridge motor
+	if actuatortype=="hbridge":
+		out, isok = hardwaremod.GO_hbridge_position(target,value)
+		if isok:
+			actuatordbmod.insertdataintable(target,value)
+			
 	# pulse
 	if actuatortype=="pulse":
 		duration=hardwaremod.toint(value,0)
@@ -284,6 +295,25 @@ def activateactuator(target, value):  # return true in case the state change: ac
 		out, isok = hardwaremod.servoangle(target,value,0.5)
 		if isok:
 			actuatordbmod.insertdataintable(target,value)
+			
+	# photo 
+	if actuatortype=="photo":
+		duration=hardwaremod.toint(value,0)
+		if duration>0:
+			isok=hardwaremod.takephoto(True)
+			# save action in database
+			if isok:
+				actuatordbmod.insertdataintable(target,1)	
+
+	# mail 
+	if (actuatortype=="mail+info+link")or(actuatortype=="mail+info"):
+		if value>0:
+			mailtext=str(value)			
+			isok=emailmod.sendmail(target,"report","Automation Value:" + mailtext)
+			# save action in database
+			if isok:
+				actuatordbmod.insertdataintable(target,1)				
+				
 			
 	return isok
 

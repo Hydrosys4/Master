@@ -194,17 +194,28 @@ def heartbeat():
 		if connectedssid[0]==networkmod.localwifisystem:
 			logger.info('Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network')
 			connected=networkmod.connect_network()
-		else:		
+			networkmod.DHCP_COUNTER=0
+		else: # Connected to wifi network
 			reachgoogle=networkmod.check_internet_connection(1)
 
 			if not reachgoogle:
-				logger.warning('Heartbeat check , test ping not able to reach Google -------------- No action')
-				print 'Heartbeat check , no IP connection-------------- No action'
+				logger.warning('Heartbeat check , test ping not able to reach Google')
+				print 'Heartbeat check , no IP connection'
 				#connected=networkmod.connect_network() # use this in case you require the system to try connect wifi again in case no internet is reached
+				logger.warning('Heartbeat check , DHCP reset counter %s' , str(networkmod.DHCP_COUNTER))			
+				# DHCP reset
+				if (networkmod.DHCP_COUNTER % 16)==0: # try to reset every 16x15min =4 hours 
+					# try to reset DHCP
+					logger.warning('Heartbeat check , reset DHCP')
+					print 'Heartbeat check , reset DHCP'
+					networkmod.resetDHCP()
+					
+				networkmod.DHCP_COUNTER=networkmod.DHCP_COUNTER+1				
 				connected=False
 			else:
 				logger.info('Heartbeat check , wifi connection OK')
 				print 'Heartbeat check , wifi connection OK'
+				networkmod.DHCP_COUNTER=0
 				connected=True			
 
 	if connected:
@@ -474,7 +485,7 @@ def mastercallback():
 	
 	
 	callback="sensor"
-	timeshift=300
+	timeshift=300  # after wifi activation because of possible clock adjustment
 	shiftstep=7 #seconds	
 	# IMPORTANT
 	# the shiftstep is necessary to avoid thread collision which brings to sqlite3 db failure "database is locked" 
@@ -644,9 +655,9 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 
 			try:
 				if not FASTSCHEDULER:
-					SchedulerMod.sched.add_job(callback, 'interval', minutes=theinterval, start_date=thedate, end_date=enddate ,args=argument, misfire_grace_time=120, name=jobname)
+					SchedulerMod.sched.add_job(callback, 'interval', minutes=theinterval, start_date=thedate, end_date=enddate ,args=argument, misfire_grace_time=5, name=jobname)
 				else:
-					SchedulerMod.sched.add_job(callback, 'interval', seconds=theinterval, start_date=thedate, end_date=enddate ,args=argument, misfire_grace_time=120, name=jobname)
+					SchedulerMod.sched.add_job(callback, 'interval', seconds=theinterval, start_date=thedate, end_date=enddate ,args=argument, misfire_grace_time=5, name=jobname)
 			except ValueError:
 				iserror=True
 				print 'Date value for job scheduler not valid'

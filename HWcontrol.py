@@ -32,7 +32,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
@@ -47,6 +47,9 @@ DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.
 
 stepper_data={}
 stepper_data["default"]={'busyflag':False}
+
+hbridge_data={}
+hbridge_data["default"]={'busyflag':False}
 
 GPIO_data={}
 GPIO_data["default"]={"level":None, "state":None, "threadID":None}
@@ -115,6 +118,7 @@ def execute_task(cmd, message, recdata):
 	global DHT22_data
 	global Servo_data
 	global stepper_data
+	global hbridge_data
 	
 	
 	if cmd==HWCONTROLLIST[0]:
@@ -136,7 +140,7 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[5]:	# pulse
 		return gpio_pulse(cmd, message, recdata)
 
-	elif cmd==HWCONTROLLIST[6]:	
+	elif cmd==HWCONTROLLIST[6]:	# pinstate
 		return gpio_pin_level(cmd, message, recdata)
 
 	elif cmd==HWCONTROLLIST[7]:	# servo
@@ -161,6 +165,15 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[15]:	# readinputpin
 		return read_input_pin(cmd, message, recdata)
+		
+	elif cmd==HWCONTROLLIST[16]: #hbridge	
+		return gpio_set_hbridge(cmd, message, recdata, hbridge_data)	
+
+	elif cmd==HWCONTROLLIST[17]: #hbridge status	
+		return get_hbridge_status(cmd, message, recdata, hbridge_data)
+
+
+
 
 
 	else:
@@ -608,11 +621,9 @@ def gpio_pulse(cmd, message, recdata):
 
 	testpulsetime=msgarray[2]
 	pulsesecond=int(testpulsetime)
+	logic="pos"
 	if messagelen>3:
-		if msgarray[3]=="0":
-			logic="neg"
-		elif msgarray[3]=="1":
-			logic="pos"	
+		logic=msgarray[3]
 	
 	POWERPIN=""	
 	if messagelen>4:	
@@ -651,11 +662,9 @@ def gpio_stoppulse(cmd, message, recdata):
 	messagelen=len(msgarray)
 	PIN=msgarray[1]
 	
+	logic="pos"
 	if messagelen>3:
-		if msgarray[3]=="0":
-			logic="neg"
-		elif msgarray[3]=="1":
-			logic="pos"	
+		logic=msgarray[3]
 	
 	POWERPIN=""
 	if messagelen>4:	
@@ -734,8 +743,105 @@ def gpio_set_servo(cmd, message, recdata):
 	recdata.append(PIN)
 	return True	
 	
+def isPinActive(PIN, logic):
+	PINlevel=read_status_data(GPIO_data,PIN,"level")
+	if PINlevel is not None:
+		isok=True
+	else:
+		return False
+	if isok:
+		if logic=="neg":
+			if PINlevel=="0":
+				activated=True
+			else:
+				activated=False
+		elif logic=="pos":
+			if PINlevel=="1":
+				activated=True
+			else:
+				activated=False
+	return activated
+
+
+# START hbridge section
 
 	
+def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
+			
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN1=msgarray[1]
+	PIN2=msgarray[2]
+	direction=msgarray[3]
+	durationsecondsstr=msgarray[4]
+	logic=msgarray[5]
+	
+	print "hbridge ", PIN1, "  ",  PIN2, "  ",  direction, "  ",  durationsecondsstr,  "  ", logic
+
+	# check that both pins are at logic low state, so Hbridge is off
+	PIN1active=isPinActive(PIN1, logic)
+	PIN2active=isPinActive(PIN2, logic)
+	hbridgebusy=PIN1active or PIN2active
+
+	if hbridgebusy:
+		print "hbridge motor busy "
+		logger.warning("hbridge motor Busy, not proceeding ")
+		return False
+	
+	#  no busy, proceed	
+
+
+	try:
+		POWERPIN="N/A"
+
+		if direction=="FORWARD":
+			sendstring="pulse:"+PIN1+":"+durationsecondsstr+":"+logic+":"+POWERPIN		
+		else:
+			sendstring="pulse:"+PIN2+":"+durationsecondsstr+":"+logic+":"+POWERPIN	
+		#Send pulse to one of the Hbridge port
+		print "logic " , logic , " sendstring " , sendstring
+		isok=False	
+		if float(durationsecondsstr)>0:
+			print "Sendstring  ", sendstring	
+			isok=False
+			recdatapulse=[]
+			ack = gpio_pulse("pulse",sendstring,recdatapulse)
+			print "returned hbridge data " , recdatapulse
+			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
+			if ack and recdatapulse[2]:
+				print "Hbridge correctly activated"
+				isok=True
+
+
+	except:
+
+		print "problem hbridge execution"
+		logger.error("problem hbridge execution")
+		recdata.append(cmd)
+		recdata.append("e")
+		return False
+
+		
+	print "Hbridge: PIN1=", PIN1 , " PIN2=", PIN2 , " direction=", direction , " duration=", durationsecondsstr , " logic=", logic 
+
+	recdata.append(cmd)
+	recdata.append(PIN1+PIN2)
+	
+	return True	
+
+def get_hbridge_status(cmd, message, recdata , hbridge_data):
+	print "get hbridge status"
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN1=msgarray[1]
+	PIN2=msgarray[2]
+	returndata=read_status_dict(hbridge_data,PIN1+PIN2)
+	recdata.append(cmd)
+	recdata.append(returndata)
+	return True
+
+# START stepper section
+
 def gpio_set_stepper(cmd, message, recdata , stepper_data):
 			
 	msgarray=message.split(":")
@@ -819,6 +925,16 @@ def get_stepper_status(cmd, message, recdata , stepper_data):
 	messagelen=len(msgarray)
 	Interface=msgarray[1]
 	returndata=read_status_dict(stepper_data,Interface)
+	recdata.append(cmd)
+	recdata.append(returndata)
+	return True
+	
+def get_hbridge_status(cmd, message, recdata , hbridge_data):
+	print "get hbridge status"
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	Interface=msgarray[1]
+	returndata=read_status_dict(hbridge_data,Interface)
 	recdata.append(cmd)
 	recdata.append(returndata)
 	return True

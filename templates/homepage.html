@@ -66,21 +66,23 @@
 								<hr class="dontwantgaptop"></hr>
 								{% for paneldata in panelinfo.data %}
 								<div class="row dontwantgap">
-									<div class="col-xs-6 text-left dontwantgap big">{{paneldata.name}}:
+									<div class="col-xs-6 text-left dontwantgap big" id="{{panelinfo.title}}_{{paneldata.name}}_name">{{paneldata.name}}:
 									</div>
 									<div class="col-lg-6 col-xs-6 text-left dontwantgap">
-										<span class="big">{{paneldata.average}}</span><span class="small">({{paneldata.unit}})</span>
+										<span class="big" id="{{paneldata.name}}_average">---</span><span class="small" id="{{paneldata.name}}_unit"></span>
 					
 									</div>
 								</div>
-								<div class="row dontwantgap">
+								<div class="row dontwantgap" id="{{paneldata.name}}_minmax">
 									
+									<!--
 									{% if paneldata.min!="" %}
 									<div class="col-lg-6 col-xs-6 text-left dontwantgap"></div>
 									<div class="col-lg-6 col-xs-6 text-left dontwantgap">
 									<div class="small">MIN={{paneldata.min}} MAX={{paneldata.max}}</div>
 									</div>
 									{% endif %}	
+									-->
 											
 								</div>									
 								{% endfor %}
@@ -181,7 +183,82 @@
             <!-- /.row -->
   
   
+    
   
+    
+     <!-- get data using ajax -->
+   
+   		<script type=text/javascript>
+
+			var counter=0;
+			
+			//var itemlist="{{nameslist}}";
+			
+			var itemlist={{nameslist|safe}};
+			
+			 $(document).ready(function() {
+				//alert(itemlist);
+				 recursive_ajax();   
+				
+			 });
+							  
+		   function recursive_ajax()
+			{
+			
+				$.ajax({
+							type: "GET",
+							url: $SCRIPT_ROOT + "/echohome/?element=" + itemlist[counter] ,
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" },
+							success: function(s) {
+								var data = eval(s); // this will convert your json string to a javascript object
+
+									//alert(data["name"]);
+									$('#'+data["name"]+'_average').text(data["average"])
+									$('#'+data["name"]+'_unit').text('('+data["unit"]+')')
+										
+									if (data["min"]!="") {	
+										
+										var htmltext1='<div class="col-lg-6 col-xs-6 text-left dontwantgap"></div><div class="col-lg-6 col-xs-6 text-left dontwantgap">';
+																			
+										
+										var htmltext2='<div class="small">MIN=' + data["min"] + ' MAX='  + data["max"] + '</div>';
+														
+										var htmltext3='</div>';
+										
+										$('#'+data["name"]+'_minmax').append(htmltext1+htmltext2+htmltext3);										
+										
+										}
+
+										
+
+									
+						
+								
+							},								
+							complete: function() {
+							  // Schedule the next request when the current one's complete
+
+									counter++;
+									if(counter < itemlist.length){
+										recursive_ajax();
+										}
+							},
+
+
+							error: function() {
+							    counter == itemlist.length;
+							}
+						});
+					}
+
+
+			
+			 
+			</script>
+  
+
+
   
   
   
@@ -194,6 +271,18 @@
   
   
     </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   
   
   {% else %}

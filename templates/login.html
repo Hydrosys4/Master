@@ -11,7 +11,14 @@
 
   {% endif %}
 
-  
+  {% if message %}
+  			
+  <div class="alert alert-warning alert-dismissable">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+			   <strong>NOTICE:</strong> {{ message }}
+	</div>  
+
+  {% endif %}
   
   
   <div class="container-fluid">

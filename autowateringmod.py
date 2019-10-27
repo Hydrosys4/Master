@@ -122,7 +122,7 @@ def autowateringexecute(refsensor,element):
 								#activate pump		
 								activatewater(element, duration)
 								# invia mail, considered as info, not as alert
-								if mailtype!="warningonly":
+								if (mailtype!="warningonly")and(mailtype!="none"):
 									textmessage="INFO: " + sensor + " value below the minimum threshold " + str(minthreshold) + ", activating the watering :" + element
 									emailmod.sendallmail("alert", textmessage)
 								statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",watercounter+1)
@@ -144,8 +144,9 @@ def autowateringexecute(refsensor,element):
 									if alertcounter<1:
 										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
 										print textmessage
-										#send alert mail notification
-										emailmod.sendallmail("alert", textmessage)							
+										if (mailtype!="none"):
+											#send alert mail notification
+											emailmod.sendallmail("alert", textmessage)							
 										logger.error(textmessage)
 										statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 										
@@ -161,8 +162,9 @@ def autowateringexecute(refsensor,element):
 									if alertcounter<3:
 										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
 										print textmessage
-										#send alert mail notification
-										emailmod.sendallmail("alert", textmessage)							
+										if (mailtype!="none"):
+											#send alert mail notification
+											emailmod.sendallmail("alert", textmessage)							
 										logger.error(textmessage)										
 										statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 									
@@ -187,7 +189,7 @@ def autowateringexecute(refsensor,element):
 									#activate pump		
 									activatewater(element, duration)
 									# invia mail, considered as info, not as alert
-									if mailtype!="warningonly":
+									if (mailtype!="warningonly")and(mailtype!="none"):
 										textmessage="INFO: " + sensor + " value below the Maximum threshold " + str(maxthreshold) + ", activating the watering :" + element
 										emailmod.sendallmail("alert", textmessage)
 										
@@ -205,8 +207,9 @@ def autowateringexecute(refsensor,element):
 										if alertcounter<2:
 											textmessage="INFO "+ sensor + " value below the Maximum threshold " + str(maxthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
 											print textmessage
-											#send alert mail notification
-											emailmod.sendallmail("alert", textmessage)							
+											if (mailtype!="none"):
+												#send alert mail notification
+												emailmod.sendallmail("alert", textmessage)							
 											logger.error(textmessage)	
 											statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)								
 									
@@ -252,7 +255,7 @@ def autowateringexecute(refsensor,element):
 								#activate pump		
 								activatewater(element, duration)
 								# invia mail, considered as info, not as alert
-								if mailtype!="warningonly":
+								if (mailtype!="warningonly")and(mailtype!="none"):
 									textmessage="INFO: " + sensor + " value below the minimum threshold " + str(minthreshold) + ", activating the watering :" + element
 									emailmod.sendallmail("alert", textmessage)
 
@@ -277,8 +280,9 @@ def autowateringexecute(refsensor,element):
 									if alertcounter<1:
 										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
 										print textmessage
-										#send alert mail notification alertcounter
-										emailmod.sendallmail("alert", textmessage)							
+										if (mailtype!="none"):
+											#send alert mail notification alertcounter
+											emailmod.sendallmail("alert", textmessage)							
 										logger.error(textmessage)
 										statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 										
@@ -294,8 +298,9 @@ def autowateringexecute(refsensor,element):
 									if alertcounter<3:
 										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
 										print textmessage
-										#send alert mail notification
-										emailmod.sendallmail("alert", textmessage)							
+										if (mailtype!="none"):
+											#send alert mail notification
+											emailmod.sendallmail("alert", textmessage)							
 										logger.error(textmessage)
 										statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)			
 		
@@ -338,7 +343,7 @@ def autowateringexecute(refsensor,element):
 								#activate pump		
 								activatewater(element, duration)
 								# invia mail, considered as info, not as alert
-								if mailtype!="warningonly":
+								if (mailtype!="warningonly")and(mailtype!="none"):
 									textmessage="INFO: " + sensor + " value below the minimum threshold " + str(minthreshold) + ", activating the watering :" + element
 									emailmod.sendallmail("alert", textmessage)								
 								statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",watercounter+1)
@@ -363,8 +368,9 @@ def autowateringexecute(refsensor,element):
 									if alertcounter<1:
 										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
 										print textmessage
-										#send alert mail notification
-										emailmod.sendallmail("alert", textmessage)							
+										if (mailtype!="none"):
+											#send alert mail notification
+											emailmod.sendallmail("alert", textmessage)							
 										logger.error(textmessage)
 										statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 										
@@ -380,8 +386,9 @@ def autowateringexecute(refsensor,element):
 									if alertcounter<3:
 										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
 										print textmessage
-										#send alert mail notification
-										emailmod.sendallmail("alert", textmessage)							
+										if (mailtype!="none"):
+											#send alert mail notification
+											emailmod.sendallmail("alert", textmessage)							
 										logger.error(textmessage)
 										statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)			
 		
@@ -415,8 +422,9 @@ def autowateringexecute(refsensor,element):
 					if alertcounter<2:
 						textmessage="WARNING "+ sensor + " value below the minimum threshold " + str(minthreshold) + " watering system: " + element
 						print textmessage
-						#send alert mail notification
-						emailmod.sendallmail("alert", textmessage)							
+						if (mailtype!="none"):
+							#send alert mail notification
+							emailmod.sendallmail("alert", textmessage)							
 						logger.error(textmessage)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 					# update the status
@@ -454,7 +462,7 @@ def autowateringexecute(refsensor,element):
 						textmessage="WARNING "+ sensor + " watering cycle is taking too many days, watering system: " + element + ". Activate Min pulse + Reset watering cycle"					
 						activatewater(element, duration)
 				#send alert mail notification
-				if mailtype!="warningonly":
+				if (mailtype!="warningonly")and(mailtype!="none"):
 					emailmod.sendallmail("alert", textmessage)							
 				logger.error(textmessage)
 				logger.error("Cycle started %s, Now is %s ", cyclestartdate.strftime("%Y-%m-%d %H:%M:%S"), datetime.now().strftime("%Y-%m-%d %H:%M:%S"))			
@@ -476,7 +484,8 @@ def autowateringexecute(refsensor,element):
 					#send alert mail notification
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<5:
-						emailmod.sendallmail("alert", textmessage)							
+						if (mailtype!="none"):
+							emailmod.sendallmail("alert", textmessage)							
 						logger.error(textmessage)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 			else:
@@ -486,7 +495,8 @@ def autowateringexecute(refsensor,element):
 				#send alert mail notification
 				alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 				if alertcounter<3:
-					emailmod.sendallmail("alert", textmessage)							
+					if (mailtype!="none"):
+						emailmod.sendallmail("alert", textmessage)							
 					logger.error(textmessage)
 					statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)		
 	return

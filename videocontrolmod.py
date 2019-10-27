@@ -1,4 +1,4 @@
-from subprocess import call  
+from subprocess import call  , Popen
 import sys  
 import time 
 import logindbmod 
@@ -100,13 +100,19 @@ def stop_stream_VLC():
 	print "stopping streaming"  
 	#call (["pkill raspivid"], shell=True)  
 	call (["sudo pkill vlc"], shell=True)
-	time.sleep(2)
 
-def stop_stream():  
+
+def stop_stream(blockingtype="blocking"):  
+	# non blocking subprocess.Popen 
+	# blocking subprocess.call
 	print "stopping streaming"  
 	#call (["pkill mjpg_streamer"], shell=True)  
-	call (["sudo pkill mjpg_streamer"], shell=True)
-	time.sleep(2)
+	if blockingtype=="blocking":
+		call (["sudo pkill mjpg_streamer"], shell=True)
+	else:
+		Popen (["sudo pkill mjpg_streamer"], shell=True)
+
+
 
 
 	

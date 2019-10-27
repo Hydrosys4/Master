@@ -336,6 +336,12 @@ def activateactuator(target, value):  # return true in case the state change: ac
 		if isok:
 			actuatordbmod.insertdataintable(target,value)
 	
+	# hbridge motor
+	if actuatortype=="hbridge":
+		out, isok = hardwaremod.GO_hbridge_position(target,value)
+		if isok:
+			actuatordbmod.insertdataintable(target,value)
+	
 	# pulse
 	if actuatortype=="pulse":
 		duration=hardwaremod.toint(value,0)
@@ -356,6 +362,25 @@ def activateactuator(target, value):  # return true in case the state change: ac
 		out, isok = hardwaremod.servoangle(target,value,0.5,priority=ACTIONPRIORITYLEVEL)
 		if isok:
 			actuatordbmod.insertdataintable(target,value)
+
+	# photo 
+	if actuatortype=="photo":
+		duration=hardwaremod.toint(value,0)
+		if duration>0:
+			isok=hardwaremod.takephoto(True) # True override the daily activation
+			# save action in database
+			if isok:
+				actuatordbmod.insertdataintable(target,1)	
+				
+	# mail 
+	if (actuatortype=="mail+info+link")or(actuatortype=="mail+info"):
+		if value>0:
+			mailtext=str(value)	
+			isok=emailmod.sendmail(target,"report","Interrupt Value:" + mailtext)
+			# save action in database
+			if isok:
+				actuatordbmod.insertdataintable(target,1)
+
 			
 	return isok
 

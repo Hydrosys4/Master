@@ -352,16 +352,61 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - fixed interrupt inizialization now sending PINstr
 
-2019-10-07 -> release 108b
+2019-10-07 -> release 108d
 
 - added the powerpin option to the sensor reading, in case the sensor needs to be first activated
 - better video0 webcam selection
+- Video starting adjistment to avoid borken initial photo
 
-2019-10-13 -> release 109
+2019-10-13 -> release 109a
 
 - Support H-bridge with relays
+- Automation and interrupt can now use Photo as actuator
+
+2019-10-13 -> release 109b
+
+- reduced the scheduler graceperiod from 120 to 5 sec
+- flag in photo called now, "activate daily photo"
 
 
+2019-10-19 -> release 109c
+
+- Added reset cycle when automation or autowatering elelment is saved
+- DHCP reset in case of connected to wifi but not google. every 4 hours (12 times x 15min)
+- fixed dotted issue
+- Added the MailSetting <none> in automation and autowatering
+
+2019-10-19 -> release 109d
+
+- fixed photo automation
+
+2019-10-19 -> release 109e
+
+- added mail in automation and interrupt
+- added and tested automation HAT v8 config
+- after wifi operations, change the landing page to login (wait 10 sec)
+
+2019-10-19 -> release 109f
+
+- fixed mail automation
+- fixed after wifi change to logout
+- changed bash iptables allowing localhost ports
+- changed bash including unmask of hostapd
+- Changed bash including Nginx instead of squid (as reverse proxy)
+- Video not compatible with Squid!
+
+2019-10-23 -> release 110
+
+- Faster loading home page with ajax asynch requests
+
+2019-10-23 -> release 110a
+
+- fixed email automation
+
+2019-10-25 -> release 110b
+
+- photo automotion works even if camera parameters not configured (use default)
+- Hidden some section of the hardwaremod page when debugmode = False
 
 
 

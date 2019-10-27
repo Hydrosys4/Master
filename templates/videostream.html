@@ -307,7 +307,7 @@
 												'-ms-transform': rotate,
 												'transform': rotate 
 											});
-										var linksrc="/?action=stream";
+										var linksrc="/stream/?action=stream";
 										var attempts=10;
 										$("#videoimg").attr("isok", "false");
 										
@@ -328,7 +328,7 @@
 											 console.log(attempts);											 
 											 attempts=attempts-1;
 											$("#videoimg").attr("isok", "true");
-											$("#videoimg").attr("src", linksrc+"?"+d.getTime());
+											$("#videoimg").attr("src", linksrc +"?"+d.getTime());
 											// need time to trigger the error function in case of errors
 											 
 										}, 500); // check every 300ms

@@ -198,6 +198,7 @@ function actionFormatter(value, row, index) {
 				</div>
 			</div>
 			<!--  file 1c -->
+			{% if debugmode %}
 			<div class="row">
 				<div class="col-xs-6">
 					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlogSCHED">Scheduler Logs</button>
@@ -205,7 +206,8 @@ function actionFormatter(value, row, index) {
 				<div class="col-xs-6">
 					<a id="downloadlinkdownloadlogSCHED0" href="" ></a>
 				</div>
-			</div>		
+			</div>	
+			{% endif %}	
 
 			<!--  file 2 -->
 			<div class="row">
@@ -218,6 +220,7 @@ function actionFormatter(value, row, index) {
 			</div>		
 
 			<!--  file 3 -->
+			{% if debugmode %}
 			<div class="row">
 				<div class="col-xs-6">
 					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadsyslog">SysLog file</button>
@@ -226,6 +229,7 @@ function actionFormatter(value, row, index) {
 					<a id="downloadlinkdownloadsyslog0" href="" ></a>
 				</div>
 			</div>	
+			{% endif %}
 
 			<div class="row">
 				<div class="col-xs-4">
@@ -294,7 +298,8 @@ function actionFormatter(value, row, index) {
 
 		<!-- testing function button -->
 		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="dwform" class="jotform-form" method="post" >
-
+		  
+		  {% if debugmode %}
 			<div class="page-header">
 					  <h4>Function test (debugging only)</h4>   
 			</div>
@@ -319,6 +324,7 @@ function actionFormatter(value, row, index) {
 					<label id="testingstatus" for="input_3">Status</label>
 				</div>
 			</div>	
+		  {% endif %}
 
 			<script type=text/javascript>
 			  $(function() {
@@ -369,7 +375,7 @@ function actionFormatter(value, row, index) {
 					<label id="testingstatus" for="input_3">{{debugmode}}</label>
 				</div>
 			</div>	
-  
+
 
  
    </div> 

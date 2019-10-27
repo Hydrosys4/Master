@@ -27,7 +27,7 @@ if WAITTOCONNECT=="":
 	networkdbmod.changesavesetting('APtime',WAITTOCONNECT) # if field not present it will be added
 IPADDRESS =networkdbmod.getIPaddress()
 EXTERNALIPADDR=""
-
+DHCP_COUNTER=0
 
 
 
@@ -51,6 +51,18 @@ def savedwifilist_ssid():
 
 def savewifi(ssid, password):
 	wpa_cli_mod.save_network("wlan0",ssid,password)
+	
+	
+def savewificonnect(ssid, password):
+	wpa_cli_mod.save_network("wlan0",ssid,password)	
+	connect_network(True, False)
+	
+def waitandsavewifiandconnect(pulsesecond,ssid,password):
+	print "try to save wifi after " , pulsesecond , " seconds"
+	argvect=[]
+	argvect.append(ssid)
+	argvect.append(password)
+	t = threading.Timer(pulsesecond, savewificonnect, argvect).start()
 
 def savedefaultAP():
 	ssid='AP'
@@ -331,6 +343,21 @@ def flushIP(interface): #-------------------
 		logger.error("error to execute the command %s",cmd)
 		print "IP flush failed: ", e
 		return False
+
+def resetDHCP(): 
+	print "try to reset DHCP"
+	cmd = ['dhclient', '-v' ]	
+	try:
+		ifup_output = subprocess.check_output(cmd).decode('utf-8')
+		print "Reset DHCP "
+		time.sleep(0.5)
+		return True
+	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		print "Reset DHCP Failed: ", e
+		return False
+
 		
 		
 		
@@ -397,7 +424,9 @@ def checkGWsubnet(interface): #-------------------
 		
 	else:
 		print "No default Gateway for wlan0"
-		logger.info("No default Gateway for wlan0")		
+		logger.info("No default Gateway for wlan0")	
+		message=""
+		networkdbmod.storemessage(message)	
 
 	return True, ipaddr
 

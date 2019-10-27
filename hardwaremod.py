@@ -128,6 +128,9 @@ Servo_Status["default"]={'duty':"3"}
 Stepper_Status={}
 Stepper_Status["default"]={'position':"0"}
 
+Hbridge_Status={}
+Hbridge_Status["default"]={'position':"0"}
+
 Blocking_Status={}
 Blocking_Status["default"]={'priority':0} # priority level, the commands are executed only if the command priority is higher or equlal to the blocking status priority
 
@@ -330,18 +333,16 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 	try:
 		testpulsetime=str(int(duration))
 	except ValueError:
-		print " No valid data or zero for Doser ", target
+		print " No valid data or zero  ", target
 		return "error"
 
 
 	testpulsetime=testpulsetime # durantion in seconds  
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
-	
-	if logic=="neg":
-		sendstring="pulse:"+PIN+":"+testpulsetime+":0"+":"+POWERPIN
-	elif logic=="pos":
-		sendstring="pulse:"+PIN+":"+testpulsetime+":1"+":"+POWERPIN
+
+	sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN
+
 	print "logic " , logic , " sendstring " , sendstring
 	isok=False	
 	if float(testpulsetime)>0:
@@ -384,11 +385,9 @@ def stoppulse(target):
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
 
-	
-	if logic=="neg":
-		sendstring="stoppulse:"+PIN+":"+"0"+":0"+":"+POWERPIN
-	elif logic=="pos":
-		sendstring="stoppulse:"+PIN+":"+"0"+":1"+":"+POWERPIN
+
+	sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN
+
 	print "logic " , logic , " sendstring " , sendstring
 
 	isok=False
@@ -489,6 +488,9 @@ def getservopercentage(target):
 
 def getservoduty(element):
 	return statusdataDBmod.read_status_data(Servo_Status,element,'duty')
+
+
+# stepper section
 
 def GO_stepper_position(target,position,priority=0):
 	prev_position_string=getstepperposition(target)
@@ -608,10 +610,153 @@ def setstepperposition(element, position):
 	return statusdataDBmod.write_status_data(Stepper_Status,element,'position',position,True,"Stepper_Status")
 
 
+# END stepper section
+
+# START hbridge section
+
+def GO_hbridge_position(target,position,priority=0):
+	prev_position_string=gethbridgeposition(target)
+	prev_position=int(prev_position_string)
+	steps=position-prev_position
+	isdone=False
+	if steps>0:
+		out , isdone=GO_hbridge(target,steps,"FORWARD",priority)
+	else:
+		steps=abs(steps)	
+		out , isdone=GO_hbridge(target,steps,"BACKWARD",priority)
+		
+	return out , isdone
+
+
+def get_hbridge_busystatus(target): 
+	
+	PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
+	PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)		
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
+	
+	print "Check target is already ON ", target
+	priority=0
+	activated1=getpinstate_pin(PIN1,logic, priority)
+	activated2=getpinstate_pin(PIN2,logic, priority)
+
+	if (activated1=="off")and(activated2=="off"):
+		return False
+	else:
+		return True
+		
+	return ""
+	
+	
+	
+def get_hbridge_HWstatus(target): 
+	#search the data in IOdata
+	isok=False
+	
+	try:
+		PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
+		PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)			
+	except ValueError:
+		return "error" , isok
+		
+	sendstring="hbridgestatus:"+PIN1+PIN2
+	print " sendstring " , sendstring
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= sendcommand("hbridgestatus",sendstring,recdata,target,0) 
+		print "returned data " , recdata
+		if ack:
+			print target, "correctly activated"	
+			print "get hbridge status : " , recdata[1]
+			isok=True
+			return recdata[1], isok
+			
+	return "Error" , isok
+
+
+
+def GO_hbridge(target,steps,direction,priority=0): 
+	global Hbridge_Status
+	#search the data in IOdata
+	isok=False
+	print "Move Hbridge - ", target 
+	
+	position_string=gethbridgeposition(target)
+	
+	print " position " , position_string
+ 
+	try:
+		PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
+		PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)	
+		logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)	
+		MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
+		MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+
+		steps=int(steps)
+		
+		if steps<=0:
+			print " No valid range for pulse ", target
+			return "Out of Range" , isok
+		
+		# simulate endpoints
+		position=int(position_string)
+		
+		if direction=="FORWARD":
+			position=position+steps
+		elif direction=="BACKWARD":
+			position=position-steps
+
+		if int(MIN)<=(position)<=int(MAX):
+			print "range OK"
+		else:
+			print " No valid range for hbridge ", target
+			return "Out of Range" , isok
+
+	except ValueError:
+		print " No valid data for hbridge", target
+		return "error" , isok
+
+
+	sendstring="hbridge:"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic
+	print " sendstring " , sendstring
+
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= sendcommand("hbridge",sendstring,recdata,target,priority) 
+		print "returned data " , recdata
+		if ack and recdata[1]!="e":
+			print target, "correctly activated"
+			# save position as new status
+			statusdataDBmod.write_status_data(Hbridge_Status,target,'position',str(position),True,"Hbridge_Status") # save in persistent mode
+			isok=True
+			return str(position) , isok
+			
+	return "Error" , isok
+
+def gethbridgeposition(element):
+	return statusdataDBmod.read_status_data(Hbridge_Status,element,'position',True,"Hbridge_Status")
+
+def sethbridgeposition(element, position):
+	global Hbridge_Status
+	return statusdataDBmod.write_status_data(Hbridge_Status,element,'position',position,True,"Hbridge_Status")
+
+
+# END hbridge section
+
+
 def getpinstate(target, priority=0):
 	#search the data in IOdata
 	print "Check PIN state ", target
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
+	return getpinstate_pin(PIN, logic, priority)
+
+
+def getpinstate_pin(PIN, logic, priority=0):
+
 	sendstring="status:"+PIN
 
 	isok=False
@@ -620,7 +765,7 @@ def getpinstate(target, priority=0):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= sendcommand("pinstate",sendstring,recdata,target,priority)
+		ack= sendcommand("pinstate",sendstring,recdata)
 		print "returned data " , recdata
 		if ack and recdata[1]!="e":
 			value=recdata[1]
@@ -629,7 +774,6 @@ def getpinstate(target, priority=0):
 			activated="error"
 			
 	if isok:
-		logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 		if logic=="neg":
 			if value=="0":
 				activated="on"
@@ -643,6 +787,10 @@ def getpinstate(target, priority=0):
 
 				
 	return activated
+
+
+
+
 
 def readinputpin(PIN):
 	#search the data in IOdata
@@ -752,6 +900,17 @@ def initallGPIOoutput():
 					HWcontrol.GPIO_output(PIN, 0)
 				else:
 					HWcontrol.GPIO_output(PIN, 1)
+			elif (ln[HW_CTRL_CMD]=="hbridge"):
+				PIN1=ln[HW_CTRL_PIN]
+				PIN2=ln[HW_CTRL_PIN2]
+				HWcontrol.GPIO_setup(PIN1, "out")
+				HWcontrol.GPIO_setup(PIN2, "out")
+				if ln[HW_CTRL_LOGIC]=="pos":
+					HWcontrol.GPIO_output(PIN1, 0)
+					HWcontrol.GPIO_output(PIN2, 0)
+				else:
+					HWcontrol.GPIO_output(PIN1, 1)
+					HWcontrol.GPIO_output(PIN2, 1)				
 					
 		if (HW_CTRL_PWRPIN in ln):
 			PWRPIN=ln[HW_CTRL_PWRPIN] 
@@ -1119,18 +1278,20 @@ def shotit(video,istest,resolution,positionvalue,vdirection):
 
 
 			
-def takephoto():
+def takephoto(Activateanyway=False):
 	isok=False
 	count=0
 	print "take photo", " " , datetime.now()
 	videolist=videodevlist()
 	for video in videolist:
 		isok=False
-		if cameradbmod.isCameraActive(video):
-			resolution=cameradbmod.searchdata("camname",video,"resolution") # if not found return ""
-			position=cameradbmod.searchdata("camname",video,"position")
-			servo=cameradbmod.searchdata("camname",video,"servo")
-			vdirection=cameradbmod.searchdata("camname",video,"vflip")
+		if cameradbmod.isCameraActive(video)or(Activateanyway):
+			videolist=[video]
+			camdata=cameradbmod.getcameradata(videolist)# if not found return default parameters
+			resolution=camdata[0]["resolution"] 
+			position=camdata[0]["position"]
+			servo=camdata[0]["servo"]
+			vdirection=camdata[0]["vflip"]
 			print "Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection 
 			logger.info("Camera: %s Resolution %s Position %s Vertical direction %s " , video , resolution , position , vdirection)
 			positionlist=position.split(",")

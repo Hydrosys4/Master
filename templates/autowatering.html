@@ -356,10 +356,9 @@
 
 				
 				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				{% set arr=["infoandwarning","warningonly"] %}	 			
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">	 			
 				  <select class="form-control input-sm" name="{{elem}}_12">
-					{% for item in arr %}
+					{% for item in alertlist %}
 					<option {% if item==settingparam[10] %}selected="selected"{% endif %} >{{item}}</option>
 					{% endfor %}
 				  </select>

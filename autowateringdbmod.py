@@ -154,11 +154,14 @@ def gethygrosensorfromactuator(actuatorname):
 def checkactivehygrosensor(sensorname):
 	recordkey="sensor"
 	recordvalue=sensorname
-	keytosearch="workmode"
-	workmode=searchdata(recordkey,recordvalue,keytosearch)
-	if workmode!="": #if result is "" then the item has not been found
-		if workmode!="None":
-			return True
+	keytosearch="workmode"	
+	for ln in WTdata:
+		if recordkey in ln:
+			if ln[recordkey]==recordvalue:
+				if keytosearch in ln:
+					if ln[keytosearch]!="None":
+						return True
+
 	return False
 	
 	
@@ -220,6 +223,15 @@ def searchdata(recordkey,recordvalue,keytosearch):
 				if keytosearch in ln:
 					return ln[keytosearch]	
 	return ""
+
+def isdatapresent(recordkey,recordvalue,keytosearch,recordtofind):
+	for ln in WTdata:
+		if recordkey in ln:
+			if ln[recordkey]==recordvalue:
+				if keytosearch in ln:
+					if ln[keytosearch]==recordtofind:
+						return True
+	return False
 
 def gettimedata(name):
 	# return list with three integer values: hour , minute, second
