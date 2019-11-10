@@ -28,6 +28,8 @@ import debuggingmod
 import basicSetting
 
 DEBUGMODE=basicSetting.data["DEBUGMODE"]
+MASTERSCHEDULERTIME="00:05:00"
+STOREPASTDAYS="364"
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
@@ -358,12 +360,15 @@ def setmastercallback():
 	logger.info('Master Scheduler - Setup daily jobs')
 	#set daily call for mastercallback at midnight
 	thedateloc=datetime.now()+timedelta(days=1)
-	starttimeloc=thedateloc.replace(hour=0, minute=5, second=0)
+	timelist=hardwaremod.separatetimestringint(MASTERSCHEDULERTIME)
+	starttimeloc=thedateloc.replace(hour=timelist[0], minute=timelist[1], second=timelist[2])
+	print timelist
 	#convert to UTC time
 	starttime=clockmod.convertLOCtoUTC_datetime(starttimeloc)
 	print "setup master job"
+	argument=[True]
 	try:
-		SchedulerMod.sched.add_job(mastercallback, 'interval', days=1, start_date=starttime, misfire_grace_time=120, name="master")
+		SchedulerMod.sched.add_job(mastercallback, 'interval', days=1, start_date=starttime, args=argument, misfire_grace_time=120, name="master")
 		logger.info('Master Scheduler - Started without errors')
 	except ValueError:
 		print 'Date value for job scheduler not valid'
@@ -434,21 +439,33 @@ def waitandcheckheartbeat(pulsesecond):
 		secondint=180
 	t = threading.Timer(secondint, checkheartbeat).start()
 
-def mastercallback():
-	
-	# clean old data of the database (pastdays)
-	logger.info('Remove data in exceed of one year')
+def mastercallback(fromscheduledtime=False):
+	print "master callback"
+	if fromscheduledtime: # check if the time this function is called is the same as the expected time it should be called (solar/legal time might mess with it)
+		logger.info('Master scheduler call at scheduled local time, expected time %s', MASTERSCHEDULERTIME )		
+		thedateloc=datetime.now()
+		timelist=hardwaremod.separatetimestringint(MASTERSCHEDULERTIME)
+		masterschedtime=thedateloc.replace(hour=timelist[0], minute=timelist[1], second=timelist[2])
+		secondsdifference=abs((thedateloc-masterschedtime).total_seconds())
+		logger.info('Master scheduler, difference between expected time and local time %d', secondsdifference )
+		if secondsdifference>300: # more than 5 minutes
+			logger.warning('Master scheduler, difference between expected time and local time greater than 5 minutes, RESET MASTER SCHEDULER' )			
+			resetmastercallback()
+			return
+		# clean old data of the database (pastdays)
+		logger.info('Remove data exceeding one year')
+		pastdays=hardwaremod.toint(STOREPASTDAYS,364)
+		logger.info('Sensor Remove data exceeding one year')	
+		sensordbmod.RemoveSensorDataPeriod(pastdays)
+		logger.info('Actuator Remove data exceeding one year')	
+		actuatordbmod.RemoveActuatorDataPeriod(pastdays)
+		logger.info('Photo Remove data exceeding one year')
+		hardwaremod.removephotodataperiod(pastdays)
+	else:
+		logger.info('Master scheduler call not coming from scheduler')
+		
 
-	
-	pastdays=364
-	#sensordbmod.RemoveSensorDataPeriod(pastdays)
-	logger.info('Sensor Remove data in exceed of one year')	
-	#actuatordbmod.RemoveActuatorDataPeriod(pastdays)
-	logger.info('Actuator Remove data in exceed of one year')
-	#hardwaremod.removephotodataperiod(364)
-	logger.info('Photo Remove data in exceed of one year')
-
-	logger.info('Start other scheduler activities')
+	logger.info('Scheduling main activities')
 	
 	# remove all jobs except masterscheduler
 	#for job in SchedulerMod.sched.get_jobs():
@@ -460,6 +477,8 @@ def mastercallback():
 
 	# set the individual callback of the day
 	
+	logger.info('Start other scheduler activities - heartbeat')
+
 	# info file dedicate call-back --------------------------------------------- (heartbeat)	
 	
 	#this callback is used only for system status periodic check 
@@ -639,15 +658,21 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 	callback=schedulercallback[callbackname]
 	if calltype=="periodic":
 		theinterval=timelist[1]
-		randomsecond=timelist[2]
+		startdelaysec=timelist[2]
 		if theinterval<1: # the time interval is too short, no action
 			iserror=True
 			logger.warning('The scheduler for the input %s is not less than 1 minute, no log record of this input will be taken',jobname)
 			return iserror			
 		try:
-
-			thedateloc=datetime.now()+timedelta(seconds=randomsecond)
-			enddateloc=thedateloc.replace(hour=23, minute=59, second=59)
+			print "add job ", jobname
+			
+			thedateloc=datetime.now()+timedelta(seconds=startdelaysec)
+			
+			mastertimelist=hardwaremod.separatetimestringint(MASTERSCHEDULERTIME)
+			date1=datetime.now()+timedelta(days=1)
+			date2=date1.replace(hour=mastertimelist[0], minute=mastertimelist[1], second=mastertimelist[2])
+			enddateloc=date2-timedelta(minutes=10) # stop 10 minutes before the start of new masterscheduler
+			#enddateloc=thedateloc.replace(hour=23, minute=59, second=59)
 			#convert to UTC time
 			thedate=clockmod.convertLOCtoUTC_datetime(thedateloc)
 			#define end date for trigger

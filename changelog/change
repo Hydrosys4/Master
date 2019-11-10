@@ -408,6 +408,26 @@ Verified clock setting behavior, when the Internet connection is present the set
 - photo automotion works even if camera parameters not configured (use default)
 - Hidden some section of the hardwaremod page when debugmode = False
 
+2019-10-25 -> release 110c
+
+- add check for Masterscheduler time, if run in the expected time
+- activate clean the data more than 365 days old
+
+2019-11-08 -> release 110d
+
+- longer powerpin period before hygro reading (2 sec)
+- added the info type email for automation
+- added specific button in setting page for Sensor calibration 
+
+2019-11-08 -> release 110e
+
+- implemented the dual pulse mode, this can be set using MIN and MAX in the "pulse" actuators
+- sensor reading, scale and offset applied independently from MIN and MAX
+- added some description to the sensor calibration page
+
+2019-11-09 -> release 110f
+
+- Fixed the bug of sensorreadig
 
 
 

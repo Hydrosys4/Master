@@ -264,7 +264,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 		if ack:
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
 				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
-					scaledefault=100
+					scaledefault=1
 					offsetdefault=0
 					
 					Thereading=recdata[1]
@@ -280,20 +280,18 @@ def getsensordata(sensorname,attemptnumber): #needed
 					Maxvalue=tonumber(Maximum, 0)
 					Scalevalue=tonumber(Scale, scaledefault)
 					Offsetvalue=tonumber(Offset, offsetdefault)					
-					
+					readingvalue=tonumber(Thereading, 0)
 					if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consisten, stops here
 						if Direction!="inv":
-							readingvalue=tonumber(Thereading, 0)
 							den=Maxvalue-Minvalue
 							readingvalue=(readingvalue-Minvalue)/den
-							readingvalue=readingvalue*Scalevalue
 						else:
-							readingvalue=tonumber(Thereading, 0)
 							den=Maxvalue-Minvalue
 							readingvalue=1-(readingvalue-Minvalue)/den
-							readingvalue=readingvalue*Scalevalue
-						readingvalue=readingvalue+Offsetvalue
-						Thereading=str(readingvalue)						
+					if Scalevalue>0:
+						readingvalue=readingvalue*Scalevalue		
+					readingvalue=readingvalue+Offsetvalue
+					Thereading=str(readingvalue)						
 					print " Sensor " , sensorname  , "Normalized reading ",Thereading										
 					
 				else:
@@ -331,17 +329,27 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 	
 
 	try:
-		testpulsetime=str(int(duration))
+		testpulsetimeint=int(duration)
+		testpulsetime=str(testpulsetimeint) # durantion in seconds 
 	except ValueError:
 		print " No valid data or zero  ", target
 		return "error"
 
-
-	testpulsetime=testpulsetime # durantion in seconds  
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
 
-	sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN
+	# dual pulse option, a short pulse activate at beginning of th time and another short pulse at the end of the activation period, 
+	# MIN and MAX are the duration of the subpulses in seconds.
+	MIN=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MIN),0)
+	MAX=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MAX),0)
+	if MIN and MAX:
+		# dual pulse setting
+		if (MIN>=testpulsetimeint)or(MAX>=testpulsetimeint):
+			return "error MIN or MAX >Pulsetime"
+		sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)
+	else:
+		# normal pulse
+		sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN
 
 	print "logic " , logic , " sendstring " , sendstring
 	isok=False	
@@ -385,8 +393,16 @@ def stoppulse(target):
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
 
-
-	sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN
+	# dual pulse option, a short pulse activate at beginning of th time and another short pulse at the end of the activation period, 
+	# MIN and MAX are the duration of the subpulses in seconds.
+	MIN=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MIN),0)
+	MAX=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MAX),0)
+	if MIN and MAX:
+		# dual pulse setting
+		sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)
+	else:
+		# normal pulse
+		sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN
 
 	print "logic " , logic , " sendstring " , sendstring
 
@@ -1049,7 +1065,7 @@ def gettimedata(name):
 	return separatetimestringint(timestr)
 
 
-def separatetimestringint(timestr):
+def separatetimestringint(timestr): # given the string input "hh:mm:ss" output a list with  Hour, min, sec in integer format 
 	outlist=[]
 	timelist=timestr.split(":")
 	for i in range(3):
@@ -1213,13 +1229,13 @@ def HWpresetlist(apprunningpath):
 	return filenamelist # item1 (path) item2 (name)
 
 
-def removephotodataperiod(removebeforedays):
+def removephotodataperiod(removebeforedays, maxphototoremove=20):
 
 	todaydate=datetime.now()
 	num = removebeforedays
 	tdelta=timedelta(days=num)
 	enddate=todaydate-tdelta
-	pastdays=364
+	pastdays=364 # number of days between beforeremovedays and start to search
 	num = pastdays
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
@@ -1227,18 +1243,19 @@ def removephotodataperiod(removebeforedays):
 	print " enddate ", enddate
 	
 	photodata=photolist(get_path())
-
+	i=0
 	for photo in photodata:
 		dateref=photo[2]
 		if isinstance(dateref, datetime):
 			print dateref
-			if (dateref>=startdate)and(dateref<=enddate):
+			if (dateref>=startdate)and(dateref<=enddate)and(i<maxphototoremove):
 				try:
 					filepath=os.path.join(get_path(), "static")
 					filepath=os.path.join(filepath, photo[0])
 					# remove photo
 					filestoragemod.deletefile(filepath)
 					print "removed Photo " , filepath
+					i=i+1
 				except ValueError:
 					print "Error in photo delete "
 		else:

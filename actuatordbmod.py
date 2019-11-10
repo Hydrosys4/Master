@@ -145,7 +145,7 @@ def getAllActuatorDataPeriodv2(enddate,pastdays):
 	
 
 
-def RemoveActuatorDataPeriod(removebeforedays):
+def RemoveActuatorDataPeriod(removebeforedays, maxremovepersensor=300):
 	sensordata=[]
 	field=TIMEFIELD
 	startdate=datetime.now()
@@ -159,8 +159,9 @@ def RemoveActuatorDataPeriod(removebeforedays):
 		getActuatorDataPeriod(selsensor,sensordata,enddate,pastdays)
 		#print "page ", selsensor
 		#print sensordata
-		for data in sensordata:
-			deleterowwithfield(selsensor,field,data[0])
+		itemnum=min(maxremovepersensor, len(sensordata))
+		for i in range(itemnum):
+			deleterowwithfield(selsensor,field,sensordata[i][0])
 
 	# sensor data --------------------------------------------
 	

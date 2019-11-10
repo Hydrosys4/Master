@@ -404,7 +404,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 	MCP3008_busy_flag=True		
 
 	
-	powerPIN_start(POWERPIN,logic,0.2)
+	powerPIN_start(POWERPIN,logic,2)
 
 	refvoltage=5.0
 	
@@ -460,7 +460,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 
 	powerPIN_stop(POWERPIN,0)
 	
-	time.sleep(1.3) # wait after the power pin has been set to LOW
+	time.sleep(0.2) # wait after the power pin has been set to LOW
 	
 	MCP3008_busy_flag=False
 
@@ -560,7 +560,11 @@ def GPIO_output(PINstr, level):
 	write_status_data(GPIO_data,PINstr,"level",level)
 	return True
 		
-
+def GPIO_output_nostatus(PINstr, level):
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	if isRealPIN:
+		GPIO.output(PIN, level)
+	return True
 
 
 def GPIO_setup(PINstr, state, pull_up_down=""):
@@ -597,15 +601,24 @@ def GPIO_remove_event_detect(PINstr):
 
 
 
-def endpulse(PINstr,logic,POWERPIN):
+def endpulse(PINstr,logic,POWERPIN,MIN=0,MAX=0):
 	#GPIO_data[PIN]["threadID"]=None
 	write_status_data(GPIO_data,PINstr,"threadID",None)
 	if logic=="pos":
 		level=0
 	else:
 		level=1
-		
-	GPIO_output(PINstr, level)
+	
+	if MIN and MAX:
+		# dual pulse option
+		# stop the pulse after MAX seconds
+		levelinvert=1-level		
+		GPIO_output_nostatus(PINstr, levelinvert)
+		NorecordthreadID=threading.Timer(MAX, GPIO_output, [PINstr , level]) 
+		NorecordthreadID.start()
+	else:
+		# normal pulse stop
+		GPIO_output(PINstr, level)
 	
 	powerPIN_stop(POWERPIN,0)
 
@@ -629,6 +642,13 @@ def gpio_pulse(cmd, message, recdata):
 	if messagelen>4:	
 		POWERPIN=msgarray[4]	
 
+	MIN=0	
+	if messagelen>5:	
+		MIN=int(msgarray[5])	
+		
+	MAX=0	
+	if messagelen>6:	
+		MAX=int(msgarray[6])	
 	
 
 	# in case another timer is active on this PIN, cancel it 
@@ -645,8 +665,15 @@ def gpio_pulse(cmd, message, recdata):
 		else:
 			level=0
 		GPIO_output(PIN, level)
+		if MIN and MAX:
+			# dual pulse  mode
+			print "dual pulse Mode"
+			# stop the pulse after MIN seconds
+			levelinvert=1-level
+			NorecordthreadID=threading.Timer(MIN, GPIO_output_nostatus, [PIN , levelinvert])
+			NorecordthreadID.start()
 
-	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN])
+	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN , MIN , MAX])
 	NewPINthreadID.start()
 	write_status_data(GPIO_data,PIN,"threadID",NewPINthreadID)
 
@@ -668,14 +695,22 @@ def gpio_stoppulse(cmd, message, recdata):
 	
 	POWERPIN=""
 	if messagelen>4:	
-		POWERPIN=msgarray[4]	
+		POWERPIN=msgarray[4]
+		
+	MIN=0	
+	if messagelen>5:	
+		MIN=int(msgarray[5])	
+		
+	MAX=0	
+	if messagelen>6:	
+		MAX=int(msgarray[6])	
 	
 	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
 	if not PINthreadID==None:
 		print "cancel the Thread of PIN=",PIN
 		PINthreadID.cancel()
 		
-	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
+	endpulse(PIN,logic,POWERPIN,MIN,MAX)	#this also put powerpin off		
 	recdata.append(cmd)
 	recdata.append(PIN)
 	return True	

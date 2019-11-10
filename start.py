@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.10b"
+Release="1.10g"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -771,8 +771,6 @@ def doit():
 		position , isok=hardwaremod.servoangle(element,position,delay)		
 		ret_data = {"answer": position}			
 	
-		
-
 
 
 	elif name=="stepper":
@@ -922,6 +920,23 @@ def saveit():
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_ADDR,mailaddress)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_TITLE,mailtitle)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_FUNC_TIME,mailtime)
+
+		
+
+	elif name=="setsensor":
+		print "want to save sensor calibration"
+		element=request.args['element']		
+			
+		paramnamelist=request.args.getlist('paramname')
+		paramvaluelist=request.args.getlist('paramvalue')
+		print element
+		print paramnamelist
+		print paramvaluelist		
+		i=0
+		for paramname in paramnamelist:
+			hardwaremod.changesavecalibartion(element,paramname,paramvaluelist[i])
+			i=i+1
+
 		
 	elif name=="photo":
 		
@@ -1391,7 +1406,32 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	
 	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
+
+@application.route('/setinputcalibration/', methods=['GET', 'POST'])
+def setinputcalibration():  # set the hbridge zero point
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print "visualizzazione menu sensor calibration:"
+	if request.method == 'POST':
+		requesttype=request.form['buttonsub']
+		if requesttype=="cancel":
+			return redirect(url_for('show_Calibration'))	
+
+	# Sensors data	
+	sensorparameters=[hardwaremod.HW_CTRL_MIN,hardwaremod.HW_CTRL_MAX,hardwaremod.HW_CTRL_SCALE,hardwaremod.HW_CTRL_OFFSET,hardwaremod.HW_CTRL_DIR]
+	sensorlist = []
+	sensorlist=sensordbmod.gettablelist()
+	sensorstatuslist=[]
+	for sensorname in sensorlist:
+		tempdict={}
+		for item in sensorparameters:
+			tempdict[item]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,sensorname,item)
+		sensorstatuslist.append(tempdict)	
 	
+	selectvalues=hardwaremod.HWdataKEYWORDS[hardwaremod.HW_CTRL_DIR]
+
+	return render_template('setinputcalibration.html',sensorlist=sensorlist,sensorstatuslist=sensorstatuslist, sensorparameters=sensorparameters, selectvalues=selectvalues)
+
 	
 @application.route('/setstepper/', methods=['GET', 'POST'])
 def setstepper():  # set the stepper zero point
@@ -1412,7 +1452,7 @@ def setstepper():  # set the stepper zero point
 		tempdict["busy"]=hardwaremod.get_stepper_busystatus(stepper)		
 		stepperstatuslist.append(tempdict)	
 	
-	print stepperstatuslist
+
 
 	return render_template('setstepper.html',stepperlist=stepperlist,stepperstatuslist=stepperstatuslist)
 
@@ -1436,7 +1476,7 @@ def sethbridge():  # set the hbridge zero point
 		tempdict["busy"]=hardwaremod.get_hbridge_busystatus(hbridge)		
 		hbridgestatuslist.append(tempdict)	
 	
-	print hbridgestatuslist
+
 
 	return render_template('sethbridge.html',hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist)
 		
@@ -2091,7 +2131,8 @@ def advanced():
 				
 			#print "dicttemp ", dicttemp 
 			advancedmod.replacerow(element,dicttemp)
-
+			# reset the scheduler
+			selectedplanmod.resetmastercallback()
 			print "Table saved"
 			flash('Table has been saved')
 			
@@ -2501,12 +2542,12 @@ def functiontest():
 	#slopeOK=autowateringmod.checkinclination("hygroBalcFront",startdate,enddate)
 	#print "got array " , slopeOK
 	
-	#selectedplanmod.heartbeat()
+	selectedplanmod.mastercallback(True)
 	#target="water1"
 	#selectedplanmod.startpump(target,"30","10","5")
 	
 	#selectedplanmod.removeallscheduledjobs()
-	isok=hardwaremod.takephoto(True)
+	#isok=hardwaremod.takephoto(True)
 	#hostname=networkmod.gethostname()
 	
 	#refsensor="TimeTrigger"

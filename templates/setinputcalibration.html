@@ -1,0 +1,150 @@
+{% extends "layout.html" %}
+{% set active_page = "showcalibration" %}
+{% block body %}
+  {% if session.logged_in %}
+  <div class="container-fluid">
+	  
+	  
+		<!-- hbridge Actuators test -->
+  
+  		<form novalidate="true" action="{{ url_for('setinputcalibration') }}" id="menuForm" method="post" >
+			<div class="page-header">
+					  <h3>Input Calibration</h3>   
+			</div>
+			
+			<div class="well bs-component smallgap">
+				
+			<div class="small"><b>MIN and MAX:</b> in case a sensor input ranges from a min voltage to a max voltage (within 0-5v) setting the MIN=min sensor value and MAX=max sensor value will normalize the reading in the range between 0 and 1.</div>
+			<div class="small"><b>SCALE:</b> it is a multiplier to the sensor reading, it is applied after the MIN, MAX normalization.</div>
+			<div class="small"><b>OFFSET:</b> this is an offset applied after scaling.</div>
+			<div class="small"><b>DIRECTION:</b> setting it to "inv" reverses the sensor reading curve.</div>
+			<p></p>
+			<p></p>
+			
+						<!--  Actuator table   -->
+			<table class="table" margin: 20px;>
+			<thead>
+				<tr>
+					<th>Input</th>
+					
+					{% for item in sensorparameters %}	
+					<th>{{ item }}</th>
+					{% endfor %}
+					<th>Save</th></th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
+
+			{% for item in sensorlist %}	
+			{% set count = loop.index0 %}
+			<tr>
+				
+				<td>
+					<label>{{ item }}</label>
+				</td>
+				{% for parameter in sensorparameters %}
+				<td>
+				  {% if parameter!="direction" %}
+
+							<input value="{{sensorstatuslist[count][parameter]}}" class="form-control input-sm" id="{{ item }}_{{ parameter }}" name="{{ parameter }}" type="number">
+
+				  {% else %}
+				  
+						<select class="form-control input-sm dontwantgap" id="{{ item }}_{{ parameter }}" name="{{ parameter }}">
+						{% for name in selectvalues %}	
+							<option {% if name==sensorstatuslist[count][parameter] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+						{% endfor %}											
+						</select>
+				  {% endif %}	
+				 </td>	
+				{% endfor %}				
+				<td>
+					<button class="setbutton btn-sm btn btn-default btn-block" type="button" name="setsensor" element="{{item}}">Save</button>
+				</td>
+
+
+
+
+			</tr>
+			{% endfor %}				
+
+        </tbody>
+    </table>
+	
+			<div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-8">
+					<label class="form-label-left" id="requeststatus" for="input_3"></label>
+				</div>
+			</div>	
+
+
+	<button class="btn btn-success btn-default" type="submit" name="buttonsub" value="cancel">Done</button>
+
+		</div>
+			 <script type=text/javascript>
+			  $(function() {
+				$(".setbutton").click(function() {
+				
+				// send ajax interrupt to flask to initiate the actuator test
+				
+					var prid=$(this).attr('name');
+					var elem=$(this).attr('element');
+					var paramstring=""
+					var sensorparameters={{sensorparameters|safe}};
+					fLen = sensorparameters.length;
+						for (i = 0; i < fLen; i++) {
+							paramstring=paramstring+ "&paramname="+ sensorparameters[i] +"&paramvalue=" +$("#"+elem+"_"+sensorparameters[i]).val();
+						}
+
+					//alert(paramstring)
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/saveit/?name=" + prid + "&element=" + elem + paramstring,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#requeststatus').text(data.answer);
+									$(this).blur();
+
+		
+									
+									
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown); $("#thebutton").attr('name')
+								//}
+							});    
+				  
+					
+							$('#requeststatus').text("waiting ...");
+
+					
+				});
+			  });
+			   
+			  
+			  
+			</script>
+			
+			
+		</form>			
+			
+
+ 
+   </div> 
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

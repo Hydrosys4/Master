@@ -376,7 +376,7 @@ def activateactuator(target, value):  # return true in case the state change: ac
 	if (actuatortype=="mail+info+link")or(actuatortype=="mail+info"):
 		if value>0:
 			mailtext=str(value)	
-			isok=emailmod.sendmail(target,"report","Interrupt Value:" + mailtext)
+			isok=emailmod.sendmail(target,"info","Interrupt Value:" + mailtext)
 			# save action in database
 			if isok:
 				actuatordbmod.insertdataintable(target,1)

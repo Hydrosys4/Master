@@ -316,7 +316,49 @@
 		</form>
   
 		<!-- END -->
+
+
+
 			
+<!-- Sensors inputs calibration -->
+ 		{% if sensorlist|length > 0 %}		 
+		<form novalidate="true" action="{{ url_for('setinputcalibration') }}" id="setinputcalibration" method="post" >
+			<div class="page-header">
+					  <h3>Sensor input Calibration</h3>   
+			</div>
+			
+			
+			
+
+			
+			
+			
+		<!-- Button for input calibration -->
+		
+			<div class="row">
+
+				<div class="col-xs-12">
+				
+					<!-- advanced setting Hbridge button -->
+			
+					<button id="setinputcalibrationbtn" name="buttonsub" value="setinputcalibration" type="submit" class="btn btn-success btn-sm btn-warp">
+						Sensor Calibration
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+				</div>			
+		
+		
+		
+
+		
+		</form>  		
+		{% endif %}
+
+
+
+
 			
 <!-- Hbridge Actuators test -->
   

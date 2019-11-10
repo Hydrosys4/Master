@@ -212,13 +212,17 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 		showpicture=True
 		showlink=True
 
-			
 	elif mailtype=="alert":
 		starttitle="Alert:"
 		showtable=False
 		showpicture=False
 		showlink=True
 
+	elif mailtype=="info":
+		starttitle="Info:"
+		showtable=False
+		showpicture=False
+		showlink=True
 	
 	
 	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
