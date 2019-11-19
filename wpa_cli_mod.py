@@ -63,7 +63,7 @@ def get_networks(iface, retry=1):
 		if ("OK" in output.upper()):
 			networks=[]
 			lines = run_program(['wpa_cli', '-i' + iface , 'scan_result']).split("\n")
-			time.sleep(0.5)			
+			time.sleep(1.5)			
 			if lines:
 				for line in lines[1:-1]:
 					#bssid / frequency / signal level / flags / ssid

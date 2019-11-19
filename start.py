@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.10g"
+Release="1.11b"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -153,17 +153,26 @@ MYPATH=hardwaremod.get_path()
 # RUN ALL consistency chacks ------------------------
 runallconsistencycheck()
 
+
+#scheduler start---------------------
+selectedplanmod.start_scheduler()
+
 #setup network connecton --------------------
+isconnecting=False
+networkmod.stopNTP()
+networkmod.disableNTP()
 try:
 	print "start networking"
-	networkmod.init_network()
+	isconnecting=networkmod.init_network() # this includes also the clock check and scheduler setup
 except:
 	print "No WiFi available"
 	
 #scheduler setup---------------------
-selectedplanmod.start_scheduler()
-# after internet connection because ofter the time is abruptly changed after connection
-selectedplanmod.waitandsetmastercallback(networkmod.WAITTOCONNECT, 15)	# plus 40 seconds respect to internet connection
+if not isconnecting:
+	logger.info('No connection condition available. Reset mastercallback')
+	if not selectedplanmod.CheckNTPandAdjustClockandResetSched():
+		selectedplanmod.waitandsetmastercallback(20,0)
+
 	
 
 	
@@ -810,7 +819,8 @@ def doit():
 		
 		element=request.args['element']	
 		# move hbridge
-		position , isok=hardwaremod.GO_hbridge(element,steps,direction)
+		zerooffset=0
+		position , isok=hardwaremod.GO_hbridge(element,steps,zerooffset,direction)
 		ret_data = {"answer": position}
 
 
@@ -879,10 +889,11 @@ def doit():
 				answer="ready"
 		elif element=="setHWClock":
 			print "datetime Local ->" ,datetime
+			logger.info('Clock has been manually changed')
 			answer1=clockmod.setsystemclock(datetime)
 			answer2=clockmod.setHWclock(datetime)
 			answer=answer1 + answer2
-			selectedplanmod.checkheartbeat()
+			selectedplanmod.resetmastercallback()
 
 		ret_data = {"answer":answer, "value":datetime}
 
@@ -891,6 +902,7 @@ def doit():
 		timezone=request.args['timezone']
 		if element=="settimezone":
 			print "Set timezone ->" ,timezone
+			logger.info('Time Zone has been manually changed')
 			answer=clockmod.settimezone(timezone)
 			clockdbmod.changesavesetting("timezone",timezone)
 			# reset scheduling 
@@ -1379,8 +1391,8 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	servostatuslist=[]
 	for servo in servolist:	
 		servostatuslist.append(hardwaremod.getservopercentage(servo))	
-	servolist.insert(0, "none")
-	servostatuslist.insert(0, "None")	
+	#servolist.insert(0, "none")
+	#servostatuslist.insert(0, "None")	
 	videolist=hardwaremod.videodevlist()
 	camerasettinglist=cameradbmod.getcameradata(videolist)
 	print camerasettinglist
@@ -2525,6 +2537,7 @@ def functiontest():
 	#testo=[" riga 1 ", "riga 2 " , " Riga fine"]
 	#emailmod.sendallmail("alert","prova mail", testo)
 	
+	#hardwaremod.GO_hbridge_position("Hbridge2",0)
 
 	#filemanagementmod.configfilezip()
 
@@ -2542,7 +2555,7 @@ def functiontest():
 	#slopeOK=autowateringmod.checkinclination("hygroBalcFront",startdate,enddate)
 	#print "got array " , slopeOK
 	
-	selectedplanmod.mastercallback(True)
+	#selectedplanmod.mastercallback(True)
 	#target="water1"
 	#selectedplanmod.startpump(target,"30","10","5")
 	

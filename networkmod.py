@@ -30,7 +30,37 @@ EXTERNALIPADDR=""
 DHCP_COUNTER=0
 
 
+def stopNTP():
+	#sudo systemctl disable systemd-timesyncd.service
+	#sudo service systemd-timesyncd stop
+	logger.info("Stop NTP")
+	print "Stop NTP (Network Time Protocol)"
+	# hostnamectl set-hostname $NewHostName
+	cmd = [ 'service' , 'systemd-timesyncd' , 'stop']	
+	try:
+		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
+		return output_string
+	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return "error"
+	time.sleep(2)
 
+def disableNTP():
+	#sudo systemctl disable systemd-timesyncd.service
+	#sudo service systemd-timesyncd stop
+	logger.info("Disable NTP")
+	print "Disable NTP (Network Time Protocol)"
+	# hostnamectl set-hostname $NewHostName
+	cmd = [ 'systemctl' , 'disable' , 'systemd-timesyncd.service']	
+	try:
+		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
+		return output_string
+	except subprocess.CalledProcessError as e:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return "error"
+	time.sleep(2)
 	
 def wifilist_ssid(retrynumber=1):
 	ssids=[]	
@@ -56,6 +86,7 @@ def savewifi(ssid, password):
 def savewificonnect(ssid, password):
 	wpa_cli_mod.save_network("wlan0",ssid,password)	
 	connect_network(True, False)
+	selectedplanmod.CheckNTPandAdjustClockandResetSched() # instead of waiting the next Heartbeat, it reset master scheduler if clock changes
 	
 def waitandsavewifiandconnect(pulsesecond,ssid,password):
 	print "try to save wifi after " , pulsesecond , " seconds"
@@ -478,10 +509,14 @@ def init_network():
 			waitandconnect(WAITTOCONNECT) # parameter is the number of seconds, 5 minutes = 300 sec
 			print "wifi access point up, wait " ,WAITTOCONNECT, " sec before try to connect to wifi network"
 			logger.warning('wifi access point up, wait %s sec before try to connect to wifi network',WAITTOCONNECT)
+			return True
+		else:
+			return False
 	else:
 		waitandconnect("2") # try to connet immeditely to netwrok as the AP failed
 		print "Not able to connect wifi access point , wait 2 sec before try to connect to wifi network"
 		logger.warning('Not able to connect wifi access point , wait 2 sec before try to connect to wifi network')
+		return True
 	
 def waitandconnect(pulsesecond):
 	print "try to connect to wifi after " , pulsesecond , " seconds"
@@ -490,7 +525,7 @@ def waitandconnect(pulsesecond):
 		secondint=int(f)
 	except:
 		secondint=180
-	t = threading.Timer(secondint, connect_network , [True, False]).start()
+	t = threading.Timer(secondint, connect_network_init , [True, False]).start()
 
 def waitandremovewifi(pulsesecond,ssid):
 	print "try to switch to AP mode after " , pulsesecond , " seconds"
@@ -707,8 +742,16 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 		
 	return True
 
+def connect_network_init(internetcheck=False, backtoAP=False):
+	connected=connect_network(internetcheck, backtoAP)
+		
+	# section relevant to start of MAstercallback
 
-
+	logger.info('After init_network. Start Hearthbeat to synch clock and start mastercallback')		
+	if not selectedplanmod.CheckNTPandAdjustClockandResetSched():
+		selectedplanmod.resetmastercallback()
+	
+	return connected
 
 
 def connect_network(internetcheck=False, backtoAP=False):
@@ -716,7 +759,6 @@ def connect_network(internetcheck=False, backtoAP=False):
 	connected=False
 	print " try to connect to wifi network"
 	thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with and see if the SSID is on air
-	
 	
 	
 	if not thessid=="":
@@ -728,8 +770,6 @@ def connect_network(internetcheck=False, backtoAP=False):
 		else:
 			ssid=""		
 				
-
-
 			
 		if not ssid==thessid:
 			print "try to connect to wifi network"
@@ -807,14 +847,8 @@ def connect_network(internetcheck=False, backtoAP=False):
 						connect_AP()
 			else:
 				connected=True
-			logger.info('wait and check if the heartbeat job is still scheduled')				
-			#pulsesecond=180
-			#selectedplanmod.waitandcheckheartbeat(pulsesecond)
-			#use CPU cycles as way to delay, cannot be based on clock info, clock jumps happen as soon as NTP is providing the datatime to the system
-			pausecycles=10000000
-			for i in range(1,pausecycles):
-				b=i*0.1
-			selectedplanmod.checkheartbeat()
+
+			# ALL below not needed anymore since I disabled the NTP network time protocal daemon *****
 
 	else:
 		print "No Saved Wifi Network available"
@@ -824,7 +858,7 @@ def connect_network(internetcheck=False, backtoAP=False):
 		#logger.info('Going back to Access Point mode')
 		#connect_AP()
 		connected=False
-			
+
 	return connected
 
 

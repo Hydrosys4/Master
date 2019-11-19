@@ -35,7 +35,7 @@ def read_status_data(data,element,variable,permanent=False, storeid=""):
 	if isok:
 		if not (persistenooutput==output):
 			print "status variable output mismatch between current value and stored value"
-			logger.error('status variable output mismatch between current value and stored value')
+			logger.error('status variable output mismatch between current value =%s and stored value =%s', str(output) , str(persistenooutput))
 			output=persistenooutput
 						
 	return output

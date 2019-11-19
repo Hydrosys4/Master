@@ -633,13 +633,20 @@ def setstepperposition(element, position):
 def GO_hbridge_position(target,position,priority=0):
 	prev_position_string=gethbridgeposition(target)
 	prev_position=int(prev_position_string)
+	MINstr=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)
+	MIN=toint(MINstr,0)
+	zerooffset=0
 	steps=position-prev_position
+	absolutesteps=abs(steps)
+	if position<=MIN: # the final position is intended to be the minimum
+		zerooffsetstr=searchdata(HW_INFO_NAME,target,HW_CTRL_OFFSET)
+		zerooffset=toint(zerooffsetstr,0)		
+
 	isdone=False
 	if steps>0:
-		out , isdone=GO_hbridge(target,steps,"FORWARD",priority)
-	else:
-		steps=abs(steps)	
-		out , isdone=GO_hbridge(target,steps,"BACKWARD",priority)
+		out , isdone=GO_hbridge(target,absolutesteps,zerooffset,"FORWARD",priority)
+	else:	
+		out , isdone=GO_hbridge(target,absolutesteps,zerooffset,"BACKWARD",priority)
 		
 	return out , isdone
 
@@ -692,7 +699,7 @@ def get_hbridge_HWstatus(target):
 
 
 
-def GO_hbridge(target,steps,direction,priority=0): 
+def GO_hbridge(target,steps,zerooffset,direction,priority=0): 
 	global Hbridge_Status
 	#search the data in IOdata
 	isok=False
@@ -733,10 +740,14 @@ def GO_hbridge(target,steps,direction,priority=0):
 		print " No valid data for hbridge", target
 		return "error" , isok
 
-
+	# here apply the offset
+	steps=steps+zerooffset
+	
+	
 	sendstring="hbridge:"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic
 	print " sendstring " , sendstring
 
+	errorcode="error"
 	i=0
 	while (not(isok))and(i<2):
 		i=i+1
@@ -749,8 +760,12 @@ def GO_hbridge(target,steps,direction,priority=0):
 			statusdataDBmod.write_status_data(Hbridge_Status,target,'position',str(position),True,"Hbridge_Status") # save in persistent mode
 			isok=True
 			return str(position) , isok
-			
-	return "Error" , isok
+		else:
+			errorcode="error"
+			if len(recdata)>2:
+				errorcode=recdata[2]
+				
+	return errorcode , isok
 
 def gethbridgeposition(element):
 	return statusdataDBmod.read_status_data(Hbridge_Status,element,'position',True,"Hbridge_Status")
@@ -885,10 +900,27 @@ def checkGPIOconsistency():
 					logger.warning('Warning, input PIN duplicated PIN=%s', PIN)					
 				inputpinlist.append(PIN)
 			if (iotype=="output"):
-				if PIN in outputpinlist:
+				if (PIN in outputpinlist)and(PIN in HWcontrol.RPIMODBGPIOPINLIST):
 					print "Warning output PIN duplicated", PIN
 					logger.warning('Warning, output PIN duplicated PIN=%s', PIN)
-				outputpinlist.append(PIN)
+				else:
+					outputpinlist.append(PIN)
+				if (HW_CTRL_PWRPIN in ln):
+					PWRPIN=ln[HW_CTRL_PWRPIN]
+					if (PWRPIN in outputpinlist)and(PWRPIN in HWcontrol.RPIMODBGPIOPINLIST):
+						print "Warning output PWRPIN overlapping", PWRPIN
+						logger.warning('Warning, output PWRPIN overlapping PIN=%s', PWRPIN)
+					else:
+						outputpinlist.append(PWRPIN)
+				if (HW_CTRL_PIN2 in ln):
+					PIN2=ln[HW_CTRL_PIN2]
+					if (PIN2 in outputpinlist)and(PIN2 in HWcontrol.RPIMODBGPIOPINLIST):
+						print "Warning output PIN2 overlapping", PIN2
+						logger.warning('Warning, output PIN2 overlapping PIN=%s', PIN2)
+					else:
+						outputpinlist.append(PIN2)
+				
+
 		if (HW_CTRL_PWRPIN in ln):
 			PWRPIN=ln[HW_CTRL_PWRPIN]
 			outputpinlist.append(PWRPIN)
@@ -898,8 +930,9 @@ def checkGPIOconsistency():
 				
 	for inputpin in inputpinlist:
 		if inputpin in outputpinlist:
-			print "error output PIN and Input PIN are the same", inputpin
-			logger.error('Error, output PIN and Input PIN are the same PIN=%s', inputpin)
+			if inputpin in HWcontrol.RPIMODBGPIOPINLIST:
+				print "error output PIN and Input PIN are the same", inputpin
+				logger.error('Error, output PIN and Input PIN are the same PIN=%s', inputpin)
 
 	return True
 

@@ -429,6 +429,26 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Fixed the bug of sensorreadig
 
+2019-11-11 -> release 110h
+
+- heartbeat clock check added reset masterscheduler and return
+- Stop and Disable NTP at init sequence
+
+2019-11-12 -> release 111
+
+- System clock completely controlled by hydrosys4 application.
+- Hbridge add offset to reach point MIN. Add a number of seconds to the motor activation when position going MIN, sec=offset value.
+- Hbridge fix, when busy stops other activations 
+- Better interface for Stepper and Hbridge and Servo
+
+2019-11-16 -> release 111a
+
+- fix issue of loop after the connet_network, reviewed the Scheduling activation strategy
+
+2019-11-18 -> release 111b
+
+- add log for the Hardware activation basic level
+
 
 
 ------- Future releases: -----------

@@ -76,9 +76,9 @@ def toint(thestring, outwhenfail):
 		return outwhenfail
 
 def read_status_data(data,element,variable):
-	print data
+	#print data
 	if element in data:
-		print " element present"
+		#print " element present"
 		elementdata=data[element]
 		if variable in elementdata:
 			return elementdata[variable]
@@ -86,11 +86,11 @@ def read_status_data(data,element,variable):
 			# variable not in elementdata
 			return ""
 	else:
-		print " element NOT present"
+		#print " element NOT present"
 		# element not present in the data use the default
 		data[element]=data["default"].copy()
 		elementdata=data[element]
-		print data
+		#print data
 		if variable in elementdata:
 			return elementdata[variable]
 		else:
@@ -100,11 +100,11 @@ def read_status_data(data,element,variable):
 def read_status_dict(data,element):
 	print data
 	if element in data:
-		print " element present"
+		#print " element present"
 		elementdata=data[element]
 		return elementdata
 	else:
-		print " element NOT present"
+		#print " element NOT present"
 		return {}
 
 def write_status_data(data,element,variable,value):
@@ -558,12 +558,15 @@ def GPIO_output(PINstr, level):
 		GPIO.output(PIN, level)
 	#GPIO_data[PIN]["level"]=level
 	write_status_data(GPIO_data,PINstr,"level",level)
+	logger.info("Set PIN=%s to State=%s", PINstr, str(level))
+	print PINstr , " ***********************************************" , level
 	return True
 		
 def GPIO_output_nostatus(PINstr, level):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
 	if isRealPIN:
 		GPIO.output(PIN, level)
+	logger.info("NO Record, Set PIN=%s to State=%s", PINstr, str(level))
 	return True
 
 
@@ -780,18 +783,19 @@ def gpio_set_servo(cmd, message, recdata):
 	
 def isPinActive(PIN, logic):
 	PINlevel=read_status_data(GPIO_data,PIN,"level")
+	print " pin Level" , PINlevel
 	if PINlevel is not None:
 		isok=True
 	else:
 		return False
 	if isok:
 		if logic=="neg":
-			if PINlevel=="0":
-				activated=True
-			else:
+			if PINlevel: # pinlevel is integer 1 or zero
 				activated=False
+			else:
+				activated=True
 		elif logic=="pos":
-			if PINlevel=="1":
+			if PINlevel:
 				activated=True
 			else:
 				activated=False
@@ -818,9 +822,13 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 	PIN2active=isPinActive(PIN2, logic)
 	hbridgebusy=PIN1active or PIN2active
 
+
 	if hbridgebusy:
 		print "hbridge motor busy "
 		logger.warning("hbridge motor Busy, not proceeding ")
+		recdata.append(cmd)
+		recdata.append("e")
+		recdata.append("busy")
 		return False
 	
 	#  no busy, proceed	

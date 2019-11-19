@@ -53,7 +53,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 def activateandregister(target,activationseconds): # function to activate the actuators
 	duration=hardwaremod.toint(activationseconds,0)
 	print target, " ",duration, " " , datetime.now() 
-	logger.info('Doser Pulse, pulse time for ms = %s', duration)
+	logger.info('Pulse time for sec = %s', duration)
 	# start pulse
 	pulseok=hardwaremod.makepulse(target,duration)
 	# salva su database
@@ -181,10 +181,42 @@ def periodicdatarequest(sensorname):
 		
 	return True	
 	
+def CheckNTPandAdjustClockandResetSched(timediffsec=60):
+	# try to get the clock from network
+	print "check system clock"
+	logger.info('Check system clock vs NTP (Network Time Protocol)')
+	networktime=clockmod.getNTPTime()
+	logger.info('Network time NTP: %s ', networktime)
+	systemtime=clockmod.readsystemdatetime()
+	logger.info('System time NTP: %s ', systemtime)
+	if not networktime=='':
+		diffsec=clockmod.timediffinsec(networktime, systemtime)
+		logger.info('Difference between system time and network time, diffsec =  %d ', diffsec)
+		if diffsec>timediffsec:
+			print "Warning difference between system time and network time >",timediffsec ," sec, diffsec = " , diffsec
+			logger.warning('Warning difference between system time and network time >%d sec, diffsec =  %d ', timediffsec , diffsec)
+			print "Apply network datetime to system"
+			logger.warning('Apply network datetime to system ')
+			clockmod.setHWclock(networktime)
+			clockmod.setsystemclock(networktime)
+			# reset scheduling 
+			logger.warning('Reset master Scheduler due to time change')
+			resetmastercallback()
+			return True
+		else:
+			print "Clock OK"
+			logger.info('Clock OK')
+	else:
+		print "not able to get network time"
+		logger.warning('Not able to get network time')
+	return False
+	
+	
 	
 def heartbeat():
 	print "start heartbeat check", " " , datetime.now()
 	logger.info('Start heartbeat routine %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+	# check wifi connection
 	connectedssid=networkmod.connectedssid()
 	connected=False
 	if len(connectedssid)==0:
@@ -238,33 +270,13 @@ def heartbeat():
 				logger.info("System has been reconnected, IPEXTERNALSENT was empty")
 				emailmod.sendallmail("alert","System has been reconnected")							
 
-		# Check current time is less than 60 second different from NTP information
-		# try to get the clock from network
-		print "check system clock"
-		logger.info('Heartbeat check, check clock')
-		networktime=clockmod.getNTPTime()
-		logger.info('Heartbeat check , Network time NTP: %s ', networktime)
-		systemtime=clockmod.readsystemdatetime()
-		logger.info('Heartbeat check , System time NTP: %s ', systemtime)
-		if not networktime=='':
-			diffsec=clockmod.timediffinsec(networktime, systemtime)
-			logger.info('Heartbeat check , difference between system time and network time, diffsec =  %d ', diffsec)
-			if diffsec>60:
-				print "Heartbeat check , warning difference between system time and network time >60 sec, diffsec = " , diffsec
-				logger.warning('Heartbeat check , warning difference between system time and network time >60 sec, diffsec =  %d ', diffsec)
-				print "Heartbeat check , Apply network datetime to system"
-				logger.warning('Heartbeat check , Apply network datetime to system ')
-				clockmod.setHWclock(networktime)
-				clockmod.setsystemclock(networktime)
-			else:
-				print "Heartbeat check , Clock OK"
-				logger.info('Heartbeat check , Clock OK')
-		else:
-			print "not able to get network time"
-			logger.warning('Heartbeat check , not able to get network time')
 	else:
 		print "not able to establish an internet connection"
-		logger.warning("not able to establish an internet connection")			
+		logger.warning("not able to establish an internet connection")		
+	
+	# check clock with NTP and reset master scheduler in case of clock change	
+	if CheckNTPandAdjustClockandResetSched():
+		return True
 	
 	# check master job has a next run"
 	isok, datenextrun = SchedulerMod.get_next_run_time("master")
@@ -281,8 +293,9 @@ def heartbeat():
 	if not isok:
 		print "No next run for master scheduler"
 		logger.warning('Heartbeat check , Master Scheduler Interrupted')
-		emailmod.sendallmail("alert","Master Scheduler has been interrupted, try to restart scheduler")
+		#emailmod.sendallmail("alert","Master Scheduler has been interrupted, try to restart scheduler")
 		resetmastercallback()
+		return True
 	
 	# check if there have been errors in Syslog
 	if DEBUGMODE:
@@ -317,8 +330,6 @@ def heartbeat():
 			print "No error found in LOG", filename
 			logger.info('Heartbeat check , LOG ok')					
 				
-				
-		
 	return True
 	
 def sendmail(target):
@@ -486,7 +497,7 @@ def mastercallback(fromscheduledtime=False):
 	calltype="periodic"
 	global HEARTBEATINTERVAL
 	interval=HEARTBEATINTERVAL
-	timelist=[0,interval,900] # 900 indicates to start after 15 minutes
+	timelist=[0,interval,900] # 20 indicates to start after 15 minutes
 	callback="heartbeat"
 	argument=[]
 	
