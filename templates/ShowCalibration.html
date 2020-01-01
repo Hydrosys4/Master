@@ -208,6 +208,7 @@
 					<option>100</option>
 					<option>300</option>
 					<option>600</option>
+					<option>6000</option>
 				  </select>
 				  </td>	
 				  		
@@ -356,7 +357,37 @@
 		</form>  		
 		{% endif %}
 
+			
+<!-- devices Addressed listing (Onewire, I2C etc) -->
+ 		{% if deviceaddresseslist|length > 0 %}		 
+		<form novalidate="true" action="{{ url_for('showdeviceaddresseslist') }}" id="showdeviceaddresseslist" method="post" >
+			<div class="page-header">
+					  <h3>Show Devices Addresses</h3>   
+			</div>
+		
+			
+		<!-- Button for device addresses show-->
+		
+			<div class="row">
 
+				<div class="col-xs-12">
+				
+					
+			
+					<button id="showdeviceaddresseslistbtn" name="buttonsub" value="showdeviceaddresseslistbtn" type="submit" class="btn btn-success btn-sm btn-warp">
+						Show Addresses
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+				</div>			
+		
+		
+		
+
+		
+		</form>  		
+		{% endif %}
 
 
 			
@@ -368,11 +399,16 @@
 			</div>
 			
 			<div class="well bs-component smallgap">
+				
+						
+		{% if hbridgelist|length > 0 %}		
+		
+			<div class="small"><b>NOTE:</b>When manually actuating the Hbridge in this page, the Offset will not be calculated. 
+			This is done in order to avoid inconsistent positioning of the motor. </div>
+			<div class="small"><b>OFFSET:</b>The offset value is the number of ADDITIONAL seconds the relay will be activated when the motor is set to reach the MIN value. This is used to be sure that the motor reaches the start switch. Offset value can be set in the HardwareSetting page</div>
+			<p></p>
+			<p></p>		
 			
-						<!--  Actuator table   -->
-						
-						
-		{% if hbridgelist|length > 0 %}			
 						
 			<table class="table" margin: 20px;>
 			<thead>

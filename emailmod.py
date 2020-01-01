@@ -297,19 +297,6 @@ if __name__ == '__main__':
 	"""
 	prova email
 	"""
-	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
-	
-	user="hydrosys4@gmail.com"
-	pwd="hydrosystem"
-	recipient="valerio.angelo@gmail.com"
-	subject="Today update " + currentdate
-	body="sono il testo prova 2"
-	#send_email(user, pwd, recipient, subject, body)
-	
-	ipext=networkmod.get_external_ip()
-	iplocal=networkmod.get_local_ip()
-	htmlbody=create_html(ipext, iplocal, "5012")	
-	print htmlbody
-	send_email_html(user, pwd, recipient, subject, htmlbody)
+
 	
 

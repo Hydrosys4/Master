@@ -254,7 +254,8 @@ def getsensordata(sensorname,attemptnumber): #needed
 		arg2=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_PWRPIN))
 		arg3=str(searchdata(HW_INFO_NAME,sensorname,HW_INFO_MEASUREUNIT))
 		arg4=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_LOGIC))
-		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4
+		arg5=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_ADDR))
+		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4+":"+arg5
 		recdata=[]
 		ack=False
 		i=0
@@ -940,6 +941,8 @@ def checkGPIOconsistency():
 def initallGPIOoutput():	
 	for ln in IOdata:
 		iotype=ln[HW_INFO_IOTYPE]
+		
+		# output: set gpio status
 		if (iotype=="output") :
 			if (ln[HW_CTRL_CMD]=="pulse"):
 				# safe code in case of non int input
@@ -960,7 +963,8 @@ def initallGPIOoutput():
 				else:
 					HWcontrol.GPIO_output(PIN1, 1)
 					HWcontrol.GPIO_output(PIN2, 1)				
-					
+			
+		# powerpin		
 		if (HW_CTRL_PWRPIN in ln):
 			PWRPIN=ln[HW_CTRL_PWRPIN] 
 			HWcontrol.GPIO_setup(PWRPIN, "out")
@@ -975,8 +979,63 @@ def initallGPIOoutput():
 				HWcontrol.GPIO_output(PWRPIN, 0) # assume logic is positive
 				print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
 
+		# Input: enable one wire
+		if (iotype=="input") :
+			if (ln[HW_CTRL_CMD]=="DS18B20"):
+				# safe code in case of non int input
+				PIN=ln[HW_CTRL_PIN]
+				logic=ln[HW_CTRL_LOGIC]
+				Set_1wire_Pin(PIN,logic)
+
+
 	#print HWcontrol.GPIO_data
 	return True
+
+def Set_1wire_Pin(PIN,logic):
+	#Newer kernels (4.9.28 and later) allow you to use dynamic overlay loading, 
+	#including creating multiple 1-Wire busses to be used at the same time:
+
+	#sudo dtoverlay w1-gpio gpiopin=4 pullup=0 pull-up does not seem to work
+	
+	try:
+		# These tow lines mount the device, anyway seems not to be needed
+		cmdstring="dtoverlay w1-gpio gpiopin="+PIN
+		os.system(cmdstring)
+		os.system('modprobe w1-gpio')
+		os.system('modprobe w1-therm')
+		if logic=="pos":
+			HWcontrol.GPIO_setup(PIN, "in", "pull_up")
+		else:
+			HWcontrol.GPIO_setup(PIN, "in")
+		
+		# dtoverlay w1-gpio gpiopin=4 pullup=0		
+		#cmd = ['dtoverlay', 'w1-gpio' , 'gpiopin='+ PIN, 'pullup=0']		
+		#ifup_output = subprocess.check_output(cmd).decode('utf-8')
+		return True
+	except:
+		print "Fail to set the One Wire driver"
+		logger.error('Fail to set the One Wire driver')
+		return False
+
+def get_devices_list():
+	outlist=[]
+	devtype="One Wire"
+	devicelist=HWcontrol.get_1wire_devices_list()
+	
+	print devicelist
+	for item in devicelist:
+		outlist.append({"address":item , "type":devtype})
+		
+	devtype="I2C"
+	devicelist=HWcontrol.get_I2C_devices_list()
+	for item in devicelist:
+		outlist.append({"address":item , "type":devtype})
+		
+	return outlist
+		
+
+
+
 
 def GPIO_setup(PIN, state, pull_up_down):
 	HWcontrol.GPIO_setup(PIN, state, pull_up_down)

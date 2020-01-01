@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.11b"
+Release="1.11d"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -1401,6 +1401,9 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	sensorlist = []
 	sensorlist=sensordbmod.gettablelist()
 	
+	deviceaddresseslist=[]
+	deviceaddresseslist=hardwaremod.get_devices_list()
+	
 	#read the sensors data
 	#print "read sensor data " 
 	unitdict={}
@@ -1416,7 +1419,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	print "Current timezone ->", timezone
 	
 	
-	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
+	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
 
 @application.route('/setinputcalibration/', methods=['GET', 'POST'])
@@ -1443,6 +1446,22 @@ def setinputcalibration():  # set the hbridge zero point
 	selectvalues=hardwaremod.HWdataKEYWORDS[hardwaremod.HW_CTRL_DIR]
 
 	return render_template('setinputcalibration.html',sensorlist=sensorlist,sensorstatuslist=sensorstatuslist, sensorparameters=sensorparameters, selectvalues=selectvalues)
+
+
+@application.route('/showdeviceaddresseslist/', methods=['GET', 'POST'])
+def showdeviceaddresseslist():  # set the hbridge zero point
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print "visualizzazione menu :"
+	if request.method == 'POST':
+		requesttype=request.form['buttonsub']
+		if requesttype=="cancel":
+			return redirect(url_for('show_Calibration'))	
+	
+	deviceaddresseslist=hardwaremod.get_devices_list()
+
+	return render_template('showdeviceaddresseslist.html',deviceaddresseslist=deviceaddresseslist)
+
 
 	
 @application.route('/setstepper/', methods=['GET', 'POST'])

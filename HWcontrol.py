@@ -8,6 +8,10 @@ import threading
 from math import sqrt
 #import sys,os
 #import serial
+#import os
+import glob
+
+
 import logging
 
 logger = logging.getLogger("hydrosys4."+__name__)
@@ -32,7 +36,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
@@ -172,6 +176,8 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[17]: #hbridge status	
 		return get_hbridge_status(cmd, message, recdata, hbridge_data)
 
+	elif cmd==HWCONTROLLIST[18]: #DS18B20 temperature sensor	
+		return get_DS18B20_temperature(cmd, message, recdata)
 
 
 
@@ -212,6 +218,34 @@ def execute_task_fake(cmd, message, recdata):
 		
 	return True
 
+
+def get_1wire_devices_list():
+	device_folder_list=[]
+	outlist=[]
+	base_dir = '/sys/bus/w1/devices/'
+	lbs=len(base_dir)
+	device_folder_list = glob.glob(base_dir+"*")
+	for item in device_folder_list:
+		strout=item[lbs:]
+		if strout[0].isdigit():
+			outlist.append(strout)
+	return outlist
+
+def get_I2C_devices_list():
+	device_list=[]
+	bus_number = 1  # 1 indicates /dev/i2c-1
+	bus = smbus.SMBus(bus_number)
+	for device in range(3, 128):
+		try:
+			bus.write_byte(device, 0)
+			device_list.append("{0}".format(hex(device)))
+		except:
+			#print "device I2C not found"
+			a=1
+			
+	bus.close()
+	bus = None
+	return device_list
 
 
 def get_DHT22_temperature_fake(cmd, message, recdata, DHT22_data):
@@ -325,6 +359,7 @@ def get_BMP180_pressure(cmd, message, recdata):
 def get_BH1750_light(cmd, message, recdata):
 	successflag=0
 	
+	
 	DEVICE     = 0x23 # Default device I2C address
 	POWER_DOWN = 0x00 # No active state
 	POWER_ON   = 0x01 # Power on
@@ -359,6 +394,95 @@ def get_BH1750_light(cmd, message, recdata):
 	recdata.append(successflag)	
 	return True
 	
+	
+	
+def get_DS18B20_temperature(cmd, message, recdata):
+	successflag=0
+	
+	# this sensors uses the one wire protocol. Multiple sensors can be connected to the same wire and they can be distinguished using an Address which is the mane of the file
+	# in this algorithm, the message should include the address, if the address field is empty then it gets the first reading available.
+
+
+	msgarray=message.split(":")
+
+	TemperatureUnit="C"
+	if len(msgarray)>4:
+		TemperatureUnit=msgarray[4]
+
+	SensorAddress=""
+	if len(msgarray)>6:
+		SensorAddress=msgarray[6]	
+	
+	temperature=0
+
+	# These tow lines mount the device:
+	#os.system('modprobe w1-gpio')
+	#os.system('modprobe w1-therm')
+	 
+	base_dir = '/sys/bus/w1/devices/'
+	# Get all the filenames begin with 28 in the path base_dir.
+	device_folder_list = glob.glob(base_dir + '28*')
+	
+	SensorAddress=SensorAddress.strip()
+	isOK=False
+	if device_folder_list:
+		device_folder=device_folder_list[0]	
+		if SensorAddress!="":
+			for item in device_folder_list:
+				if SensorAddress in item:
+					device_folder=item
+					isOK=True
+					break
+		else:	
+			isOK=True
+					
+	if not isOK:
+		# address of the termometer not found
+		logger.error("DS18B20 address not found: %s", SensorAddress)
+		recdata.append(cmd)
+		recdata.append("DS18B20 address not found")
+		recdata.append(0)
+		recdata.append(successflag)	
+		return True
+	
+	
+	device_file = device_folder + '/w1_slave'
+
+	#below commands reads the DS18B20 rom, which effectively is the address
+	#name_file=device_folder+'/name'
+	#f = open(name_file,'r')
+	#RomReading=f.readline()
+ 
+	f = open(device_file, 'r')
+	lines = f.readlines()
+	f.close()		
+
+	if len(lines)>1:
+		if ("YES" in lines[0].upper()):
+			#first row found and OK
+			# Find the index of 't=' in a string.
+			equals_pos = lines[1].find('t=')
+			if equals_pos != -1:
+				# Read the temperature .
+				temp_string = lines[1][equals_pos+2:] # takes the right part of the string
+				
+				try:
+					temperature = float(temp_string) / 1000.0
+					if (TemperatureUnit=="F") and (temperature is not None):
+						temperature=temperature*1.8+32
+					temperature=('{:3.2f}'.format(temperature / 1.))
+					successflag=1
+
+				except:
+					print "error reading the DS18B20"
+					logger.error("error reading the DS18B20")
+	
+	recdata.append(cmd)
+	recdata.append(temperature)
+	recdata.append(successflag)	
+	return True
+	
+
 	
 def get_MCP3008_channel(cmd, message, recdata):
 	
