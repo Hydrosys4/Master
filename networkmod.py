@@ -29,6 +29,8 @@ IPADDRESS =networkdbmod.getIPaddress()
 EXTERNALIPADDR=""
 DHCP_COUNTER=0
 
+def getCUSTOMURL():
+	return networkdbmod.getCUSTOMURL()
 
 def stopNTP():
 	#sudo systemctl disable systemd-timesyncd.service
@@ -404,8 +406,9 @@ def checkGWsubnet(interface): #-------------------
 	cmd = ['ip', 'route']
 	ifup_output=""
 	try:
+		time.sleep(4)
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
-		time.sleep(2)
+		time.sleep(0.5)
 	except:
 		print "error to execute the command" , cmd
 		logger.error("error to execute the command %s",cmd)
@@ -457,6 +460,7 @@ def checkGWsubnet(interface): #-------------------
 		print "No default Gateway for wlan0"
 		logger.info("No default Gateway for wlan0")	
 		message=""
+		ipaddr=""
 		networkdbmod.storemessage(message)	
 
 	return True, ipaddr
@@ -468,8 +472,8 @@ def addIP(interface, brd=True): #-------------------
 	if not goON:
 		return
 	
-	print "try to set Static IP " , IPADDRESS
-	logger.info("try to set Static IP: %s" , IPADDRESS)
+	print "Set Local Static IP " , IPADDRESS
+	logger.info("Set Local Static IP: %s" , IPADDRESS)
 	try:
 		if brd:
 			# ip addr add 192.168.0.77/24 broadcast 192.168.0.255 dev eth0
@@ -485,6 +489,7 @@ def addIP(interface, brd=True): #-------------------
 		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
+		logger.info("Failed to set local Static IP: %s" , IPADDRESS)
 		print "ADD ip address Fails : ", e
 		return False
 
@@ -572,7 +577,7 @@ def connect_AP(firsttime=False):
 
 		
 		if (not firsttime)or(IPADDRESS not in currentipaddr):	
-			#restart DNSmask, this should help to acquire the new IP address (needed for teh DHCP mode)
+			#restart DNSmask, this should help to acquire the new IP address (needed for the DHCP mode)
 			start_dnsmasq()
 		return True
 	
@@ -747,7 +752,7 @@ def connect_network_init(internetcheck=False, backtoAP=False):
 		
 	# section relevant to start of MAstercallback
 
-	logger.info('After init_network. Start Hearthbeat to synch clock and start mastercallback')		
+	logger.info('After init_network. Synch clock and start mastercallback')		
 	if not selectedplanmod.CheckNTPandAdjustClockandResetSched():
 		selectedplanmod.resetmastercallback()
 	
@@ -841,7 +846,7 @@ def connect_network(internetcheck=False, backtoAP=False):
 					logger.info('Send first mail ! ')
 					emailmod.sendallmail("alert", "System has been reconnected to wifi network")				
 				else:
-					if backtoAP:
+					if backtoAP: # in case connection to Internet not working
 						print "Connectivity problem with WiFi network " ,ssid[0] , "going back to wifi access point mode"
 						logger.info('Connectivity problem with WiFi network, %s, gong back to wifi access point mode' ,ssid )
 						connect_AP()
@@ -855,8 +860,8 @@ def connect_network(internetcheck=False, backtoAP=False):
 		logger.info('No Saved Wifi Network available')	
 		print "try to fallback to AP mode"
 		# go back and connect in Access point Mode
-		#logger.info('Going back to Access Point mode')
-		#connect_AP()
+		logger.info('Going back to Access Point mode')
+		connect_AP()
 		connected=False
 
 	return connected
@@ -949,6 +954,9 @@ def get_local_ip():
 		print "Local IP Error "
 		logger.error('Error to get local IP')
 		return ""
+	global IPADDRESS
+	if IPADDRESS in ipaddrlist:
+		return IPADDRESS
 	isaddress , ipaddr = IPv4fromString(ipaddrlist)
 	if not isaddress:
 		print "Local IP Error with Sintax"
@@ -991,6 +999,17 @@ def get_local_ip_raw():
 	print ipaddrlist
 	return ipaddrlist
 
+
+def multiIPv4fromString(ipaddrlist):
+	addresslist=[]
+	isaddress=True
+	while isaddress:
+		isaddress , ipaddr = IPv4fromString(ipaddrlist)
+		if isaddress:
+			addresslist.append(ipaddr)
+			rightposition= ipaddrlist.index(ipaddr) + len(ipaddr) - 1
+			ipaddrlist=ipaddrlist[rightposition :]
+	return addresslist
 
 def IPv4fromString(ip_string): #extract the first valid IPv4 address in the string
 	print " Start -- "

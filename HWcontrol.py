@@ -31,16 +31,17 @@ else:
 	from stepperDOUBLEmod import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
 	import spidev
 	import smbus
+	import Hygro24_I2C
 	import RPi.GPIO as GPIO
 	GPIO.setmode(GPIO.BCM) 
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
-RPIMODBGPIOPINLISTNA=RPIMODBGPIOPINLIST+NALIST
+RPIMODBGPIOPINLISTNA=NALIST+RPIMODBGPIOPINLIST
 RPIMODBGPIOPINLISTPLUS=RPIMODBGPIOPINLISTNA+GPIOPLUSLIST
 
 ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
@@ -178,6 +179,9 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[18]: #DS18B20 temperature sensor	
 		return get_DS18B20_temperature(cmd, message, recdata)
+		
+	elif cmd==HWCONTROLLIST[19]: #Hygro24_I2C temperature sensor		
+		return get_Hygro24_capacity(cmd, message, recdata)
 
 
 
@@ -441,8 +445,7 @@ def get_DS18B20_temperature(cmd, message, recdata):
 		logger.error("DS18B20 address not found: %s", SensorAddress)
 		recdata.append(cmd)
 		recdata.append("DS18B20 address not found")
-		recdata.append(0)
-		recdata.append(successflag)	
+		recdata.append(0)	
 		return True
 	
 	
@@ -482,6 +485,69 @@ def get_DS18B20_temperature(cmd, message, recdata):
 	recdata.append(successflag)	
 	return True
 	
+
+	
+def get_Hygro24_capacity(cmd, message, recdata):
+	
+	print "starting Hygro24_I2C reading ****"
+	
+	successflag=0
+	
+	# this sensors uses the I2C protocol. Multiple sensors can be connected and can be distinguished using an Address 
+	# in this algorithm, the message should include the address, if the address field is empty then it gets the default address 0x20.
+
+
+	msgarray=message.split(":")
+
+	measureUnit=""
+	if len(msgarray)>4:
+		measureUnit=msgarray[4]
+
+	SensorAddress="0x20"
+	if len(msgarray)>6:
+		SensorAddress=msgarray[6]	
+	
+	if SensorAddress=="":
+		SensorAddress="0x20" # try with default address
+
+	try:
+		if SensorAddress.startswith("0x"):
+			SensorAddressInt = int(SensorAddress, 16)
+		else:
+			SensorAddressInt = int(SensorAddress)
+	except:
+		print "can't parse %s as an i2c address", SensorAddress
+		# address not correct
+		logger.error("Hygro24_I2C address incorrect: %s", SensorAddress)
+		recdata.append(cmd)
+		recdata.append("Hygro24_I2C address incorrect")
+		recdata.append(0)
+		return True
+	
+	reading=0
+	bus = 1
+	chirp = Hygro24_I2C.ChirpAV(bus, SensorAddressInt)
+
+	isOK , reading=chirp.read_capacity()
+	# need to add control in case there is an error in reading
+	print "reading ", reading
+
+	if isOK:
+		successflag=1
+	else:
+		logger.error("Hygro24_I2C reading error")
+		recdata.append(cmd)
+		recdata.append("Hygro24_I2C reading error")
+		recdata.append(0)
+		return True
+	
+	
+	recdata.append(cmd)
+	recdata.append(reading)
+	recdata.append(successflag)	
+	return True
+	
+
 
 	
 def get_MCP3008_channel(cmd, message, recdata):
@@ -575,7 +641,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 		spi.close()
 		successflag=1
 	except:
-		print " I2C bus reading error, MCP3008 , AnalogDigitalConverter  "
+		print " DPI bus reading error, MCP3008 , AnalogDigitalConverter  "
 	
 	recdata.append(cmd)
 	recdata.append(volts)
@@ -713,11 +779,12 @@ def GPIO_setup(PINstr, state, pull_up_down=""):
 
 
 
-def GPIO_add_event_detect(PINstr, evenslopetype, eventcallback):
+def GPIO_add_event_detect(PINstr, evenslopetype, eventcallback, bouncetimeINT=200 ):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
 	if isRealPIN:
 		print "add event ", PIN
-		GPIO.add_event_detect(PIN, GPIO.BOTH, callback=eventcallback, bouncetime=200)
+		# bouncetime in ms to avoid signal instability (default 200)
+		GPIO.add_event_detect(PIN, GPIO.BOTH, callback=eventcallback, bouncetime=bouncetimeINT)
 
 
 def GPIO_remove_event_detect(PINstr):

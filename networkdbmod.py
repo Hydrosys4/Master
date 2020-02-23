@@ -101,6 +101,14 @@ def getWAITTOCONNECT():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 	
+def getCUSTOMURL():
+	recordkey="name"
+	recordvalue="IPsetting"
+	keytosearch="customURL"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	return dataitem
+	
+	
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
 	searchvalue="IPsetting"

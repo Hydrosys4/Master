@@ -26,6 +26,8 @@ DEFWTDATAFILENAME="default/definterruptdata.txt"
 global WTdata
 WTdata=[]
 
+
+
 # read WTdata -----
 if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering setting file
 	#read from default file
@@ -111,9 +113,6 @@ def consistencycheck():
 					WTdata.remove(ln)
 					
 	saveWTsetting()
-
-	# extra code for the sensor field which should be consistent with sensor names in HW
-
 
 
 def replacewordandsave(oldword,newword):
@@ -211,12 +210,11 @@ def replacerow(element,dicttemp):
 	for line in WTdata:
 		if searchfield in line:
 			if line[searchfield]==searchvalue:
-				for row in line:
+				for row in dicttemp: # modified, in this way it adds the new items is present
 					line[row]=dicttemp[row]
 					filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
 				return True
 	return False
-
 
 
 def changesaveWTsetting(WTname,WTparameter,WTvalue):
@@ -235,6 +233,8 @@ def searchdata(recordkey,recordvalue,keytosearch):
 				if keytosearch in ln:
 					return ln[keytosearch]	
 	return ""
+
+
 
 def gettimedata(name):
 	# return list with three integer values: hour , minute, second

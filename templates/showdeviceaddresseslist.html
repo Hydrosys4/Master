@@ -23,6 +23,8 @@
 				<tr>
 					<th>Address</th>
 					<th>Type</th>
+					<th>Name</th>
+					<th>Info</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -42,7 +44,21 @@
 					<label>{{ item.type }}</label>
 				</td>
 
-
+				<td>
+					<label>{{ item.name }}</label>
+				</td>
+				
+				<td>
+					<label>{{ item.message }}</label>
+				</td>
+				
+				<td>
+					{% if item.changeaddressflag=="1" %}
+					<button class="setbutton btn-sm btn btn-success btn-block" type="button" name="setsensor" element="{{item.name}}">Change</button>
+					{% else %}
+					<button class="setbutton btn-sm btn btn-success btn-block" type="button" name="setsensor" element="{{item.name}}" disabled>Change</button>
+					{% endif %}
+				</td>
 
 
 			</tr>

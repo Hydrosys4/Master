@@ -25,20 +25,27 @@
 			 
 			 <!---- start panel  -->
 			 
-		<form novalidate="true" action="{{ url_for('advanced') }}" method="post" id="theform" name="theform">
+		<form novalidate="true" action="{{ url_for('advanced') }}" method="post" name="theform">
 			 
-			 <input id="autotags" name="element" value="{{elem}}" type="hidden" />
+			 <input name="element" value="{{elem}}" type="hidden" />
 			 
 			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
 			 
 			 <div class="panel panel-primary">
 			  <div class="panel-heading">
 				  <div class="row">
-					<div class="panel-title col-xs-8"><span style="font-size:1.4em;">{{ elem }}
+					<div class="panel-title col-xs-4"><span style="font-size:1.4em;">{{ elem }}
 
 					</span></div>
+						<div class=" col-xs-4">				
+								<button name="goback" idref="actionbtn{{elem}}" value="back" type="submit" class="thebutton btn btn-primary btn-md btn-block btn-warp dontwantgap">
+									Back
+
+								</button>
+						</div>
+
 					<div class=" col-xs-4">
-					<button id="savebtn" name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+					<button name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
 					<span class="glyphicon glyphicon-saved"></span>
 					</button>
 					</div>
@@ -110,7 +117,7 @@
 																				<!-- new -->
 
 																						<div style="width: 100%" class="input-group clockpicker" data-autoclose="true">
-																							<input readonly="readonly" type="text" class="form-control input-sm dontwantgap " id="SelTime1" value="{{ rowp[0] }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}0">
+																							<input readonly="readonly" type="text" class="form-control input-sm dontwantgap " value="{{ rowp[0] }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}0">
 																							<script type="text/javascript">
 																							$('.clockpicker').clockpicker({ placement: 'top'});
 																							</script>								
@@ -214,18 +221,24 @@
 			  </div>
 			  <div class="panel-footer">
 				  <div class="row">
-						<div class="panel-title col-xs-4">
+						<div class="panel-title col-xs-3">
 							<span style="font-size:1.4em;">{{ elem }}
 							</span>
 						</div>
-						<div class=" col-xs-4">				
-								<button id="defaultbtn" name="setdefault" idref="actionbtn{{elem}}" value="setdefault" type="submit" class="thebutton small btn btn-danger btn-md btn-block btn-warp dontwantgap">
-									Restore Default Setting
+						<div class=" col-xs-3">				
+								<button name="goback" idref="actionbtn{{elem}}" value="back" type="submit" class="thebutton btn btn-primary btn-md btn-block btn-warp dontwantgap">
+									Back
+
+								</button>
+						</div>
+						<div class=" col-xs-3">				
+								<button name="setdefault" idref="actionbtn{{elem}}" value="setdefault" type="submit" class="thebutton small btn btn-danger btn-md btn-block btn-warp dontwantgap">
+									Restore Default
 								<span class="glyphicon glyphicon-cog"></span>
 								</button>
 						</div>
-						<div class=" col-xs-4">
-						<button id="savebtn" name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+						<div class=" col-xs-3">
+						<button name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
 						<span class="glyphicon glyphicon-saved"></span>
 						</button>
 						</div>

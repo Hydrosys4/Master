@@ -30,7 +30,13 @@ allowwateringplan={} # define the flag that control the waterscheduling activati
 def cyclereset(element):
 	global AUTO_data
 	waitingtime=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
-	AUTO_data[element]={"cyclestartdate":datetime.now(),"lastwateringtime":datetime.now() - timedelta(minutes=waitingtime),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
+	statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())	
+	statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.utcnow() - timedelta(minutes=waitingtime))
+	statusdataDBmod.write_status_data(AUTO_data,element,"cyclestatus","done")
+	statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",0)	
+	statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)	
+	statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
+
 
 def cycleresetall():
 	global AUTO_data
@@ -617,14 +623,13 @@ def checkworkmode(element):
 
 def activatewater(element, duration):
 	# check the activation of the doser before the pump
-	doseron=autofertilizermod.checkactivate(element,duration)
+	doseron=autofertilizermod.checkactivate(element,duration) # this has a blocking sleep command
 	#activate pump		
-	hardwaremod.makepulse(element,duration)
+	pulseok=hardwaremod.makepulse(element,duration)
 	# salva su database
-	logger.info('%s Pump ON, optional time for msec = %s', element, duration)
-	print 'Pump ON, optional time for msec =', duration
-	actuatordbmod.insertdataintable(element,duration)
-
+	if "Started" in pulseok:
+		actuatordbmod.insertdataintable(element,duration)
+	return pulseok
 
 
 if __name__ == '__main__':

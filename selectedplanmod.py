@@ -159,11 +159,12 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 		# activation of the doser before the pump
 		doseron=autofertilizermod.checkactivate(target,duration)	
 		# watering
-		hardwaremod.makepulse(target,duration)
+		#hardwaremod.makepulse(target,duration)
+		activateandregister(target,duration)
 		# salva su database
-		logger.info('Switch Pump %s ON, optional time for sec = %s', target, duration)
-		print 'Pump ON, optional time for sec =', duration
-		actuatordbmod.insertdataintable(target,duration)
+		#logger.info('Switch Pump %s ON, optional time for sec = %s', target, duration)
+		#print 'Pump ON, optional time for sec =', duration
+		#actuatordbmod.insertdataintable(target,duration)
 		
 	return True
 
@@ -233,23 +234,34 @@ def heartbeat():
 			reachgoogle=networkmod.check_internet_connection(1)
 
 			if not reachgoogle:
-				logger.warning('Heartbeat check , test ping not able to reach Google')
+				logger.warning('Heartbeat check wifi SSID ok, but test ping not able to reach Google')
 				print 'Heartbeat check , no IP connection'
 				#connected=networkmod.connect_network() # use this in case you require the system to try connect wifi again in case no internet is reached
-				logger.warning('Heartbeat check , DHCP reset counter %s' , str(networkmod.DHCP_COUNTER))			
+				#logger.warning('Heartbeat check , DHCP reset counter %s' , str(networkmod.DHCP_COUNTER))			
 				# DHCP reset
-				if (networkmod.DHCP_COUNTER % 16)==0: # try to reset every 16x15min =4 hours 
+				#if (networkmod.DHCP_COUNTER % 16)==0: # try to reset every 16x15min =4 hours 
 					# try to reset DHCP
-					logger.warning('Heartbeat check , reset DHCP')
-					print 'Heartbeat check , reset DHCP'
-					networkmod.resetDHCP()
+					#logger.warning('Heartbeat check , reset DHCP')
+					#print 'Heartbeat check , reset DHCP'
+					#networkmod.resetDHCP()
 					
-				networkmod.DHCP_COUNTER=networkmod.DHCP_COUNTER+1				
+				#networkmod.DHCP_COUNTER=networkmod.DHCP_COUNTER+1		
+				
+				goON, GWipaddr=networkmod.checkGWsubnet("wlan0")
+				if GWipaddr=="":
+					logger.info('Gateway IP address NOT found, back to AP mode')
+					# back to AP mode! kind of risky business
+					networkmod.connect_AP()
+					
+				else:
+					logger.info('Gateway IP address found %s', GWipaddr)
+					
+		
 				connected=False
 			else:
 				logger.info('Heartbeat check , wifi connection OK')
 				print 'Heartbeat check , wifi connection OK'
-				networkmod.DHCP_COUNTER=0
+				#networkmod.DHCP_COUNTER=0
 				connected=True			
 
 	if connected:
@@ -277,6 +289,18 @@ def heartbeat():
 	# check clock with NTP and reset master scheduler in case of clock change	
 	if CheckNTPandAdjustClockandResetSched():
 		return True
+	
+	
+	#check the static IP address
+	currentipaddr=networkmod.get_local_ip_raw()
+	logger.info('Target IP address= %s. Current access point IP addresses= %s', networkmod.IPADDRESS,currentipaddr)		
+	if networkmod.IPADDRESS not in currentipaddr:
+		#set IP address
+		logger.warning('Local Static IP address not in the list, Set Target IP address')
+		networkmod.addIP("wlan0")
+	else:
+		logger.info('Local Statip IP address OK')
+	
 	
 	# check master job has a next run"
 	isok, datenextrun = SchedulerMod.get_next_run_time("master")

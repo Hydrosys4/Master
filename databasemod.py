@@ -175,10 +175,23 @@ def getdatafromfieldslimit(filename,table,fieldlist,valuelist,limit):
 	if connected:
 		fieldsstr= ', '.join(fieldlist)
 		limitstr=str(limit)
-		query_string = 'select %s from %s ORDER BY ROWID DESC LIMIT %s' % (fieldsstr, table,limitstr)	
-		cur = db.execute(query_string)
+		# Never do this -- insecure!
+		#symbol = 'RHAT'
+		#c.execute("SELECT * FROM stocks WHERE symbol = '%s'" % symbol)
+
+		# Do this instead
+		#t = ('RHAT',)
+		#c.execute('SELECT * FROM stocks WHERE symbol=?', t)
+		
+		# example c.execute("SELECT MAX(pic_num) FROM Pictures WHERE id = ?", (str(user_id), ))
+		# example c.execute('SELECT {} FROM {} WHERE id=?'.format(column, table), row))
+		#previous usage: query_string = 'select %s from %s ORDER BY ROWID DESC LIMIT %s' % (fieldsstr, table,limitstr)	
+		query_string = 'select ? from ? ORDER BY ROWID DESC LIMIT ?'
+		params=(fieldsstr, table, limitstr)
+		cur = db.execute("select {} from '{}' ORDER BY ROWID DESC LIMIT {}".format(fieldsstr, table, limitstr))
 		db.commit()
 		datarow = cur.fetchall()
+		#print datarow
 		del valuelist[:]
 		for rowdata in datarow:
 			row=[]
@@ -203,7 +216,7 @@ def deleteallrow(filename,table):
 	db, connected = get_db(filename)
 	if connected:
 		#remove old items from database in case the same name is already present
-		db.execute('DELETE FROM ' + table)
+		db.execute('DELETE FROM "' + table + '"')
 		db.commit()
 		db.close()
 
@@ -215,11 +228,18 @@ def insertrowfields(filename,table,rowfield,rowvalue):
 			listfield.append("'"+itemfield+"'")
 		questionmarks=', '.join('?' * len(rowvalue))
 		var_string = ', '.join(listfield)
-		query_string = 'INSERT INTO %s (%s) VALUES (%s);' % (table, var_string, questionmarks)
+		#query_string = 'INSERT INTO %s (%s) VALUES (%s);' % (table, var_string, questionmarks)
+		#print query_string
+		query_string = "INSERT INTO '{}' ({}) VALUES ({});" .format(table, var_string, questionmarks)
+
 		print query_string
 		print var_string
 		try:
-			db.execute(query_string, rowvalue)					
+			# db.execute(query_string, rowvalue)	
+			# cur = db.execute("select '{}' from '{}' ORDER BY ROWID DESC LIMIT '{}'".format(fieldsstr, table, limitstr))
+			#db.execute(query_string, rowvalue)	
+			db.execute(query_string, rowvalue)	
+							
 			db.commit()
 		except:
 			print "Error reading the sensor database, sql querystring=",query_string 

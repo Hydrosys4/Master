@@ -24,7 +24,15 @@ AUTO_data["default"]={"lastactiontime":datetime.utcnow(),"actionvalue":0, "alert
 def cyclereset(element):
 	global AUTO_data
 	waitingtime=hardwaremod.toint(automationdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
-	AUTO_data[element]={"lastactiontime":datetime.utcnow() - timedelta(minutes=waitingtime),"status":"ok","actionvalue":0, "alertcounter":0, "infocounter":0}
+	statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow() - timedelta(minutes=waitingtime))
+	statusdataDBmod.write_status_data(AUTO_data,element,"status","ok")
+	statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",0)	
+	statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)	
+	statusdataDBmod.write_status_data(AUTO_data,element,"infocounter",0)
+
+
+
+
 
 def cycleresetall():
 	global AUTO_data

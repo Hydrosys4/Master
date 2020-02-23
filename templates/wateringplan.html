@@ -24,7 +24,7 @@
 			 
 		<form novalidate="true" action="{{ url_for('wateringplan') }}" method="post" >
 			 
-			 <input id="autotags" name="element" value="{{elem}}" type="hidden" />
+			 <input name="element" value="{{elem}}" type="hidden" />
 			 		 
 			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
 			 
@@ -35,13 +35,13 @@
 							<span style="font-size:1.2em;">{{ elem }}</span>
 						</div>
 						<div class=" col-xs-3">				
-							<button id="advconfigbtn" name="advconfig" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
+							<button name="advconfig" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
 								Schema Setup
 							<span class="glyphicon glyphicon-cog"></span>
 							</button>
 						</div>
 						<div class=" col-xs-3">				
-							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+							<button name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
 							<span class="glyphicon glyphicon-saved"></span>
 							</button>
 						</div>
@@ -98,7 +98,7 @@
 							
 							
 							<td>
-								<button id="dropminus" name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
+								<button name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
 								<span class="glyphicon glyphicon-minus"></span>
 								</button>
 						
@@ -118,7 +118,7 @@
 							
 							</td>
 							<td>
-								<button id="dropplus" name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
+								<button name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
 								<span class="glyphicon glyphicon-plus"></span>
 								</button>
 							
@@ -150,13 +150,13 @@
 							<span style="font-size:1.2em;">{{ elem }}</span>
 						</div>
 						<div class=" col-xs-3">				
-							<button id="advconfigbtn" name="advconfig" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
+							<button name="advconfig" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
 								Schema Setup
 							<span class="glyphicon glyphicon-cog"></span>
 							</button>
 						</div>
 						<div class=" col-xs-3">				
-							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+							<button name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
 							<span class="glyphicon glyphicon-saved"></span>
 							</button>
 						</div>

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.11d"
+Release="1.12d"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -928,10 +928,18 @@ def saveit():
 		mailaddress=request.args['address']
 		mailtitle=request.args['title']
 		mailtime=request.args['time']
-		print "save mail, name " ,mailaname , " address=" , mailaddress , " Title=" , mailtitle , " Time=", mailtime
+		mailurl=request.args['url']
+		print "save mail, name " ,mailaname , " address=" , mailaddress , " Title=" , mailtitle , " Time=", mailtime , "CustomURL=" , mailurl
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_ADDR,mailaddress)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_CTRL_TITLE,mailtitle)
 		hardwaremod.changesavecalibartion(mailaname,hardwaremod.HW_FUNC_TIME,mailtime)
+		oldurl=networkdbmod.getCUSTOMURL()
+		if not oldurl==mailurl:
+			networkdbmod.changesavesetting("customURL",mailurl)
+			# Change hostapd file first row with HERE
+			data=[]
+			networkdbmod.readdata(data)
+			sysconfigfilemod.hostapdsavechangerow_spec(data)
 
 		
 
@@ -1374,6 +1382,8 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_ADDR))
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_TITLE))
 		mailsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD))
+		# mail URL to be founf in network data
+		mailsetting.append(networkdbmod.getCUSTOMURL())
 		mailsettinglist.append(mailsetting)
 		
 	# stepper	
@@ -1458,7 +1468,7 @@ def showdeviceaddresseslist():  # set the hbridge zero point
 		if requesttype=="cancel":
 			return redirect(url_for('show_Calibration'))	
 	
-	deviceaddresseslist=hardwaremod.get_devices_list()
+	deviceaddresseslist=hardwaremod.get_device_list_address_property()
 
 	return render_template('showdeviceaddresseslist.html',deviceaddresseslist=deviceaddresseslist)
 
@@ -1926,10 +1936,10 @@ def interrupt():
 	
 	
 	
-	modelist=["None","Pre-emptive Blocking", ]
-	sensormodelist=["Edge" , "Edge + Level"]
-	followupactionlist=["None", "Extend blocking state" , "Remove blocking state" , "Follow-up action" , "Extend and Follow-up" , "Remove and Follow-up" ]
-	formlist=["workmode", "sensor" , "sensor_mode", "actuator_output", "preemptive_period", "actionmode_afterfirst", "folloup_output", "allowedperiod" , "mailalerttype" ]
+	modelist=["None","Pre-emptive Blocking","Counter Only" ]
+	sensormodelist=["First Edge" , "First Edge + Level", "Second Edge" , "Second Edge + Level (inv)", "both Edges"]
+	followupactionlist=["None", "Extend blocking state" , "Remove blocking state" , "Follow-up action" , "Remove and Follow-up" ]
+	formlist=["workmode", "sensor" , "sensor_mode", "actuator_output", "preemptive_period", "actionmode_afterfirst", "folloup_output", "allowedperiod" , "mailalerttype" , "interrupt_triggernumber" , "interrupt_validinterval"]
 	alertlist=["infoandwarning", "warningonly","none"]
 
 
@@ -1956,8 +1966,8 @@ def interrupt():
 			dicttemp[formlist[6]]=request.form[element+'_7']			
 			dicttemp[formlist[7]]=[request.form[element+'_8_1'],request.form[element+'_8_2']]
 			dicttemp[formlist[8]]=request.form[element+'_9']
-
-
+			dicttemp[formlist[9]]=request.form[element+'_10']
+			dicttemp[formlist[10]]=request.form[element+'_11']
 
 			print "dicttemp ----->",dicttemp 
 			interruptdbmod.replacerow(element,dicttemp)		
@@ -2176,6 +2186,10 @@ def advanced():
 			advancedmod.restoredefault()
 			print "default restored"
 			flash('Default values have been set')
+			
+		if actiontype == "goback":	
+			print "open watering plan setting"
+			return redirect('/wateringplan/')
     
     
     
@@ -2368,6 +2382,7 @@ def hardwaresettingedit():
 			selectedplanmod.resetmastercallback()
 			#initiate the GPIO OUT pins
 			initallGPIOpins()
+			flash('New Hardware configuration has been Applied ')
 			return redirect(url_for('hardwaresetting'))
 
 		if requesttype=="reload":	
@@ -2551,7 +2566,11 @@ def currentpath(filename):
 
 def functiontest():
 	print " testing "
+	
+	selectedplanmod.periodicdatarequest("Analog-123")
 
+
+	#selectedplanmod.heartbeat()
 	#mailname="mail1"
 	#testo=[" riga 1 ", "riga 2 " , " Riga fine"]
 	#emailmod.sendallmail("alert","prova mail", testo)

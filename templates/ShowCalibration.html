@@ -1397,7 +1397,21 @@
 			</div>	
 			</div>	
 			
+			{% if (mailsetting[4]=="mail+info+link") %}
+			<div class="form-group">			
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Custom URL:</label>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<input value="{{mailsetting[5]}}" class="form-control" id="url_{{mailsetting[0]}}" name="url" type="text">
+
+				</div>
+			</div>	
+			</div>				
+			{% endif %}
 			
+			<!-- Mail testing buttons -->
 			<div class="row">
 				<div class="col-xs-4">
 					<button id="test_{{mailsetting[0]}}" class="testmailbutton btn-sm btn btn-default" type="button" name="mail" element="{{mailsetting[0]}}">Send Test Mail</button>
@@ -1456,7 +1470,7 @@
 				var elem=$(this).attr('element');
 					$.ajax({
 								type: "GET",
-								url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&address=" + $('#address_' + elem).val() + "&title=" + $('#title_' + elem).val()+ "&time=" + $('#SelTime_' + elem).val(),
+								url: $SCRIPT_ROOT + "/saveit/?name=" + prid  + "&element=" + elem + "&address=" + $('#address_' + elem).val() + "&title=" + $('#title_' + elem).val()+ "&time=" + $('#SelTime_' + elem).val()+ "&url=" + $('#url_' + elem).val(),
 								contentType: "application/json; charset=utf-8",
 								data: { echoValue: "requestfordata" },
 								success: function(data) {

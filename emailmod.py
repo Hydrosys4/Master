@@ -90,21 +90,25 @@ def create_htmlbody(bodytextlist):
 	return html
 
 
-def create_htmladdresses(address1, address2, port):
+def create_htmladdresses(descriptionlist, addresslist, port):
 	
-	address1=address1+":"+port
-	address2=address2+":"+port
 	html = """\
 
-		<h3>Below the links for System connection:</h3>
-		<p></p>
-		   <a href="http://""" + address1 + """">link for remote connection </a>
-		<p></p>
-		<p></p>
-		   <a href="http://""" + address2 + """">link for local connection </a>		   
-		<p></p>
-		<p></p>
+	<h3>Below the links for System connection:</h3>
+	<p></p>
+	
 	"""
+	
+	for inde in range(len(addresslist)):
+	
+		addressport=addresslist[inde]+":"+port
+
+		html = html + """\
+
+			<a href="http://""" + addressport + """"> """ + descriptionlist[inde] + """ </a>
+			<p></p>
+			<p></p>
+		"""
 	return html
 
 
@@ -251,7 +255,21 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 		else:		
 			port=str(networkmod.PUBLICPORT)
 			if cmd=="mail+info+link":
-				htmlbody=htmlbody+create_htmladdresses(ipext, iplocal, port)
+				addresslist=[]
+				descriptionlist=[]
+				addresslist.append(iplocal)
+				descriptionlist.append("Link for local Access")
+				addresslist.append(ipext)
+				descriptionlist.append("Link for Remote Access")
+				customURL=networkmod.getCUSTOMURL()
+				if not customURL=="":	
+					addresslist.append(customURL)		
+					descriptionlist.append("your Link")
+				print "Mail url list ",addresslist
+				htmlbody=htmlbody+create_htmladdresses(descriptionlist,addresslist, port)
+
+				
+			
 	if showtable:
 		# table with information
 		matrixinfo=sensordbmod.sensorsysinfomatrix()

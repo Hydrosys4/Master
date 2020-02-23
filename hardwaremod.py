@@ -282,7 +282,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 					Scalevalue=tonumber(Scale, scaledefault)
 					Offsetvalue=tonumber(Offset, offsetdefault)					
 					readingvalue=tonumber(Thereading, 0)
-					if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consisten, stops here
+					if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consistent, stops here
 						if Direction!="inv":
 							den=Maxvalue-Minvalue
 							readingvalue=(readingvalue-Minvalue)/den
@@ -292,7 +292,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 					if Scalevalue>0:
 						readingvalue=readingvalue*Scalevalue		
 					readingvalue=readingvalue+Offsetvalue
-					Thereading=str(readingvalue)						
+					Thereading=str('%.2f' % readingvalue)						
 					print " Sensor " , sensorname  , "Normalized reading ",Thereading										
 					
 				else:
@@ -1033,15 +1033,55 @@ def get_devices_list():
 		
 	return outlist
 		
+def get_device_list_address_property():
+	addresslist=get_devices_list()
+	#print "before=",  addresslist
+	for item in addresslist:
+		if item["type"]=="I2C":
+			recordkey=HW_CTRL_PIN
+			recordvalue="I2C"
+			recordkey1=HW_CTRL_ADDR
+			recordvalue1=item["address"]
+			keytosearch=HW_INFO_NAME
+			namelist=searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
+			item["message"]=""
+			item["name"]=""
+			item["cmd"]=""			
+			if len(namelist)==1:
+				# found only one item corresponding to the search
+				item["name"]=namelist[0]
+				# find the associated command
+				recordkey=HW_INFO_NAME
+				recordvalue=item["name"]				
+				keytosearch=HW_CTRL_CMD
+				item["cmd"]=searchdata(recordkey,recordvalue,keytosearch)								
+			elif len(namelist)==0:
+				item["message"]="Unknown"
+			elif len(namelist)>1:
+				item["message"]="Duplicated!!"
 
+
+			# flag to enable the change address button
+			# currently only one hardware support this option
+			item["changeaddressflag"]=""
+			if item["cmd"]=="Hygro24_I2C":
+				item["changeaddressflag"]="1"
+		else:
+			item["message"]=""
+			item["name"]=""
+			item["cmd"]=""
+			item["changeaddressflag"]=0
+			
+	print "after=",  addresslist
+	return addresslist
 
 
 
 def GPIO_setup(PIN, state, pull_up_down):
 	HWcontrol.GPIO_setup(PIN, state, pull_up_down)
 
-def GPIO_add_event_detect(PIN, evenslopetype, eventcallback):
-	HWcontrol.GPIO_add_event_detect(PIN, evenslopetype, eventcallback)
+def GPIO_add_event_detect(PIN, evenslopetype, eventcallback , bouncetimeINT=200):
+	HWcontrol.GPIO_add_event_detect(PIN, evenslopetype, eventcallback , bouncetimeINT)
 
 def GPIO_remove_event_detect(PIN):
 	HWcontrol.GPIO_remove_event_detect(PIN)
@@ -1548,6 +1588,21 @@ def deleterow(element, temp=True):
 					filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
 					return True
 		return False
+
+
+
+def blink(PINstr, wait, numtimes):
+	HWcontrol.GPIO_setup(PINstr, "out")
+	for i in range(0,numtimes):
+		level=1
+		HWcontrol.GPIO_output(PINstr, level)
+		time.sleep(wait)
+		level=0
+		HWcontrol.GPIO_output(PINstr, level)	
+		time.sleep(wait)
+	
+
+
 
 
 	

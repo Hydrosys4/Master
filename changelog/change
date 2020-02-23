@@ -449,6 +449,59 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - add log for the Hardware activation basic level
 
+2019-11-18 -> release 111c
+
+- Minor changes to the GUI
+- changed automation Hat v8 default hygrometer scale to 100
+
+2019-12-29 -> release 111d
+
+- Add support for the termometer DS18B20
+
+2020-01-03 -> release 111e
+
+- Enable interrupt blocking state even when actuator value is zero
+- record pulse in database only if really happening
+
+2020-01-04 -> release 111f
+
+- Include multi-interrupt countes within period
+- Removed DHCP reset, added gateway IP address check
+- Added Check local static IP address in heartbeat
+- fixed the fallback to AP mode if there are no preconditions to connect to wifi
+
+2020-01-05 -> release 111g
+
+- pulse counter fine tuning
+- resetcycle fix
+
+2020-01-05 -> release 112
+
+- initial support of I2C capacitive hygrometers (ver 2.4)
+
+2020-01-18 -> release 112a
+
+- modify the interrupt procedure, add the inverse logic (pull_up or pull_down)
+- add first edge detection
+- add frequency parameter to set the bouncing time
+
+2020-01-25 -> release 112b
+
+- Communication protocol with HygroI2C sensor completely rewritten to make it more stable
+
+2020-01-25 -> release 112c
+
+- include I2C address change button, function not yet implemented
+
+2020-02-23 -> release 112d
+
+- change "cancel" to "back" in sensor calibration page
+- Add the button "back" to the schema watering page
+- Modify Sql query to allow names with "-" and special characters, this is a basic change affecting many functions, should be monitored for possible errors.
+- Add the Automation v9 HAT setting
+- Add Custom URL field for the email links
+- when multiple local IP address, prefer the Default IP address 
+
 
 
 ------- Future releases: -----------

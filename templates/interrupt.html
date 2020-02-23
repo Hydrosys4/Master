@@ -130,9 +130,11 @@
 				</div>		
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 					<select class="form-control input-sm dontwantgap" name="{{elem}}_2">
+					<option selected="selected" value="">None</option>		
 					{% for name in sensorlist %}	
 						<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-					{% endfor %}											
+					{% endfor %}
+															
 					</select>
 				</div>
 			</div>
@@ -159,6 +161,58 @@
 	
 			</div>	
 			</div>	
+			
+		
+		<div class="form-group">			
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>Event trigger</legend>  
+				</div>	
+			</div>	
+			</div>	
+		
+		<!-- first event -->
+		
+			<div class="form-group">					
+			<div class="row">
+
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+
+				<label>Number of interrupts to trigger an event</label>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+
+					<input value="{{settingparam[10]}}" class="form-control input-sm" name="{{elem}}_10" type="text">
+
+					<div class="small">Counts the Number of interrupts to trigger the event on the actuator</div>
+
+				</div>
+	
+			</div>	
+			</div>	
+
+			<div class="form-group">					
+			<div class="row">
+
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+
+
+				<label>Max Time between interrupts to count the same event (sec) </label>
+				</div>
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+
+					<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
+					<div class="small">Max Time interval between consecutive interrupts to count as a sequence, if time between two interrupts is bigger then it restart counting</div>
+                                       
+				</div>
+	
+			</div>	
+			</div>	
+
+
+
+		<!-- END first event -->
 
 			<div class="form-group">					
 			<div class="row">							
@@ -181,6 +235,7 @@
 			</div>	
 
 
+
 			<div class="form-group">		
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
@@ -197,6 +252,15 @@
 				</div>
 			</div>				
 			</div>				
+			
+			<div class="form-group">			
+			<div class="row">
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<legend>Follow up</legend>  
+				</div>	
+			</div>	
+			</div>
+			
 				
 			<div class="form-group">					
 			<div class="row">
@@ -213,7 +277,12 @@
 						<option {% if name==settingparam[6] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
 					</select>
-					<div class="small">Action to be taken if other interrupts happen within the duration of the pre-emptive status </div>
+					<div class="small">Action to be taken if further interrupts happen within the duration of the pre-emptive status </div>
+						<div class="small">- Remove and Follow-up: removes the pre-emptive status, reset and perform the follow-up action</div>
+						<div class="small">- Extend blocking state: If other interrupts are detected in the pre-emption perios then this period will be extended according to the set duration </div>
+						<div class="small">- Remove blocking state: removes the pre-emptive status</div>
+						<div class="small">- Follow-up action: perform the follow-up action</div>
+
 
 				</div>	
 			</div>	
