@@ -32,19 +32,20 @@ else:
 	import spidev
 	import smbus
 	import Hygro24_I2C
+	import hx711_AV
 	import RPi.GPIO as GPIO
 	GPIO.setmode(GPIO.BCM) 
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
 RPIMODBGPIOPINLISTNA=NALIST+RPIMODBGPIOPINLIST
 RPIMODBGPIOPINLISTPLUS=RPIMODBGPIOPINLISTNA+GPIOPLUSLIST
 
-ADCCHANNELLIST=["0","1","2","3","4","5","6","7", "N/A"] #MCP3008 chip has 8 input channels
+ADCCHANNELLIST=["N/A","0","1","2","3","4","5","6","7"] #MCP3008 chip has 8 input channels
 
 # status variables
 DHT22_data={}
@@ -182,6 +183,9 @@ def execute_task(cmd, message, recdata):
 		
 	elif cmd==HWCONTROLLIST[19]: #Hygro24_I2C temperature sensor		
 		return get_Hygro24_capacity(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[20]: #HX711 cell loads amplifier, for weight sensor		
+		return get_HX711_voltage(cmd, message, recdata)
 
 
 
@@ -485,7 +489,100 @@ def get_DS18B20_temperature(cmd, message, recdata):
 	recdata.append(successflag)	
 	return True
 	
+	
+def get_HX711_voltage(cmd, message, recdata):
+	
+	print "starting HX711 reading ****"
+	
+	successflag=0
+	
+	# this sensors uses the I2C protocol. Multiple sensors can be connected and can be distinguished using an Address 
+	# in this algorithm, the message should include the address, if the address field is empty then it gets the default address 0x20.
 
+
+	msgarray=message.split(":")
+
+	PINDATA_str=""
+	if len(msgarray)>1:
+		PINDATA_str=msgarray[1]	
+
+
+	measureUnit=""
+	if len(msgarray)>4:
+		measureUnit=msgarray[4]
+
+	SensorAddress="0x20"
+	if len(msgarray)>6:
+		SensorAddress=msgarray[6]	
+
+	PINCLK_str=""
+	if len(msgarray)>7:
+		PINCLK_str=msgarray[7]	
+
+
+	PINDATA=toint(PINDATA_str,-1)
+	PINCLK=toint(PINCLK_str,-1)
+
+
+
+	if (PINDATA<0)or(PINCLK<0):
+		print "HX711 PIN not valid", SensorAddress
+		# address not correct
+		logger.error("HX711 PIN not valid: Pindata = %s  Pinclk= %s", PINDATA_str,PINCLK_str)
+		recdata.append(cmd)
+		recdata.append("HX711 PIN not valid")
+		recdata.append(0)
+		return True
+	
+	reading=0
+	bus = 1
+	HX711_hardware = hx711_AV.HX711(dout_pin=PINDATA, pd_sck_pin=PINCLK)
+	
+	# start reading multimple sample and making some filtering and average
+
+	datatext=""	
+	inde =0
+	dataarray=[]
+	
+	print "Starting sample reading"
+	
+	samplesnumber=25
+	for x in range(0, samplesnumber): #number of samples
+		
+		# read data 
+
+		isok,data = HX711_hardware.read()
+		if isok:
+			dataarray.append(data)
+			inde=inde+1
+			datatext=datatext+str(data)+","			
+			print "HX711 data:",data
+					
+	if inde==0:
+		logger.error("HX711 reading error")
+		recdata.append(cmd)
+		recdata.append("HX711 reading error")
+		recdata.append(0)
+		return True	
+			
+	successflag=1	
+	logger.info("HX711 Channel: %s", HX711_hardware.get_current_channel())
+	logger.info("HX711 Channel: %d", HX711_hardware.get_current_gain_A())
+	averagefiltered, average = normalize_average(dataarray)
+	
+
+	print "HX711 data Average: ",average , " Average filtered: ", averagefiltered	
+
+
+	reading=averagefiltered
+
+	print "reading ", reading
+
+	recdata.append(cmd)
+	recdata.append(reading)
+	recdata.append(successflag)	
+	return True
+	
 	
 def get_Hygro24_capacity(cmd, message, recdata):
 	
@@ -660,22 +757,26 @@ def get_MCP3008_channel(cmd, message, recdata):
 def normalize_average(lst):
 	"""Calculates the standard deviation for a list of numbers."""
 	num_items = len(lst)
-	mean = sum(lst) / float(num_items)
-	differences = [x - mean for x in lst]
-	sq_differences = [d ** 2 for d in differences]
-	ssd = sum(sq_differences)
-	variance = ssd / float(num_items)
-	sd = sqrt(variance)
-	 
-	# use functions to adjust data, keep only the data inside the standard deviation
+	if num_items>0:
+		mean = sum(lst) / float(num_items)
+		differences = [x - mean for x in lst]
+		sq_differences = [d ** 2 for d in differences]
+		ssd = sum(sq_differences)
+		variance = ssd / float(num_items)
+		sd = sqrt(variance)
+		 
+		# use functions to adjust data, keep only the data inside the standard deviation
 
-	final_list = [x for x in lst if ((x >= mean - sd) and (x <= mean + sd))]
-	num_items_final = len(final_list)
-	normmean=sum(final_list) / float(num_items_final)
+		final_list = [x for x in lst if ((x >= mean - sd) and (x <= mean + sd))]
+		num_items_final = len(final_list)
+		normmean=sum(final_list) / float(num_items_final)
+		
+		print "discarded ", num_items-num_items_final , " mean difefrence ", normmean-mean
+
+		return normmean, mean
 	
-	print "discarded ", num_items-num_items_final , " mean difefrence ", normmean-mean
-
-	return normmean, mean
+	else:
+		return 0, 0
 
 
 

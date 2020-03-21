@@ -502,6 +502,24 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Add Custom URL field for the email links
 - when multiple local IP address, prefer the Default IP address 
 
+2020-03-01 -> release 113
+
+- integrate the HX711 for cell load reading
+
+2020-03-01 -> release 113a
+
+- change formatting of values in the sendor graph (.2f)
+
+2020-03-01 -> release 113b
+
+- fixed GPIO setting issue in HX711 class
+- added the hardware default setting for the weight and Temp sensor
+- added normalization to the saved values of input interrupt
+
+2020-03-01 -> release 113c
+
+- Force rfkill to unlock wlan
+
 
 
 ------- Future releases: -----------

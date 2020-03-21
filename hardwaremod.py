@@ -242,7 +242,41 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 	else:
 		return HWcontrol.sendcommand(cmd,sendstring,recdata)
 
+def normalizesensordata(reading_str,sensorname):
+	scaledefault=1
+	offsetdefault=0
+	Thereading=reading_str
+	print " Sensor " , sensorname  , "reading ",Thereading
+	print " Sensor value post elaboration"
 	
+	# get the normalization data
+	Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN)) # if not found searchdata return ""
+	Maximum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MAX))
+	Direction=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_DIR)) # can be two values "inv" , "dir"
+	Scale=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_SCALE))
+	Offset=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_OFFSET))					
+	
+	# transform all valuse in numbers
+	Minvalue=tonumber(Minimum, 0)
+	Maxvalue=tonumber(Maximum, 0)
+	Scalevalue=tonumber(Scale, scaledefault)
+	Offsetvalue=tonumber(Offset, offsetdefault)					
+	readingvalue=tonumber(Thereading, 0)
+	if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consistent, stops here
+		if Direction!="inv":
+			den=Maxvalue-Minvalue
+			readingvalue=(readingvalue-Minvalue)/den
+		else:
+			den=Maxvalue-Minvalue
+			readingvalue=1-(readingvalue-Minvalue)/den
+	if Scalevalue>0:
+		readingvalue=readingvalue*Scalevalue		
+	readingvalue=readingvalue+Offsetvalue
+	
+	# transform to string and adjust the format
+	Thereading=str('%.2f' % readingvalue)
+	return Thereading
+
 def getsensordata(sensorname,attemptnumber): #needed
 	# this procedure was initially built to communicate using the serial interface with a module in charge of HW control (e.g. Arduino)
 	# To lower the costs, I used the PI hardware itself but I still like the way to communicate with the HWcontrol module that is now a SW module not hardware
@@ -255,7 +289,9 @@ def getsensordata(sensorname,attemptnumber): #needed
 		arg3=str(searchdata(HW_INFO_NAME,sensorname,HW_INFO_MEASUREUNIT))
 		arg4=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_LOGIC))
 		arg5=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_ADDR))
-		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4+":"+arg5
+		arg6=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_PIN2))
+		
+		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4+":"+arg5+":"+arg6
 		recdata=[]
 		ack=False
 		i=0
@@ -265,35 +301,11 @@ def getsensordata(sensorname,attemptnumber): #needed
 		if ack:
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
 				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
-					scaledefault=1
-					offsetdefault=0
-					
-					Thereading=recdata[1]
-					print " Sensor " , sensorname  , "reading ",Thereading
-					print " Sensor value post elaboration"
-					Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN)) # if not found searchdata return ""
-					Maximum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MAX))
-					Direction=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_DIR)) # can be two values "inv" , "dir"
-					Scale=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_SCALE))
-					Offset=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_OFFSET))					
-					
-					Minvalue=tonumber(Minimum, 0)
-					Maxvalue=tonumber(Maximum, 0)
-					Scalevalue=tonumber(Scale, scaledefault)
-					Offsetvalue=tonumber(Offset, offsetdefault)					
-					readingvalue=tonumber(Thereading, 0)
-					if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consistent, stops here
-						if Direction!="inv":
-							den=Maxvalue-Minvalue
-							readingvalue=(readingvalue-Minvalue)/den
-						else:
-							den=Maxvalue-Minvalue
-							readingvalue=1-(readingvalue-Minvalue)/den
-					if Scalevalue>0:
-						readingvalue=readingvalue*Scalevalue		
-					readingvalue=readingvalue+Offsetvalue
-					Thereading=str('%.2f' % readingvalue)						
-					print " Sensor " , sensorname  , "Normalized reading ",Thereading										
+					#print " Sensor " , sensorname  , "reading ",recdata[1]	
+									
+					Thereading=normalizesensordata(recdata[1],sensorname)  # output is a string
+
+					print " Sensor " , sensorname  , "Normalized reading ",Thereading												
 					
 				else:
 					print "Problem with sensor reading ", sensorname

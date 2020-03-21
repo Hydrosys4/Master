@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-Release="1.12d"
+Release="1.13c"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -161,6 +161,7 @@ selectedplanmod.start_scheduler()
 isconnecting=False
 networkmod.stopNTP()
 networkmod.disableNTP()
+networkmod.CheckandUnlockWlan()
 try:
 	print "start networking"
 	isconnecting=networkmod.init_network() # this includes also the clock check and scheduler setup
@@ -2567,7 +2568,7 @@ def currentpath(filename):
 def functiontest():
 	print " testing "
 	
-	selectedplanmod.periodicdatarequest("Analog-123")
+	selectedplanmod.periodicdatarequest("Temp_DS18B20")
 
 
 	#selectedplanmod.heartbeat()

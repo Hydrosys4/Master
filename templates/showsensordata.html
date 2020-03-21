@@ -117,9 +117,8 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 				show: true,
 				sizeAdjust: 7.5,
 				tooltipLocation:"n",
-				formatString:'<table class="jqplot-highlighter"><tr><td>%s</td></tr><tr><td>Value:%s</td></tr><tr></tr></table>'
+				formatString:'<table style="font-size:14px" class="jqplot-highlighter"><tr><td>%s</td></tr><tr><td>Value:%s</td></tr><tr></tr></table>'
 			  };
-
 
 
 		// END VARIABLES
@@ -248,7 +247,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 
 			
 			
-			gridPadding: {top:90, left:30, right:15, bottom:70},
+			gridPadding: {top:90, left:35, right:15, bottom:70},
 
 			
 		   legend:{
@@ -284,7 +283,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 							// above is necessary to make the text rotate effect
 						},
 						tickOptions:{
-							fontSize:'8pt',
+							fontSize:'7pt',
 							angle:-60,
 							formatString:'%b %#d, %H:%M'
 						}
@@ -294,9 +293,9 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 						rendererOptions:{
 							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
 							tickOptions:{
-								fontSize:'8pt',
+								fontSize:'7pt',
 								angle:0,
-								//formatString:'%.1f'
+								formatString:'%.2f' //this provides the format of the yaxis and also the value inside the highlighter
 							}
 					},
 					
@@ -305,7 +304,7 @@ var combochartdata = actuatorchartdata.concat(sensorchartdata);
 						rendererOptions:{
 							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
 							tickOptions:{
-								fontSize:'8pt',
+								fontSize:'7pt',
 								angle:0
 							},
 							

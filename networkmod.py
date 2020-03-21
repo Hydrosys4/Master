@@ -190,6 +190,56 @@ def iwcommand(cmd,wordtofind):
 			ssid=ssid.strip()
 			ssids.append(ssid)
 	return ssids
+	
+def CheckandUnlockWlan():
+	cmd = ['rfkill']
+	wordtofind="wlan"
+	wordtofindinrow="blocked"
+	
+	isblocked=ExecCLIandFindOutput(cmd,wordtofind,wordtofindinrow)
+	time.sleep(0.1)
+	
+	if isblocked:
+		print "Warning WiFi locked, try to unlock"
+		logger.warning("wlan status locked, try to unlock, please double check the wifi locale setting")
+		cmd = ['rfkill', 'unblock', 'wifi']
+		try:
+			scanoutput = subprocess.check_output(cmd).decode('utf-8')
+		except:
+			print "error to execute the command" , cmd
+			logger.error("error to execute the command %s",cmd)
+			return False
+		time.sleep(0.1)
+		isblocked=ExecCLIandFindOutput(cmd,wordtofind,wordtofindinrow)		
+		time.sleep(0.1)
+
+
+	if isblocked: # check if the command worked
+		logger.error("Not able to unlock WiFi")
+		print "Error WiFi still locked after attempt to unlock"
+	else:
+		logger.info("wifi status unlocked :)")
+		print "Wifi Unlocked  ***************+"
+
+	return not isblocked
+	
+	
+def ExecCLIandFindOutput(cmd,wordtofind,wordtofindinrow):
+	wordfound=False
+	try:
+		scanoutput = subprocess.check_output(cmd).decode('utf-8')
+	except:
+		print "error to execute the command" , cmd
+		logger.error("error to execute the command %s",cmd)
+		return wordfound
+
+	for line in scanoutput.split('\n'):
+		strstart=line.find(wordtofind)
+		if strstart>-1:
+			strstart2=line.find(wordtofindinrow)
+			if strstart2>-1:
+				wordfound=True
+	return wordfound	
 
 def gethostname():
 	print "Get hostname"

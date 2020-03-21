@@ -40,7 +40,9 @@ def readstatus(element,item):
 	return statusdataDBmod.read_status_data(AUTO_data,element,item)
 	
 def savedata(sensorname,sensorvalue):
-	sensordbmod.insertdataintable(sensorname,sensorvalue)
+	sensorvalue_str=str(sensorvalue)
+	sensorvalue_norm=hardwaremod.normalizesensordata(sensorvalue_str,sensorname)
+	sensordbmod.insertdataintable(sensorname,sensorvalue_norm)
 	return	
 
 def eventcallback(PIN):
@@ -224,6 +226,8 @@ def interruptexecute(refsensor,element):
 		actuatortype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD)
 		if actuatortype=="pulse":
 			preemptiontime=actuatoroutput # if set to zero then get the time as the actuator (in case of relay)
+		else:
+			preemptiontime=0
 	else:
 		preemptiontime=preemptiontimemin*60
 	
@@ -399,7 +403,7 @@ def WaitandRegister(element, sensor, periodsecond, counter):
 		threadID=statusdataDBmod.read_status_data(AUTO_data,element+sensor,"RegisterID")
 		if threadID!=None and threadID!="":
 			threadID.cancel()
-		
+		# activate a new time, in cas this is not cancelled then the data will be saved callin the savedata procedure
 		threadID = threading.Timer(periodsecond, savedata, [sensor , counter])
 		threadID.start()
 		statusdataDBmod.write_status_data(AUTO_data,element+sensor,"RegisterID",threadID)
