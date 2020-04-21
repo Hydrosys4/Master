@@ -520,6 +520,68 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Force rfkill to unlock wlan
 
+2020-03-25 -> release 113d
+
+- create the slowwire interface for the digital hygrometer
+
+2020-03-26 -> release 113e
+
+- more work on the SlowWire protocol, add CRC check
+
+2020-04-06 -> release 113g
+
+- add sensor value reading in the logs
+- add 3 repeat reading for the SlowWire when got CRC error.
+
+2020-04-06 -> release 113g
+
+- add sensor value reading in the logs
+- add 3 repeat reading for the SlowWire when got CRC error.
+
+2020-04-11 -> release 114
+
+- Add option for frequency counter in interrupt
+- Rework the interrupt data recording system, add an InterruptFrequencyCounter which report the frequency. New row in the hardware setting, same PIN of the interrupt.
+
+2020-04-11 -> release 115
+
+- Home page add the enable disable buttons (check / uncheck) , should be better tested.
+
+2020-04-14 -> release 115a
+
+- added AutomationHATv10 hardware rpeset
+- interrupt counter working even without setting the association between interrupt and actuator.
+- interrupt event set to 1 when start Event and Zero when stop blocking mode, multiple events overlap managed as sum.
+
+2020-04-14 -> release 115b
+
+- interrupt event fix visualization.
+
+2020-04-14 -> release 115c
+
+- Added other inputs panel in homepage
+
+2020-04-14 -> release 115d
+
+- Improve the interrupt event data graph
+- Fix the startup when the interrups should occurr at level
+- Associate the StopPulse at the disable button (Enable/Disable only for pulse type output)
+
+2020-04-17 -> release 115e
+
+- Fix enable/disable
+
+2020-04-17 -> release 115g-h
+
+- Add the delay proportional to the bouncetime to identify interrupt firstEdge/SecondEdge
+
+2020-04-20 -> release 116
+
+- Improve the reset for interrupt, tune bouncetime.
+
+2020-04-20 -> release 116a
+
+- Improve interrupt Counter Algorithm.
 
 
 ------- Future releases: -----------

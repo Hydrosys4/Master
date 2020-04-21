@@ -203,9 +203,9 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	print "sensordbmod "
-	print " stratdate " ,startdate
-	print " enddate ", enddate
+	#print "sensordbmod "
+	#print " stratdate " ,startdate
+	#print " enddate ", enddate
 	outputallsensordata=[]
 	sensorlist=gettablelist()
 	mintime=(enddate - datetime(1970,1,1)).total_seconds()
@@ -236,7 +236,6 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)
 
-	print 
 	return outputallsensordata,usedsensorlist,mintime,maxtime
 	# sensor data --------------------------------------------
 

@@ -232,8 +232,8 @@ def insertrowfields(filename,table,rowfield,rowvalue):
 		#print query_string
 		query_string = "INSERT INTO '{}' ({}) VALUES ({});" .format(table, var_string, questionmarks)
 
-		print query_string
-		print var_string
+		#print query_string
+		#print var_string
 		try:
 			# db.execute(query_string, rowvalue)	
 			# cur = db.execute("select '{}' from '{}' ORDER BY ROWID DESC LIMIT '{}'".format(fieldsstr, table, limitstr))

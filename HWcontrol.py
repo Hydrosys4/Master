@@ -12,6 +12,7 @@ from math import sqrt
 import glob
 
 
+
 import logging
 
 logger = logging.getLogger("hydrosys4."+__name__)
@@ -33,12 +34,13 @@ else:
 	import smbus
 	import Hygro24_I2C
 	import hx711_AV
+	import SlowWire
 	import RPi.GPIO as GPIO
 	GPIO.setmode(GPIO.BCM) 
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
@@ -104,7 +106,7 @@ def read_status_data(data,element,variable):
 			return ""
 
 def read_status_dict(data,element):
-	print data
+	#print data
 	if element in data:
 		#print " element present"
 		elementdata=data[element]
@@ -159,7 +161,7 @@ def execute_task(cmd, message, recdata):
 		return get_stepper_status(cmd, message, recdata, stepper_data)
 
 	elif cmd==HWCONTROLLIST[13]: #return zero	
-		print "returnzero"
+		#print "returnzero"
 		returndata="0"
 		recdata.append(cmd)
 		recdata.append(returndata)
@@ -187,7 +189,11 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[20]: #HX711 cell loads amplifier, for weight sensor		
 		return get_HX711_voltage(cmd, message, recdata)
 
+	elif cmd==HWCONTROLLIST[21]: #SlowWire , Digital Hygrometer	
+		return get_SlowWire_reading(cmd, message, recdata)
 
+	elif cmd==HWCONTROLLIST[22]: # Interrupt frequency counter
+		return get_InterruptFrequency_reading(cmd, message, recdata)
 
 
 	else:
@@ -356,7 +362,8 @@ def get_BMP180_pressure(cmd, message, recdata):
 		Pressure = '{0:0.2f}'.format(sensor.read_pressure()/float(100))
 		successflag=1
 	except:
-		print " I2C bus reading error, BMP180 , pressure sensor "
+		#print " I2C bus reading error, BMP180 , pressure sensor "
+		logger.error(" I2C bus reading error, BMP180 , pressure sensor ")
 	#pressure is in hecto Pascal
 	recdata.append(cmd)
 	recdata.append(Pressure)
@@ -395,7 +402,8 @@ def get_BH1750_light(cmd, message, recdata):
 		light = '{0:0.2f}'.format(((data[1] + (256 * data[0])) / 1.2))
 		successflag=1  
 	except:
-		print " I2C bus reading error, BH1750 , light sensor "
+		#print " I2C bus reading error, BH1750 , light sensor "
+		logger.error(" I2C bus reading error, BH1750 , light sensor ")
 	
 	recdata.append(cmd)
 	recdata.append(light)
@@ -481,7 +489,7 @@ def get_DS18B20_temperature(cmd, message, recdata):
 					successflag=1
 
 				except:
-					print "error reading the DS18B20"
+					#print "error reading the DS18B20"
 					logger.error("error reading the DS18B20")
 	
 	recdata.append(cmd)
@@ -492,7 +500,7 @@ def get_DS18B20_temperature(cmd, message, recdata):
 	
 def get_HX711_voltage(cmd, message, recdata):
 	
-	print "starting HX711 reading ****"
+	#print "starting HX711 reading ****"
 	
 	successflag=0
 	
@@ -544,7 +552,7 @@ def get_HX711_voltage(cmd, message, recdata):
 	inde =0
 	dataarray=[]
 	
-	print "Starting sample reading"
+	#print "Starting sample reading"
 	
 	samplesnumber=25
 	for x in range(0, samplesnumber): #number of samples
@@ -556,7 +564,7 @@ def get_HX711_voltage(cmd, message, recdata):
 			dataarray.append(data)
 			inde=inde+1
 			datatext=datatext+str(data)+","			
-			print "HX711 data:",data
+			#print "HX711 data:",data
 					
 	if inde==0:
 		logger.error("HX711 reading error")
@@ -583,10 +591,97 @@ def get_HX711_voltage(cmd, message, recdata):
 	recdata.append(successflag)	
 	return True
 	
+def get_SlowWire_reading(cmd, message, recdata):
+	
+	#print "starting SlowWire reading ****"
+	
+	successflag=0
+	
+	# this sensors uses the SlowWire protocol which is similar to one wire but with relaxed times and single Sensor per wire. 
+	# The relaxed timing allow longer cable distances, for application like hygrometers which do not require speed.
+
+
+	msgarray=message.split(":")
+
+	PINDATA_str=""
+	if len(msgarray)>1:
+		PINDATA_str=msgarray[1]	
+
+
+	measureUnit=""
+	if len(msgarray)>4:
+		measureUnit=msgarray[4]
+
+
+	PINDATA=toint(PINDATA_str,-1)
+
+
+
+	if (PINDATA<0):
+		print "SlowWire PIN not valid"
+		# address not correct
+		logger.error("SlowWire PIN not valid: Pindata = %s ", PINDATA_str)
+		recdata.append(cmd)
+		recdata.append("SlowWire PIN not valid")
+		recdata.append(0)
+		return True
+	
+	reading=0
+
+	Sensor_bus = SlowWire.SlowWire(dout_pin=PINDATA)
+	
+	# start reading multimple sample and making some filtering and average
+
+	
+	#print "Starting sample reading"
+	ReadingAttempt=3
+	inde=0
+	while (ReadingAttempt>0)and(inde==0):
+		datatext=""	
+		inde=0
+		dataarray=[]	
+		samplesnumber=1
+		for x in range(0, samplesnumber): #number of samples
+			
+			# read data 
+
+			isok,datalist = Sensor_bus.read_uint()
+			if isok:
+				data=datalist[0]
+				dataarray.append(data)
+				inde=inde+1
+				datatext=datatext+str(data)+","			
+				#print "SlowWire data:",data
+		ReadingAttempt=ReadingAttempt-1
+						
+						
+	if inde==0:
+		logger.error("SlowWire reading error")
+		recdata.append(cmd)
+		recdata.append("SlowWire reading error")
+		recdata.append(0)
+		return True	
+			
+	successflag=1	
+	averagefiltered, average = normalize_average(dataarray)
+	
+
+	print "SlowWire data Average: ",average , " Average filtered: ", averagefiltered	
+
+
+	reading=averagefiltered
+
+	print "reading ", reading
+
+	recdata.append(cmd)
+	recdata.append(reading)
+	recdata.append(successflag)	
+	return True
+	
 	
 def get_Hygro24_capacity(cmd, message, recdata):
 	
-	print "starting Hygro24_I2C reading ****"
+	#print "starting Hygro24_I2C reading ****"
 	
 	successflag=0
 	
@@ -680,7 +775,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 		time.sleep(waitstep)
 		waittime=waittime+waitstep
 	
-	print "MCP3008 wait time -----> ", waittime
+	#print "MCP3008 wait time -----> ", waittime
 		
 	if (waittime>=maxwait):
 		#something wrog, wait too long, avoid initiate further processing
@@ -709,7 +804,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 		inde =0
 		dataarray=[]
 		
-		print "Starting sample reading"
+		#print "Starting sample reading"
 		
 		samplesnumber=39
 		for x in range(0, samplesnumber): #number of samples
@@ -721,7 +816,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 			dataarray.append(data)
 			inde=inde+1
 			datatext=datatext+str(data)+","			
-			print "MCP3008 channel ", channel, " data:",data
+			#print "MCP3008 channel ", channel, " data:",data
 						
 		logger.info("ADCdata Channel: %d", channel)
 		logger.info("ADCdata Sampling: %s", datatext)
@@ -733,12 +828,13 @@ def get_MCP3008_channel(cmd, message, recdata):
 		voltsnorm = (dataaverage * refvoltage) / float(1023)
 		volts = round(voltsnorm,2)	
 	
-		print "MCP3008 chennel ", channel, " Average (volts): ",voltsraw , " Average Norm (v): ", voltsnorm
+		#print "MCP3008 chennel ", channel, " Average (volts): ",voltsraw , " Average Norm (v): ", voltsnorm
 		
 		spi.close()
 		successflag=1
 	except:
 		print " DPI bus reading error, MCP3008 , AnalogDigitalConverter  "
+		logger.error(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
 	
 	recdata.append(cmd)
 	recdata.append(volts)
@@ -771,7 +867,7 @@ def normalize_average(lst):
 		num_items_final = len(final_list)
 		normmean=sum(final_list) / float(num_items_final)
 		
-		print "discarded ", num_items-num_items_final , " mean difefrence ", normmean-mean
+		#print "discarded ", num_items-num_items_final , " mean difefrence ", normmean-mean
 
 		return normmean, mean
 	
@@ -800,7 +896,7 @@ def powerPIN_start(POWERPIN,logic,waittime):
 				
 			write_status_data(PowerPIN_Status,POWERPIN,"state","on")	
 			#PowerPIN_Status[POWERPIN]["state"]="on"
-			print "PowerPin activated ", POWERPIN
+			#print "PowerPin activated ", POWERPIN
 			time.sleep(waittime)
 	return True	
 
@@ -837,7 +933,7 @@ def CheckRealHWpin(PIN=""):
 			try:
 				PINint=int(PIN)
 				return True, PINint
-				print "Real * PIN *"
+				#print "Real * PIN *"
 			except:
 				return False, 0	
 	return False, 0		
@@ -850,7 +946,7 @@ def GPIO_output(PINstr, level):
 	#GPIO_data[PIN]["level"]=level
 	write_status_data(GPIO_data,PINstr,"level",level)
 	logger.info("Set PIN=%s to State=%s", PINstr, str(level))
-	print PINstr , " ***********************************************" , level
+	#print PINstr , " ***********************************************" , level
 	return True
 		
 def GPIO_output_nostatus(PINstr, level):
@@ -883,7 +979,7 @@ def GPIO_setup(PINstr, state, pull_up_down=""):
 def GPIO_add_event_detect(PINstr, evenslopetype, eventcallback, bouncetimeINT=200 ):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
 	if isRealPIN:
-		print "add event ", PIN
+		#print "add event ", PIN
 		# bouncetime in ms to avoid signal instability (default 200)
 		GPIO.add_event_detect(PIN, GPIO.BOTH, callback=eventcallback, bouncetime=bouncetimeINT)
 
@@ -917,7 +1013,7 @@ def endpulse(PINstr,logic,POWERPIN,MIN=0,MAX=0):
 	
 	powerPIN_stop(POWERPIN,0)
 
-	print "pulse ended", time.ctime() , " PIN=", PINstr , " Logic=", logic , " Level=", level
+	#print "pulse ended", time.ctime() , " PIN=", PINstr , " Logic=", logic , " Level=", level
 	return True
 
 
@@ -949,7 +1045,7 @@ def gpio_pulse(cmd, message, recdata):
 	# in case another timer is active on this PIN, cancel it 
 	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
 	if not PINthreadID==None:
-		print "cancel the Thread of PIN=",PIN
+		#print "cancel the Thread of PIN=",PIN
 		PINthreadID.cancel()
 	
 	else:
@@ -962,7 +1058,7 @@ def gpio_pulse(cmd, message, recdata):
 		GPIO_output(PIN, level)
 		if MIN and MAX:
 			# dual pulse  mode
-			print "dual pulse Mode"
+			#print "dual pulse Mode"
 			# stop the pulse after MIN seconds
 			levelinvert=1-level
 			NorecordthreadID=threading.Timer(MIN, GPIO_output_nostatus, [PIN , levelinvert])
@@ -972,7 +1068,7 @@ def gpio_pulse(cmd, message, recdata):
 	NewPINthreadID.start()
 	write_status_data(GPIO_data,PIN,"threadID",NewPINthreadID)
 
-	print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
+	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
 	successflag=1
 	recdata.append(cmd)
 	recdata.append(PIN)
@@ -1002,7 +1098,7 @@ def gpio_stoppulse(cmd, message, recdata):
 	
 	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
 	if not PINthreadID==None:
-		print "cancel the Thread of PIN=",PIN
+		#print "cancel the Thread of PIN=",PIN
 		PINthreadID.cancel()
 		
 	endpulse(PIN,logic,POWERPIN,MIN,MAX)	#this also put powerpin off		
@@ -1023,10 +1119,32 @@ def gpio_pin_level(cmd, message, recdata):
 		recdata.append("e")
 		return False	
 
-def read_input_pin(cmd, message, recdata):
+def get_InterruptFrequency_reading(cmd, message, recdata):
+	import interruptmod
 	successflag=1
 	msgarray=message.split(":")
-	print " read pin input ", message
+	#print " read pin input ", message
+	PINstr=msgarray[1]
+	isRealPIN,PIN=CheckRealHWpin(PINstr)
+	recdata.append(cmd)		
+	if isRealPIN:
+		# here the reading
+		reading=interruptmod.ReadInterruptFrequency(PIN)
+		recdata.append(reading)
+		recdata.append(successflag)	
+	else:
+		successflag=0
+		recdata.append("e")
+		recdata.append(successflag)	
+	return True
+	
+
+def read_input_pin(cmd, message, recdata):
+	
+	# this is useful for the real time reading. Suggest to put in oneshot for the hardware configuration because the database record timing is given by the interrupts
+	successflag=1
+	msgarray=message.split(":")
+	#print " read pin input ", message
 	PINstr=msgarray[1]
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
 	recdata.append(cmd)		
@@ -1068,14 +1186,14 @@ def gpio_set_servo(cmd, message, recdata):
 	time.sleep(0.2+delay)	
 	pwm.stop()
 	time.sleep(0.1)		
-	print "servo set to frequency", frequency , " PIN=", PIN , " Duty cycle=", duty 
+	#print "servo set to frequency", frequency , " PIN=", PIN , " Duty cycle=", duty 
 	recdata.append(cmd)
 	recdata.append(PIN)
 	return True	
 	
 def isPinActive(PIN, logic):
 	PINlevel=read_status_data(GPIO_data,PIN,"level")
-	print " pin Level" , PINlevel
+	#print " pin Level" , PINlevel
 	if PINlevel is not None:
 		isok=True
 	else:
@@ -1107,7 +1225,7 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 	durationsecondsstr=msgarray[4]
 	logic=msgarray[5]
 	
-	print "hbridge ", PIN1, "  ",  PIN2, "  ",  direction, "  ",  durationsecondsstr,  "  ", logic
+	#print "hbridge ", PIN1, "  ",  PIN2, "  ",  direction, "  ",  durationsecondsstr,  "  ", logic
 
 	# check that both pins are at logic low state, so Hbridge is off
 	PIN1active=isPinActive(PIN1, logic)
@@ -1134,17 +1252,17 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 		else:
 			sendstring="pulse:"+PIN2+":"+durationsecondsstr+":"+logic+":"+POWERPIN	
 		#Send pulse to one of the Hbridge port
-		print "logic " , logic , " sendstring " , sendstring
+		#print "logic " , logic , " sendstring " , sendstring
 		isok=False	
 		if float(durationsecondsstr)>0:
-			print "Sendstring  ", sendstring	
+			#print "Sendstring  ", sendstring	
 			isok=False
 			recdatapulse=[]
 			ack = gpio_pulse("pulse",sendstring,recdatapulse)
-			print "returned hbridge data " , recdatapulse
+			#print "returned hbridge data " , recdatapulse
 			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
 			if ack and recdatapulse[2]:
-				print "Hbridge correctly activated"
+				#print "Hbridge correctly activated"
 				isok=True
 
 
@@ -1157,7 +1275,7 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 		return False
 
 		
-	print "Hbridge: PIN1=", PIN1 , " PIN2=", PIN2 , " direction=", direction , " duration=", durationsecondsstr , " logic=", logic 
+	#print "Hbridge: PIN1=", PIN1 , " PIN2=", PIN2 , " direction=", direction , " duration=", durationsecondsstr , " logic=", logic 
 
 	recdata.append(cmd)
 	recdata.append(PIN1+PIN2)
@@ -1165,7 +1283,7 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 	return True	
 
 def get_hbridge_status(cmd, message, recdata , hbridge_data):
-	print "get hbridge status"
+	#print "get hbridge status"
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
 	PIN1=msgarray[1]
@@ -1225,7 +1343,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 		myStepper = mh.getStepper(200, Interface_Number)  # 200 steps/rev, motor port #1 or #2
 		myStepper.setSpeed(speed)             # 30 RPM
 
-		print "Double coil steps"
+		#print "Double coil steps"
 		if direction=="FORWARD":
 			myStepper.step(steps, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
 		elif direction=="BACKWARD":
@@ -1247,7 +1365,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 		return False
 
 		
-	print "stepper: Interface", Interface_Number , " direction=", direction , " speed=", speed , " steps=", steps 
+	#print "stepper: Interface", Interface_Number , " direction=", direction , " speed=", speed , " steps=", steps 
 	recdata.append(cmd)
 	recdata.append(Interface_Number)
 	
@@ -1255,7 +1373,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 
 
 def get_stepper_status(cmd, message, recdata , stepper_data):
-	print "get stepper status"
+	#print "get stepper status"
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
 	Interface=msgarray[1]
@@ -1265,7 +1383,7 @@ def get_stepper_status(cmd, message, recdata , stepper_data):
 	return True
 	
 def get_hbridge_status(cmd, message, recdata , hbridge_data):
-	print "get hbridge status"
+	#print "get hbridge status"
 	msgarray=message.split(":")
 	messagelen=len(msgarray)
 	Interface=msgarray[1]

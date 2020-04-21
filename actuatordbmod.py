@@ -113,9 +113,9 @@ def getAllActuatorDataPeriodv2(enddate,pastdays):
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	print " actuatordbmod"
-	print " stratdate " ,startdate
-	print " enddate ", enddate
+	#print " actuatordbmod"
+	#print " stratdate " ,startdate
+	#print " enddate ", enddate
 	outputallsensordata=[]
 	sensorlist=gettablelist()
 	for selsensor in sensorlist:

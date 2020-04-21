@@ -66,9 +66,16 @@
 								<hr class="dontwantgaptop"></hr>
 								{% for paneldata in panelinfo.data %}
 								<div class="row dontwantgap">
-									<div class="col-xs-6 text-left dontwantgap big" id="{{panelinfo.title}}_{{paneldata.name}}_name">{{paneldata.name}}:
+									<div class="col-lg-1 col-md-1 col-sm-1 col-xs-1  text-left dontwantgap big">
+										
+
+										<img id="{{paneldata.name}}_enabled" class="enableimg" name="{{paneldata.name}}" action="disable" src="/static/questionmark-transp-sm.png" style="height:15px;width:15px"/>
+
+
 									</div>
-									<div class="col-lg-6 col-xs-6 text-left dontwantgap">
+									<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 text-left dontwantgap big" id="{{panelinfo.title}}_{{paneldata.name}}_name">{{paneldata.name}}:
+									</div>
+									<div class="col-lg-5 col-md-5 col-sm-5 col-xs-5  text-left dontwantgap">
 										<span class="big" id="{{paneldata.name}}_average">---</span><span class="small" id="{{paneldata.name}}_unit"></span>
 					
 									</div>
@@ -207,19 +214,21 @@
 			
 				$.ajax({
 							type: "GET",
-							url: $SCRIPT_ROOT + "/echohome/?element=" + itemlist[counter] ,
+							url: $SCRIPT_ROOT + "/echohome/?element=" + itemlist[counter] + "&action=getdata",
 							contentType: "application/json; charset=utf-8",
 							data: { echoValue: "requestfordata" },
 							success: function(s) {
 								var data = eval(s); // this will convert your json string to a javascript object
 
 									//alert(data["name"]);
-									$('#'+data["name"]+'_average').text(data["average"])
-									$('#'+data["name"]+'_unit').text('('+data["unit"]+')')
+									$('#'+data["name"]+'_average').text(data["average"]);
+									
 										
 									if (data["min"]!="") {	
 										
-										var htmltext1='<div class="col-lg-6 col-xs-6 text-left dontwantgap"></div><div class="col-lg-6 col-xs-6 text-left dontwantgap">';
+										$('#'+data["name"]+'_unit').text('('+data["unit"]+')');
+										
+										var htmltext1='<div class="col-lg-7 col-xs-7 text-left dontwantgap"></div><div class="col-lg-5 col-xs-5 text-left dontwantgap">';
 																			
 										
 										var htmltext2='<div class="small">MIN=' + data["min"] + ' MAX='  + data["max"] + '</div>';
@@ -228,9 +237,37 @@
 										
 										$('#'+data["name"]+'_minmax').append(htmltext1+htmltext2+htmltext3);										
 										
-										}
-
+									} else {
 										
+										// put units instead under the value
+										
+										var htmltext1='<div class="col-lg-7 col-xs-7 text-left dontwantgap"></div><div class="col-lg-5 col-xs-5 text-left dontwantgap">';									
+										
+										var htmltext2='<div class="small">(' +data["unit"]+ ')</div>';
+														
+										var htmltext3='</div>';
+										
+										$('#'+data["name"]+'_minmax').append(htmltext1+htmltext2+htmltext3);
+										
+									}
+
+									if (data["enabled"]=="enable") {	
+										
+											var imgsrc="/static/checked-transp-sm.png";
+											$('#'+data["name"]+'_enabled').attr("src", imgsrc);
+											$('#'+data["name"]+'_enabled').attr("action", "disable");										
+										
+									}	else if (data["enabled"]=="disable")  {
+
+											var imgsrc="/static/unchecked-transp-sm.png";
+											$('#'+data["name"]+'_enabled').attr("src", imgsrc);
+											$('#'+data["name"]+'_enabled').attr("action", "enable");											
+											
+											
+									}	else  {  // disable the click function by removing img
+											$('#'+data["name"]+'_enabled').remove()
+										
+									}
 
 									
 						
@@ -252,7 +289,60 @@
 						});
 					}
 
+				$('.enableimg').click(function(){ // enable/disable  image pressed, change image and send ajax command.
+					var element=$(this).attr('name');
+					var action=$(this).attr('action');
+					//alert(element);
 
+					
+					
+					// ajax command
+						$.ajax({
+							type: "GET",
+							url: $SCRIPT_ROOT + "/echohome/?element=" + element + "&action=" +action,
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" },
+							success: function(s) {
+								var data = eval(s); // this will convert your json string to a javascript object
+
+									//alert(data["name"]);
+
+										
+									if (data["actiondone"]=="disable") {	
+										
+											var imgsrc="/static/unchecked-transp-sm.png";
+											$('#'+data["name"]+'_enabled').attr("src", imgsrc);
+											$('#'+data["name"]+'_enabled').attr("action", "enable");
+										
+
+										} else {
+						
+											var imgsrc="/static/checked-transp-sm.png";
+											$('#'+data["name"]+'_enabled').attr("src", imgsrc);
+											$('#'+data["name"]+'_enabled').attr("action", "disable");
+										
+										}							
+
+									
+						
+								
+							},								
+							complete: function() {
+							  // Schedule the next request when the current one's complete
+
+							},
+
+
+							error: function() {
+
+							}
+						});
+					
+					// end ajax
+					
+					
+					
+				});
 			
 			 
 			</script>

@@ -172,6 +172,29 @@
 			</div>	
 		
 		<!-- first event -->
+			<div class="form-group">
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Trigger Mode</label>
+					</div>		
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+						<select class="form-control input-sm dontwantgap" name="{{elem}}_12">
+						{% for name in triggermode %}	
+							<option {% if name==settingparam[12] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+						{% endfor %}											
+						</select>
+					<div class="small">Counter: Trigger the interrupt on the basis of the number of interrupts in one event</div>
+					<div class="small">Frequency: Trigger the interrupt on the basis of the number of interrupts in a give period (frequency)</div>
+					<div class="small"></div>
+
+					</div>
+				</div>
+				</div>	
+		
+		
+		
+		
+		
 		
 			<div class="form-group">					
 			<div class="row">
@@ -185,7 +208,8 @@
 
 					<input value="{{settingparam[10]}}" class="form-control input-sm" name="{{elem}}_10" type="text">
 
-					<div class="small">Counts the Number of interrupts to trigger the event on the actuator</div>
+					<div class="small">If Counter mode: Counts the Number of interrupts in same sequence to trigger the event on the actuator</div>
+					<div class="small">If Frequency mode:Counts the Number of interrupts  in a give interval to trigger the event on the actuator</div>
 					<div class="small">NOTE: This number should not take into account any normalization made by calibration parameters of the sensor</div>
 				</div>
 	
@@ -198,13 +222,13 @@
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 
 
-				<label>Max Time between interrupts to count the same event (sec) </label>
+				<label>Max Time between interrupts (sec) </label>
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 
 					<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
-					<div class="small">Max Time interval between consecutive interrupts to count as a sequence, if time between two interrupts is bigger then it restart counting</div>
-                                       
+					<div class="small">If Counter mode: Max Time interval between consecutive interrupts to count as a sequence, if time between two interrupts is bigger then it restart counting</div>
+					<div class="small">If Frequency mode: Max Time interval to count the interrupts </div>                                       
 				</div>
 	
 			</div>	

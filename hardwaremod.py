@@ -134,13 +134,24 @@ Hbridge_Status["default"]={'position':"0"}
 Blocking_Status={}
 Blocking_Status["default"]={'priority':0} # priority level, the commands are executed only if the command priority is higher or equlal to the blocking status priority
 
+Actuator_Enable_Status={}
+Actuator_Enable_Status["default"]={'Enabled':"enable"}
+
+
 # ///////////////// --- END STATUS VARIABLES ------
 
+# procedures for the Enable/Disable
 
+# Status variable  --> Actuator_Enable_Status
 
+def ReadActuatorEnabled(Target):
+	return statusdataDBmod.read_status_data(Actuator_Enable_Status,Target,'Enabled',True,"Actuator_Enable_Status")
 
+def WriteActuatorEnabled(Target, status):
+	global Actuator_Enable_Status
+	statusdataDBmod.write_status_data(Actuator_Enable_Status,Target,'Enabled',status,True,"Actuator_Enable_Status")
 	
-	
+
 
 #-- start filestorage utility--------////////////////////////////////////////////////////////////////////////////////////	
 
@@ -228,17 +239,25 @@ def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fie
 
 def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 	if target!="":
-		prioritystatus=statusdataDBmod.read_status_data(Blocking_Status,target,'priority')
-		#print " Target output ", target , "priority status: ", prioritystatus , " Command Priority: ", priority
-		#check if the actions are blocked
-		if priority>=prioritystatus:
-			return HWcontrol.sendcommand(cmd,sendstring,recdata)
+		if ReadActuatorEnabled(target)=="enable":
+			prioritystatus=statusdataDBmod.read_status_data(Blocking_Status,target,'priority')
+			#print " Target output ", target , "priority status: ", prioritystatus , " Command Priority: ", priority
+			#check if the actions are blocked
+			if priority>=prioritystatus:
+				return HWcontrol.sendcommand(cmd,sendstring,recdata)
+			else:
+				successflag=0
+				recdata.append(cmd)
+				recdata.append("blocked")
+				recdata.append(successflag)
+				return True
 		else:
 			successflag=0
 			recdata.append(cmd)
-			recdata.append("blocked")
+			recdata.append("Disabled")
 			recdata.append(successflag)
 			return True
+			
 	else:
 		return HWcontrol.sendcommand(cmd,sendstring,recdata)
 
@@ -246,8 +265,8 @@ def normalizesensordata(reading_str,sensorname):
 	scaledefault=1
 	offsetdefault=0
 	Thereading=reading_str
-	print " Sensor " , sensorname  , "reading ",Thereading
-	print " Sensor value post elaboration"
+	#print " Sensor " , sensorname  , "reading ",Thereading
+	#print " Sensor value post elaboration"
 	
 	# get the normalization data
 	Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN)) # if not found searchdata return ""
@@ -306,7 +325,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 					Thereading=normalizesensordata(recdata[1],sensorname)  # output is a string
 
 					print " Sensor " , sensorname  , "Normalized reading ",Thereading												
-					
+					logger.info("Sensor %s reading: %s", sensorname,Thereading)
 				else:
 					print "Problem with sensor reading ", sensorname
 					logger.error("Problem with sensor reading: %s", sensorname)
@@ -324,7 +343,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , addtime=True extend the pulse time with new time , addtime=False let the current pulse finish , 
 	#search the data in IOdata
 	
-	print "Check target is already ON ", target
+	#print "Check target is already ON ", target
 	activated=getpinstate(target, priority)
 	if activated=="error":
 		return "error"
@@ -336,7 +355,7 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 			print "Already ON, add time"
 
 	
-	print "Fire Pulse - ", target
+	#print "Fire Pulse - ", target
 	
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
 	
@@ -364,20 +383,20 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 		# normal pulse
 		sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN
 
-	print "logic " , logic , " sendstring " , sendstring
+	#print "logic " , logic , " sendstring " , sendstring
 	isok=False	
 	if float(testpulsetime)>0:
-		print "Sendstring  ", sendstring	
+		#print "Sendstring  ", sendstring	
 		isok=False
 		i=0
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
 			ack= sendcommand("pulse",sendstring,recdata,target,priority)
-			print "returned data " , recdata
+			#print "returned data " , recdata
 			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
 			if ack and recdata[2]:
-				print target, "correctly activated"
+				#print target, "correctly activated"
 				isok=True
 				return "Pulse Started"
 			else:
@@ -391,7 +410,7 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 def stoppulse(target):
 	#search the data in IOdata
 	
-	print "Check target is already OFF ", target
+	#print "Check target is already OFF ", target
 	activated=getpinstate(target)
 	if activated=="error":
 		return "error"
@@ -399,7 +418,7 @@ def stoppulse(target):
 		print "Already OFF"
 		return "Already OFF"
 
-	print "Stop Pulse - ", target
+	#print "Stop Pulse - ", target
 	
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
 	
@@ -417,7 +436,7 @@ def stoppulse(target):
 		# normal pulse
 		sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN
 
-	print "logic " , logic , " sendstring " , sendstring
+	#print "logic " , logic , " sendstring " , sendstring
 
 	isok=False
 	i=0
@@ -425,9 +444,9 @@ def stoppulse(target):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("stoppulse",sendstring,recdata,target,5)
-		print "returned data " , recdata
+		#print "returned data " , recdata
 		if ack and recdata[1]!="e":
-			print target, "correctly activated"
+			#print target, "correctly activated"
 			isok=True
 			return "Stopped"
 			
@@ -839,7 +858,7 @@ def getpinstate_pin(PIN, logic, priority=0):
 def readinputpin(PIN):
 	#search the data in IOdata
 	
-	print "Read input PIN ", PIN
+	#print "Read input PIN ", PIN
 	sendstring="inputpin:"+str(PIN)
 
 	isok=False
@@ -849,7 +868,7 @@ def readinputpin(PIN):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("readinputpin",sendstring,recdata,target="")
-		print "returned data " , recdata
+		#print "returned data " , recdata
 		if ack and recdata[2]:
 			value=recdata[1]
 			isok=True

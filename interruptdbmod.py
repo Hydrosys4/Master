@@ -187,7 +187,7 @@ def getrowdata(recordvalue,paramlist,index): #for parameters with array of integ
 					try:					
 						datalist.append(int(ln[param][index]))			
 					except Exception, e:
-						print 'Failed to load value, set value to zero. Error: '+ str(e)
+						#print 'Failed to load value, set value to zero. Error: '+ str(e)
 						datalist.append(0)							
 
 	return datalist
