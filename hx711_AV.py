@@ -5,6 +5,8 @@ Stripped down version of the original
 #!/usr/bin/env python
 from __future__ import print_function
 
+from builtins import range
+from builtins import object
 import time  # this is in python 2.7 which does not have the routine "time.perf_counter" in python 2.7 need a way to operate
 import sys
 
@@ -29,7 +31,7 @@ except ImportError:
 import RPi.GPIO as GPIO
 
 
-class HX711:
+class HX711(object):
     """
     HX711 represents chip for reading load cells.
     """

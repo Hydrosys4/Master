@@ -2,6 +2,10 @@
 
 
 #to kill python processes use  -- pkill python
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 import time
 import datetime
 import sys,os
@@ -46,19 +50,19 @@ class slavecontroller(object):
 			portconnect=False
 			for device in locations:  
 				try:  
-					print "Trying...",device  
+					print("Trying...",device)  
 					self.sp = serial.Serial(device, 9600) #for some reason this make the port reset starting with different baud rate
 					self.sp = serial.Serial(device, self.baudrate)
 					portconnect=True
 					break  
 				except:  
 					portconnect=False
-					print "Failed to connect on",device 
+					print("Failed to connect on",device) 
 			if not portconnect:
-				print 'could not open port'
+				print('could not open port')
 				break
 			else:								
-				print "RESET ARDUINO"
+				print("RESET ARDUINO")
 				self.sp.setDTR(False) # Drop DTR
 				time.sleep(0.030)    # Read somewhere that 22ms is what the UI does.
 				self.sp.setDTR(True)  # UP the DTR back
@@ -68,11 +72,11 @@ class slavecontroller(object):
 			while (not self.bytes_available())and(cou<5):
 				time.sleep(1) # delays for n seconds
 				cou=cou+1
-			print "received transmission" , self.bytes_available()
+			print("received transmission" , self.bytes_available())
 			rdata=[]
 			while self.bytes_available():
 				answer=self.iterate(rdata)
-				print "Received data -",rdata
+				print("Received data -",rdata)
 			
 			
 			recdata=["no"]
@@ -86,12 +90,12 @@ class slavecontroller(object):
 				time.sleep(1) # delays for n seconds
 			if (ack):
 				self.finishinit=True
-				print "initialization of serial port finished succesfully"
-				print "start time " ,self.laststart
+				print("initialization of serial port finished succesfully")
+				print("start time " ,self.laststart)
 			else:
 				if hasattr(self, 'sp'):
 					self.sp.close()
-				print "closed"
+				print("closed")
 
             
 
@@ -153,7 +157,7 @@ class slavecontroller(object):
 			try:
 				byte = self.sp.read()
 			except IOError:
-				print "something wrong with serial connection no data to read initiate restart"
+				print("something wrong with serial connection no data to read initiate restart")
 				self.restartserial()
 				return False
 
@@ -196,11 +200,11 @@ class slavecontroller(object):
         """ Call this to exit cleanly. """
         if hasattr(self, 'sp'):
             self.sp.close()
-            print "Serial connection closed"
+            print("Serial connection closed")
         
     def restartserial(self):
         currenttime= datetime.datetime.now()		
-        print "try to recover serial connection in ", (datetime.timedelta(minutes=1)-(currenttime-self.laststart))
+        print("try to recover serial connection in ", (datetime.timedelta(minutes=1)-(currenttime-self.laststart)))
         if (currenttime-self.laststart)> datetime.timedelta(minutes=1):
 			self.exit()
 			self.initserial()
@@ -221,7 +225,7 @@ class slavecontroller(object):
 			return False
 			
 		if not self.finishinit:
-			print "Serial not initiated properly"
+			print("Serial not initiated properly")
 			self.restartserial()
 			sendcanstart=True
 			return False
@@ -233,11 +237,11 @@ class slavecontroller(object):
 		try:
 			self.sp.write(str(writestring))
 		except IOError:
-			print "something wrong with serial connection"
+			print("something wrong with serial connection")
 			self.restartserial()
 			#SerialException: write failed: [Errno 5] Input/output error
 
-		print "Sent -",writestring, "  -------------------->>>>> "
+		print("Sent -",writestring, "  -------------------->>>>> ")
 		# Iterate over the  messages to get arduino answer
 		answer=False
 		rcmd=""
@@ -247,7 +251,7 @@ class slavecontroller(object):
 		while ((not self.bytes_available()) and cou<50):
 			self.pass_time(0.01)
 			cou=cou+1	
-		print "data received after seconds: ", cou*0.01
+		print("data received after seconds: ", cou*0.01)
 
 		self.pass_time(0.05) 
 
@@ -280,7 +284,7 @@ class slavecontroller(object):
 				recdata[i]=""
 		
 		
-		print "received: cmd ",rdata[0], " Data: ",recdata , "  Answer integrity: ", (answer)and(ack) , " <<<< "
+		print("received: cmd ",rdata[0], " Data: ",recdata , "  Answer integrity: ", (answer)and(ack) , " <<<< ")
 		sendcanstart=True
 		return (answer)and(ack) # return true if there was no receiver problem and the answer is acknowledge
 
@@ -295,7 +299,7 @@ class slavecontroller(object):
 			self.sendcommand_task(cmd, message, recdata)
 			return True
 		else:
-			print "time expired"
+			print("time expired")
 			return False	
 
 
@@ -348,7 +352,7 @@ if __name__ == '__main__':
 	#print  ack, "  ", recdata;
 	ack=board1.sendcommand("5","PH",recdata)
 	
-	print "verify wrong propocol:"
+	print("verify wrong propocol:")
 	ack=board1.sendcommand("6","",recdata)
 
 

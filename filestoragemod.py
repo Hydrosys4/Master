@@ -2,6 +2,8 @@
 """
 file storage utility
 """
+from __future__ import print_function
+from builtins import range
 import basicSetting
 import logging
 import os
@@ -41,9 +43,37 @@ def readfiledata(filename,filedata):
 		#print IOdata[0]["name"]
 		return True
 	else:
-		print "----------------------------------------------------------------------> warning no file ", filename 
+		print("----------------------------------------------------------------------> warning no file ", filename) 
+		return False
+
+
+def readfiledata_full(filename): 
+	if os.path.isfile(dbpath(filename)): #file is there
+		# read the selected table file	
+		#in_file = open(dbpath(filename),"r")
+		with open(dbpath(filename)) as json_file:
+			try:
+				data = json.load(json_file)
+			except:
+				print("not able to parse Json file")
+				return False
+		json_file.close()
+		return data
+	else:
+		print("----------------------------------------------------------------------> warning no file ", filename) 
 		return False
 		
+
+
+def savefiledata_full(filename,filedata):
+# questo possibile lista di dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario
+	out_file = open(dbpath(filename),"w")
+	jsonStr=json.dumps(filedata, sort_keys=True, indent=4)
+	out_file.write(jsonStr)
+	out_file.close()
+
+
+
 # START Plain text file functions ---------------------------------------- Used for generic file manipulation
 
 
@@ -58,7 +88,7 @@ def readfiledata_plaintext(pathfilename,filedata): #return list with row of the 
 			filedata.append(ln.strip("\n"))
 		return True
 	else:
-		print "-----------------------------------------> warning no file ", pathfilename 
+		print("-----------------------------------------> warning no file ", pathfilename) 
 		return False
 
 def savefiledata_plaintext(pathfilename,filedata):
@@ -85,7 +115,7 @@ def readfiledata_spec(pathfilename,identifier,filedata): # used also in networkd
 		#print IOdata[0]["name"]
 		return False
 	else:
-		print "------------------------------------------> warning no file ", pathfilename 
+		print("------------------------------------------> warning no file ", pathfilename) 
 		return False
 		
 
@@ -96,9 +126,9 @@ def savechangerow_plaintext(pathfilename,searchvalue,newrow): # used to replace 
 	for i in range(len(filedata)):
 		line=filedata[i]
 		if searchvalue in line:
-			print " row found ------------ !!!!!!!!! " , line
+			print(" row found ------------ !!!!!!!!! " , line)
 			filedata[i]=newrow
-			print " new row  ------------ !!!!!!!!! " , newrow
+			print(" new row  ------------ !!!!!!!!! " , newrow)
 			savefiledata_plaintext(pathfilename,filedata)
 			return True
 	return False
@@ -239,7 +269,7 @@ if __name__ == '__main__':
 	savechange(FILENAME,"name","ECsensor1","q",2.0)
 	filedata=[]
 	readfiledata(FILENAME,filedata)
-	print filedata
+	print(filedata)
 
 
 

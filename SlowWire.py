@@ -3,7 +3,12 @@ This file holds the SlowWire communication protocol class
 """
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import division
 
+from builtins import hex
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import time  # this is in python 2.7 which does not have the routine "time.perf_counter" in python 2.7 need a way to operate
 import sys
 import logging
@@ -27,7 +32,7 @@ except ImportError:
 import RPi.GPIO as GPIO
 
 
-class SlowWire:
+class SlowWire(object):
 	"""
 	HX711 represents chip for reading load cells.
 	"""
@@ -63,7 +68,7 @@ class SlowWire:
 		GPIO.setup(self._dout_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 		cyclewait=0.001
-		numcycles=int(self._t_wait_sensor/cyclewait)
+		numcycles=int(old_div(self._t_wait_sensor,cyclewait))
 		print ("numero di cicli --------------------------->", numcycles)
 
 		# Wait for sensor to pull pin low.
@@ -195,7 +200,7 @@ class SlowWire:
 	def AddToCRC(self, b, crc):
 		generator=0x1D
 		crc ^= b
-		for i in xrange(8):
+		for i in range(8):
 			if ((crc & 0x80) != 0):
 				crc = (crc << 1) ^ generator
 			else:
@@ -211,3 +216,26 @@ class SlowWire:
 			return True
 		return False
 			
+
+
+if __name__ == '__main__':
+	
+	"""
+	This is an usage example, connected to GPIO PIN 17 (BCM)
+	"""
+	PINDATA=17
+	GPIO.setmode(GPIO.BCM)
+	Sensor_bus = SlowWire(dout_pin=PINDATA)
+	
+	#print "Starting sample reading"
+	ReadingAttempt=3
+	isok=False
+	while (ReadingAttempt>0)and(not isok):
+
+		isok,datalist = Sensor_bus.read_uint()
+		if isok:
+			data=datalist[0]		
+			print ("*************** SlowWire data: *********************** ",data)
+		else:
+			print ("error")
+		ReadingAttempt=ReadingAttempt-1

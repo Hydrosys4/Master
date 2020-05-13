@@ -8,6 +8,7 @@ import logging
 import os
 import os.path
 import sys
+import shutil
 import string
 from datetime import datetime,date,timedelta
 import time
@@ -19,121 +20,89 @@ import hardwaremod
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
 
-global WTDATAFILENAME
-WTDATAFILENAME="automationdata.txt"
-global DEFWTDATAFILENAME
-DEFWTDATAFILENAME="default/defautomationdata.txt"
+global DATAFILENAME
+DATAFILENAME="APIdata.txt"
+
 
 global WTdata
-WTdata=[]
+WTdata={}
+
+
 
 # read WTdata -----
-if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering setting file
-	#read from default file
-	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
-	print("Watering writing default calibration data")
-	filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
-	
-# end read IOdata -----
+WTdata=filestoragemod.readfiledata_full(DATAFILENAME)
+#if not WTdata: #read watering setting file
+	#read from default file, the below groups should always be present 
+	#WTdata={"BasicInfo": {},"QueryGroup": [{"QueryItems":[],"ParseItems":[]}],"CounterInfo": {}, "Wateractuators": {} }
 
+	#print "Watering writing default calibration data"
+	#filestoragemod.savefiledata_full(DATAFILENAME,WTdata)
 
 
 # ///////////////// --- END GLOBAL VARIABLES ------
 
 
+def APIpresetlist():
+	apprunningpath=get_path()
+	folderpath=os.path.join(apprunningpath, "database")
+	folderpath=os.path.join(folderpath, "default")
+	folderpath=os.path.join(folderpath, "presetAPIsetting")
+	filenamelist=[]
+	sortedlist=sorted(os.listdir(folderpath))
+	sortedlist.reverse()
+	for files in sortedlist:
+		templist=[]
+		templist.append("database/default/presetAPIsetting/"+files)			
+		templist.append(files)
+		filenamelist.append(templist)
+	return filenamelist # item1 (path) item2 (name)
 
-#-- start filestorage utility--------////////////////////////////////////////////////////////////////////////////////////	
+def CopytoDatabase(selectedpath):
+	global WTdata
+	isdone=False
+	if selectedpath!="":
+		MYPATH=get_path()
+		# copy file to the default HWdata
+		filename=os.path.join(MYPATH, selectedpath)
+		folderpath=os.path.join(MYPATH, hardwaremod.DATABASEPATH)
+		dstdef=os.path.join(folderpath, DATAFILENAME)
+		#print "Source selected path ", filename , " Destination ", dstdef
 
-# filestoragemod.readfiledata(filename,filedata)
-# filestoragemod.savefiledata(filename,filedata)
-# filestoragemod.appendfiledata(filename,filedata)
-# filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
-# filestoragemod.deletefile(filename)
+
+		try:
+			shutil.copyfile(filename, dstdef) #this is the default HW file
+			readdata=filestoragemod.readfiledata_full(DATAFILENAME)
+			if readdata:
+				WTdata=readdata
+				isdone=True
+			else:
+				print("*************************** problem Parsing the file *******************************")
+				isdone=False
+		except:
+			isdone=False
+	return isdone
+
+
+
+
+
+
+
 
 def readfromfile():
 	global WTdata
-	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
-
-
-def consistencycheck():
-	
-	# this routine align the watering table elements with the Hardware available elements "name" labelled with usedfor "watering"
-	
-	elementlist=getelementlist()
-	recordkey="element"
-	elementlistfile=[]
-	for ln in WTdata:
-		if recordkey in ln:
-			elementlistfile.append(ln[recordkey])
-
-	tabletoadd=[]
-	for tablename1 in elementlist:
-		found=False
-		for tablename2 in elementlistfile:
-			if tablename1==tablename2 :
-				found=True
-		if not(found) :
-			tabletoadd.append(tablename1)
-			
-	tabletoremove=[]
-	for tablename1 in elementlistfile:
-		found=False
-		for tablename2 in elementlist:
-			if tablename1==tablename2 :
-				found=True
-		if not(found) :
-			tabletoremove.append(tablename1)
-
-	#print " ---------------------------------------------------------------------<----------------<-----------______________"
-	#print "to add ", tabletoadd
-	#print "to remove " , tabletoremove
-	#print "WTdata ", WTdata
-	
-	# get the dictionary line with an element as reference (from default file)
-	defWTdata=[]
-	filestoragemod.readfiledata(DEFWTDATAFILENAME,defWTdata)
-	for ln in defWTdata:
-		if recordkey in ln:
-			referenceln=dict(ln)
-			break
-	# copy the previous taken line and change the element parameter
-	for tablename in tabletoadd: 
-		# add copying from element:"1"
-		#print "adding table ", tablename
-		ln=dict(referenceln)
-		ln[recordkey]=tablename
-		WTdata.append(ln)
-
-	# remove the dictionalry line that are not consistent with element list
-	for tablename in tabletoremove:
-		for ln in WTdata:
-			if recordkey in ln:
-				if ln[recordkey]==tablename:
-					WTdata.remove(ln)
-					
-	saveWTsetting()
-
-	# extra code for the sensor field which should be consistent with sensor names in HW
+	WTdata=filestoragemod.readfiledata_full(DATAFILENAME)
 
 
 
-def replacewordandsave(oldword,newword):
-	global WTdata
-	filestoragemod.replacewordandsave(WTDATAFILENAME,oldword,newword)
-	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
 
 
-	
-def restoredefault():
-	global WTdata
-	filestoragemod.deletefile(WTDATAFILENAME)
-	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
-	#print "WT data -----------------------------------> ",  WTdata
-	consitencycheck()
+
+
 	
 	
 def saveWTsetting():
-	filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
+	filestoragemod.savefiledata_full(DATAFILENAME,WTdata)
 
 
 def getelementlist():
@@ -154,17 +123,7 @@ def getelementlist():
 	return datalist
 
 def sensorlist():
-	tablelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
-	return tablelist
-
-def sensorlistwithout():
-	tablelisttemp=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
-	# exclude the event input
-	inputeventlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"readinputpin",hardwaremod.HW_INFO_NAME)
-	tablelist=[]
-	for element in tablelisttemp:
-		if not element in inputeventlist:
-			tablelist.append(element)
+	tablelist=hardwaremod.searchdatalist2keys(hardwaremod.HW_INFO_IOTYPE,"input", hardwaremod.HW_CTRL_CMD, "readinputpin" ,hardwaremod.HW_INFO_NAME)
 	return tablelist
 
 def sensorlisttriggertime():
@@ -224,10 +183,9 @@ def replacerow(element,dicttemp):
 			if line[searchfield]==searchvalue:
 				for row in dicttemp: # modified, in this way it adds the new items is present
 					line[row]=dicttemp[row]
-					filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
+					filestoragemod.savefiledata(DATAFILENAME,WTdata)
 				return True
 	return False
-
 
 
 def changesaveWTsetting(WTname,WTparameter,WTvalue):
@@ -246,6 +204,8 @@ def searchdata(recordkey,recordvalue,keytosearch):
 				if keytosearch in ln:
 					return ln[keytosearch]	
 	return ""
+
+
 
 def gettimedata(name):
 	# return list with three integer values: hour , minute, second

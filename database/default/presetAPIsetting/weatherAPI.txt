@@ -1,0 +1,74 @@
+{
+"BasicInfo": {"visible":"yes","name":"weatherAPI", "GUItype":"link", "value":"http://www.weatherapi.com/", "note":"linkback to weather provider"},
+"QueryGroup": [	
+				{
+				"QueryItems":[
+				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
+				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
+				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
+				{ "name":"Time","value":"Time Now", "allowedvalues":["Time Now","Time +1 day","Time +2 days","Time -1 day","Time -2 days"],"format":"%Y/%m/%d","param":"dt","usedfor":"queryparam"}
+				],
+				"ParseItems":[
+					{"visible":"yes", "GUItype":"output", "name": "RainForecast+0day(mm)", "note":"This data is provided by querying the weather provider API",
+						"searchpath":[
+						{"keyword":"forecast"},
+						{"keyword":"forecastday"},
+						{"keyword":"date", "match":"Time Now", "format":"%Y-%m-%d"},
+						{"keyword":"day"},
+						{"keyword":"totalprecip_mm"}
+						]
+					}]},
+				{
+				"QueryItems":[
+				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
+				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
+				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
+				{ "name":"Time","value":"Time +1 day", "allowedvalues":["Time Now","Time +1 day","Time +2 days","Time -1 day","Time -2 days"],"format":"%Y/%m/%d","param":"dt","usedfor":"queryparam"}
+				],
+				"ParseItems":[
+					{"visible":"yes", "GUItype":"output", "name": "RainForecast+1day(mm)", "note":"This data is provided by querying the weather provider API",
+						"searchpath":[
+						{"keyword":"forecast"},
+						{"keyword":"forecastday"},
+						{"keyword":"date", "match":"Time +1 day", "format":"%Y-%m-%d"},
+						{"keyword":"day"},
+						{"keyword":"totalprecip_mm"}
+						]
+					}]},
+				{
+				"QueryItems":[
+				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
+				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
+				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
+				{ "name":"Time","value":"Time +2 days", "allowedvalues":["Time Now","Time +1 day","Time +2 days","Time -1 day","Time -2 days"],"format":"%Y/%m/%d", "param":"dt","usedfor":"queryparam"}
+				],
+				"ParseItems":[
+					{"visible":"yes", "GUItype":"output", "name": "RainForecast+2day(mm)", "note":"This data is provided by querying the weather provider API",
+						"searchpath":[
+						{"keyword":"forecast"},
+						{"keyword":"forecastday"},
+						{"keyword":"date", "match":"Time +2 days", "format":"%Y-%m-%d"},
+						{"keyword":"day"},
+						{"keyword":"totalprecip_mm"}
+						]
+					}]}
+
+			],
+"CounterInfo": {"visible":"yes" , "GUItype":"title" , "name": "RainMultiplier", 
+				"weights":[					
+							{"visible":"yes","name":"Weight1", "GUItype":"input", "value":"-5", "note":"Weight that will be multiplied to the first data parameter"},
+							{"visible":"yes","name":"Weight2", "GUItype":"input", "value":"-2.5", "note":"Weight that will be multiplied to the second data parameter"},
+							{"visible":"yes","name":"Weight3", "GUItype":"input", "value":"-1", "note":"Weight that will be multiplied to the third data parameter"}
+							],
+				"min": { "GUItype":"output" , "name": "Min", "value": "0"},
+				"max": { "GUItype":"output" , "name": "Max", "value": "100"},
+				"initialValue": { "GUItype":"output" , "name": "InitialValue", "value": "100"},
+				"queryintervalmin": { "GUItype":"output" , "name": "QueryIntervalmin", "value": "240"}
+				},				
+"Wateractuators": []
+}
+					
+				
+					
+					
+					

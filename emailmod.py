@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import logging
 import datetime
 import hardwaremod
@@ -20,7 +23,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 
 # GET path ---------------------------------------------
 global MYPATH
-print "path ",hardwaremod.get_path()
+print("path ",hardwaremod.get_path())
 MYPATH=hardwaremod.get_path()
 
 global IPEXTERNALSENT
@@ -45,9 +48,9 @@ def send_email(user, pwd, recipient, subject, body):
         server.login(gmail_user, gmail_pwd)
         server.sendmail(FROM, TO, message)
         server.quit()
-        print 'successfully sent the mail'
+        print('successfully sent the mail')
     except:
-        print "failed to send mail"
+        print("failed to send mail")
 
 
 def create_htmlopen():
@@ -146,7 +149,7 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 	you=[]
 	for address in recipient.split(";"):
 		you.append(address.strip())
-	print " Sending mail to : ", recipient
+	print(" Sending mail to : ", recipient)
 
 	# Create message container - the correct MIME type is multipart/alternative.
 	msg = MIMEMultipart()
@@ -180,7 +183,7 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 		for filename in imgfiles:
 			# Open the files in binary mode.  Let the MIMEImage class automatically
 			# guess the specific image type.
-			print "filename " , filename
+			print("filename " , filename)
 			fp = open(filename, 'rb')
 			img = MIMEImage(fp.read())
 			fp.close()
@@ -195,12 +198,12 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 		server.login(gmail_user, gmail_pwd)
 		server.sendmail(me, you, msg.as_string())
 		server.quit()
-		print 'successfully sent the mail'
+		print('successfully sent the mail')
 		logger.info('mail sent succesfully ')
 		return True
 	except:
 		logger.error('failed to send mail')
-		print "failed to send mail"
+		print("failed to send mail")
 		return False
 
 
@@ -242,7 +245,7 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 		logger.info('Stored external IP address is empty, try to get it from network')
 		ipext=networkmod.get_external_ip()
 		
-	print "Try to send mail"	
+	print("Try to send mail")	
 	# subject of the mail
 	subject=starttitle +" " + title + "  " + currentdate
 	htmlbody=create_htmlopen()
@@ -250,7 +253,7 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 	
 	if showlink:
 		if ipext=="":
-			print "No external IP address available"
+			print("No external IP address available")
 			logger.error('Unable to get external IP address')		
 		else:		
 			port=str(networkmod.PUBLICPORT)
@@ -265,7 +268,7 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 				if not customURL=="":	
 					addresslist.append(customURL)		
 					descriptionlist.append("your Link")
-				print "Mail url list ",addresslist
+				print("Mail url list ",addresslist)
 				htmlbody=htmlbody+create_htmladdresses(descriptionlist,addresslist, port)
 
 				
@@ -295,15 +298,15 @@ def sendmail(hwname,mailtype,intromessage,bodytextlist=[]):
 	address=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_ADDR)
 	
 	if not address=="":
-		print "mail recipient ", address
+		print("mail recipient ", address)
 		title=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_TITLE)
-		print "mail title " , title
+		print("mail title " , title)
 		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_CMD)
-		print "mail type " , cmd
+		print("mail type " , cmd)
 		issent=send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist)
 		return issent
 	else:
-		print "No address specified"
+		print("No address specified")
 		logger.warning('No address specified')
 		return False
 

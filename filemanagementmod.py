@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import shutil
 import logging
 import re
@@ -29,7 +30,7 @@ def folderfilelist(basefolder, folder , filetype):
 	# control if the folder exist otherwise create it
 	if not os.path.exists(folderpath):
 		os.makedirs(folderpath)
-		print " folder has been created"
+		print(" folder has been created")
 	
 	filelist=[]
 	sortedlist=sorted([f for f in os.listdir(folderpath) if os.path.isfile(os.path.join(folderpath, f))])
@@ -52,7 +53,7 @@ def copyfiles(basefolder, filelist, relativedstfolder):
 		dstfilename=filedata["filename"]
 		fulldstfolder=os.path.join(basefolder, relativedstfolder)
 		dst=os.path.join(fulldstfolder,  dstfilename)
-		print "COPY, source = " , src, "destination =" , dst
+		print("COPY, source = " , src, "destination =" , dst)
 		try:
 			shutil.copyfile(src, dst)
 			answer="ready"
@@ -65,7 +66,7 @@ def deletefilesinfolder(basefolder, relativefolder):
 	# control if the folder exist otherwise create it
 	if not os.path.exists(fullfolderpath):
 		os.makedirs(fullfolderpath)
-		print " folder has been created"
+		print(" folder has been created")
 		return 0
 	
 	sortedlist=os.listdir(fullfolderpath)
@@ -92,14 +93,13 @@ def zipfolder(basefolder, relativefolder, zipfilename , relativezipfolder):
 def unzipfolder(basefolder, relativefolder, zipfilename , absolutezipfolder):
 	fullfolderpath=os.path.join(basefolder, relativefolder)
 	zipfullpath=absolutezipfolder
-	zipfilename=zipfilename+".zip"
 	zipfilenamepath=os.path.join(zipfullpath, zipfilename)
 	
 	# control if the folder exist otherwise create it
 	if not os.path.exists(fullfolderpath):
 		os.makedirs(fullfolderpath)
-		print " folder has been created"
-	print "unzip file="	, 	zipfilenamepath
+		print(" folder has been created")
+	print("unzip file="	, 	zipfilenamepath)
 	if os.path.isfile(zipfilenamepath):
 		# unzipping
 
@@ -132,7 +132,7 @@ def configfilezip():
 		filelink=ZIPCONFIGDOWNLOADPATH+"/"+zipfilename+".zip" # relative path vithout static
 	else:
 		filelink=""
-	print filelink
+	print(filelink)
 	return filelink
 
 def configfileunzip():
@@ -142,19 +142,18 @@ def configfileunzip():
 	#delete files in download folder, or create it if not existing
 	deletefilesinfolder(basefolder, relativedstfolder)
 	# make unzip zip file and get link
-	zipfilename="allconfigfiles"
+	zipfilename="allconfigfiles.zip"
 	unzipfolder(basefolder, relativedstfolder, zipfilename , relativezipfolder)
 	filelink=ZIPCONFIGDOWNLOADPATH+"/"+zipfilename # relative path vithout static
-	print filelink
+	print(filelink)
 	return filelink
 
-def restoreconfigfilefromzip(absolutezipfolder):
+def restoreconfigfilefromzip(absolutezipfolder, zipfilename): #zipfilename is only the filename without path, zipfilename should have .zip extension
 	basefolder=get_path()
 	relativedstfolder=os.path.join("static", CONFIGDOWNLOADPATH)	
 	#delete files in download folder, or create it if not existing
 	deletefilesinfolder(basefolder, relativedstfolder)
 	# make unzip zip file and get link
-	zipfilename="allconfigfiles"
 	unzipfolder(basefolder, relativedstfolder, zipfilename , absolutezipfolder)
 	#get config files list
 	relativeconfigfolder=relativedstfolder
@@ -185,7 +184,7 @@ def get_path():
 	
 if __name__ == '__main__':
 	# comment
-	print "test copy and zip"
+	print("test copy and zip")
 	configfileunzip()
 	#restoreconfigfilefromzip()
 	

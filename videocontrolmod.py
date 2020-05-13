@@ -1,3 +1,4 @@
+from __future__ import print_function
 from subprocess import call  , Popen
 import sys  
 import time 
@@ -53,7 +54,7 @@ def streamedit(dictdata):
 	global videostreamport
 	if (video=="video0")and(int(width)>1024):
 
-		print "try using the raspicam"
+		print("try using the raspicam")
 		stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+width+" -y "+height+" -fps "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+"' &"
 	
 		#stream="mjpg_streamer -i '/usr/local/lib/mjpg-streamer/input_raspicam.so -d /dev/"+video+" -x "+width+" -y "+height+" -fps "+fps+"' -o '/usr/local/lib/mjpg-streamer/output_http.so -w /usr/local/share/mjpg-streamer/www -p "+videostreamport+" -c "+username+":"+password+"' &"
@@ -84,20 +85,20 @@ def stream_video(videodev="",resolution={}):
 	
 	done=False
 	try:
-		print "starting streaming\n%s" % stream  
+		print("starting streaming\n%s" % stream)  
 		call ([stream], shell=True)  
   
-  	except:
-		print "Exception error failed to start VLC streaming "
+	except:
+		print("Exception error failed to start VLC streaming ")
 		return "Exception"
 	else:
-		print "Streaming"
+		print("Streaming")
 		done="Streaming"
 	return done
   
   
 def stop_stream_VLC():  
-	print "stopping streaming"  
+	print("stopping streaming")  
 	#call (["pkill raspivid"], shell=True)  
 	call (["sudo pkill vlc"], shell=True)
 
@@ -105,7 +106,7 @@ def stop_stream_VLC():
 def stop_stream(blockingtype="blocking"):  
 	# non blocking subprocess.Popen 
 	# blocking subprocess.call
-	print "stopping streaming"  
+	print("stopping streaming")  
 	#call (["pkill mjpg_streamer"], shell=True)  
 	if blockingtype=="blocking":
 		call (["sudo pkill mjpg_streamer"], shell=True)

@@ -2,6 +2,7 @@
 """
 fertilizer UI setting storage utilities
 """
+from __future__ import print_function
 
 import logging
 import os
@@ -61,7 +62,7 @@ def changesavesetting(FTparameter,FTvalue):
 	searchvalue="login"
 	isok=filestoragemod.savechange(DATAFILENAME,searchfield,searchvalue,FTparameter,FTvalue)
 	if not isok:
-		print "problem saving parameter"
+		print("problem saving parameter")
 	return isok
 	
 	
@@ -85,4 +86,4 @@ def get_path():
 	
 if __name__ == '__main__':
 	# comment
-	print "Hello there "
+	print("Hello there ")

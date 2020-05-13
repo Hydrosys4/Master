@@ -2,6 +2,9 @@
 """
 Database utility
 """
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import basicSetting
 import logging
 import os
@@ -36,15 +39,15 @@ def init_db(filename):
 	"""Creates the database tables."""
 	if not os.path.isfile(dbpath(filename)): #file is there
 		conn = sqlite3.connect(dbpath(filename))
-		print "create empty database"
-		print 'Creating schema from file'
+		print("create empty database")
+		print('Creating schema from file')
 		schemafilename = os.path.splitext(filename)[0]+'sc.sql'
 		if os.path.isfile(schemapath(schemafilename)):
 			with open(schemapath(schemafilename), 'rt') as f:
 				schema = f.read()
 			conn.executescript(schema)
 	else:
-		print filename, "database exists"
+		print(filename, "database exists")
 
 
 
@@ -108,22 +111,22 @@ def columninfo(filename,table):
 	with sqlite3.connect(dbpath(filename)) as conn:
 		cursor = conn.cursor()
 		cursor.execute('select * from "' + table + '"')
-		print 'table has these columns:'
+		print('table has these columns:')
 		for colinfo in cursor.description:
-			print colinfo
+			print(colinfo)
 			
 			
 def rowdescription(filename,table,deletefirstN):
 	with sqlite3.connect(dbpath(filename)) as conn:
 		cursor = conn.cursor()
 		cursor.execute('select * from "' + table + '"')
-		print 'table has these columns:'
+		print('table has these columns:')
 		rowdata=[]
 		for colinfo in cursor.description:
 			rowdata.append( colinfo [0])
 		for i in range(deletefirstN):
 			del rowdata[0]
-		print rowdata
+		print(rowdata)
 		return rowdata
 
 def get_db(filename):
@@ -132,11 +135,11 @@ def get_db(filename):
 		conn = sqlite3.connect(dbpath(filename))
 		return conn, True
 	except:
-		print "Error Reading database"
+		print("Error Reading database")
 		return conn, False
 		
 def getvaluelist(filename,table,field,valuelist):
-	print "visualizzazione field ", field
+	print("visualizzazione field ", field)
 	db, connected = get_db(filename)
 	if connected:
 		cur = db.execute('select distinct "' + field + '" from "' + table + '" order by "' + field + '"')
@@ -146,7 +149,7 @@ def getvaluelist(filename,table,field,valuelist):
 			valuelist.append(str(na[0]))
 		conn.close()
 	else:
-		print "not able to connect to database ", filename
+		print("not able to connect to database ", filename)
 
 		
 def getdatafromfields(filename,table,fieldlist,valuelist):
@@ -166,7 +169,7 @@ def getdatafromfields(filename,table,fieldlist,valuelist):
 						row.append(str(rowdata[i]))
 					valuelist.append(row)
 			except:
-				print "problem reading database " , table
+				print("problem reading database " , table)
 		db.close()
 		
 
@@ -203,7 +206,7 @@ def getdatafromfieldslimit(filename,table,fieldlist,valuelist,limit):
 
 		
 def deleterowwithfield(filename,table,field,value):
-	print "delete field ", field , " with value ", value
+	print("delete field ", field , " with value ", value)
 	db, connected = get_db(filename)
 	if connected:
 		#remove old items from database in case the same name is already present
@@ -212,7 +215,7 @@ def deleterowwithfield(filename,table,field,value):
 		db.close()
 	
 def deleteallrow(filename,table):
-	print "delete all row in table  ", table
+	print("delete all row in table  ", table)
 	db, connected = get_db(filename)
 	if connected:
 		#remove old items from database in case the same name is already present
@@ -242,7 +245,7 @@ def insertrowfields(filename,table,rowfield,rowvalue):
 							
 			db.commit()
 		except:
-			print "Error reading the sensor database, sql querystring=",query_string 
+			print("Error reading the sensor database, sql querystring=",query_string) 
 		db.close()
 		
 
@@ -289,14 +292,14 @@ if __name__ == '__main__':
 	getdatafromfieldslimit(DATABASEDUMMYFILE,TABLE,["two"],valuelist,4)
 	end = datetime.now()
 	timeperiod = end - start		
-	print valuelist
-	print timeperiod
+	print(valuelist)
+	print(timeperiod)
 	
 	start = datetime.now()	
 	getdatafromfields(DATABASEDUMMYFILE,TABLE,["two"],valuelist)
 	end = datetime.now()
 	timeperiod = end - start		
-	print valuelist
-	print timeperiod
+	print(valuelist)
+	print(timeperiod)
 	
 	# database reading

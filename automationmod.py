@@ -1,3 +1,8 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 from datetime import datetime, time ,timedelta
 import hardwaremod
@@ -62,7 +67,7 @@ def automationexecute(refsensor,element):
 
 		if (workmode=="None"):
 			# None case
-			print "No Action required, workmode set to None, element: " , element
+			print("No Action required, workmode set to None, element: " , element)
 			logger.info("No Action required, workmode set to None, element: %s " , element)
 			return
 
@@ -103,11 +108,11 @@ def automationexecute(refsensor,element):
 		# Calculated Variables
 		if maxstepnumber<1:
 			# not possible to proceed
-			print "No Action required, maxstepnumber <1, element: " , element
+			print("No Action required, maxstepnumber <1, element: " , element)
 			logger.info("No Action required, maxstepnumber <1, element: %s " , element)
 			return
-		interval=(sensormaxthreshold-sensorminthreshold)/maxstepnumber
-		actuatorinterval=(actuatormaxthreshold-actuatorminthreshold)/maxstepnumber
+		interval=old_div((sensormaxthreshold-sensorminthreshold),maxstepnumber)
+		actuatorinterval=old_div((actuatormaxthreshold-actuatorminthreshold),maxstepnumber)
 		P=[]
 		for I in range(0, maxstepnumber+1):
 			P.append(actuatorminthreshold+I*actuatorinterval)
@@ -118,18 +123,18 @@ def automationexecute(refsensor,element):
 		# ------------------------ Automation alghoritm
 		if workmode=="Full Auto":
 			# check if inside the allowed time period
-			print "full Auto Mode"
+			print("full Auto Mode")
 			logger.info('full auto mode --> %s', element)
 			timeok=isNowInTimePeriod(starttime, endtime, datetime.now().time())  # don't use UTC here!
-			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
+			print("inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime)
 			if timeok:
 				logger.info('inside allowed time')
 				isok,sensorvalue=sensorreading(sensor,averageminutes,mathoperation) # operation of sensor readings for a number of sample
 				if isok:
-					print "Sensor Value ", sensorvalue
+					print("Sensor Value ", sensorvalue)
 					
 					if sensorminthreshold<=sensormaxthreshold:
-						print "Algorithm , element: " , element
+						print("Algorithm , element: " , element)
 						logger.info("Forward algorithm  , element: %s " , element)
 						
 					
@@ -155,7 +160,7 @@ def automationexecute(refsensor,element):
 						Inde=maxstepnumber
 						mins=sensorminthreshold+(Inde-1)*interval										
 						if mins<sensorvalue:
-							print "INDE:",Inde
+							print("INDE:",Inde)
 							value=P[Inde]
 							logger.info('beyond Range')
 							# do relevant stuff	
@@ -163,7 +168,7 @@ def automationexecute(refsensor,element):
 						# END MAIN ALGORITHM
 						
 					else: # to be added case of inverse sensor condition, where the sensorminthreshold is higher than the sensormaxthreshold
-						print "Reverse Algorithm , element: " , element
+						print("Reverse Algorithm , element: " , element)
 						logger.info("Reverse Algorithm  , element: %s " , element)						
 									
 						Inde=0
@@ -187,7 +192,7 @@ def automationexecute(refsensor,element):
 						Inde=maxstepnumber
 						mins=sensorminthreshold+(Inde-1)*interval										
 						if mins>sensorvalue:
-							print "INDE:",Inde
+							print("INDE:",Inde)
 							value=P[Inde]
 							# do relevant stuff	
 							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
@@ -198,10 +203,10 @@ def automationexecute(refsensor,element):
 				logger.info('Outside allowed Time, Stop')
 				
 		elif workmode=="Emergency Activation":
-			print "Emergency Activation"		
+			print("Emergency Activation")		
 		
 		elif workmode=="Alert Only":
-			print "Alert Only"					
+			print("Alert Only")					
 							
 
 
@@ -213,7 +218,7 @@ def automationexecute(refsensor,element):
 				if sensorvalue>sensormaxthreshold+interval:
 					logger.info('sensor %s exceeding limits', sensor)
 					textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
-					print textmessage
+					print(textmessage)
 					#send alert mail notification
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<2:
@@ -226,7 +231,7 @@ def automationexecute(refsensor,element):
 				if sensorvalue<sensormaxthreshold+interval:
 					logger.info('sensor %s exceeding limits', sensor)
 					textmessage="CRITICAL: "+ sensor + " reading " + str(sensorvalue) + " exceeding threshold limits, need to check the " + element
-					print textmessage
+					print(textmessage)
 					#send alert mail notification
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<2:
@@ -242,15 +247,15 @@ def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 	global AUTO_data
 	# check if time between watering events is larger that the waiting time (minutes)
 	lastactiontime=statusdataDBmod.read_status_data(AUTO_data,element,"lastactiontime")
-	print ' Previous action: ' , lastactiontime , ' Now: ', datetime.utcnow()
+	print(' Previous action: ' , lastactiontime , ' Now: ', datetime.utcnow())
 	timedifference=sensordbmod.timediffinminutes(lastactiontime,datetime.utcnow())
-	print 'Time interval between actions', timedifference ,'. threshold', waitingtime
+	print('Time interval between actions', timedifference ,'. threshold', waitingtime)
 	logger.info('Time interval between Actions %d threshold %d', timedifference,waitingtime)		
 	if timedifference>=waitingtime: # sufficient time between actions
-		print " Sufficient waiting time"
+		print(" Sufficient waiting time")
 		logger.info('Sufficient waiting time')	
 		# action					
-		print "Implement Actuator Value ", value
+		print("Implement Actuator Value ", value)
 		logger.info('Procedure to start actuator %s, for value = %s', element, value)		
 		isok=activateactuator(element, value)
 			
@@ -327,7 +332,7 @@ def activateactuator(target, value):  # return true in case the state change: ac
 
 
 def isNowInTimePeriod(startTime, endTime, nowTime):
-	print startTime," ",  endTime," " ,  nowTime
+	print(startTime," ",  endTime," " ,  nowTime)
 	if startTime < endTime:
 		return nowTime >= startTime and nowTime <= endTime
 	else: #Over midnight
@@ -341,7 +346,7 @@ def sensorreading(sensorname,MinutesOfAverage,operation):
 		timelist=hardwaremod.gettimedata(sensorname)	
 		theinterval=timelist[1] # minutes
 		if theinterval>0:
-			samplesnumber=int(MinutesOfAverage/theinterval+1)
+			samplesnumber=int(old_div(MinutesOfAverage,theinterval)+1)
 		else:
 			samplesnumber=1
 			theinterval=15
@@ -356,7 +361,7 @@ def sensorreading(sensorname,MinutesOfAverage,operation):
 			quantity=quantitylist[operation]
 			# sensor reading value
 			logger.info('Sensor reading <%s>=<%s>',sensorname,str(quantity))
-			print "sensor Reading ", sensorname, "=" , quantity	
+			print("sensor Reading ", sensorname, "=" , quantity)	
 	return isok , quantity
 
 

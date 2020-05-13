@@ -2,7 +2,9 @@
 """
 camera setting storage utilities
 """
+from __future__ import print_function
 
+from builtins import str
 import logging
 import os
 import os.path
@@ -31,7 +33,7 @@ data=[]
 if not filestoragemod.readfiledata(DATAFILENAME,data): #read watering setting file
 	#read from default file
 	filestoragemod.readfiledata(DEFDATAFILENAME,data)
-	print "Watering writing default calibration data"
+	print("Watering writing default calibration data")
 	filestoragemod.savefiledata(DATAFILENAME,data)
 # end read data -----
 

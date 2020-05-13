@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import str
 import logging
 import subprocess
 import filestoragemod
@@ -15,7 +17,7 @@ def createfiletailsyslog(dstfile):
 		filestoragemod.savefiledata_plaintext(dstfile,data)
 		return True
 	else:
-		print "data empty"
+		print("data empty")
 		return False
 
 
@@ -34,7 +36,7 @@ def searchsyslogkeyword(keyword):
 	return extract
 
 def searchLOGkeyword(filename,keyword):
-	print "debugging check errors in: ", filename
+	print("debugging check errors in: ", filename)
 	rownumber="300"
 	data=tailLOGcmd(filename,rownumber)
 	numrowafter=10
@@ -63,7 +65,7 @@ def execcommand(cmd):
 	try:
 		scanoutput = subprocess.check_output(cmd).decode('utf-8')
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return []
 	return scanoutput.split('\n')
@@ -74,5 +76,5 @@ def execcommand(cmd):
 if __name__ == '__main__':
 	# comment
 	#a=[]
-	print "Hello"
+	print("Hello")
 

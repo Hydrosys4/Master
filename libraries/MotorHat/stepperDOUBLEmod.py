@@ -1,26 +1,19 @@
+from __future__ import print_function
+from __future__ import division
 # ============================================================================
 # Adafruit PCA9685 16-Channel PWM Servo Driver
 # ============================================================================
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import logging
 import math
 import time
-
+from Adafruit_I2C_2 import I2C
 
 logger = logging.getLogger(__name__)
 
 
-def get_i2c_device(address, i2c, i2c_bus):
-    # Helper method to get a device at the specified address from the I2C bus.
-    # If no i2c bus is specified (i2c param is None) then the default I2C bus
-    # for the platform will be used.
-    if i2c is not None:
-        return i2c.get_i2c_device(address)
-    else:
-        import Adafruit_GPIO.I2C as I2C
-        if i2c_bus is None:
-            return I2C.get_i2c_device(address)
-        else:
-            return I2C.get_i2c_device(address, busnum=i2c_bus)
 
 
 class PWM(object):
@@ -50,21 +43,19 @@ class PWM(object):
     regvals = {} # new code from me
 
     @classmethod
-    def softwareReset(cls, i2c=None, i2c_bus=None):
-        "Sends a software reset (SWRST) command to all the servo drivers on the bus"
-        general_call_i2c = get_i2c_device(0x00, i2c, i2c_bus)
-        general_call_i2c.writeRaw8(0x06)        # SWRST
+
 
     def __init__(self, address=0x40, debug=False, i2c=None, i2c_bus=None):
-        self.i2c = get_i2c_device(address, i2c, i2c_bus)
+        self.i2c = I2C(address)
+        #self.i2c = get_i2c_device(address, i2c, i2c_bus)
         logger.debug("Reseting PCA9685 MODE1 (without SLEEP) and MODE2")
-        self.setAllPWM(0, 0)
-        self.write8my(self.__MODE2, self.__OUTDRV)
-        self.write8my(self.__MODE1, self.__ALLCALL)
+        self.setAllPWM(self, 0, 0)
+        self.write8my(self, self.__MODE2, self.__OUTDRV)
+        self.write8my(self, self.__MODE1, self.__ALLCALL)
         time.sleep(0.005)                             # wait for oscillator
         mode1 = self.i2c.readU8(self.__MODE1)
         mode1 = mode1 & ~self.__SLEEP                 # wake up (reset sleep)
-        self.write8my(self.__MODE1, mode1)
+        self.write8my(self, self.__MODE1, mode1)
         time.sleep(0.005)                             # wait for oscillator
 
 
@@ -96,25 +87,25 @@ class PWM(object):
 
     def setAllPWM(self, on, off):
         "Sets a all PWM channels"
-        self.write8my(self.__ALL_LED_ON_L, on & 0xFF)
-        self.write8my(self.__ALL_LED_ON_H, on >> 8)
-        self.write8my(self.__ALL_LED_OFF_L, off & 0xFF)
-        self.write8my(self.__ALL_LED_OFF_H, off >> 8)
+        self.write8my(self, self.__ALL_LED_ON_L, on & 0xFF)
+        self.write8my(self, self.__ALL_LED_ON_H, on >> 8)
+        self.write8my(self, self.__ALL_LED_OFF_L, off & 0xFF)
+        self.write8my(self, self.__ALL_LED_OFF_H, off >> 8)
 
     def write8my(self, reg, value): # new function created by me to optimize the I2C traffic speed up about 5 times the stepper speed!
-		if reg not in self.regvals:
-			self.i2c.write8(reg, value)		
-			self.regvals[reg] = value
-		else:
-			if self.regvals[reg] != value:
-				self.i2c.write8(reg, value)		
-				self.regvals[reg] = value
-			#else:
-			#	print "no need to transfer on I2C"
+       if reg not in self.regvals:
+            self.i2c.write8(reg, value)		
+            self.regvals[reg] = value
+       else:
+            if self.regvals[reg] != value:
+                self.i2c.write8(reg, value)		
+                self.regvals[reg] = value
+            #else:
+                #	print "no need to transfer on I2C"
 
 
 
-class Adafruit_StepperMotor:
+class Adafruit_StepperMotor(object):
     MICROSTEPS = 8
     MICROSTEP_CURVE = [0, 50, 98, 142, 180, 212, 236, 250, 255]
 
@@ -150,7 +141,7 @@ class Adafruit_StepperMotor:
             raise NameError('MotorHAT Stepper must be between 1 and 2 inclusive')
 
     def setSpeed(self, rpm):
-        self.sec_per_step = 60.0 / (self.revsteps * rpm)
+        self.sec_per_step = old_div(60.0, (self.revsteps * rpm))
         self.steppingcounter = 0
 
     def oneStep(self, dir, style):
@@ -258,7 +249,7 @@ class Adafruit_StepperMotor:
         lateststep = 0
 
         if (stepstyle == Adafruit_MotorHAT.INTERLEAVE):
-            s_per_s = s_per_s / 2.0
+            s_per_s = old_div(s_per_s, 2.0)
         if (stepstyle == Adafruit_MotorHAT.MICROSTEP):
             s_per_s /= self.MICROSTEPS
             steps *= self.MICROSTEPS
@@ -276,7 +267,7 @@ class Adafruit_StepperMotor:
                 lateststep = self.oneStep(direction, stepstyle)
                 time.sleep(s_per_s)
 
-class Adafruit_DCMotor:
+class Adafruit_DCMotor(object):
     def __init__(self, controller, num):
         self.MC = controller
         self.motornum = num
@@ -324,7 +315,7 @@ class Adafruit_DCMotor:
         self.MC._pwm.setPWM(self.PWMpin, 0, speed*16)
 
 
-class Adafruit_MotorHAT:
+class Adafruit_MotorHAT(object):
     FORWARD = 1
     BACKWARD = 2
     BRAKE = 3
@@ -364,3 +355,32 @@ class Adafruit_MotorHAT:
 
     def reset(self):
         self._pwm.softwareReset()
+
+
+
+
+	
+if __name__ == '__main__':
+
+    direction="BACKWARD"
+    # comment
+    # create a default object, no changes to I2C address or frequency
+    mh = Adafruit_MotorHAT()
+
+    # set motor parameters
+    myStepper = mh.getStepper(200, 1)  # 200 steps/rev, motor port #1 or #2
+    myStepper.setSpeed(30)             # 30 RPM
+
+    #print "Double coil steps"
+    if direction=="FORWARD":
+        myStepper.step(100, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
+    elif direction=="BACKWARD":
+        myStepper.step(100, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)	
+
+    # turn off motors
+    mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+    mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+    mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+    mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
+
+    del mh	

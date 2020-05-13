@@ -2,6 +2,11 @@
 """
 selected plan utility
 """
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import shutil
 import logging
 import re
@@ -34,7 +39,7 @@ global DEFHWDATAFILENAME
 DEFHWDATAFILENAME="default/defhwdata.txt"
 
 logger = logging.getLogger("hydrosys4."+__name__)
-print "logger name ", __name__
+print("logger name ", __name__)
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
 #important this data is used almost everywhere
@@ -109,10 +114,10 @@ HWdataKEYWORDS[HW_CTRL_DIR]=["dir","inv"]
 IOdata=[]
 # read IOdata -----
 if not filestoragemod.readfiledata(HWDATAFILENAME,IOdata): #read calibration file
-	print "warning hwdata file not found -------------------------------------------------------"
+	print("warning hwdata file not found -------------------------------------------------------")
 	#read from default file
 	filestoragemod.readfiledata(DEFHWDATAFILENAME,IOdata)
-	print "writing default calibration data"
+	print("writing default calibration data")
 	filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
 # end read IOdata -----
 IOdatatemp=copy.deepcopy(IOdata)
@@ -174,6 +179,10 @@ def	IOdatafromtemp():
 	global IOdata
 	IOdata=copy.deepcopy(IOdatatemp)
 	filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
+
+def	SaveData():
+	filestoragemod.savefiledata(HWDATAFILENAME,IOdata)
+
 	
 def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fields are correct
 # name is the unique key indicating the row of the list, dictdata contains the datato be verified
@@ -284,10 +293,10 @@ def normalizesensordata(reading_str,sensorname):
 	if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consistent, stops here
 		if Direction!="inv":
 			den=Maxvalue-Minvalue
-			readingvalue=(readingvalue-Minvalue)/den
+			readingvalue=old_div((readingvalue-Minvalue),den)
 		else:
 			den=Maxvalue-Minvalue
-			readingvalue=1-(readingvalue-Minvalue)/den
+			readingvalue=1-old_div((readingvalue-Minvalue),den)
 	if Scalevalue>0:
 		readingvalue=readingvalue*Scalevalue		
 	readingvalue=readingvalue+Offsetvalue
@@ -324,19 +333,19 @@ def getsensordata(sensorname,attemptnumber): #needed
 									
 					Thereading=normalizesensordata(recdata[1],sensorname)  # output is a string
 
-					print " Sensor " , sensorname  , "Normalized reading ",Thereading												
+					print(" Sensor " , sensorname  , "Normalized reading ",Thereading)												
 					logger.info("Sensor %s reading: %s", sensorname,Thereading)
 				else:
-					print "Problem with sensor reading ", sensorname
+					print("Problem with sensor reading ", sensorname)
 					logger.error("Problem with sensor reading: %s", sensorname)
 			else:
-				print "Problem with response consistency ", sensorname , " cmd " , cmd
+				print("Problem with response consistency ", sensorname , " cmd " , cmd)
 				logger.error("Problem with response consistency : %s", sensorname)
 		else:
-			print "no answer from Hardware control module", sensorname
+			print("no answer from Hardware control module", sensorname)
 			logger.error("no answer from Hardware control module: %s", sensorname)
 	else:
-		print "sensor name not found in list of sensors ", sensorname
+		print("sensor name not found in list of sensors ", sensorname)
 		logger.error("sensor name not found in list of sensors : %s", sensorname)
 	return Thereading
 
@@ -349,10 +358,10 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 		return "error"
 	if activated=="on":
 		if not addtime:
-			print "Already ON, no action"
+			print("Already ON, no action")
 			return "Already ON"
 		else:
-			print "Already ON, add time"
+			print("Already ON, add time")
 
 	
 	#print "Fire Pulse - ", target
@@ -364,7 +373,7 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 		testpulsetimeint=int(duration)
 		testpulsetime=str(testpulsetimeint) # durantion in seconds 
 	except ValueError:
-		print " No valid data or zero  ", target
+		print(" No valid data or zero  ", target)
 		return "error"
 
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
@@ -415,7 +424,7 @@ def stoppulse(target):
 	if activated=="error":
 		return "error"
 	if activated=="off":
-		print "Already OFF"
+		print("Already OFF")
 		return "Already OFF"
 
 	#print "Stop Pulse - ", target
@@ -458,7 +467,7 @@ def servoangle(target,percentage,delay,priority=0): #percentage go from zeo to 1
 	#search the data in IOdata
 	isok=False
 	
-	print "Move Servo - ", target #normally is servo1
+	print("Move Servo - ", target) #normally is servo1
 	
 	# check if servo is belonging to servolist
 	servolist=searchdatalist(HW_CTRL_CMD,"servo",HW_INFO_NAME)
@@ -481,31 +490,31 @@ def servoangle(target,percentage,delay,priority=0): #percentage go from zeo to 1
 			percentagediff=abs(float(100)*difference/(int(MAX)-int(MIN)))
 			
 			if percentagediff<1: # one percent difference
-				print " No difference with prevoius position ", target , " percentage difference ", percentagediff
+				print(" No difference with prevoius position ", target , " percentage difference ", percentagediff)
 				return "same" , isok				
 			
 			if 0<=int(percentage)<=100:
-				print "range OK"
+				print("range OK")
 			else:
-				print " No valid data for Servo ", target , " out of Range"
+				print(" No valid data for Servo ", target , " out of Range")
 				return "Out of Range" , isok
 
 		except ValueError:
-			print " No valid data for Servo", target
+			print(" No valid data for Servo", target)
 			return "error" , isok
 
 
 		sendstring="servo:"+PIN+":"+FREQ+":"+dutycycle+":"+str(delay)+":"+previousduty+":"+stepsnumber
-		print " sendstring " , sendstring
+		print(" sendstring " , sendstring)
 
 		i=0
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
 			ack= sendcommand("servo",sendstring,recdata,target,priority)
-			print "returned data " , recdata
+			print("returned data " , recdata)
 			if ack and recdata[1]!="e":
-				print target, "correctly activated"
+				print(target, "correctly activated")
 				# save duty as new status
 				statusdataDBmod.write_status_data(Servo_Status,target,'duty',dutycycle)
 				isok=True
@@ -522,16 +531,16 @@ def getservopercentage(target):
 		#print " MIN ", MIN , " MAX ", MAX
 		try:
 			den=(int(MAX)-int(MIN))
-			percentage_num=int((100*(float(getservoduty(target))-int(MIN)))/den)
+			percentage_num=int(old_div((100*(float(getservoduty(target))-int(MIN))),den))
 			if percentage_num<0:
 				percentage_num=0
 			if percentage_num>100:
 				percentage_num=100
 			percentage=str(percentage_num)
 		except:
-			print " No valid data for Servo", target
+			print(" No valid data for Servo", target)
 
-	print "servo percntage " , percentage
+	print("servo percntage " , percentage)
 	return percentage
 
 def getservoduty(element):
@@ -573,16 +582,16 @@ def get_stepper_HWstatus(target):
 		return "error" , isok
 		
 	sendstring="stepperstatus:"+Interface_Number
-	print " sendstring " , sendstring
+	print(" sendstring " , sendstring)
 	i=0
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("stepperstatus",sendstring,recdata,target,0) 
-		print "returned data " , recdata
+		print("returned data " , recdata)
 		if ack:
-			print target, "correctly activated"	
-			print "get stepper status : " , recdata[1]
+			print(target, "correctly activated")	
+			print("get stepper status : " , recdata[1])
 			isok=True
 			return recdata[1], isok
 			
@@ -594,11 +603,11 @@ def GO_stepper(target,steps,direction,priority=0):
 	global Stepper_Status
 	#search the data in IOdata
 	isok=False
-	print "Move Stepper - ", target #only supported the I2C default address, the module supports 2 stepper interfaces: 1,2
+	print("Move Stepper - ", target) #only supported the I2C default address, the module supports 2 stepper interfaces: 1,2
 	
 	position_string=getstepperposition(target)
 	
-	print " position " , position_string
+	print(" position " , position_string)
  
 	try:
 		Interface_Number=searchdata(HW_INFO_NAME,target,HW_CTRL_ADCCH)	
@@ -609,7 +618,7 @@ def GO_stepper(target,steps,direction,priority=0):
 		steps=int(steps)
 		
 		if steps<=0:
-			print " No valid range for Stepper ", target
+			print(" No valid range for Stepper ", target)
 			return "Out of Range" , isok
 		
 		# simulate endpoints
@@ -621,27 +630,27 @@ def GO_stepper(target,steps,direction,priority=0):
 			position=position-steps
 
 		if int(MIN)<=(position)<=int(MAX):
-			print "range OK"
+			print("range OK")
 		else:
-			print " No valid range for Stepper ", target
+			print(" No valid range for Stepper ", target)
 			return "Out of Range" , isok
 
 	except ValueError:
-		print " No valid data for Servo", target
+		print(" No valid data for Servo", target)
 		return "error" , isok
 
 
 	sendstring="stepper:"+Interface_Number+":"+direction+":"+FREQ+":"+str(steps)
-	print " sendstring " , sendstring
+	print(" sendstring " , sendstring)
 
 	i=0
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("stepper",sendstring,recdata,target,priority) 
-		print "returned data " , recdata
+		print("returned data " , recdata)
 		if ack and recdata[1]!="e":
-			print target, "correctly activated"
+			print(target, "correctly activated")
 			# save position as new status
 			statusdataDBmod.write_status_data(Stepper_Status,target,'position',str(position),True,"Stepper_Status")
 			
@@ -689,7 +698,7 @@ def get_hbridge_busystatus(target):
 	PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)		
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	
-	print "Check target is already ON ", target
+	print("Check target is already ON ", target)
 	priority=0
 	activated1=getpinstate_pin(PIN1,logic, priority)
 	activated2=getpinstate_pin(PIN2,logic, priority)
@@ -714,16 +723,16 @@ def get_hbridge_HWstatus(target):
 		return "error" , isok
 		
 	sendstring="hbridgestatus:"+PIN1+PIN2
-	print " sendstring " , sendstring
+	print(" sendstring " , sendstring)
 	i=0
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("hbridgestatus",sendstring,recdata,target,0) 
-		print "returned data " , recdata
+		print("returned data " , recdata)
 		if ack:
-			print target, "correctly activated"	
-			print "get hbridge status : " , recdata[1]
+			print(target, "correctly activated")	
+			print("get hbridge status : " , recdata[1])
 			isok=True
 			return recdata[1], isok
 			
@@ -735,11 +744,11 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 	global Hbridge_Status
 	#search the data in IOdata
 	isok=False
-	print "Move Hbridge - ", target 
+	print("Move Hbridge - ", target) 
 	
 	position_string=gethbridgeposition(target)
 	
-	print " position " , position_string
+	print(" position " , position_string)
  
 	try:
 		PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
@@ -751,7 +760,7 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 		steps=int(steps)
 		
 		if steps<=0:
-			print " No valid range for pulse ", target
+			print(" No valid range for pulse ", target)
 			return "Out of Range" , isok
 		
 		# simulate endpoints
@@ -763,13 +772,13 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 			position=position-steps
 
 		if int(MIN)<=(position)<=int(MAX):
-			print "range OK"
+			print("range OK")
 		else:
-			print " No valid range for hbridge ", target
+			print(" No valid range for hbridge ", target)
 			return "Out of Range" , isok
 
 	except ValueError:
-		print " No valid data for hbridge", target
+		print(" No valid data for hbridge", target)
 		return "error" , isok
 
 	# here apply the offset
@@ -777,7 +786,7 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 	
 	
 	sendstring="hbridge:"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic
-	print " sendstring " , sendstring
+	print(" sendstring " , sendstring)
 
 	errorcode="error"
 	i=0
@@ -785,9 +794,9 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("hbridge",sendstring,recdata,target,priority) 
-		print "returned data " , recdata
+		print("returned data " , recdata)
 		if ack and recdata[1]!="e":
-			print target, "correctly activated"
+			print(target, "correctly activated")
 			# save position as new status
 			statusdataDBmod.write_status_data(Hbridge_Status,target,'position',str(position),True,"Hbridge_Status") # save in persistent mode
 			isok=True
@@ -812,7 +821,7 @@ def sethbridgeposition(element, position):
 
 def getpinstate(target, priority=0):
 	#search the data in IOdata
-	print "Check PIN state ", target
+	print("Check PIN state ", target)
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	return getpinstate_pin(PIN, logic, priority)
@@ -829,7 +838,7 @@ def getpinstate_pin(PIN, logic, priority=0):
 		i=i+1
 		recdata=[]
 		ack= sendcommand("pinstate",sendstring,recdata)
-		print "returned data " , recdata
+		print("returned data " , recdata)
 		if ack and recdata[1]!="e":
 			value=recdata[1]
 			isok=True
@@ -899,7 +908,7 @@ def readallsensors():
 			
 def checkallsensors():
 	# check if the sensor respond properly according to sensor list in HWdata file
-	print " check sensor list "
+	print(" check sensor list ")
 	sensorlist=searchdatalist(HW_INFO_IOTYPE,"input",HW_INFO_NAME)
 	sensorvalues={}
 	for sensorname in sensorlist:
@@ -928,26 +937,26 @@ def checkGPIOconsistency():
 			PIN=ln[HW_CTRL_PIN]
 			if (iotype=="input"):
 				if PIN in inputpinlist:
-					print "Warning input PIN duplicated", PIN
+					print("Warning input PIN duplicated", PIN)
 					logger.warning('Warning, input PIN duplicated PIN=%s', PIN)					
 				inputpinlist.append(PIN)
 			if (iotype=="output"):
 				if (PIN in outputpinlist)and(PIN in HWcontrol.RPIMODBGPIOPINLIST):
-					print "Warning output PIN duplicated", PIN
+					print("Warning output PIN duplicated", PIN)
 					logger.warning('Warning, output PIN duplicated PIN=%s', PIN)
 				else:
 					outputpinlist.append(PIN)
 				if (HW_CTRL_PWRPIN in ln):
 					PWRPIN=ln[HW_CTRL_PWRPIN]
 					if (PWRPIN in outputpinlist)and(PWRPIN in HWcontrol.RPIMODBGPIOPINLIST):
-						print "Warning output PWRPIN overlapping", PWRPIN
+						print("Warning output PWRPIN overlapping", PWRPIN)
 						logger.warning('Warning, output PWRPIN overlapping PIN=%s', PWRPIN)
 					else:
 						outputpinlist.append(PWRPIN)
 				if (HW_CTRL_PIN2 in ln):
 					PIN2=ln[HW_CTRL_PIN2]
 					if (PIN2 in outputpinlist)and(PIN2 in HWcontrol.RPIMODBGPIOPINLIST):
-						print "Warning output PIN2 overlapping", PIN2
+						print("Warning output PIN2 overlapping", PIN2)
 						logger.warning('Warning, output PIN2 overlapping PIN=%s', PIN2)
 					else:
 						outputpinlist.append(PIN2)
@@ -963,7 +972,7 @@ def checkGPIOconsistency():
 	for inputpin in inputpinlist:
 		if inputpin in outputpinlist:
 			if inputpin in HWcontrol.RPIMODBGPIOPINLIST:
-				print "error output PIN and Input PIN are the same", inputpin
+				print("error output PIN and Input PIN are the same", inputpin)
 				logger.error('Error, output PIN and Input PIN are the same PIN=%s', inputpin)
 
 	return True
@@ -1008,7 +1017,7 @@ def initallGPIOoutput():
 					#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
 			else:			
 				HWcontrol.GPIO_output(PWRPIN, 0) # assume logic is positive
-				print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available " 	
+				print("power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available ") 	
 
 		# Input: enable one wire
 		if (iotype=="input") :
@@ -1044,7 +1053,7 @@ def Set_1wire_Pin(PIN,logic):
 		#ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		return True
 	except:
-		print "Fail to set the One Wire driver"
+		print("Fail to set the One Wire driver")
 		logger.error('Fail to set the One Wire driver')
 		return False
 
@@ -1053,7 +1062,7 @@ def get_devices_list():
 	devtype="One Wire"
 	devicelist=HWcontrol.get_1wire_devices_list()
 	
-	print devicelist
+	print(devicelist)
 	for item in devicelist:
 		outlist.append({"address":item , "type":devtype})
 		
@@ -1103,7 +1112,7 @@ def get_device_list_address_property():
 			item["cmd"]=""
 			item["changeaddressflag"]=0
 			
-	print "after=",  addresslist
+	print("after=",  addresslist)
 	return addresslist
 
 
@@ -1130,23 +1139,23 @@ def removeallinterruptevents():
 
 
 def removeinterruptevents():
-	print "load interrupt list "
+	print("load interrupt list ")
 	interruptlist=searchdatalist2keys(HW_INFO_IOTYPE,"input", HW_CTRL_CMD, "readinputpin" ,HW_INFO_NAME)
-	print "len interrupt list "	, len(interruptlist)	
+	print("len interrupt list "	, len(interruptlist))	
 	for item in interruptlist:
-		print "got into the loop "
+		print("got into the loop ")
 		# get PIN number
 
 		recordkey=HW_INFO_NAME
 		recordvalue=item	
 		keytosearch=HW_CTRL_PIN
 		PINstr=searchdata(recordkey,recordvalue,keytosearch)
-		print "set event for the PIN ", PINstr
+		print("set event for the PIN ", PINstr)
 
 		try:
 			HWcontrol.GPIO_remove_event_detect(PIN)
 		except:
-			print "Warning, not able to remove the event detect"
+			print("Warning, not able to remove the event detect")
 			logger.info('Warning, not able to remove the event detect')
 		
 	return ""
@@ -1208,6 +1217,28 @@ def searchrowtempbyname(recordvalue):
 	return searchrowtemp(recordkey,recordvalue)
 
 
+def AddUpdateRowByName(datarow):
+	global IOdata
+	recordkey=HW_INFO_NAME
+	if recordkey in datarow:
+		name=datarow[recordkey]
+	else:
+		return False
+	
+	# search row by name
+	for ln in IOdata:
+		if recordkey in ln:
+			if ln[recordkey]==name:
+				# found
+				for key in datarow: #update all fileds present in the row
+					ln[key]=datarow[key] 
+				SaveData()
+				return True	
+	#add row to the bottom
+	IOdata.append(datarow)
+	SaveData()
+
+
 def searchmatch(recordkey,recordvalue,temp):
 	if temp:
 		for ln in IOdatatemp:
@@ -1232,14 +1263,21 @@ def separatetimestringint(timestr): # given the string input "hh:mm:ss" output a
 	outlist=[]
 	timelist=timestr.split(":")
 	for i in range(3):
+		value=0		
 		if i<len(timelist):
 			if timelist[i]!="":
-				outlist.append(toint(timelist[i],1))
-			else:
-				outlist.append(0)	
-		else:
-			outlist.append(0)		
-	return outlist
+				value=toint(timelist[i],0)
+		outlist.append(value)		
+	# check the range of Minutes and Hours and seconds
+	#Seconds:
+	seconds=outlist[2]%60
+	# // is the floor division operator
+	minutes=(int(outlist[2]//60)+outlist[1])%60
+	hours=(int(outlist[1]//60)+outlist[0])%24
+	returnlist=[hours,minutes,seconds]
+	#print " time string " , timestr , " time return list ", returnlist
+	return returnlist
+	
 		
 def tonumber(thestring, outwhenfail):
 	try:
@@ -1303,7 +1341,7 @@ def photolist(apprunningpath, withindays=0):
 	# control if the folder hydropicture exist otherwise create it
 	if not os.path.exists(folderpath):
 		os.makedirs(folderpath)
-		print "Hydropicture folder has been created"
+		print("Hydropicture folder has been created")
 	
 	filenamelist=[]
 	sortedlist=sorted([f for f in os.listdir(folderpath) if os.path.isfile(os.path.join(folderpath, f))])
@@ -1323,13 +1361,13 @@ def photolist(apprunningpath, withindays=0):
 					todaydate=datetime.now()
 					tdelta=timedelta(days=withindays)
 					startdate=todaydate-tdelta
-					print " startdate " ,startdate
+					print(" startdate " ,startdate)
 					if dateref>=startdate:
 						isok=True
 				else:
 					isok=True
 			except:
-				print "file name format not compatible with date"
+				print("file name format not compatible with date")
 				
 			if isok:
 				templist=[]
@@ -1346,7 +1384,7 @@ def loglist(apprunningpath,logfolder,searchstring):
 	folderpath=os.path.join(apprunningpath,logfolder)
 	# control if the folder  exist otherwise exit
 	if not os.path.exists(folderpath):
-		print "log folder does not exist"
+		print("log folder does not exist")
 		return templist
 	filenamelist=[]
 	sortedlist=sorted(os.listdir(folderpath))
@@ -1402,27 +1440,27 @@ def removephotodataperiod(removebeforedays, maxphototoremove=20):
 	num = pastdays
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	print " stratdate " ,startdate
-	print " enddate ", enddate
+	print(" stratdate " ,startdate)
+	print(" enddate ", enddate)
 	
 	photodata=photolist(get_path())
 	i=0
 	for photo in photodata:
 		dateref=photo[2]
 		if isinstance(dateref, datetime):
-			print dateref
+			print(dateref)
 			if (dateref>=startdate)and(dateref<=enddate)and(i<maxphototoremove):
 				try:
 					filepath=os.path.join(get_path(), "static")
 					filepath=os.path.join(filepath, photo[0])
 					# remove photo
 					filestoragemod.deletefile(filepath)
-					print "removed Photo " , filepath
+					print("removed Photo " , filepath)
 					i=i+1
 				except ValueError:
-					print "Error in photo delete "
+					print("Error in photo delete ")
 		else:
-			print "datetime format incorrect"
+			print("datetime format incorrect")
 	thumbconsistency(get_path())
 
 			
@@ -1453,7 +1491,7 @@ def shotit(video,istest,resolution,positionvalue,vdirection):
 		ret_data = {"answer": "photo taken"}
 	else:
 		ret_data = {"answer": "Camera not detected"}	
-	print "The photo ", ret_data
+	print("The photo ", ret_data)
 	return shottaken , ret_data
 
 
@@ -1461,7 +1499,7 @@ def shotit(video,istest,resolution,positionvalue,vdirection):
 def takephoto(Activateanyway=False):
 	isok=False
 	count=0
-	print "take photo", " " , datetime.now()
+	print("take photo", " " , datetime.now())
 	videolist=videodevlist()
 	for video in videolist:
 		isok=False
@@ -1472,7 +1510,7 @@ def takephoto(Activateanyway=False):
 			position=camdata[0]["position"]
 			servo=camdata[0]["servo"]
 			vdirection=camdata[0]["vflip"]
-			print "Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection 
+			print("Camera: ", video , " Resolution ", resolution , " Position " , position , " Vertical direction " , vdirection) 
 			logger.info("Camera: %s Resolution %s Position %s Vertical direction %s " , video , resolution , position , vdirection)
 			positionlist=position.split(",")
 			if (positionlist)and(servo!="none"):
@@ -1505,7 +1543,7 @@ def resetandbackuplog_bak():
 		shutil.copyfile(os.path.join(mainpath,filename), os.path.join(mainpath,filename+".txt"))
 
 	except:
-		print "No log file"
+		print("No log file")
 
 	logger.FileHandler(filename=os.path.join(mainpath,filename), mode='w')	
 	#logger.basicConfig(filename=os.path.join(mainpath,filename),level=logger.INFO)
@@ -1575,17 +1613,22 @@ def get_image_size(picturepath):
 def additionalRowInit():
 	#initialize IOdatarow	
 	global IOdatarow	
+	IOdatarow=InitRowHWsetting()
+	return True
+	
+def InitRowHWsetting():
 	fields=HWdataKEYWORDS
 	tablehead=[]
-	for key, value in fields.iteritems():
+	for key, value in fields.items():
 		tablehead.append(key)
-	IOdatarow={}
+	datarow={}
 	for th in tablehead:
 		if len(fields[th])>1:
-			IOdatarow[th]=fields[th][0]
+			datarow[th]=fields[th][0]
 		else:
-			IOdatarow[th]=""
-	return True
+			datarow[th]=""
+	return datarow
+	
 
 def addrow(dictrow, temp=True):
 	dicttemp=copy.deepcopy(dictrow)

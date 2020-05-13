@@ -2,6 +2,9 @@
 """
 file storage utility
 """
+from __future__ import print_function
+from builtins import str
+from builtins import range
 import logging
 import os
 import os.path
@@ -62,7 +65,7 @@ def calculaterange(IPaddress):
 			IPEND[3]=str(int(IPlist[3])+c)				
 		IPSTARTstring=".".join(IPSTART)
 		IPENDstring=".".join(IPEND)
-		print " result ", IPSTARTstring+","+IPENDstring
+		print(" result ", IPSTARTstring+","+IPENDstring)
 		return IPSTARTstring+","+IPENDstring
 	else:
 		return ""
@@ -84,18 +87,18 @@ def modifyfilestring(filename, oldstring, newstring, afterkeyword, beforekeyword
 		if (beforekeyword!="") and (beforekeyword in line):
 			can_modify=False		
 		if (keyword in line) and (can_modify):
-			print " row found ------------ !!!!!!!!! " , line
+			print(" row found ------------ !!!!!!!!! " , line)
 			if oldstring in line:
 				# isolate and change the string
 				#print " oldstring ", oldstring, " new ", newstring
 				
 				filedata[i]=line.replace(oldstring,newstring)
 						
-				print " new row  ------------ !!!!!!!!! " , filedata[i]
+				print(" new row  ------------ !!!!!!!!! " , filedata[i])
 				filestoragemod.savefiledata_plaintext(filename,filedata)
 				return True
 			else:
-				print "String value not found ", oldstring
+				print("String value not found ", oldstring)
 				
 	return False
 

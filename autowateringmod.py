@@ -1,3 +1,8 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 from datetime import datetime, time ,timedelta
 import hardwaremod
@@ -15,7 +20,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 # status array, required to check the ongoing actions within a watering cycle
 elementlist= autowateringdbmod.getelementlist()
 AUTO_data={} # dictionary of dictionary
-AUTO_data["default"]={"cyclestartdate":datetime.now(),"lastwateringtime":datetime.now(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
+AUTO_data["default"]={"cyclestartdate":datetime.utcnow(),"lastwateringtime":datetime.utcnow()- timedelta(days=5),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
 allowwateringplan={} # define the flag that control the waterscheduling activation
 # cyclestartdate, datetime of the latest cycle start
 # cyclestatus, describe the status of the cycle: lowthreshold, rampup, done
@@ -42,7 +47,7 @@ def cycleresetall():
 	global AUTO_data
 	elementlist= autowateringdbmod.getelementlist()
 	for element in elementlist:
-		AUTO_data[element]={"cyclestartdate":datetime.now(),"lastwateringtime":datetime.now(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
+		cyclereset(element)
 
 
 def autowateringcheck(refsensor):
@@ -59,14 +64,14 @@ def autowateringexecute(refsensor,element):
 	sensor=autowateringdbmod.searchdata("element",element,"sensor")	
 	# check the sensor
 	if refsensor==sensor:	
-		print "auto watering check -----------------------------------------> ", element
+		print("auto watering check -----------------------------------------> ", element)
 		logger.info('auto watering check --------------------------> %s', element)
 		# check the watering mode
 		modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
 		workmode=checkworkmode(element)
 
 		if not(sensor in sensordbmod.gettablelist()):
-			print "Sensor does not exist " ,sensor , ", element: " , element
+			print("Sensor does not exist " ,sensor , ", element: " , element)
 			logger.error("Sensor does not exist %s , element: %s " ,sensor, element)			
 			return "sensor not Exist"
 		
@@ -74,7 +79,7 @@ def autowateringexecute(refsensor,element):
 		minthreshold=hardwaremod.tonumber(autowateringdbmod.searchdata("element",element,"threshold")[0],maxthreshold)
 		# exit condition in case of data inconsistency
 		if minthreshold>=maxthreshold:
-			print "Data inconsistency , element: " , element
+			print("Data inconsistency , element: " , element)
 			logger.error("Data inconsistency , element: %s " , element)
 			return "data inconsistency"
 		
@@ -100,10 +105,10 @@ def autowateringexecute(refsensor,element):
 			# block the wateringplan activation as by definition of "Full Auto"
 			allowwateringplan[element]=False
 			# check if inside the allowed time period
-			print "full Auto Mode"
+			print("full Auto Mode")
 			logger.info('full auto mode --> %s', element)
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
-			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
+			print("inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime)
 			logger.info('full auto mode')
 			if timeok:
 				logger.info('inside allowed time')
@@ -115,12 +120,12 @@ def autowateringexecute(refsensor,element):
 						# wait to seek a more stable reading of hygrometer
 						# check if time between watering events is larger that the waiting time (minutes)
 						lastwateringtime=statusdataDBmod.read_status_data(AUTO_data,element,"lastwateringtime")
-						print ' Previous watering: ' , lastwateringtime , ' Now: ', datetime.now()
-						timedifference=sensordbmod.timediffinminutes(lastwateringtime,datetime.now())
-						print 'Time interval between watering steps', timedifference ,'. threshold', waitingtime
+						print(' Previous watering: ' , lastwateringtime , ' Now: ', datetime.utcnow())
+						timedifference=sensordbmod.timediffinminutes(lastwateringtime,datetime.utcnow())
+						print('Time interval between watering steps', timedifference ,'. threshold', waitingtime)
 						logger.info('Time interval between watering steps %d threshold %d', timedifference,waitingtime)		
 						if timedifference>waitingtime:
-							print " Sufficient waiting time"
+							print(" Sufficient waiting time")
 							logger.info('Sufficient waiting time')	
 							# activate watering in case the maxstepnumber is not exceeded	
 							watercounter=statusdataDBmod.read_status_data(AUTO_data,element,"watercounter")				
@@ -132,7 +137,7 @@ def autowateringexecute(refsensor,element):
 									textmessage="INFO: " + sensor + " value below the minimum threshold " + str(minthreshold) + ", activating the watering :" + element
 									emailmod.sendallmail("alert", textmessage)
 								statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",watercounter+1)
-								statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.now())								
+								statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.utcnow())								
 							else: # critical, sensor below minimum after all watering activations are done
 
 								logger.info('Number of watering time per cycle has been exceeeded')
@@ -149,7 +154,7 @@ def autowateringexecute(refsensor,element):
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<1:
 										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
-										print textmessage
+										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
 											emailmod.sendallmail("alert", textmessage)							
@@ -161,13 +166,13 @@ def autowateringexecute(refsensor,element):
 									statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
 									statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",-1)
 									statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)
-									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.now())
+									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())
 																			
 								else: # slope not OK, probable hardware problem
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<3:
-										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
-										print textmessage
+										textmessage="CRITICAL: Water line Disabled or Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
 											emailmod.sendallmail("alert", textmessage)							
@@ -189,7 +194,7 @@ def autowateringexecute(refsensor,element):
 							# wait to seek a more stable reading of hygrometer
 							# check if time between watering events is larger that the waiting time (minutes)
 							lastwateringtime=statusdataDBmod.read_status_data(AUTO_data,element,"lastwateringtime")			
-							if sensordbmod.timediffinminutes(lastwateringtime,datetime.now())>waitingtime:
+							if sensordbmod.timediffinminutes(lastwateringtime,datetime.utcnow())>waitingtime:
 								watercounter=statusdataDBmod.read_status_data(AUTO_data,element,"watercounter")
 								if maxstepnumber>watercounter:
 									#activate pump		
@@ -200,7 +205,7 @@ def autowateringexecute(refsensor,element):
 										emailmod.sendallmail("alert", textmessage)
 										
 									statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",watercounter+1)
-									statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.now())										
+									statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.utcnow())										
 
 								else:
 									# give up to reache the maximum threshold, proceed as done, send alert
@@ -212,7 +217,7 @@ def autowateringexecute(refsensor,element):
 										alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")	
 										if alertcounter<2:
 											textmessage="INFO "+ sensor + " value below the Maximum threshold " + str(maxthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
-											print textmessage
+											print(textmessage)
 											if (mailtype!="none"):
 												#send alert mail notification
 												emailmod.sendallmail("alert", textmessage)							
@@ -224,7 +229,7 @@ def autowateringexecute(refsensor,element):
 									statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
 									statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",-1)
 									statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)
-									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.now())
+									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())
 
 																	
 
@@ -245,7 +250,7 @@ def autowateringexecute(refsensor,element):
 			# check if inside the allow time period
 			logger.info('Emergency Mode')
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
-			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
+			print("inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime)
 			if timeok:			
 				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
 				if valid:
@@ -254,7 +259,7 @@ def autowateringexecute(refsensor,element):
 						# check if time between watering events is larger that the waiting time (minutes)
 						
 						lastwateringtime=statusdataDBmod.read_status_data(AUTO_data,element,"lastwateringtime")			
-						if sensordbmod.timediffinminutes(lastwateringtime,datetime.now())>waitingtime:
+						if sensordbmod.timediffinminutes(lastwateringtime,datetime.utcnow())>waitingtime:
 							# activate watering in case the maxstepnumber is not exceeded			
 							watercounter=statusdataDBmod.read_status_data(AUTO_data,element,"watercounter")		
 							if maxstepnumber>watercounter:			
@@ -266,7 +271,7 @@ def autowateringexecute(refsensor,element):
 									emailmod.sendallmail("alert", textmessage)
 
 								statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",watercounter+1)
-								statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.now())									
+								statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.utcnow())									
 								
 								
 							else:
@@ -285,7 +290,7 @@ def autowateringexecute(refsensor,element):
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<1:
 										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
-										print textmessage
+										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification alertcounter
 											emailmod.sendallmail("alert", textmessage)							
@@ -297,13 +302,13 @@ def autowateringexecute(refsensor,element):
 									statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
 									statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",-1)
 									statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)
-									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.now())
+									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())
 																			
 								else: # slope not OK, probable hardware problem
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<3:
-										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
-										print textmessage
+										textmessage="CRITICAL: Water line Disabled or Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
 											emailmod.sendallmail("alert", textmessage)							
@@ -329,7 +334,7 @@ def autowateringexecute(refsensor,element):
 			allowwateringplan[element]=True
 			# check if inside the allow time period
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
-			print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
+			print("inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime)
 			if timeok:			
 				logger.info('Insede operative time')
 				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
@@ -341,7 +346,7 @@ def autowateringexecute(refsensor,element):
 						# check if time between watering events is larger that the waiting time (minutes)			
 
 						lastwateringtime=statusdataDBmod.read_status_data(AUTO_data,element,"lastwateringtime")			
-						if sensordbmod.timediffinminutes(lastwateringtime,datetime.now())>waitingtime:
+						if sensordbmod.timediffinminutes(lastwateringtime,datetime.utcnow())>waitingtime:
 							# activate watering in case the maxstepnumber is not exceeded			
 							watercounter=statusdataDBmod.read_status_data(AUTO_data,element,"watercounter")		
 							if maxstepnumber>watercounter:
@@ -353,7 +358,7 @@ def autowateringexecute(refsensor,element):
 									textmessage="INFO: " + sensor + " value below the minimum threshold " + str(minthreshold) + ", activating the watering :" + element
 									emailmod.sendallmail("alert", textmessage)								
 								statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",watercounter+1)
-								statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.now())	
+								statusdataDBmod.write_status_data(AUTO_data,element,"lastwateringtime",datetime.utcnow())	
 								
 								
 							else:
@@ -373,7 +378,7 @@ def autowateringexecute(refsensor,element):
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<1:
 										textmessage="WARNING: Please consider to increase the amount of water per cycle, the "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times. System will automatically reset the watering cycle to allow more water"
-										print textmessage
+										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
 											emailmod.sendallmail("alert", textmessage)							
@@ -385,13 +390,13 @@ def autowateringexecute(refsensor,element):
 									statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
 									statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",-1)
 									statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)
-									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.now())
+									statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())
 																			
 								else: # slope not OK, probable hardware problem
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<3:
-										textmessage="CRITICAL: Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
-										print textmessage
+										textmessage="CRITICAL: Water line Disabled or Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
 											emailmod.sendallmail("alert", textmessage)							
@@ -427,7 +432,7 @@ def autowateringexecute(refsensor,element):
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")	
 					if alertcounter<2:
 						textmessage="WARNING "+ sensor + " value below the minimum threshold " + str(minthreshold) + " watering system: " + element
-						print textmessage
+						print(textmessage)
 						if (mailtype!="none"):
 							#send alert mail notification
 							emailmod.sendallmail("alert", textmessage)							
@@ -446,22 +451,22 @@ def autowateringexecute(refsensor,element):
 							
 			
 		else: # None case
-			print "No Action required, workmode set to None, element: " , element
+			print("No Action required, workmode set to None, element: " , element)
 			logger.info("No Action required, workmode set to None, element: %s " , element)
 
 		cyclestatus=statusdataDBmod.read_status_data(AUTO_data,element,"cyclestatus")
 		if cyclestatus=="lowthreshold":
 			checkcounter=statusdataDBmod.read_status_data(AUTO_data,element,"checkcounter")
 			if checkcounter==1:			
-				statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.now())
+				statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())
 
 		# implment alert message for the cycle exceeding days, and reset the cycle
 		if workmode!="None":
 			cyclestartdate=statusdataDBmod.read_status_data(AUTO_data,element,"cyclestartdate")
-			timedeltadays=sensordbmod.timediffdays(datetime.now(),cyclestartdate)
+			timedeltadays=sensordbmod.timediffdays(datetime.utcnow(),cyclestartdate)
 			if (timedeltadays > maxdays): #the upper limit is set in case of abrupt time change
 				textmessage="WARNING "+ sensor + " watering cycle is taking too many days, watering system: " + element + ". Reset watering cycle"
-				print textmessage
+				print(textmessage)
 				# in case of full Auto, activate pump for minimum pulse period
 				if workmode=="Full Auto":
 					if (timedeltadays < maxdays+2): #the upper limit is set in case of abrupt time change					
@@ -471,13 +476,13 @@ def autowateringexecute(refsensor,element):
 				if (mailtype!="warningonly")and(mailtype!="none"):
 					emailmod.sendallmail("alert", textmessage)							
 				logger.error(textmessage)
-				logger.error("Cycle started %s, Now is %s ", cyclestartdate.strftime("%Y-%m-%d %H:%M:%S"), datetime.now().strftime("%Y-%m-%d %H:%M:%S"))			
+				logger.error("Cycle started %s, Now is %s (UTC time) ", cyclestartdate.strftime("%Y-%m-%d %H:%M:%S"), datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"))			
 				# reset cycle
 				statusdataDBmod.write_status_data(AUTO_data,element,"cyclestatus","done")
 				statusdataDBmod.write_status_data(AUTO_data,element,"checkcounter",0)
 				statusdataDBmod.write_status_data(AUTO_data,element,"watercounter",0)
 				statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)	
-				statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.now())
+				statusdataDBmod.write_status_data(AUTO_data,element,"cyclestartdate",datetime.utcnow())
 
 		# implment Critical alert message in case the threshold is below the 0.5 of the minimum
 		if workmode!="None":
@@ -486,7 +491,7 @@ def autowateringexecute(refsensor,element):
 				if belowthr:
 					logger.info('sensor %s below half of the actual set threshold', sensor)
 					textmessage="CRITICAL: Plant is dying, "+ sensor + " reading below half of the minimum threshold, need to check the " + element
-					print textmessage
+					print(textmessage)
 					#send alert mail notification
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<5:
@@ -497,7 +502,7 @@ def autowateringexecute(refsensor,element):
 			else:
 				logger.info('sensor %s below valid data', sensor)
 				textmessage="WARNING: "+ sensor + " below valid data range, need to check sensor"
-				print textmessage
+				print(textmessage)
 				#send alert mail notification
 				alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 				if alertcounter<3:
@@ -523,19 +528,19 @@ def checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes):
 	# check the hygrometer sensor levels 
 	sensorreadingaverage=sensorreading(sensor,samplesminutes)
 	# if the average level after 4 measure (15 min each) is below threshold apply emergency 
-	print " Min accepted threshold " , minaccepted
+	print(" Min accepted threshold " , minaccepted)
 	if (sensorreadingaverage>minaccepted):
 		if (sensorreadingaverage>minthreshold):		
 			logger.info('Soil moisture check, Sensor reading=%s > Minimum threshold=%s ', str(sensorreadingaverage), str(minthreshold))			
-			print 'Soil moisture check, Sensor reading=%s > Minimum threshold=%s '
+			print('Soil moisture check, Sensor reading=%s > Minimum threshold=%s ')
 		else:
 			logger.warning('Soil moisture check, Sensor reading=%s < Minimum threshold=%s ', str(sensorreadingaverage), str(minthreshold))			
 			logger.info('Start watering procedure ')			
-			print 'Soil moisture check, activating watering procedure '
+			print('Soil moisture check, activating watering procedure ')
 			belowthr=True
 	else:	
 		logger.warning('Sensor reading lower than acceptable values %s no action', str(sensorreadingaverage))
-		print 'Sensor reading lower than acceptable values ', sensorreadingaverage ,' no action'
+		print('Sensor reading lower than acceptable values ', sensorreadingaverage ,' no action')
 		validity=False
 
 	return belowthr, validity
@@ -543,21 +548,21 @@ def checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes):
 
 def checkinclination(sensorname,startdate,enddate):
 	# startdate is UTC now, need to be evaluated
-	print "Check inclination of the hygrometer curve after watering done " , sensorname
+	print("Check inclination of the hygrometer curve after watering done " , sensorname)
 	logger.info('Check inclination of the hygrometer curve after watering done: %s', sensorname)
 	logger.info('Start eveluation from %s to %s', startdate.strftime("%Y-%m-%d %H:%M:%S") , enddate.strftime("%Y-%m-%d %H:%M:%S"))
-	print "Start eveluation from " , startdate.strftime("%Y-%m-%d %H:%M:%S") , " to " , enddate.strftime("%Y-%m-%d %H:%M:%S")
+	print("Start eveluation from " , startdate.strftime("%Y-%m-%d %H:%M:%S") , " to " , enddate.strftime("%Y-%m-%d %H:%M:%S"))
 	datax=[]
 	datay=[]
 	if sensorname:
 		lenght=sensordbmod.getSensorDataPeriodXminutes(sensorname,datax,datay,startdate,enddate)
 
-	print "datax ", datax
-	print "datay ", datay
+	print("datax ", datax)
+	print("datay ", datay)
 	if lenght>0:
-		avex=sum(datax)/float(lenght)
-		avey=sum(datay)/float(lenght)
-		print " Average: " , avex, "  " ,  avey
+		avex=old_div(sum(datax),float(lenght))
+		avey=old_div(sum(datay),float(lenght))
+		print(" Average: " , avex, "  " ,  avey)
 		num=0
 		den=0				
 		for inde in range(len(datax)):
@@ -565,15 +570,15 @@ def checkinclination(sensorname,startdate,enddate):
 			xy=(datax[inde]-avex)*(datay[inde]-avey)
 			num=num+xy
 			den=den+x2
-		print " ----> Lenght " ,lenght , " num: ", num , " Den: ", den
+		print(" ----> Lenght " ,lenght , " num: ", num , " Den: ", den)
 		if den>0.0001: # this is to avoid problem with division
-			slope=num/den
+			slope=old_div(num,den)
 			logger.info('Inclination value: %.4f', slope)
-			print " Slope Value" , slope
+			print(" Slope Value" , slope)
 			# here an arbitray min slope that should be reasonable for a working system 
 			yvolt=0.2
 			xminute=2*60
-			minslope=yvolt/xminute # 0.2 volt per 2 hours
+			minslope=old_div(yvolt,xminute) # 0.2 volt per 2 hours
 			if slope>minslope:
 				logger.info('Inclination value %.4f above the min reference %.4f (0.2 volt per 2 hours), restaring watering cycle',slope,minslope)
 				return True
@@ -592,7 +597,7 @@ def sensorreading(sensorname,MinutesOfAverage):
 		timelist=hardwaremod.gettimedata(sensorname)	
 		theinterval=timelist[1] # minutes
 		if theinterval>0:
-			samplesnumber=int(MinutesOfAverage/theinterval+1)
+			samplesnumber=int(old_div(MinutesOfAverage,theinterval)+1)
 		else:
 			samplesnumber=1	
 		# new procedure should be faster on database reading for large amount of data

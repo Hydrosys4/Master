@@ -583,6 +583,49 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Improve interrupt Counter Algorithm.
 
+2020-04-22 -> release 116b-117
+
+- Made SlowWire independent
+- introducing Weather forrecast provider interface
+
+2020-04-24 -> release 117a
+
+- Weather forecast GUI and Query
+
+2020-04-28 -> release 117f
+
+- Autotesting procedure
+
+2020-05-04 -> release 118
+
+- Add weaterAPI file export inport
+
+2020-05-10 -> release 318e
+
+- Upgrade whole project to python3
+- New bash installer
+- Fixed ugrade issues (IPextrernal, Photo, and a bunch of other). Probably some more bugs will be catch later during testing
+- Drop some old lybrary support
+
+2020-05-11 -> release 319
+
+- fix pressuresensor reading when error
+- Fixed Upload all confing with name different than default
+
+2020-05-11 -> release 319
+
+- fix pressuresensor reading when error
+- Fixed Upload all confing with name different than default
+
+2020-05-11 -> release 319a
+
+- fix graph representation when "oneshot" scheduler type
+- autowatering change to utcnow()
+- fix the graphical view of teh interrupt
+
+2020-05-13 -> release 319c
+
+- Minor graphic changes
 
 ------- Future releases: -----------
 

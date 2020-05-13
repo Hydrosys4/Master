@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 from time import sleep
 import datetime
@@ -16,7 +17,7 @@ else:
 def saveshot(filepath,realshot=True):
 	shottaken=False
 	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
-	print "Current date and time: " , currentdate
+	print("Current date and time: " , currentdate)
 	cam_list = "/dev/video0"
 	if ISRPI:
 		gonext=True
@@ -25,10 +26,10 @@ def saveshot(filepath,realshot=True):
 				filepath=os.path.join(filepath, currentdate+".jpg")
 			else:
 				filepath=os.path.join(filepath, "testimage.jpg")
-			print filepath
+			print(filepath)
 			
 			filexist=os.path.isfile(filepath)
-			print "file already exist = ", filexist
+			print("file already exist = ", filexist)
 			
 			if filexist:
 				os.rename(filepath, filepath + ".bak")
@@ -48,18 +49,18 @@ def saveshot(filepath,realshot=True):
 			# shot taken
 			
 			newfilexist=os.path.isfile(filepath)
-			print "file was created = ", newfilexist
+			print("file was created = ", newfilexist)
 			shottaken=True
 			
 			if not newfilexist:
 				shottaken=False
 				if filexist:
 					os.rename(filepath + ".bak", filepath)
-			print "Picture take = " ,shottaken
+			print("Picture take = " ,shottaken)
 			
 
 	else:
-		print "camera not connected"	
+		print("camera not connected")	
 	return shottaken
 
 
@@ -79,9 +80,9 @@ if __name__ == '__main__':
 		# If run from command line
 		dir_path = sys.path[0]
 	
-	print dir_path
+	print(dir_path)
 	filepath=os.path.join(dir_path, "static")
 	filepath=os.path.join(filepath, "cameratest")
-	print filepath 
+	print(filepath) 
 	saveshot(filepath,False)
 	#saveshot()

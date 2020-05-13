@@ -2,6 +2,12 @@
 
 
 #to kill python processes use  -- pkill python
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import hex
+from builtins import range
+from past.utils import old_div
 import time
 import datetime
 import threading
@@ -10,10 +16,8 @@ from math import sqrt
 #import serial
 #import os
 import glob
-
-
-
 import logging
+
 
 logger = logging.getLogger("hydrosys4."+__name__)
 
@@ -26,10 +30,19 @@ try:
 except ImportError:
 	ISRPI=False
 else:
+	import sys, os	
+	basepath=os.getcwd()
+	libpath="libraries/BMP/bmp180" # should be without the backslash at the beginning
+	sys.path.append(os.path.join(basepath, libpath)) # this adds new import paths to add modules
+	from grove_i2c_barometic_sensor_BMP180  import BMP085
+	libpath="libraries/MotorHat" # should be without the backslash at the beginning
+	sys.path.append(os.path.join(basepath, libpath)) # this adds new import paths to add modules	
+	from stepperDOUBLEmod import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor	
+	
 	import Adafruit_DHT #humidity temperature sensor
-	import Adafruit_BMP.BMP085 as BMP085 #pressure sensor
+
 	#from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
-	from stepperDOUBLEmod import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor
+
 	import spidev
 	import smbus
 	import Hygro24_I2C
@@ -40,7 +53,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
@@ -195,9 +208,11 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[22]: # Interrupt frequency counter
 		return get_InterruptFrequency_reading(cmd, message, recdata)
 
+	elif cmd==HWCONTROLLIST[23]: # weather API counter
+		return get_WeatherAPI_reading(cmd, message, recdata)
 
 	else:
-		print "Command not found"
+		print("Command not found")
 		recdata.append(cmd)
 		recdata.append("e")
 		recdata.append(0)
@@ -224,7 +239,7 @@ def execute_task_fake(cmd, message, recdata):
 		return True;
 		
 	else:
-		print "no fake command available" , cmd
+		print("no fake command available" , cmd)
 		recdata.append(cmd)
 		recdata.append("e")
 		recdata.append(0)
@@ -305,23 +320,23 @@ def get_DHT22_reading(cmd, message, recdata, DHT22_data):
 					temperature=temperature*1.8+32
 
 			except:
-				print "error reading the DHT sensor (Humidity,Temperature)"
+				print("error reading the DHT sensor (Humidity,Temperature)")
 				logger.error("error reading the DHT sensor (Humidity,Temperature)")
 				
 			# if reading OK, update status variable
 			if (humidity is not None) and (temperature is not None):
 				# further checks
 				if (humidity>=0)and(humidity<=100)and(temperature>-20)and(temperature<200):
-					print 'Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity)
-					DHT22_data[element]['humidity']=('{:3.2f}'.format(humidity / 1.))
-					DHT22_data[element]['temperature']=('{:3.2f}'.format(temperature / 1.))
+					print('Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))
+					DHT22_data[element]['humidity']=('{:3.2f}'.format(old_div(humidity, 1.)))
+					DHT22_data[element]['temperature']=('{:3.2f}'.format(old_div(temperature, 1.)))
 					DHT22_data[element]['lastupdate']=datetime.datetime.utcnow()
 					successflag=1
 				else:
-					print 'Failed to get DHT22 reading'	
+					print('Failed to get DHT22 reading')	
 					logger.error("Failed to get DHT22 reading, values in wrong range")					
 			else:
-				print 'Failed to get DHT22 reading'	
+				print('Failed to get DHT22 reading')	
 				logger.error("Failed to get DHT22 reading")
 			time.sleep(1)
 		
@@ -357,10 +372,24 @@ def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
 def get_BMP180_pressure(cmd, message, recdata):
 	successflag=0
 	Pressure=0
+
+	# Initialise the BMP085 and use STANDARD mode (default value)
+	# bmp = BMP085(0x77, debug=True)
+	# bmp = BMP085(0x77, 1)
+
+	# To specify a different operating mode, uncomment one of the following:
+	# bmp = BMP085(0x77, 0)  # ULTRALOWPOWER Mode
+	# bmp = BMP085(0x77, 1)  # STANDARD Mode
+	# bmp = BMP085(0x77, 2)  # HIRES Mode
+	bmp = BMP085(0x77, 3)  # ULTRAHIRES Mode
+
+	#temp = bmp.readTemperature()
+
 	try:
-		sensor = BMP085.BMP085(3) # 3 = High resolution mode
-		Pressure = '{0:0.2f}'.format(sensor.read_pressure()/float(100))
-		successflag=1
+		isok, Pressure = bmp.readPressure()
+		if isok:
+			Pressure = '{0:0.2f}'.format(Pressure/100) # the reading is in Hpa
+			successflag=1
 	except:
 		#print " I2C bus reading error, BMP180 , pressure sensor "
 		logger.error(" I2C bus reading error, BMP180 , pressure sensor ")
@@ -369,7 +398,7 @@ def get_BMP180_pressure(cmd, message, recdata):
 	recdata.append(Pressure)
 	recdata.append(successflag)	
 	return True
-	
+
 	
 def get_BH1750_light(cmd, message, recdata):
 	successflag=0
@@ -399,7 +428,7 @@ def get_BH1750_light(cmd, message, recdata):
 	light=0
 	try:
 		data = bus.read_i2c_block_data(DEVICE,ONE_TIME_HIGH_RES_MODE_1)
-		light = '{0:0.2f}'.format(((data[1] + (256 * data[0])) / 1.2))
+		light = '{0:0.2f}'.format((old_div((data[1] + (256 * data[0])), 1.2)))
 		successflag=1  
 	except:
 		#print " I2C bus reading error, BH1750 , light sensor "
@@ -482,10 +511,10 @@ def get_DS18B20_temperature(cmd, message, recdata):
 				temp_string = lines[1][equals_pos+2:] # takes the right part of the string
 				
 				try:
-					temperature = float(temp_string) / 1000.0
+					temperature = old_div(float(temp_string), 1000.0)
 					if (TemperatureUnit=="F") and (temperature is not None):
 						temperature=temperature*1.8+32
-					temperature=('{:3.2f}'.format(temperature / 1.))
+					temperature=('{:3.2f}'.format(old_div(temperature, 1.)))
 					successflag=1
 
 				except:
@@ -534,7 +563,7 @@ def get_HX711_voltage(cmd, message, recdata):
 
 
 	if (PINDATA<0)or(PINCLK<0):
-		print "HX711 PIN not valid", SensorAddress
+		print("HX711 PIN not valid", SensorAddress)
 		# address not correct
 		logger.error("HX711 PIN not valid: Pindata = %s  Pinclk= %s", PINDATA_str,PINCLK_str)
 		recdata.append(cmd)
@@ -579,12 +608,12 @@ def get_HX711_voltage(cmd, message, recdata):
 	averagefiltered, average = normalize_average(dataarray)
 	
 
-	print "HX711 data Average: ",average , " Average filtered: ", averagefiltered	
+	print("HX711 data Average: ",average , " Average filtered: ", averagefiltered)	
 
 
 	reading=averagefiltered
 
-	print "reading ", reading
+	print("reading ", reading)
 
 	recdata.append(cmd)
 	recdata.append(reading)
@@ -618,7 +647,7 @@ def get_SlowWire_reading(cmd, message, recdata):
 
 
 	if (PINDATA<0):
-		print "SlowWire PIN not valid"
+		print("SlowWire PIN not valid")
 		# address not correct
 		logger.error("SlowWire PIN not valid: Pindata = %s ", PINDATA_str)
 		recdata.append(cmd)
@@ -666,12 +695,12 @@ def get_SlowWire_reading(cmd, message, recdata):
 	averagefiltered, average = normalize_average(dataarray)
 	
 
-	print "SlowWire data Average: ",average , " Average filtered: ", averagefiltered	
+	print("SlowWire data Average: ",average , " Average filtered: ", averagefiltered)	
 
 
 	reading=averagefiltered
 
-	print "reading ", reading
+	print("reading ", reading)
 
 	recdata.append(cmd)
 	recdata.append(reading)
@@ -708,7 +737,7 @@ def get_Hygro24_capacity(cmd, message, recdata):
 		else:
 			SensorAddressInt = int(SensorAddress)
 	except:
-		print "can't parse %s as an i2c address", SensorAddress
+		print("can't parse %s as an i2c address", SensorAddress)
 		# address not correct
 		logger.error("Hygro24_I2C address incorrect: %s", SensorAddress)
 		recdata.append(cmd)
@@ -722,7 +751,7 @@ def get_Hygro24_capacity(cmd, message, recdata):
 
 	isOK , reading=chirp.read_capacity()
 	# need to add control in case there is an error in reading
-	print "reading ", reading
+	print("reading ", reading)
 
 	if isOK:
 		successflag=1
@@ -779,7 +808,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 		
 	if (waittime>=maxwait):
 		#something wrog, wait too long, avoid initiate further processing
-		print "MCP3008 wait time EXCEEDED "
+		print("MCP3008 wait time EXCEEDED ")
 		logger.warning("Wait Time exceeded, not able to read ADCdata Channel: %d", channel)
 		return False
 
@@ -824,8 +853,8 @@ def get_MCP3008_channel(cmd, message, recdata):
 		
 		# Function to convert data to voltage level,
 		# rounded to specified number of decimal places.
-		voltsraw = (mean * refvoltage) / float(1023)
-		voltsnorm = (dataaverage * refvoltage) / float(1023)
+		voltsraw = old_div((mean * refvoltage), float(1023))
+		voltsnorm = old_div((dataaverage * refvoltage), float(1023))
 		volts = round(voltsnorm,2)	
 	
 		#print "MCP3008 chennel ", channel, " Average (volts): ",voltsraw , " Average Norm (v): ", voltsnorm
@@ -833,7 +862,7 @@ def get_MCP3008_channel(cmd, message, recdata):
 		spi.close()
 		successflag=1
 	except:
-		print " DPI bus reading error, MCP3008 , AnalogDigitalConverter  "
+		print(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
 		logger.error(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
 	
 	recdata.append(cmd)
@@ -854,18 +883,18 @@ def normalize_average(lst):
 	"""Calculates the standard deviation for a list of numbers."""
 	num_items = len(lst)
 	if num_items>0:
-		mean = sum(lst) / float(num_items)
+		mean = old_div(sum(lst), float(num_items))
 		differences = [x - mean for x in lst]
 		sq_differences = [d ** 2 for d in differences]
 		ssd = sum(sq_differences)
-		variance = ssd / float(num_items)
+		variance = old_div(ssd, float(num_items))
 		sd = sqrt(variance)
 		 
 		# use functions to adjust data, keep only the data inside the standard deviation
 
 		final_list = [x for x in lst if ((x >= mean - sd) and (x <= mean + sd))]
 		num_items_final = len(final_list)
-		normmean=sum(final_list) / float(num_items_final)
+		normmean=old_div(sum(final_list), float(num_items_final))
 		
 		#print "discarded ", num_items-num_items_final , " mean difefrence ", normmean-mean
 
@@ -1138,6 +1167,23 @@ def get_InterruptFrequency_reading(cmd, message, recdata):
 		recdata.append(successflag)	
 	return True
 	
+def get_WeatherAPI_reading(cmd, message, recdata):
+	import weatherAPImod
+	successflag=1
+	recdata.append(cmd)		
+
+	# here the reading
+	isok, reading=weatherAPImod.CalculateRainMultiplier()
+	if isok:
+		recdata.append(reading)
+		recdata.append(successflag)	
+	else:
+		successflag=0
+		recdata.append("e")
+		recdata.append(successflag)	
+	return True
+	
+
 
 def read_input_pin(cmd, message, recdata):
 	
@@ -1173,7 +1219,7 @@ def gpio_set_servo(cmd, message, recdata):
 	previousduty=float(msgarray[5])
 	stepnumber=int(msgarray[6])
 	
-	step=(duty-previousduty)/stepnumber
+	step=old_div((duty-previousduty),stepnumber)
 	
 	
 	GPIO_setup(str(PIN), "out")
@@ -1234,7 +1280,7 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 
 
 	if hbridgebusy:
-		print "hbridge motor busy "
+		print("hbridge motor busy ")
 		logger.warning("hbridge motor Busy, not proceeding ")
 		recdata.append(cmd)
 		recdata.append("e")
@@ -1268,7 +1314,7 @@ def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
 
 	except:
 
-		print "problem hbridge execution"
+		print("problem hbridge execution")
 		logger.error("problem hbridge execution")
 		recdata.append(cmd)
 		recdata.append("e")
@@ -1326,7 +1372,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 			mh = Adafruit_MotorHAT()
 			mh.reset()
 		else:
-			print "Stepper busy "
+			print("Stepper busy ")
 			logger.warning("Stepper Busy, not proceeding with stepper: %s", Interface)
 			return False
 	
@@ -1335,31 +1381,32 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 
 	# stepper is no busy, proceed
 
-	try:
-		# create a default object, no changes to I2C address or frequency
-		mh = Adafruit_MotorHAT()
-		
-		# set motor parameters
-		myStepper = mh.getStepper(200, Interface_Number)  # 200 steps/rev, motor port #1 or #2
-		myStepper.setSpeed(speed)             # 30 RPM
+#	try:
+	# create a default object, no changes to I2C address or frequency
+	mh = Adafruit_MotorHAT()
+	
+	# set motor parameters
+	myStepper = mh.getStepper(200, Interface_Number)  # 200 steps/rev, motor port #1 or #2
+	myStepper.setSpeed(speed)             # 30 RPM
 
-		#print "Double coil steps"
-		if direction=="FORWARD":
-			myStepper.step(steps, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
-		elif direction=="BACKWARD":
-			myStepper.step(steps, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)	
-		
-		# turn off motors
-		mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
-		mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
-		mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
-		mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
-		
-		del mh	
+	#print "Double coil steps"
+	if direction=="FORWARD":
+		myStepper.step(steps, Adafruit_MotorHAT.FORWARD,  Adafruit_MotorHAT.DOUBLE)
+	elif direction=="BACKWARD":
+		myStepper.step(steps, Adafruit_MotorHAT.BACKWARD, Adafruit_MotorHAT.DOUBLE)	
+	
+	# turn off motors
+	mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
+	mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)	
+
+	del mh	
+	try:
 		write_status_data(stepper_data,Interface,"busyflag",False)
 
 	except:
-		print "problem I2C stepper controller"
+		print("problem I2C stepper controller")
 		logger.error("problem I2C stepper controller")
 		write_status_data(stepper_data,Interface,"busyflag",False)
 		return False
@@ -1419,5 +1466,5 @@ if __name__ == '__main__':
 	for i in range(0,30):
 		get_DHT22_temperature_fake("tempsensor1", "" , recdata , DHT22_data )
 		time.sleep(0.4)
-		print DHT22_data['lastupdate']
+		print(DHT22_data['lastupdate'])
 

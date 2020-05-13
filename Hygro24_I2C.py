@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+from builtins import hex
+from builtins import object
 import smbus, time, sys, argparse
 
-class ChirpAV:
+class ChirpAV(object):
 	def __init__(self, bus=1, address=0x20):
 		self.bus_num = bus
 		self.bus = smbus.SMBus(bus)
@@ -159,13 +161,13 @@ if __name__ == "__main__":
 	if args.set_address:
 		sa = args.set_address
 		try:
-		  if sa.startswith("0x"):
-			sa = int(sa, 16)
-		  else:
-			sa = int(sa)
+			if sa.startswith("0x"):
+				sa = int(sa, 16)
+			else:
+				sa = int(sa)
 		except ValueError:
-		  parser.error("can't parse %s as an i2c address" % (args.set_address))
-		  raise SystemExit
+			parser.error("can't parse %s as an i2c address" % (args.set_address))
+			raise SystemExit
 
 		print("Setting the chirp's i2c address to 0x%x" % (sa))
 		chirp.set_address(sa)

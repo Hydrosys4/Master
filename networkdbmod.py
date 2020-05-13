@@ -2,6 +2,7 @@
 """
 fertilizer UI setting storage utilities
 """
+from __future__ import print_function
 
 import logging
 import os
@@ -34,11 +35,11 @@ data=[]
 #read data from BASICDATAFILENAME file
 done=filestoragemod.readfiledata_spec(BASICDATAFILENAME,"# HERE->",data)
 if done:
-	print "writing default network data"
+	print("writing default network data")
 	filestoragemod.savefiledata(DATAFILENAME,data)
 	logger.info('Basic network data acquired')
 else:
-	print "ERROR ----------------------------- not able to get network data"
+	print("ERROR ----------------------------- not able to get network data")
 	logger.error('Not able to get basic network data ---------------------')
 # end read IOdata -----
 
@@ -114,7 +115,7 @@ def changesavesetting(FTparameter,FTvalue):
 	searchvalue="IPsetting"
 	isok=filestoragemod.savechange(DATAFILENAME,searchfield,searchvalue,FTparameter,FTvalue)
 	if not isok:
-		print "problem saving parameters"
+		print("problem saving parameters")
 	return isok
 
 

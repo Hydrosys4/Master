@@ -2,7 +2,12 @@
 """
 utility for the planning database
 """
+from __future__ import print_function
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 import string
 from datetime import datetime,date,timedelta
@@ -28,7 +33,7 @@ SENSORQUERYINTERVALMINUTES=15
 
 
 # ///////////////// -- MODULE INIZIALIZATION --- //////////////////////////////////////////
-print "SensordDBmod inizialization"
+print("SensordDBmod inizialization")
 databasemod.init_db(DBFILENAME)
 tablelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
 databasemod.aligndbtable(DBFILENAME, tablelist)
@@ -115,10 +120,11 @@ def getsensordbdatadays(selsensor,sensordata,days):
 	fieldlist.append(TIMEFIELD)
 	fieldlist.append(DATAFIELD)
 	sampletime=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,selsensor,hardwaremod.HW_FUNC_TIME)
-	if sampletime!="":
+	schedtype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,selsensor,hardwaremod.HW_FUNC_SCHEDTYPE) # ["oneshot", "periodic"] #scheduling type
+	if (sampletime!="")and(schedtype=="periodic"):
 		samplingintervalminutes=int(sampletime.split(":")[1])
 		if samplingintervalminutes>=1:
-			samplesnumber=(days*24*60)/samplingintervalminutes
+			samplesnumber=old_div((days*24*60),samplingintervalminutes)
 			databasemod.getdatafromfieldslimit(DBFILENAME,selsensor,fieldlist,sensordata,samplesnumber)
 		else:
 			databasemod.getdatafromfields(DBFILENAME,selsensor,fieldlist,sensordata)		
@@ -164,7 +170,7 @@ def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 				templist=[rowdata[0], value]
 				sensordata.append(templist)
 		except ValueError:
-			print "Error in database reading ",rowdata
+			print("Error in database reading ",rowdata)
 	# sensor data --------------------------------------------
 
 def getSensorDataPeriodXminutes(selsensor,datax,datay,startdate,enddate): # return sensordata in form of a matrix Nx2
@@ -184,13 +190,13 @@ def getSensorDataPeriodXminutes(selsensor,datax,datay,startdate,enddate): # retu
 				datay.append(valuey)
 				lenght=lenght+1				
 		except ValueError:
-			print "Error in database reading ",rowdata
+			print("Error in database reading ",rowdata)
 
 	return lenght
 
 def timediffinminutes(data2, data1):
 	diff =  data1 - data2
-	return abs(diff.days*1440 + diff.seconds/60)
+	return abs(diff.days*1440 + old_div(diff.seconds,60))
 
 
 def timediffdays(data2, data1):
@@ -231,7 +237,7 @@ def getAllSensorsDataPeriodv2(enddate,pastdays):
 					if maxtime<dateinsecepoch:
 						maxtime=dateinsecepoch					
 			except:
-				print "Error in database reading ",rowdata
+				print("Error in database reading ",rowdata)
 		if len(sensordata)>0:
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)
@@ -284,11 +290,11 @@ def EvaluateDataPeriod(sensordata,startdate,enddate):
 				summa=summa+number
 				inde=inde+1
 			except ValueError:
-				print "Evaluation : Error in database reading ",dateref , "  " ,data[1]
+				print("Evaluation : Error in database reading ",dateref , "  " ,data[1])
 	
 	
 	if inde>0:
-		average=summa/inde
+		average=old_div(summa,inde)
 		isok=True
 	else:
 		average=0
@@ -310,7 +316,7 @@ def SumProductDataPeriod(sensordata,startdate,enddate,timeinterval):
 			try:
 				sum=sum+float(data[1])*timeinterval
 			except ValueError:
-				print data[1]
+				print(data[1])
 	return sum
 
 	
@@ -379,8 +385,8 @@ if __name__ == '__main__':
 	sensordata=[]
 	getsensordbdata("temp1",sensordata)
 	getSensorDataPeriod("temp1",sensordata,datetime.now(),1)
-	print "data: "
-	print sensordata
+	print("data: ")
+	print(sensordata)
 	rowvalue=[]
 	teperatura=10
 	PHreading=10

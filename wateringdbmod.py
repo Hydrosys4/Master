@@ -2,7 +2,9 @@
 """
 watering UI setting storage utilities
 """
+from __future__ import print_function
 
+from builtins import str
 import logging
 import os
 import os.path
@@ -30,7 +32,7 @@ WTdata=[]
 if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering setting file
 	#read from default file
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
-	print "Watering writing default calibration data"
+	print("Watering writing default calibration data")
 	filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
 	
 # end read IOdata -----
@@ -164,7 +166,7 @@ def getrowdata(recordvalue,paramlist,index):
 				for param in paramlist:
 					try:					
 						datalist.append(int(ln[param][index]))			
-					except Exception, e:
+					except Exception as e:
 						#print 'Failed to load value, set value to zero. Error: '+ str(e)
 						datalist.append(0)							
 

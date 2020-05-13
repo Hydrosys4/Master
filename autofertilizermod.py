@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 from datetime import datetime, date ,timedelta
 import time
@@ -46,20 +47,20 @@ def checkactivate(elementwater,durationwater):
 	if waterok: # there is a corresponding doser element
 		minwaterduration=hardwaremod.toint(autofertilizerdbmod.searchdata("element",element,"minactivationsec"),0)
 		if not isschedulermode(element): #setup is not for scheduled time
-			print " Fertilizer " ,element ," set to autowater"
-			print " Check Water duration ", durationwater ,">", minwaterduration
+			print(" Fertilizer " ,element ," set to autowater")
+			print(" Check Water duration ", durationwater ,">", minwaterduration)
 			if durationwater>minwaterduration: # watering time above the set threshold
-				print " OK Water duration "
+				print(" OK Water duration ")
 				if statusdataDBmod.read_status_data(AUTO_data,element,"tobeactivated"): #if flag is ON
-					print " Activate ", element
+					print(" Activate ", element)
 					durationfer=statusdataDBmod.read_status_data(AUTO_data,element,"duration")
 					activatedoser(element,durationfer)
 					time.sleep(durationfer) #this blocks the system (and watering activation) for n seconds ... not best practice
 				else:
-					print " No pending request to activate ", element
+					print(" No pending request to activate ", element)
 			
 def activatedoser(element, duration):
-	print element, " ",duration, " " , datetime.now() 
+	print(element, " ",duration, " " , datetime.now()) 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
 	pulseok=hardwaremod.makepulse(element,duration)
 	# salva su database
@@ -83,10 +84,10 @@ def checkworkmode(element):
 def timelist(element):
 	if isschedulermode(element):
 		fertime=autofertilizerdbmod.searchdata("element",element,"time")
-		print "fertime " , fertime
+		print("fertime " , fertime)
 		timelist=hardwaremod.separatetimestringint(fertime)
 	else:
-		print "non scheduler mode "
+		print("non scheduler mode ")
 		timelist=hardwaremod.separatetimestringint("00:20:00") # get up 0 minutes and check for doseractivation
 	return timelist
 

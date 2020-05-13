@@ -1,3 +1,5 @@
+from __future__ import print_function
+from builtins import str
 import logging
 import filestoragemod
 
@@ -18,7 +20,7 @@ def read_status_data(data,element,variable,permanent=False, storeid=""):
 			output=elementdata[variable]
 
 	else:
-		print " element NOT present"
+		print(" element NOT present")
 		# element not present in the data use the default
 		data[element]=data["default"].copy()
 		elementdata=data[element]
@@ -34,7 +36,7 @@ def read_status_data(data,element,variable,permanent=False, storeid=""):
 			
 	if isok:
 		if not (persistenooutput==output):
-			print "status variable output mismatch between current value and stored value"
+			print("status variable output mismatch between current value and stored value")
 			logger.error('status variable output mismatch between current value =%s and stored value =%s', str(output) , str(persistenooutput))
 			output=persistenooutput
 						
@@ -151,7 +153,7 @@ if __name__ == '__main__':
 	permanent=True
 	storeid="PROVA_data2"
 	write_status_data(PROVA_data,element,variable,value,permanent, storeid)		
-	print read_status_data(PROVA_data,element,variable,permanent, storeid)
+	print(read_status_data(PROVA_data,element,variable,permanent, storeid))
 	value="nonadesso"	
 	write_status_data(PROVA_data,element,variable,value)	
-	print read_status_data(PROVA_data,element,variable,permanent, storeid)	
+	print(read_status_data(PROVA_data,element,variable,permanent, storeid))	

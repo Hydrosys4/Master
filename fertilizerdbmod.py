@@ -2,7 +2,9 @@
 """
 fertilizer UI setting storage utilities
 """
+from __future__ import print_function
 
+from builtins import str
 import logging
 import os
 import os.path
@@ -30,7 +32,7 @@ FTdata=[]
 if not filestoragemod.readfiledata(FTDATAFILENAME,FTdata): #read  setting file
 	#read from default file
 	filestoragemod.readfiledata(DEFFTDATAFILENAME,FTdata)
-	print "Fertilizer writing default calibration data"
+	print("Fertilizer writing default calibration data")
 	filestoragemod.savefiledata(FTDATAFILENAME,FTdata)
 	
 # end read IOdata -----

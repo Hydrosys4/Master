@@ -2,7 +2,12 @@
 """
 utility for the planning database
 """
+from __future__ import print_function
+from __future__ import division
 
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import logging
 import string
 from datetime import datetime,date,timedelta
@@ -104,7 +109,7 @@ def getActuatorDataPeriod(selsensor,sensordata,enddate,pastdays):
 				templist=[rowdata[0], value]
 				sensordata.append(templist)
 			except ValueError:
-				print "Error in database reading ",rowdata
+				print("Error in database reading ",rowdata)
 
 	# sensor data --------------------------------------------
 	
@@ -132,7 +137,7 @@ def getAllActuatorDataPeriodv2(enddate,pastdays):
 					templist=[rowdata[0], value]
 					sensordata.append(templist)
 				except ValueError:
-					print "Error in database reading ",rowdata
+					print("Error in database reading ",rowdata)
 		if len(sensordata)>0:
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)
@@ -190,11 +195,11 @@ def EvaluateDataPeriod(sensordata,startdate,enddate):
 				summa=summa+number
 				inde=inde+1
 			except ValueError:
-				print "Evaluation : Error in database reading ",dateref , "  " ,data[1]
+				print("Evaluation : Error in database reading ",dateref , "  " ,data[1])
 	
 	
 	if inde>0:
-		average=summa/inde
+		average=old_div(summa,inde)
 		isok=True
 	else:
 		average=0
@@ -224,7 +229,7 @@ def SumProductDataPeriod(sensordata,startdate,enddate,timeinterval):
 			try:
 				sum=sum+float(data[1])*timeinterval
 			except ValueError:
-				print data[1]
+				print(data[1])
 	return sum
 
 	
@@ -288,8 +293,8 @@ if __name__ == '__main__':
 	sensordata=[]
 	getsensordbdata("temp1",sensordata)
 	getSensorDataPeriod("temp1",sensordata,datetime.now(),1)
-	print "data: "
-	print sensordata
+	print("data: ")
+	print(sensordata)
 	rowvalue=[]
 	teperatura=10
 	PHreading=10

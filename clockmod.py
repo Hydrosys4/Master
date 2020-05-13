@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 import sys
 import time
@@ -17,7 +18,7 @@ DATEFORMAT="%d/%m/%Y %H:%M"
 timezone=clockdbmod.gettimezone()
 os.environ['TZ'] = timezone
 time.tzset()
-print "timezone set to ->", timezone
+print("timezone set to ->", timezone)
 #logger.info('Timezone Set to  = %s', timezone) # if this is enabled,for some reason the whole logging become empty
 
 
@@ -28,7 +29,7 @@ def timediffinsec(timestr1, timestr2):
 		datetime1=datetime.strptime(timestr1, DATEFORMAT)
 		datetime2=datetime.strptime(timestr2, DATEFORMAT)	
 	except:
-		print "Time in wrong format, not able to make diffsec "
+		print("Time in wrong format, not able to make diffsec ")
 		return 0	
 	delta=datetime2-datetime1
 	timediff=abs(delta.total_seconds())
@@ -45,19 +46,19 @@ def getNTPTime(host = "pool.ntp.org"):
 	msg = '\x1b' + 47 * '\0'
 
 	# reference time (in seconds since 1900-01-01 00:00:00)
-	TIME1970 = 2208988800L # 1970-01-01 00:00:00
+	TIME1970 = 2208988800 # 1970-01-01 00:00:00
 
 	# connect to server
 	try:	
 		client = socket.socket( AF_INET, SOCK_DGRAM)
 		client.settimeout(2)
-		client.sendto(msg, address)
+		client.sendto(msg.encode(), address)
 		msg, address = client.recvfrom( buf )
-	except socket.timeout, e:
-		print "server timeout"
+	except socket.timeout as e:
+		print("server timeout")
 		return ""		
-	except socket.error, e:
-		print "connection error"
+	except socket.error as e:
+		print("connection error")
 		return ""		
 	
 	if msg:
@@ -72,24 +73,24 @@ def getNTPTime(host = "pool.ntp.org"):
 		strvalue=convertUTCtoLOC(strvalueUTC)
 		return strvalue
 	else:
-		print "No valid data in server answer "			
+		print("No valid data in server answer ")			
 		return ""				
 
 def getHWclock():
 	#need to check how to do it
-	print "not done"
+	print("not done")
 
 		
 def setHWclock(datetime_format):
 	
 	datetimeUTC=convertLOCtoUTC(datetime_format)
-	print "Set HWclock datetime UTC ->" ,datetimeUTC
+	print("Set HWclock datetime UTC ->" ,datetimeUTC)
 	
 	datetimetype=datetime.strptime(datetimeUTC, DATEFORMAT)
 
 	newformat="%d %b %Y %H:%M:%S"
 	date_str="\"" + datetimetype.strftime(newformat) + "\""	
-	print "Set HW clock ->" , date_str
+	print("Set HW clock ->" , date_str)
 	
 	try:
 		os.system('hwclock --set --date %s --localtime' % date_str)
@@ -104,7 +105,7 @@ def setHWclock(datetime_format):
 		#	return " - ERROR: not able to set Hardware Clock -"
 		return " - HardwareClock Set - "
 	except:
-		print "Not able to set Hardware Clock "
+		print("Not able to set Hardware Clock ")
 		#logger.error('Not able to set Hardware Clock')
 		return "ERROR: not able to set Hardware Clock"	
 		
@@ -113,14 +114,14 @@ def setHWclock(datetime_format):
 def setsystemclock(datetime_format):
 
 	datetimeUTC=convertLOCtoUTC(datetime_format)
-	print "Set System date to datetime UTC ->" ,datetimeUTC
+	print("Set System date to datetime UTC ->" ,datetimeUTC)
 
 	datetimetype=datetime.strptime(datetimeUTC, DATEFORMAT)
-	print "Set system clock ->", datetimetype
+	print("Set system clock ->", datetimetype)
 	newformat="%d %b %Y %H:%M:%S"
 	date_str="\"" + datetimetype.strftime(newformat) + "\""
 	
-	print "Datetime value format for date setting ", date_str
+	print("Datetime value format for date setting ", date_str)
 
 
 	try:
@@ -129,14 +130,14 @@ def setsystemclock(datetime_format):
 		newdatetime=datetime.utcnow()
 		delta=newdatetime-datetimetype
 		timediff=abs(delta.total_seconds())
-		print "time difference ", timediff , " System date " ,newdatetime , " Set Date" , datetimetype
+		print("time difference ", timediff , " System date " ,newdatetime , " Set Date" , datetimetype)
 		if timediff<60:
 			return "- System Clock Set -"
 		else:
 			return " - ERROR: not able to set system Clock -"
 
 	except:
-		print "Not able to set system Clock "
+		print("Not able to set system Clock ")
 		#logger.error('Not able to set Hardware Clock')
 		return "- ERROR: not able to set system Clock -"	
 

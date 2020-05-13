@@ -1,3 +1,7 @@
+from __future__ import print_function
+from builtins import str
+from builtins import filter
+from builtins import object
 import re
 import itertools
 import os
@@ -105,7 +109,7 @@ class Scheme(object):
         in the /etc/network/interfaces file.
         """
         iface = "iface {interface}-{name} inet {mode}".format(**vars(self))
-        options = ''.join("\n    {k} {v}".format(k=k, v=v) for k, v in self.options.items())
+        options = ''.join("\n    {k} {v}".format(k=k, v=v) for k, v in list(self.options.items()))
         return iface + options + '\n'
 
     def __repr__(self):
@@ -189,7 +193,7 @@ class Scheme(object):
 
     def as_args(self):
         args = list(itertools.chain.from_iterable(
-            ('-o', '{k}={v}'.format(k=k, v=v)) for k, v in self.options.items()))
+            ('-o', '{k}={v}'.format(k=k, v=v)) for k, v in list(self.options.items())))
 
         return [self.interface + '=' + self.iface] + args
 
@@ -201,7 +205,7 @@ class Scheme(object):
         subprocess.check_output(['/sbin/ifdown', self.interface], stderr=subprocess.STDOUT)
         ifup_output = subprocess.check_output(['/sbin/ifup'] + self.as_args(), stderr=subprocess.STDOUT)
         ifup_output = ifup_output.decode('utf-8')
-        print ifup_output
+        print(ifup_output)
 
         return self.parse_ifup_output(ifup_output)
 
@@ -210,7 +214,7 @@ class Scheme(object):
         if matches:
             return Connection(scheme=self, ip_address=matches.group('ip_address'))
         else:
-            print "Failed to connect to " , self
+            print("Failed to connect to " , self)
             return False
 
 

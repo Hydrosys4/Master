@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import division
+from builtins import str
+from past.utils import old_div
 import logging
 from datetime import datetime , time ,timedelta
 import _strptime
@@ -19,6 +23,7 @@ import time as t
 ACTIONPRIORITYLEVEL=5
 NONBLOCKINGPRIORITY=0
 SAVEBLOCKINGBUSY=False
+SAVEBLOCKINGDIFFBUSY=False
 
 NOWTIMELIST=[]
 
@@ -106,18 +111,18 @@ def setinterruptevents():
 	
 	hardwaremod.removeallinterruptevents()
 	
-	print "load interrupt list "
+	print("load interrupt list ")
 	interruptlist=interruptdbmod.sensorlist()
-	print "len interrupt list "	, len(interruptlist)	
+	print("len interrupt list "	, len(interruptlist))	
 	for item in interruptlist:
-		print "got into the loop "
+		print("got into the loop ")
 		# get PIN number
 
 		recordkey=hardwaremod.HW_INFO_NAME
 		recordvalue=item
 		keytosearch=hardwaremod.HW_CTRL_PIN
 		PINstr=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
-		print "set event for the PIN ", PINstr		
+		print("set event for the PIN ", PINstr)		
 		if not PINstr=="":	
 
 			keytosearch=hardwaremod.HW_CTRL_LOGIC
@@ -142,7 +147,7 @@ def setinterruptevents():
 				bouncetimeINT=200
 			else:
 				frequencyINT=hardwaremod.toint(frequency,5)
-				bouncetimeINT=1000/frequencyINT # in ms. this is ok to be trunk of the int. For frequencies higher than 1000 the bouncetime is exactly zero
+				bouncetimeINT=old_div(1000,frequencyINT) # in ms. this is ok to be trunk of the int. For frequencies higher than 1000 the bouncetime is exactly zero
 				
 			# RPI.GPIO library does not accept bouncetime=0, it gives runtime error
 			if bouncetimeINT<=0:
@@ -175,7 +180,7 @@ def setinterruptevents():
 		if (workmode!="None")and(workmode!=""):
 			sensor=interruptdbmod.searchdata("element",element,"sensor")
 			#saveblockingdiff(sensor)
-			print " what a sensor ", sensor
+			print(" what a sensor ", sensor)
 			if sensor!="":
 				startblockingstate(element,10,False)
 			
@@ -227,7 +232,7 @@ def cyclereset(element):
 					else:
 						sensorblockingcounter[sensor]=1
 					
-	print sensorblockingcounter
+	print(sensorblockingcounter)
 	global BLOCKING_data
 	for sensor in sensorblockingcounter:
 		statusdataDBmod.write_status_data(BLOCKING_data,sensor,"BlockingNumbers",sensorblockingcounter[sensor])
@@ -264,7 +269,7 @@ def ReadInterruptFrequency(PIN):
 	nowtime=datetime.utcnow()
 	diffseconds=(nowtime-Startcounttime).total_seconds()
 	if diffseconds>0:
-		Frequency=sensorinterruptcount/diffseconds
+		Frequency=old_div(sensorinterruptcount,diffseconds)
 	else:
 		Frequency = 0
 	# azzera timer e counter
@@ -281,7 +286,7 @@ def interruptexecute(refsensor,element):
 
 	if (workmode=="None"):
 		# None case
-		print "No Action required, workmode set to None, element: " , element
+		print("No Action required, workmode set to None, element: " , element)
 		logger.info("No Action required, workmode set to None, element: %s " , element)
 		return
 
@@ -492,7 +497,7 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",validinterruptcount)	
 			
 
-	print " validinterruptcount --------------------->", validinterruptcount 	
+	#print(" validinterruptcount --------------------->", validinterruptcount) 	
 
 	#print "********" ,validinterruptcount , "******"	
 		
@@ -504,7 +509,7 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 		if validinterruptcount>=interrupt_triggernumber:
 
 					
-			print "Implement Actuator Value ", value
+			print("Implement Actuator Value ", value)
 			logger.info('Procedure to start actuator %s, for value = %s', element, value)		
 			isok=activateactuator(element, value)
 				
@@ -523,10 +528,11 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 				
 			
 			#save data
+			print("first save in database")
 			saveblockingdiff(sensor)
 			#--				
 			# start the blocking state
-			print "Start blocking state"
+			print("Start blocking state")
 			startblockingstate(element,preemptiontime)
 			
 			#save data
@@ -547,18 +553,18 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 			return
 			
 		if actionmodeafterfirst=="Extend blocking state": # extend only the pre-emption blocking period, no action
-			print "Extend blocking state"
+			print("Extend blocking state")
 			startblockingstate(element,preemptiontime)
 
 		if actionmodeafterfirst=="Remove blocking state" or actionmodeafterfirst=="Remove and Follow-up": # remove the pre-emption blocking period, no action
-			print "Remove blocking state"
+			print("Remove blocking state")
 			endblocking(element)
 		
 
 		if actionmodeafterfirst=="Follow-up action" or actionmodeafterfirst=="Remove and Follow-up": # execute the action followup, no variation in the preemption period
 			value=actuatoroutputfollowup
 			# followup action					
-			print "Implement Actuator Value followup", value
+			print("Implement Actuator Value followup", value)
 			logger.info('Procedure to start actuator followup %s, for value = %s', element, value)		
 			isok=activateactuator(element, value)
 				
@@ -634,7 +640,7 @@ def endblocking(element, saveend=True):
 		statusdataDBmod.write_status_data(AUTO_data,element,"threadID",None)
 		statusdataDBmod.write_status_data(AUTO_data,element,"blockingstate",False)
 	else: # renew the blocking status
-		print "Interrupt LEVEL High, Do not stop blocking period, Extend it"
+		print("Interrupt LEVEL High, Do not stop blocking period, Extend it")
 		# reload the period in case this is chnaged
 		preemptiontimemin=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
 		period=preemptiontimemin*60
@@ -681,28 +687,39 @@ def checkstopcondition(element):
 
 def saveblockingdiff(sensor): # this function minimize the writing over the database, keep them at 1 sec distance and provides a visual pleasant graph :) 
 	global BLOCKING_data
-	threadID=statusdataDBmod.read_status_data(BLOCKING_data,sensor,"BlockingNumbersThreadID")
-	if (threadID!=None) and (threadID!=""): # thread already present
-		threadID.cancel()
-	else:
-		# no thread present already		
-		x = threading.Thread(target=saveblocking, args=(sensor,))
-		x.start()			
-	
-	#logger.warning("SaveBlockDIFF ---> Sensor %s", sensor)
-	threadID = threading.Timer(1, saveblocking, [sensor])
-	threadID.start()
-	statusdataDBmod.write_status_data(BLOCKING_data,sensor,"BlockingNumbersThreadID",threadID)	
+	global SAVEBLOCKINGDIFFBUSY		
+	if not SAVEBLOCKINGDIFFBUSY:
+		SAVEBLOCKINGDIFFBUSY=True
+		threadID=statusdataDBmod.read_status_data(BLOCKING_data,sensor,"BlockingNumbersThreadID")
+		print(" threadID ", threadID) 
+		if (threadID!=None) and (threadID!=""): # thread already present
+			print("thread present already, remove it")
+			threadID.cancel()
+		else:
+			# no thread present already		
+			print("no thread present already	")
+			x = threading.Thread(target=saveblocking, args=(sensor,False))
+			x.start()			
 		
-def saveblocking(sensor):
+		#logger.warning("SaveBlockDIFF ---> Sensor %s", sensor)
+		threadID = threading.Timer(1, saveblocking, [sensor])
+		threadID.start()
+		statusdataDBmod.write_status_data(BLOCKING_data,sensor,"BlockingNumbersThreadID",threadID)
+		SAVEBLOCKINGDIFFBUSY=False
+	else:
+		print(" BUSYYYYY")
+			
+def saveblocking(sensor,cleanThreadID=True):
+	global SAVEBLOCKINGBUSY		
+	global BLOCKING_data	
 	if not SAVEBLOCKINGBUSY:
 		SAVEBLOCKINGBUSY=True		
-		global BLOCKING_data
 		BlockingNumbers=statusdataDBmod.read_status_data(BLOCKING_data,sensor,"BlockingNumbers")
-		#print "SAVING :::::: sensor ",sensor," BlockingNumbers " ,BlockingNumbers
+		print("SAVING :::::: sensor ",sensor," BlockingNumbers " ,BlockingNumbers)
 		savedata(sensor,BlockingNumbers)
-		statusdataDBmod.write_status_data(BLOCKING_data,sensor,"BlockingNumbersThreadID",None)
-		global SAVEBLOCKINGBUSY		
+		if cleanThreadID:
+			statusdataDBmod.write_status_data(BLOCKING_data,sensor,"BlockingNumbersThreadID",None)
+	
 		SAVEBLOCKINGBUSY=False
 		
 

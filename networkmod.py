@@ -1,3 +1,7 @@
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import logging
 import subprocess
 import threading
@@ -7,7 +11,7 @@ import selectedplanmod
 # stuff for the IP detection
 import shlex
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import socket
 import time
 import wpa_cli_mod
@@ -17,7 +21,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 localwifisystem=networkdbmod.getAPSSID()
 if localwifisystem=="":
 	localwifisystem="hydrosys4"
-	print "error the name of AP not found, double check the hostapd configuration"
+	print("error the name of AP not found, double check the hostapd configuration")
 	logger.error("error the name of AP not found, double check the hostapd configuration")
 LOCALPORT=5020
 PUBLICPORT=networkdbmod.getPORT()
@@ -36,14 +40,14 @@ def stopNTP():
 	#sudo systemctl disable systemd-timesyncd.service
 	#sudo service systemd-timesyncd stop
 	logger.info("Stop NTP")
-	print "Stop NTP (Network Time Protocol)"
+	print("Stop NTP (Network Time Protocol)")
 	# hostnamectl set-hostname $NewHostName
 	cmd = [ 'service' , 'systemd-timesyncd' , 'stop']	
 	try:
 		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
 		return output_string
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return "error"
 	time.sleep(2)
@@ -52,14 +56,14 @@ def disableNTP():
 	#sudo systemctl disable systemd-timesyncd.service
 	#sudo service systemd-timesyncd stop
 	logger.info("Disable NTP")
-	print "Disable NTP (Network Time Protocol)"
+	print("Disable NTP (Network Time Protocol)")
 	# hostnamectl set-hostname $NewHostName
 	cmd = [ 'systemctl' , 'disable' , 'systemd-timesyncd.service']	
 	try:
 		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
 		return output_string
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return "error"
 	time.sleep(2)
@@ -91,7 +95,7 @@ def savewificonnect(ssid, password):
 	selectedplanmod.CheckNTPandAdjustClockandResetSched() # instead of waiting the next Heartbeat, it reset master scheduler if clock changes
 	
 def waitandsavewifiandconnect(pulsesecond,ssid,password):
-	print "try to save wifi after " , pulsesecond , " seconds"
+	print("try to save wifi after " , pulsesecond , " seconds")
 	argvect=[]
 	argvect.append(ssid)
 	argvect.append(password)
@@ -105,7 +109,7 @@ def savedefaultAP():
 		#defaultstr=["iface wlan0-"+ssid+" inet static", "address 10.0.0.1", "netmask 255.255.255.0", "broadcast 255.0.0.0"]
 		scheme = Scheme('wlan0', ssid, "static", APINTERFACEMODE)
 		scheme.save() # modify the interfaces file adding the wlano-xx network data on the basis of the network encription type
-		print "default AP schema has been saved"
+		print("default AP schema has been saved")
 	
 
 def removewifi(ssid):
@@ -121,7 +125,7 @@ def restoredefault():
 
 def connect_savedwifi(thessid):
 	# get all cells from the air
-	print "connecting to saved wifi network"
+	print("connecting to saved wifi network")
 	flushIP("wlan0")
 	isok=False
 	#ifdown("wlan0")
@@ -131,28 +135,28 @@ def connect_savedwifi(thessid):
 
 	
 def connect_preconditions():
-	print "checking preconditions for WiFi connection"
+	print("checking preconditions for WiFi connection")
 	# get list of saved networks
 	savedssids = wpa_cli_mod.listsavednetwork("wlan0")
-	print "Saved ssID =", savedssids
+	print("Saved ssID =", savedssids)
 	if savedssids:
 		# get all cells from the air
 		ssids=[]
 		ssids=wifilist_ssid(3)
 
-		print "ssID on air =", ssids
+		print("ssID on air =", ssids)
 		logger.info("Final Number of scan SSID: %d",len(ssids))
 
 		for ssid in savedssids:
 			#print " Scheme ", scheme
 			if ssid in ssids:
-				print "At least one of WIFI network detected have saved credentials, ssid=" , ssid
+				print("At least one of WIFI network detected have saved credentials, ssid=" , ssid)
 				logger.info("At least one of WIFI network can be connected, ssid=%s" , ssid)
 				return ssid
 	else:
-		print "No Saved wifi network to connect to"
+		print("No Saved wifi network to connect to")
 		logger.info("No Saved wifi network to connect to")
-	print "No conditions to connect to wifi network"
+	print("No conditions to connect to wifi network")
 	logger.info("No conditions to connect to wifi network")
 	return ""
 
@@ -165,7 +169,7 @@ def connectedssid():
 		cmd = ['iw', 'dev', 'wlan0', 'link']
 		wordtofind="SSID"
 		ssids=iwcommand(cmd,wordtofind)
-	print "Connected to ", ssids
+	print("Connected to ", ssids)
 	return ssids
 
 def iwcommand(cmd,wordtofind):
@@ -173,7 +177,7 @@ def iwcommand(cmd,wordtofind):
 	try:
 		scanoutput = subprocess.check_output(cmd).decode('utf-8')
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return ssids
 
@@ -200,13 +204,13 @@ def CheckandUnlockWlan():
 	time.sleep(0.1)
 	
 	if isblocked:
-		print "Warning WiFi locked, try to unlock"
+		print("Warning WiFi locked, try to unlock")
 		logger.warning("wlan status locked, try to unlock, please double check the wifi locale setting")
 		cmd = ['rfkill', 'unblock', 'wifi']
 		try:
 			scanoutput = subprocess.check_output(cmd).decode('utf-8')
 		except:
-			print "error to execute the command" , cmd
+			print("error to execute the command" , cmd)
 			logger.error("error to execute the command %s",cmd)
 			return False
 		time.sleep(0.1)
@@ -216,10 +220,10 @@ def CheckandUnlockWlan():
 
 	if isblocked: # check if the command worked
 		logger.error("Not able to unlock WiFi")
-		print "Error WiFi still locked after attempt to unlock"
+		print("Error WiFi still locked after attempt to unlock")
 	else:
 		logger.info("wifi status unlocked :)")
-		print "Wifi Unlocked  ***************+"
+		print("Wifi Unlocked  ***************+")
 
 	return not isblocked
 	
@@ -229,7 +233,7 @@ def ExecCLIandFindOutput(cmd,wordtofind,wordtofindinrow):
 	try:
 		scanoutput = subprocess.check_output(cmd).decode('utf-8')
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return wordfound
 
@@ -242,48 +246,48 @@ def ExecCLIandFindOutput(cmd,wordtofind,wordtofindinrow):
 	return wordfound	
 
 def gethostname():
-	print "Get hostname"
+	print("Get hostname")
 	cmd = ['hostname']	
 	try:
 		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
 		time.sleep(0.5)	
-		print output_string
+		print(output_string)
 		return output_string
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return "error"
 
 def setnewhostname(HOSTNAME):
-	print "Set hostname"
+	print("Set hostname")
 	# hostnamectl set-hostname $NewHostName
 	cmd = [ "hostnamectl" , 'set-hostname' , HOSTNAME]	
 	try:
 		output_string = subprocess.check_output(cmd).decode('utf-8').strip()
 		return output_string
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return "error"
 
 
 def start_hostapd():
 	done=False
-	print "try to start hostapd"
+	print("try to start hostapd")
 	# systemctl restart dnsmasq.service
 	cmd = ['systemctl' , 'restart' , 'hostapd.service']	
 	try:
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(2)	
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "Hostapd error failed to start the service "
+		print("Hostapd error failed to start the service ")
 		return False
 	else:
 		strstart=output.find("failed")
 		if strstart>-1:
-			print "failed to start hostapd"
+			print("failed to start hostapd")
 			done=False
 		else:
 			done=True
@@ -291,21 +295,21 @@ def start_hostapd():
 
 def stop_hostapd():
 	done=False
-	print "try to stop hostapd"
+	print("try to stop hostapd")
 	# systemctl restart dnsmasq.service
 	cmd = ['systemctl' , 'stop' , 'hostapd.service']	
 	try:		
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)	
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "Hostapd error, failed to stop the service "
+		print("Hostapd error, failed to stop the service ")
 		return False
 	else:
 		strstart=output.find("failed")
 		if strstart>-1:
-			print "failed to stop hostapd"
+			print("failed to stop hostapd")
 			done=False
 		else:
 			done=True
@@ -313,21 +317,21 @@ def stop_hostapd():
 
 def start_dnsmasq():
 	done=False
-	print "try to start DNSmasq"
+	print("try to start DNSmasq")
 	# systemctl restart dnsmasq.service
 	cmd = ['systemctl' , 'restart' , 'dnsmasq.service']	
 	try:
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)	
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "DNSmasq error, failed to start "
+		print("DNSmasq error, failed to start ")
 		return False
 	else:
 		strstart=output.find("failed")
 		if strstart>-1:
-			print "DNSmasq error, failed to start "
+			print("DNSmasq error, failed to start ")
 			done=False
 		else:
 			done=True
@@ -336,21 +340,21 @@ def start_dnsmasq():
 
 def stop_dnsmasq():
 	done=False
-	print "try to stop dnsmasq"
+	print("try to stop dnsmasq")
 	# systemctl restart dnsmasq.service
 	cmd = ['systemctl' , 'stop' , 'dnsmasq.service']	
 	try:
 		output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)	
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "DNSmasq error, failed to stop "
+		print("DNSmasq error, failed to stop ")
 		return False
 	else:
 		strstart=output.find("failed")
 		if strstart>-1:
-			print "DNSmasq error, failed to stop "
+			print("DNSmasq error, failed to stop ")
 			done=False
 		else:
 			done=True
@@ -360,22 +364,22 @@ def stop_dnsmasq():
 
 # ip link set wlan0 down
 def ifdown(interface):
-	print "try ifdown"
+	print("try ifdown")
 	cmd = ['ip' , 'link' , 'set', interface, 'down']	
 	try: 
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(1)		
-		print "ifdown OK "
+		print("ifdown OK ")
 		#sudo ifdown --force wlan0 #seems to work
 		return True
 	except subprocess.CalledProcessError as e:
-		print "ifdown failed: ", e
-		print "error to execute the command" , cmd
+		print("ifdown failed: ", e)
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return False
 
 def ifup(interface):
-	print "try ifup"
+	print("try ifup")
 	cmd = ['ip' , 'link' , 'set', interface, 'up']	
 	try:
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
@@ -383,9 +387,9 @@ def ifup(interface):
 		time.sleep(2)	
 		return True
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "ifup failed: ", e
+		print("ifup failed: ", e)
 		return False
 		
 def waituntilIFUP(interface,timeout): # not working properly, to be re-evaluated
@@ -396,56 +400,56 @@ def waituntilIFUP(interface,timeout): # not working properly, to be re-evaluated
 		try:
 			ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		except:
-			print "error to execute the command" , cmd
+			print("error to execute the command" , cmd)
 			logger.error("error to execute the command %s",cmd)
 			ifup_output=""
 			
 		if not ifup_output:
-			print "interface ", interface , " still down, check again in one second"			
+			print("interface ", interface , " still down, check again in one second")			
 			time.sleep(1)
 			i=i+1
 		else:
 			done=True
-			print "interface ", interface , " UP after seconds: ", i
-			print "output ", ifup_output
+			print("interface ", interface , " UP after seconds: ", i)
+			print("output ", ifup_output)
 	return done
 		
 
 def flushIP(interface): #-------------------
-	print "try flush IP"
+	print("try flush IP")
 	cmd = ['ip', 'addr' , 'flush' , 'dev', interface]	
 	try:
 		# sudo ip addr flush dev wlan0
 
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
-		print "FlushIP: ", interface , " OK ", ifup_output
+		print("FlushIP: ", interface , " OK ", ifup_output)
 		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "IP flush failed: ", e
+		print("IP flush failed: ", e)
 		return False
 
 def resetDHCP(): 
-	print "try to reset DHCP"
+	print("try to reset DHCP")
 	cmd = ['dhclient', '-v' ]	
 	try:
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
-		print "Reset DHCP "
+		print("Reset DHCP ")
 		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "Reset DHCP Failed: ", e
+		print("Reset DHCP Failed: ", e)
 		return False
 
 		
 		
 		
 def checkGWsubnet(interface): #-------------------
-	print "Check  if the Gateway IP address has same subnet of statip ip"
+	print("Check  if the Gateway IP address has same subnet of statip ip")
 	logger.info("Check  if the Gateway IP address has same subnet of statip ip")	
 	# the command -ip route- will provide the -default- gateway address, when in AP mode or this will not be present
 	# when connected to the WIFi router the "wlan0" will be present
@@ -460,7 +464,7 @@ def checkGWsubnet(interface): #-------------------
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(0.5)
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return True, ipaddr
 		
@@ -475,7 +479,7 @@ def checkGWsubnet(interface): #-------------------
 			break	
 
 	if isaddress:
-		print "got default Gateway for ",interface
+		print("got default Gateway for ",interface)
 		logger.info("got default Gateway for wlan0 = %s", ipaddr)
 		#check if same subnet
 		staticIPlist=IPADDRESS.split(".")
@@ -484,7 +488,7 @@ def checkGWsubnet(interface): #-------------------
 		i=0
 		minlen=min(len(staticIPlist), len(gwIPlist))
 		while (staticIPlist[i]==gwIPlist[i]) and (i<minlen):
-			print staticIPlist[i] , "   " , gwIPlist[i]			
+			print(staticIPlist[i] , "   " , gwIPlist[i])			
 			i=i+1
 		
 		newstaticIP=""	
@@ -493,7 +497,7 @@ def checkGWsubnet(interface): #-------------------
 
 		if i<3:
 			# not same subnet
-			print "Warning: not same subnet gw ip = ", ipaddr , " static ip =" , IPADDRESS
+			print("Warning: not same subnet gw ip = ", ipaddr , " static ip =" , IPADDRESS)
 			logger.warning("Warning: not same subnet gw ip = %s , static ip = %s", ipaddr , IPADDRESS)
 			logger.warning("STATIC ip address will not be set")
 			message="Warning: Last wifi connection, subnet not matching gateway ip = "+ ipaddr +" static ip =" + IPADDRESS +". Change the static IP address to match the Wifi GW subnet e.g " + newstaticIP
@@ -501,13 +505,13 @@ def checkGWsubnet(interface): #-------------------
 			return False , ipaddr
 		else:
 			logger.info("ok: same subnet")	
-			print "ok: same subnet"	
+			print("ok: same subnet")	
 			message=""
 			networkdbmod.storemessage(message)	
 		
 		
 	else:
-		print "No default Gateway for wlan0"
+		print("No default Gateway for wlan0")
 		logger.info("No default Gateway for wlan0")	
 		message=""
 		ipaddr=""
@@ -522,7 +526,7 @@ def addIP(interface, brd=True): #-------------------
 	if not goON:
 		return
 	
-	print "Set Local Static IP " , IPADDRESS
+	print("Set Local Static IP " , IPADDRESS)
 	logger.info("Set Local Static IP: %s" , IPADDRESS)
 	try:
 		if brd:
@@ -535,12 +539,12 @@ def addIP(interface, brd=True): #-------------------
 			# ip addr add 192.168.0.172/24 dev wlan0
 			cmd = ['ip', 'addr' , 'add' , IPADDRESS+'/24' , 'dev', interface]		
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
-		print "ADD IP address: ", interface , " OK ", ifup_output
+		print("ADD IP address: ", interface , " OK ", ifup_output)
 		time.sleep(0.5)
 		return True
 	except subprocess.CalledProcessError as e:
 		logger.info("Failed to set local Static IP: %s" , IPADDRESS)
-		print "ADD ip address Fails : ", e
+		print("ADD ip address Fails : ", e)
 		return False
 
 def replaceIP(interface):
@@ -562,19 +566,19 @@ def init_network():
 		thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with
 		if not thessid=="":
 			waitandconnect(WAITTOCONNECT) # parameter is the number of seconds, 5 minutes = 300 sec
-			print "wifi access point up, wait " ,WAITTOCONNECT, " sec before try to connect to wifi network"
+			print("wifi access point up, wait " ,WAITTOCONNECT, " sec before try to connect to wifi network")
 			logger.warning('wifi access point up, wait %s sec before try to connect to wifi network',WAITTOCONNECT)
 			return True
 		else:
 			return False
 	else:
 		waitandconnect("2") # try to connet immeditely to netwrok as the AP failed
-		print "Not able to connect wifi access point , wait 2 sec before try to connect to wifi network"
+		print("Not able to connect wifi access point , wait 2 sec before try to connect to wifi network")
 		logger.warning('Not able to connect wifi access point , wait 2 sec before try to connect to wifi network')
 		return True
 	
 def waitandconnect(pulsesecond):
-	print "try to connect to wifi after " , pulsesecond , " seconds"
+	print("try to connect to wifi after " , pulsesecond , " seconds")
 	try:
 		f=float(pulsesecond)
 		secondint=int(f)
@@ -583,7 +587,7 @@ def waitandconnect(pulsesecond):
 	t = threading.Timer(secondint, connect_network_init , [True, False]).start()
 
 def waitandremovewifi(pulsesecond,ssid):
-	print "try to switch to AP mode after " , pulsesecond , " seconds"
+	print("try to switch to AP mode after " , pulsesecond , " seconds")
 	argvect=[]
 	argvect.append(ssid)
 	t = threading.Timer(pulsesecond, removewifiarg, argvect).start()
@@ -592,15 +596,15 @@ def removewifiarg(arg):
 	removewifi(arg)
 
 def waitandconnect_AP(pulsesecond):
-	print "try to switch to AP mode after " , pulsesecond , " seconds"
+	print("try to switch to AP mode after " , pulsesecond , " seconds")
 	t = threading.Timer(pulsesecond, connect_AP).start()
 
 
 def connect_AP(firsttime=False):
-	print "try to start system as WiFi access point"
+	print("try to start system as WiFi access point")
 	logger.info('try to start system as WiFi access point')
 	if localwifisystem=="":
-		print "WiFi access point SSID name is an empty string, problem with network setting file"
+		print("WiFi access point SSID name is an empty string, problem with network setting file")
 		logger.info('WiFi access point SSID name is an empty string, problem with network setting file')	
 		return False	
 
@@ -614,7 +618,7 @@ def connect_AP(firsttime=False):
 		ssid=""
 	if ssid==localwifisystem:
 		done=True
-		print "Already working as access point, only reset IP address ",ssid
+		print("Already working as access point, only reset IP address ",ssid)
 		logger.info('Already working as access poin %s',ssid)
 		currentipaddr=get_local_ip_raw()
 		logger.info('Target IP address= %s. Current access point IP addresses= %s', IPADDRESS,currentipaddr)		
@@ -634,11 +638,11 @@ def connect_AP(firsttime=False):
 	
 	# disable connected network with wpa_supplicant
 	logger.info('Try to disable current network %s',ssid)
-	print "try to disable other network"
+	print("try to disable other network")
 	isOk=wpa_cli_mod.disable_all("wlan0")	
 	if not isOk:
 		logger.warning('Problem to disable network')
-		print "try to disable other network"
+		print("try to disable other network")
 	#ifdown("wlan0")
 	#ifup("wlan0")			
 	#start_dnsmasq()	# it is recommended that the dnsmasq shoudl start after the wlan0 is up	
@@ -649,7 +653,7 @@ def connect_AP(firsttime=False):
 	
 	i=0	
 	while (i<2)and(not done):
-		print " loop ", i
+		print(" loop ", i)
 		#ifdown("wlan0")
 		#ifup("wlan0")			
 		start_dnsmasq()	
@@ -671,11 +675,11 @@ def connect_AP(firsttime=False):
 			
 		if ssid==localwifisystem:
 			done=True
-			print "Access point established:", localwifisystem
+			print("Access point established:", localwifisystem)
 			logger.info('Access point established: %s',localwifisystem)
 		else:
 			done=False
-			print "Access point failed to start, attempt: ", i
+			print("Access point failed to start, attempt: ", i)
 			logger.info('Access point failed to start, attempt %d ',i)
 		i=i+1
 	return done
@@ -688,7 +692,7 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 	global localwifisystem
 	global IPADDRESS
 
-	print " New Data " , newlocalwifisystem ," ", newpassword," " , newIPaddress
+	print(" New Data " , newlocalwifisystem ," ", newpassword," " , newIPaddress)
 	restartAP=False
 	restartWiFi=False
 	if newlocalwifisystem!=localwifisystem:
@@ -707,7 +711,7 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 		ssid=""
 	if ssid==localwifisystem:
 		isAPconnected=True
-		print "Currently working as access point",localwifisystem
+		print("Currently working as access point",localwifisystem)
 		logger.info('Currently working as access point %s',localwifisystem)
 
 	# update global variables with new paramaeters:
@@ -717,14 +721,14 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 
 	if isAPconnected:
 		if restartAP: # restart AP
-			print "restart AP"
+			print("restart AP")
 			logger.info('restart AP')
 			# action
 				
 			i=0	
 			done=False
 			while (i<2)and(not done):
-				print " loop ", i
+				print(" loop ", i)
 				#ifdown("wlan0")
 				#ifup("wlan0")			
 				start_dnsmasq()	
@@ -746,15 +750,15 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 					
 				if ssid==localwifisystem:
 					done=True
-					print "Access point established:", localwifisystem
+					print("Access point established:", localwifisystem)
 					logger.info('Access point established: %s',localwifisystem)
 				else:
 					done=False
-					print "Access point failed to start, attempt: ", i
+					print("Access point failed to start, attempt: ", i)
 					logger.info('Access point failed to start, attempt %d ',i)
 				i=i+1
 		else:
-			print " No need AP restart"
+			print(" No need AP restart")
 				
 	else:
 		if restartWiFi:
@@ -768,11 +772,11 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 				i=i+1					
 				if done:
 					time.sleep(1+i*5)				
-					print "wifi connection attempt ",i
-					print "check connected SSID"
+					print("wifi connection attempt ",i)
+					print("check connected SSID")
 					logger.info('Connection command executed attempt %d, check connected SSID ',i)
 				else:
-					print "Connection command NOT executed properly , attempt ",i
+					print("Connection command NOT executed properly , attempt ",i)
 					logger.info('Connection command NOT executed properly , attempt %d ',i)							
 				ssids=connectedssid()
 		
@@ -782,12 +786,12 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 			else:
 				ssid=""
 				logger.info('NO connected SSID')
-			print "Connected to the SSID ", ssid
+			print("Connected to the SSID ", ssid)
 			logger.info('Connected SSID: %s -- ', ssid)	
 			addIP("wlan0")	
 
 		else:
-			print " No need WiFi restart"
+			print(" No need WiFi restart")
 				
 	# update global variable values
 	
@@ -812,12 +816,12 @@ def connect_network_init(internetcheck=False, backtoAP=False):
 def connect_network(internetcheck=False, backtoAP=False):
 	# this is the procedure that disable the AP and connect to wifi network 
 	connected=False
-	print " try to connect to wifi network"
+	print(" try to connect to wifi network")
 	thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with and see if the SSID is on air
 	
 	
 	if not thessid=="":
-		print "preconditions to connect to wifi network are met"				
+		print("preconditions to connect to wifi network are met")				
 		logger.info('preconditions to connect to wifi network are met')
 		ssids=connectedssid() # get the SSID currently connected
 		if len(ssids)>0:
@@ -827,9 +831,9 @@ def connect_network(internetcheck=False, backtoAP=False):
 				
 			
 		if not ssid==thessid:
-			print "try to connect to wifi network"
+			print("try to connect to wifi network")
 			logger.info('try to connect to wifi network %s ' ,thessid)			
-			print "try to stop AP services, hostapd, dnsmasq"
+			print("try to stop AP services, hostapd, dnsmasq")
 			logger.info('try to stop AP services, hostapd, dnsmasq ')
 			i=0
 			done=False
@@ -851,11 +855,11 @@ def connect_network(internetcheck=False, backtoAP=False):
 				i=i+1					
 				if done:
 					time.sleep(1+i*5)				
-					print "wifi connection attempt ",i
-					print "check connected SSID"
+					print("wifi connection attempt ",i)
+					print("check connected SSID")
 					logger.info('Connection command executed attempt %d, check connected SSID ',i)
 				else:
-					print "Connection command NOT executed properly , attempt ",i
+					print("Connection command NOT executed properly , attempt ",i)
 					logger.info('Connection command NOT executed properly , attempt %d ',i)							
 				ssids=connectedssid()
 		
@@ -865,23 +869,23 @@ def connect_network(internetcheck=False, backtoAP=False):
 			else:
 				ssid=""
 				logger.info('NO connected SSID')
-			print "Connected to the SSID ", ssid
+			print("Connected to the SSID ", ssid)
 			logger.info('Connected SSID: %s -- ', ssid)		
 			addIP("wlan0")	
 
 		else:
-			print "already connected to the SSID ", ssid
+			print("already connected to the SSID ", ssid)
 		
 		
 		if len(ssids)==0:
-			print "No SSID established, fallback to AP mode"
+			print("No SSID established, fallback to AP mode")
 			# go back and connect in Access point Mode
 			logger.info('No Wifi Network connected, no AP connected, going back to Access Point mode')
 			connect_AP()
 			connected=False
 		else:
 			logger.info('Connected to Wifi Network %s' , ssid )
-			print 'Connected to Wifi Network '  , ssid 
+			print('Connected to Wifi Network '  , ssid) 
 
 		
 			
@@ -889,15 +893,15 @@ def connect_network(internetcheck=False, backtoAP=False):
 			if internetcheck:
 				connected=check_internet_connection(3)
 				if connected:
-					print "Google is reacheable !"
+					print("Google is reacheable !")
 					logger.info('Google is reacheable ! ')
 					#send first mail
-					print "Send first mail !"
+					print("Send first mail !")
 					logger.info('Send first mail ! ')
 					emailmod.sendallmail("alert", "System has been reconnected to wifi network")				
 				else:
 					if backtoAP: # in case connection to Internet not working
-						print "Connectivity problem with WiFi network " ,ssid[0] , "going back to wifi access point mode"
+						print("Connectivity problem with WiFi network " ,ssid[0] , "going back to wifi access point mode")
 						logger.info('Connectivity problem with WiFi network, %s, gong back to wifi access point mode' ,ssid )
 						connect_AP()
 			else:
@@ -906,9 +910,9 @@ def connect_network(internetcheck=False, backtoAP=False):
 			# ALL below not needed anymore since I disabled the NTP network time protocal daemon *****
 
 	else:
-		print "No Saved Wifi Network available"
+		print("No Saved Wifi Network available")
 		logger.info('No Saved Wifi Network available')	
-		print "try to fallback to AP mode"
+		print("try to fallback to AP mode")
 		# go back and connect in Access point Mode
 		logger.info('Going back to Access Point mode')
 		connect_AP()
@@ -919,7 +923,7 @@ def connect_network(internetcheck=False, backtoAP=False):
 
 def internet_on_old():
 	try:
-		response=urllib2.urlopen('http://www.google.com',timeout=1)
+		response=urllib.request.urlopen('http://www.google.com',timeout=1)
 		logger.info('Internet status ON')
 		return True
 	except:
@@ -932,10 +936,10 @@ def internet_on():
 	for site in websites:
 		for timeout in timeouts:
 			try:
-				response=urllib2.urlopen(site,timeout=timeout)
+				response=urllib.request.urlopen(site,timeout=timeout)
 				return True
 			except:
-				print "internet_on: Error to connect"
+				print("internet_on: Error to connect")
 	return False
 
 def check_internet_connection(ntimes=3):
@@ -960,22 +964,23 @@ def get_external_ip():
 	try:
 		proc=subprocess.Popen(shlex.split(cmd),stdout=subprocess.PIPE)
 		out,err=proc.communicate()
+		out=out.decode()
 		logger.info('Got reply from openDNS')
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "External IP Error "
+		print("External IP Error ")
 		logger.error('Error to get External IP')
 		return ""
 	logger.info('Reply from openDNS: %s', out)
 	isaddress , ipaddr = IPv4fromString(out)
 	if not isaddress:
-		print "External IP Error "
+		print("External IP Error ")
 		logger.error('Error to get external IP , wrong syntax')
 		return ""
 	
 	
-	print "External IP address " , ipaddr
+	print("External IP address " , ipaddr)
 	logger.info("External IP address %s" , ipaddr)
 	#myip = urllib2.urlopen("http://myip.dnsdynamic.org/").read()
 	#print myip
@@ -992,16 +997,16 @@ def get_local_ip():
 	cmd = ["hostname -I"]	
 	try:
 		ipaddrlist = subprocess.check_output(cmd, shell=True).decode('utf-8')
-		print "IP addresses " , ipaddrlist
+		print("IP addresses " , ipaddrlist)
 		#hostname -I
 		#s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		#s.connect(("gmail.com",80))
 		#ipaddr=s.getsockname()[0]
 		#s.close()			
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "Local IP Error "
+		print("Local IP Error ")
 		logger.error('Error to get local IP')
 		return ""
 	global IPADDRESS
@@ -1009,10 +1014,10 @@ def get_local_ip():
 		return IPADDRESS
 	isaddress , ipaddr = IPv4fromString(ipaddrlist)
 	if not isaddress:
-		print "Local IP Error with Sintax"
+		print("Local IP Error with Sintax")
 		logger.error('Error to get local IP, wrong suntax')
 		return ""
-	print ipaddr
+	print(ipaddr)
 	return ipaddr
 	
 	
@@ -1021,9 +1026,9 @@ def get_local_ip_list():
 	try:
 		cmd_output = subprocess.check_output(cmd, shell=True).decode('utf-8')	
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "Local IP Error "
+		print("Local IP Error ")
 		logger.error('Error to get local IP')
 		return ""
 	ipaddrlist=[]
@@ -1032,21 +1037,21 @@ def get_local_ip_list():
 		isaddress , ipaddr = IPv4fromString(ipstrings)
 		if isaddress:
 			ipaddrlist.append(ipaddr) 
-			print ipaddr
+			print(ipaddr)
 	return ipaddrlist
 	
 def get_local_ip_raw():
 	cmd = ["hostname -I"]	
 	try:
 		ipaddrlist = subprocess.check_output(cmd, shell=True).decode('utf-8')
-		print "IP addresses " , ipaddrlist			
+		print("IP addresses " , ipaddrlist)			
 	except:
-		print "error to execute the command" , cmd
+		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
-		print "Local IP Error "
+		print("Local IP Error ")
 		logger.error('Error to get local IP')
 		return ""
-	print ipaddrlist
+	print(ipaddrlist)
 	return ipaddrlist
 
 
@@ -1062,11 +1067,11 @@ def multiIPv4fromString(ipaddrlist):
 	return addresslist
 
 def IPv4fromString(ip_string): #extract the first valid IPv4 address in the string
-	print " Start -- "
+	print(" Start -- ")
 	iprows=ip_string.split('\n')
 	ip_address=""
 	for ip in iprows:
-		print "String IP address ", ip
+		print("String IP address ", ip)
 		countdigit=0
 		countdot=0
 		start=-1
@@ -1086,7 +1091,7 @@ def IPv4fromString(ip_string): #extract the first valid IPv4 address in the stri
 							thestring=ip[start:inde]
 							if checkstringIPv4(thestring):
 								ip_address=thestring
-								print "IP extracted succesfully " , ip_address
+								print("IP extracted succesfully " , ip_address)
 								return True , ip_address
 						
 						start=-1	
@@ -1103,14 +1108,14 @@ def IPv4fromString(ip_string): #extract the first valid IPv4 address in the stri
 				thestring=ip[start:inde]
 				if checkstringIPv4(thestring):
 					ip_address=thestring
-					print "IP extracted succesfully " , ip_address
+					print("IP extracted succesfully " , ip_address)
 					return True, ip_address
 
 	return False , ""
 	
 
 def checkstringIPv4(thestring):
-	print thestring
+	print(thestring)
 	numbers=thestring.split(".")
 	if len(numbers)==4:
 		try:
@@ -1139,8 +1144,8 @@ if __name__ == '__main__':
 	ip_string="sad 23.3.2.1 ceh ca2cchio 12.2.0.12ma chi siete"
 	ip_address=""
 	isok, string = IPv4fromString(ip_string)
-	print isok
-	print "the extracted string ",  string
+	print(isok)
+	print("the extracted string ",  string)
 	
-	print "NEXT TEST"
-	print checkGWsubnet("wlan0")
+	print("NEXT TEST")
+	print(checkGWsubnet("wlan0"))

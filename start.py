@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-Release="1.16a"
+from __future__ import print_function
+from builtins import str
+from builtins import range
+Release="3.19c"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -26,7 +29,7 @@ exc_logger = logging.getLogger('exception')
 
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash, _app_ctx_stack, jsonify , Response
+	 render_template, flash, _app_ctx_stack, jsonify , Response
 
 from datetime import datetime,date,timedelta
 import systemtimeMod
@@ -69,6 +72,7 @@ import cameradbmod
 import sysconfigfilemod
 import debuggingmod
 import filemanagementmod
+import weatherAPImod
 
 
 
@@ -78,7 +82,7 @@ from camera_pi import Camera
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 application = Flask(__name__)
 application.config.from_object('flasksettings') #read the configuration variables from a separate module (.py) file, this file is mandatory for Flask operations
-print "-----------------" , basicSetting.data["INTRO"], "--------------------"
+print("-----------------" , basicSetting.data["INTRO"], "--------------------")
 
 
 MYPATH=""
@@ -96,8 +100,8 @@ MYPATH=""
 
 #setup log file ---------------------------------------
 
-print "starting new log session", datetime.now().strftime("%Y-%m-%d %H:%M:%S") 
-logger.info('Start logging -------------------------------------------- %s' , datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+print("starting new log session", datetime.now().strftime("%Y-%m-%d %H:%M:%S")) 
+logger.info('Start logging -------------------------------------------- %s Version Release: %s' , datetime.now().strftime("%Y-%m-%d %H:%M:%S"),Release)
 logger.debug('This is a sample DEBUG message')
 logger.info('This is a sample INFO message')
 logger.warning('This is a sample WARNING message')
@@ -143,11 +147,11 @@ def initallGPIOpins():
 #initiate the GPIO OUT pins
 initallGPIOpins()
 
-print "Finish interrupt initialization"
+print("Finish interrupt initialization")
 
 
 # GET path ---------------------------------------------
-print "path ",hardwaremod.get_path()
+print("path ",hardwaremod.get_path())
 MYPATH=hardwaremod.get_path()
 
 # RUN ALL consistency chacks ------------------------
@@ -163,10 +167,10 @@ networkmod.stopNTP()
 networkmod.disableNTP()
 networkmod.CheckandUnlockWlan()
 try:
-	print "start networking"
+	print("start networking")
 	isconnecting=networkmod.init_network() # this includes also the clock check and scheduler setup
 except:
-	print "No WiFi available"
+	print("No WiFi available")
 	
 #scheduler setup---------------------
 if not isconnecting:
@@ -195,17 +199,17 @@ if not isconnecting:
 	
 @application.teardown_appcontext
 def close_db_connection(exception):
-    """Closes the database again at the end of the request."""
-    top = _app_ctx_stack.top
-    if hasattr(top, 'sqlite_db'):
-        top.sqlite_db.close()
+	"""Closes the database again at the end of the request."""
+	top = _app_ctx_stack.top
+	if hasattr(top, 'sqlite_db'):
+		top.sqlite_db.close()
 
 
 @application.route('/')
 def show_entries():
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "preparing home page"
+	print("preparing home page")
 	currentday=date.today()
 			
 	#Picture panel------------------------------------
@@ -555,7 +559,7 @@ def network():
 	savedssid=[]	
 	filenamelist="wifi networks"
 	
-	print "visualizzazione menu network:"
+	print("visualizzazione menu network:")
 
 
 	iplocal=networkmod.get_local_ip()
@@ -583,10 +587,10 @@ def network():
 def wificonfig():
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "method " , request.method
+	print("method " , request.method)
 	if request.method == 'GET':
 		ssid = request.args.get('ssid')
-		print " argument = ", ssid
+		print(" argument = ", ssid)
 
 	if request.method == 'POST':
 		ssid = request.form['ssid']
@@ -599,16 +603,16 @@ def wificonfig():
 			return redirect(url_for('login', message="Please wait until the WiFi disconnect and reconnect"))
 			
 		elif request.form['buttonsub'] == "Forget":
-			print "forget"		
+			print("forget")		
 			networkmod.waitandremovewifi(7,ssid)
-			print "remove network ", ssid
-			print "Try to connect AP"
+			print("remove network ", ssid)
+			print("Try to connect AP")
 			networkmod.waitandconnect_AP(9)
 			session.pop('logged_in', None)
 			return redirect(url_for('login', message="Please wait until the WiFi disconnect and reconnect"))
 			
 		else:
-			print "cancel"
+			print("cancel")
 			return redirect(url_for('network'))
 
 	return render_template('wificonfig.html', ssid=ssid)
@@ -632,7 +636,7 @@ def imageshow():
 		if actiontype=="DeleteAll":
 			# delete all files in the folder
 			deletedfilenumber=hardwaremod.deleteallpictures(MYPATH)
-			print " picture files deleted " , deletedfilenumber
+			print(" picture files deleted " , deletedfilenumber)
 			logger.info(' all image files deleted ')
 			
 		else:
@@ -820,7 +824,7 @@ def doit():
 	if not session.get('logged_in'):
 		ret_data = {"answer":"Login Needed"}
 		return jsonify(ret_data)
-    # send command to the actuator for test
+	# send command to the actuator for test
 	cmd=""
 	sendstring=""
 	recdata=[]
@@ -839,7 +843,7 @@ def doit():
 			testpulsetime="20"
 		element=request.args['element']		
 
-		print "starting pulse test " , testpulsetime
+		print("starting pulse test " , testpulsetime)
 		answer=selectedplanmod.activateandregister(element,testpulsetime)
 		ret_data = {"answer": answer}
 
@@ -847,13 +851,13 @@ def doit():
 		idx=1
 		element=request.args['element']		
 
-		print "stop pulse  " , element
+		print("stop pulse  " , element)
 		answer=hardwaremod.stoppulse(element)
 		ret_data = {"answer": answer}
 
 
 	elif name=="servo2":
-		print "want to test servo"
+		print("want to test servo")
 		idx=1
 		if idx < len(argumentlist):
 			steps=int(argumentlist[idx])
@@ -877,7 +881,7 @@ def doit():
 
 
 	elif name=="stepper":
-		print "want to test stepper"
+		print("want to test stepper")
 		idx=1
 		if idx < len(argumentlist):
 			steps=argumentlist[idx]
@@ -892,7 +896,7 @@ def doit():
 
 
 	elif name=="setstepper":
-		print "want to set stepper position"
+		print("want to set stepper position")
 		idx=1
 		if idx < len(argumentlist):
 			newposition=argumentlist[idx]
@@ -903,7 +907,7 @@ def doit():
 		ret_data = {"answer": newposition}
 
 	elif name=="hbridge":
-		print "want to test hbridge"
+		print("want to test hbridge")
 		idx=1
 		if idx < len(argumentlist):
 			steps=argumentlist[idx]
@@ -919,7 +923,7 @@ def doit():
 
 
 	elif name=="sethbridge":
-		print "want to set hbridge position"
+		print("want to set hbridge position")
 		idx=1
 		if idx < len(argumentlist):
 			newposition=argumentlist[idx]
@@ -933,7 +937,7 @@ def doit():
 
 
 	elif name=="photo":
-		print "want to test photo"
+		print("want to test photo")
 
 		idx=1
 		if idx < len(argumentlist):
@@ -961,7 +965,7 @@ def doit():
 		mailaddress=request.args['address']
 		mailtitle=request.args['title']
 		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,mailaname,hardwaremod.HW_CTRL_CMD)
-		print "want to test mail, address=" , mailaddress , " Title=" , mailtitle
+		print("want to test mail, address=" , mailaddress , " Title=" , mailtitle)
 		issent=emailmod.send_email_main(mailaddress,mailtitle,cmd,"report","Periodic system report generated automatically")
 		if issent:
 			ret_data = {"answer": "Mail sent"}
@@ -982,7 +986,7 @@ def doit():
 			else:
 				answer="ready"
 		elif element=="setHWClock":
-			print "datetime Local ->" ,datetime
+			print("datetime Local ->" ,datetime)
 			logger.info('Clock has been manually changed')
 			answer1=clockmod.setsystemclock(datetime)
 			answer2=clockmod.setHWclock(datetime)
@@ -991,11 +995,32 @@ def doit():
 
 		ret_data = {"answer":answer, "value":datetime}
 
+	elif name=="APItesting":
+		answer="nothing to declare"
+		testtype=request.args['element']
+		if testtype=="createURL":
+			#print " creating URL"
+			URLlist=weatherAPImod.CreateQueryUrlall()
+			#print " The URL" , URLlist
+			answer='\n'.join(URLlist)
+
+		elif testtype=="parse":
+			print(" creating URL")
+			isok , result=weatherAPImod.CalculateRainMultiplier()
+			print(" result" , result)
+			answer = str(result)
+
+
+		ret_data = {"answer": answer}
+
+
+
+
 	elif name=="timezone":
 		element=request.args['element']
 		timezone=request.args['timezone']
 		if element=="settimezone":
-			print "Set timezone ->" ,timezone
+			print("Set timezone ->" ,timezone)
 			logger.info('Time Zone has been manually changed')
 			answer=clockmod.settimezone(timezone)
 			clockdbmod.changesavesetting("timezone",timezone)
@@ -1010,13 +1035,13 @@ def saveit():
 	if not session.get('logged_in'):
 		ret_data = {"answer":"Login needed"}
 		return jsonify(ret_data)
-    # send command to the actuator for test
+	# send command to the actuator for test
 	cmd=""
 	sendstring=""
 	recdata=[]
 	ret_data={}
 	name=request.args['name']
-	print "Saving .." , name
+	print("Saving .." , name)
 	if name=="mail":
 		mailaname=request.args['element']
 		mailaddress=request.args['address']
@@ -1038,7 +1063,7 @@ def saveit():
 		
 
 	elif name=="setsensor":
-		print "want to save sensor calibration"
+		print("want to save sensor calibration")
 		element=request.args['element']		
 			
 		paramnamelist=request.args.getlist('paramname')
@@ -1058,7 +1083,7 @@ def saveit():
 		phototime=""
 		phototime=request.args['time']
 
-		print "save photo setting, time=" , phototime
+		print("save photo setting, time=" , phototime)
 		hwname=hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_INFO_NAME)
 		hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_FUNC_TIME,phototime)
 		#hardwaremod.changesavecalibartion(hwname,hardwaremod.HW_CTRL_LOGIC,vdirection)
@@ -1083,12 +1108,12 @@ def saveit():
 	elif name=="light1":
 		lighttime=""
 		lighttime=request.args['time']
-		print "save light setting, time=" , lighttime
+		print("save light setting, time=" , lighttime)
 		hardwaremod.changesavecalibartion(name,hardwaremod.HW_FUNC_TIME,lighttime)
 
 
 	ret_data = {"answer": "saved"}
-	print "The actuator ", ret_data
+	print("The actuator ", ret_data)
 	return jsonify(ret_data)
  
  
@@ -1098,12 +1123,12 @@ def downloadit():
 	if not session.get('logged_in'):
 		ret_data = {"answer":"Login Needed"}
 		return jsonify(ret_data)
-    # check the download destination folder exist otherwise create it
+	# check the download destination folder exist otherwise create it
 	folderpath=os.path.join(MYPATH, "static")
 	folderpath=os.path.join(folderpath, "download")
 	if not os.path.exists(folderpath):
 		os.makedirs(folderpath)
-    
+	
 	recdata=[]
 	ret_data={}
 	
@@ -1114,7 +1139,7 @@ def downloadit():
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
 		dst=os.path.join(folderpath, dstfilename+".txt")
-		print "prepare file for download, address=" , filename, "destination " , dst
+		print("prepare file for download, address=" , filename, "destination " , dst)
 		try:
 			shutil.copyfile(filename, dst)
 			answer="ready"
@@ -1137,7 +1162,7 @@ def downloadit():
 		for dstfilename in sortedlist:
 			dst=os.path.join(folderpath, dstfilename+".txt")
 			source=os.path.join(logfolder, dstfilename)
-			print "prepare file for download, address=" , source, "destination " , dst
+			print("prepare file for download, address=" , source, "destination " , dst)
 			try:
 				shutil.copyfile(source, dst)
 				answer="ready"
@@ -1151,7 +1176,7 @@ def downloadit():
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
 		dst=os.path.join(folderpath, dstfilename+".txt")
-		print "prepare file for download, address=" , filename, "destination " , dst
+		print("prepare file for download, address=" , filename, "destination " , dst)
 		try:
 			shutil.copyfile(filename, dst)
 			answer="ready"
@@ -1167,7 +1192,7 @@ def downloadit():
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
 		dst=os.path.join(folderpath,  hardwaremod.HWDATAFILENAME)
-		print "prepare file for download, address=" , filename, "destination " , dst
+		print("prepare file for download, address=" , filename, "destination " , dst)
 		try:
 			shutil.copyfile(filename, dst)
 			answer="ready"
@@ -1181,7 +1206,7 @@ def downloadit():
 		folderpath=os.path.join(MYPATH, "static")
 		folderpath=os.path.join(folderpath, "download")
 		dst=os.path.join(folderpath, dstfilename)
-		print "prepare file for download, destination " , dst
+		print("prepare file for download, destination " , dst)
 		# create the file using the tail command
 		isok=debuggingmod.createfiletailsyslog(dst)
 		if not isok:
@@ -1201,11 +1226,25 @@ def downloadit():
 		dstfilenamelist=[]
 		dstfilenamelist.append(dstfilename)		
 		
-		
+	elif name=="weatherAPIdata": # configuration of the weatherAPI page
+		dstfilename=weatherAPImod.weatherAPIdbmod.DATAFILENAME
+		filename=os.path.join(hardwaremod.DATABASEPATH, dstfilename)
+		folderpath=os.path.join(MYPATH, "static")
+		folderpath=os.path.join(folderpath, "download")
+		dst=os.path.join(folderpath,  dstfilename)
+		print("prepare file for download, address=" , filename, "destination " , dst)
+		try:
+			shutil.copyfile(filename, dst)
+			answer="ready"
+		except:
+			answer="problem copying file"
+		dstfilenamelist=[]
+		dstfilenamelist.append("download/"+dstfilename)	
+
 	
 
 	ret_data = {"answer": answer, "filename": dstfilenamelist}
-	print "The actuator ", ret_data
+	print("The actuator ", ret_data)
 	return jsonify(ret_data)
 	
 @application.route('/testit/', methods=['GET'])
@@ -1220,11 +1259,11 @@ def testit():
 	name=request.args['name']
 	if name=="testing":
 		answer="done"
-		print "testing"
-		answer=functiontest()
+		print("testing")
+		answer=Autotesting()
 
 	ret_data = {"answer": answer}
-	print "The actuator ", ret_data
+	print("The actuator ", ret_data)
 	return jsonify(ret_data)
 	
 	
@@ -1256,7 +1295,7 @@ def systemmailsetting():
 		#print " here we are"
 		reqtype = request.form['button']
 		if reqtype=="save":
-			print "saving email credentials"
+			print("saving email credentials")
 			address=request.form['address']
 			password=request.form['password']
 			isok1=emaildbmod.changesavesetting('address',address)
@@ -1280,10 +1319,10 @@ def networksetting():
 	Fake_password="AP-password"
 	
 	if request.method == 'POST':
-		print " here we are at network setting"
+		print(" here we are at network setting")
 		reqtype = request.form['button']
 		if reqtype=="save":
-			print "saving network advanced setting"
+			print("saving network advanced setting")
 			gotADDRESS=request.form['IPADDRESS']
 			AP_SSID=request.form['AP_SSID']
 			AP_PASSWORD=request.form['AP_PASSWORD']
@@ -1315,7 +1354,7 @@ def networksetting():
 				
 							
 				
-				print "save in network file in database"
+				print("save in network file in database")
 				networkdbmod.changesavesetting('LocalIPaddress',IPADDRESS)
 				networkdbmod.changesavesetting('LocalAPSSID',AP_SSID)
 				networkdbmod.changesavesetting('APtime',AP_TIME)			
@@ -1326,7 +1365,7 @@ def networksetting():
 				if AP_PASSWORD!=Fake_password:
 					# change password in the HOSTAPD config file
 					sysconfigfilemod.hostapdsavechangerow("wpa_passphrase",AP_PASSWORD)
-					print "password changed"
+					print("password changed")
 				else:
 					AP_PASSWORD=""
 					
@@ -1393,12 +1432,12 @@ def show_about():
 def show_Calibration():  #on the contrary of the name, this show the setting menu
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu Setting:"
+	print("visualizzazione menu Setting:")
 	if request.method == 'POST':
 		requesttype=request.form['buttonsub']
 		if requesttype=="delete":
 			#remove the calibration file and read the default
-			print "restore hardware default file"
+			print("restore hardware default file")
 			#hardwaremod.restoredefault()
 			wateringdbmod.restoredefault()
 			fertilizerdbmod.restoredefault()
@@ -1420,7 +1459,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 			return hardwaresettingeditfield()	
 			
 		if requesttype=="uploadfile":
-			print "upload"	
+			print("upload")	
 			
 			
 			if 'file' not in request.files:
@@ -1431,18 +1470,19 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 					flash('No file selected')
 				else:
 					if ".zip" in f.filename:
+						print( " ZIP filename ", f.filename)
 						# control if the folder exist otherwise create it
 						uploadfolder=application.config['UPLOAD_FOLDER']
 						fullfolderpath=os.path.join(MYPATH, uploadfolder)
 						if not os.path.exists(fullfolderpath):
 							os.makedirs(fullfolderpath)
-							print " folder has been created"
+							print(" folder has been created")
 									
-						f = request.files['file']  
+ 
 						#f.save(f.filename)  
 						f.save(os.path.join(uploadfolder, f.filename))
-						filemanagementmod.restoreconfigfilefromzip(fullfolderpath)
-						print "Align the data to the new files config"
+						filemanagementmod.restoreconfigfilefromzip(fullfolderpath,f.filename)
+						print("Align the data to the new files config")
 						#align the files and memory 
 						runallreadfile()
 						# align the data
@@ -1520,7 +1560,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	#timezone
 	countries=countryinfo.countries
 	timezone=clockdbmod.gettimezone()
-	print "Current timezone ->", timezone
+	print("Current timezone ->", timezone)
 	
 	
 	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
@@ -1530,7 +1570,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 def setinputcalibration():  # set the hbridge zero point
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu sensor calibration:"
+	print("visualizzazione menu sensor calibration:")
 	if request.method == 'POST':
 		requesttype=request.form['buttonsub']
 		if requesttype=="cancel":
@@ -1556,7 +1596,7 @@ def setinputcalibration():  # set the hbridge zero point
 def showdeviceaddresseslist():  # set the hbridge zero point
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu :"
+	print("visualizzazione menu :")
 	if request.method == 'POST':
 		requesttype=request.form['buttonsub']
 		if requesttype=="cancel":
@@ -1572,7 +1612,7 @@ def showdeviceaddresseslist():  # set the hbridge zero point
 def setstepper():  # set the stepper zero point
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu set stepper:"
+	print("visualizzazione menu set stepper:")
 	if request.method == 'POST':
 		requesttype=request.form['buttonsub']
 		if requesttype=="cancel":
@@ -1596,7 +1636,7 @@ def setstepper():  # set the stepper zero point
 def sethbridge():  # set the hbridge zero point
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu set hbridge:"
+	print("visualizzazione menu set hbridge:")
 	if request.method == 'POST':
 		requesttype=request.form['buttonsub']
 		if requesttype=="cancel":
@@ -1654,7 +1694,7 @@ def show_sensordata():
 	hygrosensornumlistwithoutactive=[]
 	
 	if actiontype=="delete":
-		print "delete all records"
+		print("delete all records")
 		sensordbmod.deleteallrow()
 		actuatordbmod.deleteallrow()
 		actiontype="show"
@@ -1781,15 +1821,15 @@ def wateringplan():
 		if elementlist:
 			selectedelement=elementlist[0]	
 	
-	print " watering plan - selectedelement ", selectedelement
+	print(" watering plan - selectedelement ", selectedelement)
 	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
-		print actiontype
+		print(actiontype)
 		
 		if actiontype == "save":
 			element=request.form['element']
-			print "save il water form...:" , element
+			print("save il water form...:" , element)
 			selectedelement=element	
 			
 			
@@ -1815,7 +1855,7 @@ def wateringplan():
 			selectedplanmod.resetmastercallback()
 			
 		if actiontype == "advconfig":	
-			print "open advanced setting"
+			print("open advanced setting")
 			return redirect('/Advanced/')
 			
 		
@@ -1845,11 +1885,11 @@ def autowatering():
 	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
-		print actiontype
+		print(actiontype)
 		
 		if actiontype == "save":
 			element=request.form['element']
-			print "save il water form...:" , element
+			print("save il water form...:" , element)
 			selectedelement=element	
 			
 			
@@ -1872,14 +1912,14 @@ def autowatering():
 			autowateringdbmod.replacerow(element,dicttemp)		
 			flash('Table has been saved')
 
-			print "Reset the Cycle:" , element
+			print("Reset the Cycle:" , element)
 			autowateringmod.cyclereset(element)
 			#selectedplanmod.resetmastercallback()
 			
 			
 		if actiontype == "reset":
 			element=request.form['element']
-			print "Reset the Cycle:" , element
+			print("Reset the Cycle:" , element)
 			selectedelement=element	
 			autowateringmod.cyclereset(element)
 			
@@ -1943,11 +1983,11 @@ def automation():
 	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
-		print actiontype
+		print(actiontype)
 		
 		if actiontype == "save":
 			element=request.form['element']
-			print "save il form...:" , element
+			print("save il form...:" , element)
 			selectedelement=element	
 	
 			
@@ -1970,14 +2010,14 @@ def automation():
 			automationdbmod.replacerow(element,dicttemp)		
 			flash('Table has been saved')
 			
-			print "Reset the Cycle:" , element
+			print("Reset the Cycle:" , element)
 			automationmod.cyclereset(element)		
 			#selectedplanmod.resetmastercallback()
 			
 			
 		if actiontype == "reset":
 			element=request.form['element']
-			print "Reset the Cycle:" , element
+			print("Reset the Cycle:" , element)
 			selectedelement=element	
 			automationmod.cyclereset(element)
 			
@@ -2041,11 +2081,11 @@ def interrupt():
 	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
-		print actiontype
+		print(actiontype)
 		
 		if actiontype == "save":
 			element=request.form['element']
-			print "save il form...:" , element
+			print("save il form...:" , element)
 			selectedelement=element	
 
 			#add proper formatting
@@ -2073,7 +2113,7 @@ def interrupt():
 			
 		if actiontype == "reset":
 			element=request.form['element']
-			print "Reset the Cycle:" , element
+			print("Reset the Cycle:" , element)
 			selectedelement=element	
 			interruptmod.cyclereset(element)
 			
@@ -2107,7 +2147,7 @@ def interrupt():
 		#{"cyclestartdate":datetime.utcnow(),"lastwateringtime":datetime.utcnow(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
 		cyclestatuslist.append(cyclestatus)
 
-	print "ready to go to html"
+	print("ready to go to html")
 
 		
 	return render_template("interrupt.html", title=title,selectedelement=selectedelement,modelist=modelist,sensormodelist=sensormodelist,followupactionlist=followupactionlist,sensorlist=sensorlist,watersettinglist=watersettinglist, cyclestatuslist=cyclestatuslist, alertlist=alertlist, timetriggerlist=timetriggerlist, triggermode=triggermode)
@@ -2152,11 +2192,11 @@ def fertilizerplan():
 	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
-		print actiontype
+		print(actiontype)
 		
 		if actiontype == "save":
 			element=request.form['element']
-			print "save il fertilizer form...:" , element
+			print("save il fertilizer form...:" , element)
 			selectedelement=element
 			#add proper formatting
 			dicttemp={}
@@ -2188,7 +2228,7 @@ def fertilizerplan():
 			flash('Table has been saved')
 
 		if actiontype == "advconfig":	
-			print "open advanced setting"
+			print("open advanced setting")
 			return redirect('/Advanced/')
 			
 	
@@ -2221,16 +2261,16 @@ def advanced():
 		selectedelement=elementlist[0]
 	#print  "table  " ,table
 
-    
+	
 	if request.method == 'POST':	
 		actiontype=request.form['actionbtn']
-		print actiontype
+		print(actiontype)
 		
 		if actiontype == "save":
 
 
 			element=request.form['element']
-			print "save advanced form...:" , element
+			print("save advanced form...:" , element)
 			selectedelement=element	
 
 
@@ -2269,7 +2309,7 @@ def advanced():
 			advancedmod.replacerow(element,dicttemp)
 			# reset the scheduler
 			selectedplanmod.resetmastercallback()
-			print "Table saved"
+			print("Table saved")
 			flash('Table has been saved')
 			
 			table=advancedmod.gettable()
@@ -2279,16 +2319,16 @@ def advanced():
 
 		if actiontype == "setdefault":	
 			advancedmod.restoredefault()
-			print "default restored"
+			print("default restored")
 			flash('Default values have been set')
 			
 		if actiontype == "goback":	
-			print "open watering plan setting"
+			print("open watering plan setting")
 			return redirect('/wateringplan/')
-    
-    
-    
-    
+	
+	
+	
+	
 	return render_template("advanced.html", title=title,paramlist=paramlist,elementlist=elementlist,table=table,tablehead=tablehead,selectedelement=selectedelement)
 
 
@@ -2302,7 +2342,7 @@ def login():
 	password=logindbmod.getpassword()
 	
 	if request.method == 'POST':
-		print " LOGIN " , username
+		print(" LOGIN " , username)
 		reqtype = request.form['button']
 		if reqtype=="login":
 			usernameform=request.form['username'].lower()
@@ -2315,11 +2355,11 @@ def login():
 				return redirect(url_for('show_entries'))
 
 		elif reqtype=="change":
-			print "Display change password interface"
+			print("Display change password interface")
 			change=True
 						
 		elif reqtype=="save":
-			print "saving new login password"
+			print("saving new login password")
 			usernameform=request.form['username'].lower()
 			passwordform=request.form['password']
 			newpassword=request.form['newpassword']
@@ -2347,23 +2387,23 @@ def login():
 
 @application.route('/logout')
 def logout():
-    session.pop('logged_in', None)
-    #flash('You were logged out')
-    return redirect(url_for('show_entries'))
+	session.pop('logged_in', None)
+	#flash('You were logged out')
+	return redirect(url_for('show_entries'))
 
 
 @application.route('/HardwareSetting/', methods=['GET', 'POST'])
 def hardwaresetting():  
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu hardwareSetting:"
+	print("visualizzazione menu hardwareSetting:")
 	
 	fields=hardwaremod.HWdataKEYWORDS
 	hwdata=hardwaremod.IOdata
 	debugmode=DEBUGMODE
 
 	tablehead=[]
-	for key, value in fields.iteritems():
+	for key, value in fields.items():
 		tablehead.append(key)
 	#print "tablehead ", tablehead
 	
@@ -2384,12 +2424,12 @@ def hardwaresetting():
 	if request.method == 'POST':
 		requestinfo=request.form['buttonsub']
 		requesttype=requestinfo.split("_")[0]
-		print "requesttype "  , requestinfo , " " , requesttype
+		print("requesttype "  , requestinfo , " " , requesttype)
 		
 				
 				
 		if requesttype=="applyHWpreset":
-			print "Apply HW setting"
+			print("Apply HW setting")
 			selectedpath=""
 			selectedfilename=request.form['HWfilelist']
 			for items in HWfilelist:
@@ -2414,7 +2454,7 @@ def hardwaresetting():
 
 					answer="problem copying file"
 			else:
-				print "No file was selected"				
+				print("No file was selected")				
 				answer="No file selected"
 				
 				
@@ -2440,25 +2480,25 @@ def hardwaresetting():
 def hardwaresettingedit():  
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu hardwareSettingedit:"
+	print("visualizzazione menu hardwareSettingedit:")
 
 	
 	fields=hardwaremod.HWdataKEYWORDS
 
 
 	tablehead=[]
-	for key, value in fields.iteritems():
+	for key, value in fields.items():
 		tablehead.append(key)
 	#print "tablehead ", tablehead
 
 	if request.method == 'POST':
 		requestinfo=request.form['buttonsub']
 		requesttype=requestinfo.split("_")[0]
-		print "requesttype POST "  , requestinfo , " " , requesttype
+		print("requesttype POST "  , requestinfo , " " , requesttype)
 
 		if requestinfo=="edit":
 			#request coming from previous page, need init table from zero
-			print "the temporary Tables have been reset"
+			print("the temporary Tables have been reset")
 			#initialize IOdatarow
 			hardwaremod.additionalRowInit()
 
@@ -2467,7 +2507,7 @@ def hardwaresettingedit():
 
 				
 		if requesttype=="confirm":
-			print "Confirm table"
+			print("Confirm table")
 			# Copy the hardwaremod IOdatatemp to IOdata and save it
 			hardwaremod.IOdatafromtemp()	
 				
@@ -2490,10 +2530,10 @@ def hardwaresettingedit():
 			strposition=len(requesttype)
 			name=requestinfo[strposition+1:]
 			#remove the row in IOdatatemp
-			print " Delete ", name
+			print(" Delete ", name)
 			if hardwaremod.deleterow(name):
 				flash('Row has been correctly deleted')
-				print " deleted"
+				print(" deleted")
 			else:
 				flash('Errors to delete the row','danger')
 			
@@ -2507,7 +2547,7 @@ def hardwaresettingedit():
 				ret_data = {"answer":"Added"}
 				hardwaremod.IOdatarow[hardwaremod.HW_INFO_NAME]=""
 			else:
-				print "problem ", message
+				print("problem ", message)
 				flash(message,'danger')
 				ret_data = {"answer":"Error"}
 
@@ -2523,7 +2563,7 @@ def hardwaresettingedit():
 def hardwaresettingeditfield():  
 	if not session.get('logged_in'):
 		return render_template('login.html',error=None, change=False)
-	print "visualizzazione menu hardwareSettingedit:"
+	print("visualizzazione menu hardwareSettingedit:")
 
 	
 	fields=hardwaremod.HWdataKEYWORDS
@@ -2539,7 +2579,7 @@ def hardwaresettingeditfield():
 	if request.method == 'POST':
 		requestinfo=request.form['buttonsub']
 		requesttype=requestinfo.split("_")[0]
-		print "hardwaresettingeditfield requesttype POST "  , requestinfo , " " , requesttype
+		print("hardwaresettingeditfield requesttype POST "  , requestinfo , " " , requesttype)
 
 		#if requestinfo=="editnames":
 			#request coming from previous page, need init table from zero
@@ -2551,7 +2591,7 @@ def hardwaresettingeditfield():
 
 				
 		if requesttype=="confirm":
-			print "Confirm table"
+			print("Confirm table")
 			# get the diferences in name field
 			newnames=[]
 			hardwaremod.getfieldvaluelisttemp("name",newnames)
@@ -2606,11 +2646,11 @@ def HWsettingEditAjax():
 		return jsonify(ret_data)
 
 	
-    
+	
 	recdata=[]
 	ret_data={}
 	if request.method == 'POST':
-		print "we are in the HWsettingEdit"
+		print("we are in the HWsettingEdit")
 		pk = request.form['pk']
 		value = request.form['value']
 		name = request.form['name']
@@ -2632,7 +2672,7 @@ def HWsettingEditAjax():
 
 	notok=False
 	if isok:
-		print "data is OK"
+		print("data is OK")
 		#modify the IOdatatemp matrix
 		if IOname=="addrow":
 			hardwaremod.IOdatarow[name]=value
@@ -2648,9 +2688,220 @@ def HWsettingEditAjax():
 		ret_data = {"answer": message}
 		return jsonify(ret_data)
 	else:
-		print "data NOK ", message
+		print("data NOK ", message)
 		ret_data = message
 		return ret_data,400
+
+
+
+
+@application.route('/weatherAPI/', methods=['GET', 'POST'])
+def weatherAPI():  
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print("visualizzazione menu weatherAPI:")
+	
+	
+	APIfilelist=weatherAPImod.APIpresetlist() #list of fiels (path , Name)
+	presetfilenamelist=[]
+	listitem={}
+	listitem["title"]="-No Selection-"
+	listitem["filename"]="-No Selection-"	
+	presetfilenamelist.append(listitem)
+	for item in APIfilelist:
+		itemstr=item[1]
+		listitem={}
+		listitem["title"]=itemstr
+		listitem["filename"]=itemstr	
+		presetfilenamelist.append(listitem)	
+
+	#print "HW file list ---> ", presetfilenamelist
+	
+	GUIitems=weatherAPImod.GetVisibleParam()
+	for i in range(len(GUIitems)):
+		GUIitems[i]["nameID"]=GUIitems[i]["name"]+"_"+str(i)
+		
+	#print " GUIitems ******************************** ", GUIitems
+	
+	wateringtems= wateringdbmod.getelementlist()
+	activewateringlist=weatherAPImod.getactivewatering()
+	wateringtemsGUI=[]
+	for item in wateringtems:
+		dicttemp={}
+		dicttemp["name"]=item
+		if item in activewateringlist:
+			dicttemp["active"]="True"
+		else:
+			dicttemp["active"]="False"
+		wateringtemsGUI.append(dicttemp)
+	
+	
+	#print " wateringtemsGUI ******************************+++++ ", wateringtemsGUI
+	
+	if request.method == 'POST':
+		requestinfo=request.form['buttonsub']
+		requesttype=requestinfo.split("_")[0]
+		#print "requesttype "  , requestinfo , " " , requesttype
+		
+				
+				
+		if requesttype=="applypreset":
+			#print "Apply API setting"
+			selectedpath=""
+			selectedfilename=request.form['APIfilelist']
+			for items in APIfilelist:
+				if items[1]==selectedfilename:
+					selectedpath=items[0]
+
+			isdone=False
+			isdone=weatherAPImod.CopytoDatabase(selectedpath)
+				
+				
+			# apply changes to the system
+			if isdone:
+				GUIitems=weatherAPImod.GetVisibleParam()
+				for i in range(len(GUIitems)):
+					GUIitems[i]["nameID"]=GUIitems[i]["name"]+"_"+str(i)
+					
+				#print " GUIitems ******************************** ", GUIitems
+				
+				wateringtems= wateringdbmod.getelementlist()
+				activewateringlist=weatherAPImod.getactivewatering()
+				wateringtemsGUI=[]
+				for item in wateringtems:
+					dicttemp={}
+					dicttemp["name"]=item
+					if item in activewateringlist:
+						dicttemp["active"]="True"
+					else:
+						dicttemp["active"]="False"
+					wateringtemsGUI.append(dicttemp)
+				
+				flash('New API configuration has been Applied ')
+			else:
+				flash('Problem reading the configuration ','danger')
+				
+		
+		if requesttype=="save":
+			print("save")	
+			#print "GUIitems --------------------------->",GUIitems 				
+			for formdata in GUIitems:
+				if formdata["GUItype"]=="input":
+					#print " reuest from web " , formdata["nameID"]
+					formdata["value"]=request.form[formdata["nameID"]]
+
+			#print " ................... FINISH GETTING DATA .............................::::"
+			weatherAPImod.SetVisibleParam(GUIitems) 
+			wateringtemsactivelist=[]
+			wateringtems= wateringdbmod.getelementlist()
+			for item in wateringtems:
+				#print "selsettingactive_" + item
+				isactive=request.form["selsettingactive_" + item]
+				#print isactive
+				if isactive=="True":
+					wateringtemsactivelist.append(item)
+			weatherAPImod.SetWateractuators(wateringtemsactivelist) 
+			
+			weatherAPImod.SaveSetting()
+			
+			activewateringlist=weatherAPImod.getactivewatering()
+			wateringtemsGUI=[]
+			for item in wateringtems:
+				dicttemp={}
+				dicttemp["name"]=item
+				if item in activewateringlist:
+					dicttemp["active"]="True"
+				else:
+					dicttemp["active"]="False"
+				wateringtemsGUI.append(dicttemp)
+			
+
+		if requesttype=="TestQuery":
+
+			weatherAPImod.QueryParse(GUIitems)
+			
+		if requesttype=="apply":
+			# create counter
+			newHWsettingRow=hardwaremod.InitRowHWsetting()
+			weatherAPImod.ProvideHWsettingFields(newHWsettingRow)  # change relevant fields in dataromw
+			
+			#print "Row data" , newHWsettingRow
+			# Copy the hardwaremod IOdatatemp to IOdata and save it
+			
+			hardwaremod.AddUpdateRowByName(newHWsettingRow)
+				
+			# apply changes to the system
+			runallconsistencycheck()
+			#scheduler setup---------------------
+			selectedplanmod.resetmastercallback()
+			#initiate the GPIO OUT pins
+			#initallGPIOpins()
+			flash('New Hardware configuration has been Applied ')
+			
+			# activate multiplier for the watering 
+		
+		if requesttype=="uploadfile":
+			print("import configuration file")	
+			
+			
+			if 'file' not in request.files:
+				flash('No file','danger')
+			else:
+				f = request.files['file']
+				if f.filename == '':
+					flash('No file selected','danger')
+				else:
+					if ".txt" in f.filename:
+						# control if the folder exist otherwise create it
+						uploadfolder=application.config['UPLOAD_FOLDER'] # load the folder from config file, this is a fix folder, the file will be then moved
+						fullfolderpath=os.path.join(MYPATH, uploadfolder)
+						if not os.path.exists(fullfolderpath):
+							os.makedirs(fullfolderpath)
+							print(" folder has been created")
+									
+						f = request.files['file']  
+						#f.save(f.filename)  
+						selectedpath=os.path.join(uploadfolder, f.filename)
+						f.save(selectedpath)
+						# copy file to database folder
+						isdone=False
+						isdone=weatherAPImod.CopytoDatabase(selectedpath)
+
+						print("Align the data to the new files config")
+
+						# apply changes to the system
+						if isdone:
+							GUIitems=weatherAPImod.GetVisibleParam()
+							for i in range(len(GUIitems)):
+								GUIitems[i]["nameID"]=GUIitems[i]["name"]+"_"+str(i)
+								
+							#print " GUIitems ******************************** ", GUIitems
+							
+							wateringtems= wateringdbmod.getelementlist()
+							activewateringlist=weatherAPImod.getactivewatering()
+							wateringtemsGUI=[]
+							for item in wateringtems:
+								dicttemp={}
+								dicttemp["name"]=item
+								if item in activewateringlist:
+									dicttemp["active"]="True"
+								else:
+									dicttemp["active"]="False"
+								wateringtemsGUI.append(dicttemp)
+							
+							flash('New API configuration has been Applied ')
+						else:
+							flash('Problem reading the configuration ','danger')
+					
+					else:
+						flash('Allowed file types is .txt ','danger')
+
+
+	return render_template('weatherAPI.html', presetfilenamelist=presetfilenamelist,GUIitems=GUIitems, wateringtemsGUI=wateringtemsGUI)
+
+
+
+
 
 
 
@@ -2659,8 +2910,57 @@ def currentpath(filename):
 	return os.path.join(MYPATH, filename)
 
 
+def Autotesting():
+	print("Auto testing Automation HAT")
+	print("Ensure that the right HWsetting is loaded")
+	
+	ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
+
+	for target in ActuatorList:
+		hardwaremod.makepulse(target,"1",True, 0)
+		print(" Actuator ", target)
+		time.sleep(1.5)
+	
+	Sensorlist=[ 
+		{"name":"pressuresensor1","min":800, "max":1200},
+		{"name":"tempsensor1", "min":10, "max":40},
+		{"name":"Analog0","min":2.4, "max":2.6},
+		{"name":"Analog1","min":2.4, "max":2.6},
+		{"name":"Analog2","min":2.4, "max":2.6},
+		{"name":"Analog3","min":2.4, "max":2.6},
+		{"name":"Analog4","min":2.4, "max":2.6},
+		{"name":"Analog5_15v","min":4.5, "max":5.5}
+	]
+	Errorcounter=0
+	for sensor in Sensorlist:
+		sensorname=sensor["name"]
+		rangemin=sensor["min"]
+		rangemax=sensor["max"]
+		readingstr=hardwaremod.getsensordata(sensorname,1)
+		try:
+			reading=float(readingstr)
+			print(" sensorname " , sensorname , " data " , reading)	
+				
+			if (reading>rangemin)and(reading<rangemax):
+				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
+			else:
+				 Errorcounter=Errorcounter+1
+				 print(" sensorname " , sensorname , " data out of range :( ")
+		except:
+			Errorcounter=Errorcounter+1
+			print(" sensorname " , sensorname , " Not able to read the sensor :( ")
+		time.sleep(1)			
+		
+	if Errorcounter>0:
+		returnstr="Probelms :("
+	else:
+		returnstr="Well DONE ! :)"
+		
+	return returnstr
+
+
 def functiontest():
-	print " testing "
+	print(" testing ")
 	
 	selectedplanmod.periodicdatarequest("Temp_DS18B20")
 
@@ -2739,7 +3039,7 @@ def videocontrol():
 		ret_data = {"answer":"login"}
 		videocontrolmod.stop_stream()
 		return jsonify(ret_data)
-    # this is used for debugging purposes, activate the functiontest from web button
+	# this is used for debugging purposes, activate the functiontest from web button
 	ret_data={}
 	cmd=""
 	sendstring=""
@@ -2748,7 +3048,7 @@ def videocontrol():
 
 
 	if name=="testing":
-		print "testing video stop"
+		print("testing video stop")
 		answer="done"		
 		answer=videocontrolmod.stream_video()
 		
@@ -2770,18 +3070,18 @@ def videocontrol():
 		
 
 	if name=="close":
-		print "Closing mjpg-streamer server"
+		print("Closing mjpg-streamer server")
 		videocontrolmod.stop_stream("non blocking")
 		answer="closed"
 
 	if name=="stop":
-		print "Stop mjpg-streamer server"
+		print("Stop mjpg-streamer server")
 		videocontrolmod.stop_stream()
 		answer="stopped"
 
 
 	ret_data = {"answer": answer}
-	print "response data ", ret_data
+	print("response data ", ret_data)
 	return jsonify(ret_data)
 	
 
@@ -2801,7 +3101,7 @@ if __name__ == '__main__':
 	
 
 	# start web server--------------- -------------------------
-	print "start web server"	
+	print("start web server")	
 	global PUBLICPORT
 	if PUBLICMODE:
 		application.run(debug=DEBUGMODE,use_reloader=False,host= '0.0.0.0',port=networkmod.LOCALPORT)
@@ -2809,5 +3109,5 @@ if __name__ == '__main__':
 	else:
 		application.run(debug=DEBUGMODE,use_reloader=False,port=80)	
 
-	print "close"
+	print("close")
 
