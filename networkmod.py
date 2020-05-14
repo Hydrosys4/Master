@@ -162,11 +162,11 @@ def connect_preconditions():
 
 	
 def connectedssid():
-	cmd = ['sudo','iw', 'dev', 'wlan0', 'info']
+	cmd = ['iw', 'dev', 'wlan0', 'info']
 	wordtofind="ssid"
 	ssids=iwcommand(cmd,wordtofind)
 	if not ssids:
-		cmd = ['sudo','iw', 'dev', 'wlan0', 'link']
+		cmd = ['iw', 'dev', 'wlan0', 'link']
 		wordtofind="SSID"
 		ssids=iwcommand(cmd,wordtofind)
 	print("Connected to ", ssids)
@@ -853,11 +853,15 @@ def connect_network(internetcheck=False, backtoAP=False):
 			done=False
 			ssids=[]
 			i=0
-			while (i<3) and (len(ssids)==0):
+			while (i<2) and (len(ssids)==0):
 				done=connect_savedwifi(thessid) # return true when the command is executed
 				i=i+1					
 				if done:
-					time.sleep(1+i*5)				
+					maxiter=10
+					while (not connectedssid())and(maxiter>0):
+						time.sleep(1)				
+						maxiter-=1
+						print (maxiter)
 					print("wifi connection attempt ",i)
 					print("check connected SSID")
 					logger.info('Connection command executed attempt %d, check connected SSID ',i)
@@ -1143,12 +1147,17 @@ def checkstringIPv4(thestring):
 	
 if __name__ == '__main__':
 	# comment
-	#a=[]
-	ip_string="sad 23.3.2.1 ceh ca2cchio 12.2.0.12ma chi siete"
-	ip_address=""
-	isok, string = IPv4fromString(ip_string)
-	print(isok)
-	print("the extracted string ",  string)
-	
-	print("NEXT TEST")
-	print(checkGWsubnet("wlan0"))
+	connect_AP()
+	ssids=connectedssid()
+	print(ssids)
+	connect_network(internetcheck=True, backtoAP=False)
+	#done=stop_hostapd()
+	#done=stop_dnsmasq()
+	#flushIP("wlan0")
+	#isok=wpa_cli_mod.enable_ssid("wlan0","AngeloAnnnie")
+	#ifup("wlan0") # not present before
+	#addIP("wlan0")	
+	#time.sleep(5)
+	ssids=connectedssid()
+	print(ssids)
+	get_external_ip()
