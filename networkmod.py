@@ -162,11 +162,11 @@ def connect_preconditions():
 
 	
 def connectedssid():
-	cmd = ['iw', 'dev', 'wlan0', 'info']
+	cmd = ['sudo','iw', 'dev', 'wlan0', 'info']
 	wordtofind="ssid"
 	ssids=iwcommand(cmd,wordtofind)
 	if not ssids:
-		cmd = ['iw', 'dev', 'wlan0', 'link']
+		cmd = ['sudo','iw', 'dev', 'wlan0', 'link']
 		wordtofind="SSID"
 		ssids=iwcommand(cmd,wordtofind)
 	print("Connected to ", ssids)
@@ -175,14 +175,17 @@ def connectedssid():
 def iwcommand(cmd,wordtofind):
 	ssids=[]	
 	try:
-		scanoutput = subprocess.check_output(cmd).decode('utf-8')
+		#scanoutput = subprocess.check_output(cmd).decode('utf-8')
+		result=subprocess.run(cmd, capture_output="True", text="True")
+		scanoutput=result.stdout
+	
 	except:
 		print("error to execute the command" , cmd)
 		logger.error("error to execute the command %s",cmd)
 		return ssids
 
 	#scanoutput = subprocess.check_output('iw ' , 'wlan0 ' , 'info ', stderr=subprocess.STDOUT)
-	#print scanoutput
+	#print (scanoutput)
 
 	for line in scanoutput.split('\n'):
 		#print " line ",line

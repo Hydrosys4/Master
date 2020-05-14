@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.19d"
+Release="3.19e"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
