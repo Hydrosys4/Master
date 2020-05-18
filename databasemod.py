@@ -203,7 +203,21 @@ def getdatafromfieldslimit(filename,table,fieldlist,valuelist,limit):
 			valuelist.append(row)
 		db.close()
 
+def returnrowdatafromfieldslimitV2(filename,table,fieldlist,limit,offset):
+	#LIMIT row_count OFFSET offset;
+	db, connected = get_db(filename)
+	if connected:
+		fieldsstr= ', '.join(fieldlist)
+		limitstr=str(limit)
 
+		#query_string = 'select ? from ? ORDER BY ROWID DESC LIMIT ?'
+		params=(fieldsstr, table, limitstr)
+		cur = db.execute("select {} from '{}' ORDER BY ROWID DESC LIMIT {} OFFSET {}".format(fieldsstr, table, limitstr,offset))
+		db.commit()
+		datarow = cur.fetchall()
+		
+	db.close()
+	return datarow # this is a list of tuples
 		
 def deleterowwithfield(filename,table,field,value):
 	print("delete field ", field , " with value ", value)

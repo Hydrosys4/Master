@@ -1277,7 +1277,7 @@ def separatetimestringint(timestr): # given the string input "hh:mm:ss" output a
 	returnlist=[hours,minutes,seconds]
 	#print " time string " , timestr , " time return list ", returnlist
 	return returnlist
-	
+
 		
 def tonumber(thestring, outwhenfail):
 	try:

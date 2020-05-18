@@ -104,13 +104,20 @@ def GetVisibleParam():
 	if var:
 		key="visible"
 		
+		# Add titles to make it more readeable
+		#dicttemp={"name":"API provider","value":"","GUItype":"title"}
+		#visiblelist.append(dicttemp)
+		#----
+		
 		# BasicInfo
 		params=var["BasicInfo"]			
 		RecursiveSearch(params,visiblelist)		
 					
 		# QueryGroup
+		inde=0
 		Itemslist=var["QueryGroup"]
 		for items in Itemslist:
+			
 			
 			# query param
 			QueryParam=items["QueryItems"]
@@ -257,9 +264,10 @@ def evaluateParam(paramvalue,formatstring):
 
 def parseJsondataItem(ParseParam,jsondata): # parse for sinlge param item
 	isok=False
-	dicttemp={}	
+	dicttemplist=[]
 	print("jsondata " ,jsondata )		
 	for params in ParseParam:	
+		dicttemp={}			
 		# for each of this set of params there is a value to be extracted
 		itemname=params["name"]
 		searchpathlist=params["searchpath"]
@@ -290,13 +298,14 @@ def parseJsondataItem(ParseParam,jsondata): # parse for sinlge param item
 			if gonext==False:
 				print(" Search Path finished before finding the Object  ........")
 				break
-	if gonext:
-		print(" ========> item found ", 	subStruct)
-		dicttemp["name"]=itemname
-		dicttemp["value"]=subStruct
-		isok=True
+		if gonext:
+			print(" ========> item found ", 	subStruct)
+			dicttemp["name"]=itemname
+			dicttemp["value"]=subStruct
+			dicttemplist.append(dicttemp)
+			isok=True
 		
-	return isok, dicttemp
+	return isok, dicttemplist
 
 
 	
@@ -350,9 +359,9 @@ def QueryParse(GUIdata):
 
 			# parse param
 			ParseParam=items["ParseItems"]			
-			isok, datadict = parseJsondataItem(ParseParam,jsondata)
+			isok, datadictlist = parseJsondataItem(ParseParam,jsondata)
 		
-			if isok:
+			for datadict in datadictlist:
 				resultdict[datadict["name"]]=datadict["value"]
 
 	
@@ -381,12 +390,12 @@ def CalculateRainMultiplier():
 
 			# parse param
 			ParseParam=items["ParseItems"]			
-			isok, datadict = parseJsondataItem(ParseParam,jsondata)
-		
-			if isok:
+			isok, datadictlist = parseJsondataItem(ParseParam,jsondata)
+			
+			for datadict in datadictlist:
 				WeaterData.append(datadict["value"])
-			else:
-				WeaterData.append("0")
+
+
 
 	CalculationResult=0
 	WeightParam=var["CounterInfo"]

@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.19e"
+Release="3.20b"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -722,7 +722,7 @@ def echohome():
 		starttime= endtime - timedelta(days=1)	
 		if name in sensorlist:
 			sensordata=[]		
-			sensordbmod.getsensordbdatadays(name,sensordata,1)
+			sensordbmod.getsensordbdatadaysV2(name,sensordata,starttime,endtime)
 			isok, evaluateddata=sensordbmod.EvaluateDataPeriod(sensordata,starttime,endtime)
 			paneldatarow={}		
 			paneldatarow["name"]=name
@@ -733,7 +733,7 @@ def echohome():
 			paneldatarow["enabled"]="none"
 		else:
 			data=[]
-			actuatordbmod.getActuatordbdata(name,data)
+			actuatordbmod.getactuatordbdatadaysV2(name,data,starttime,endtime)
 			isok, evaluateddata=sensordbmod.EvaluateDataPeriod(data,starttime,endtime)	#set date interval for average
 			paneldatarow={}
 			paneldatarow["name"]=name
@@ -1732,7 +1732,7 @@ def show_sensordata():
 		
 			
 		
-		sensordata, usedsensorlist, mintime, maxtime = sensordbmod.getAllSensorsDataPeriodv2(enddate,daysinthepast)		
+		sensordata, usedsensorlist = sensordbmod.getAllSensorsDataPeriodv2(enddate,daysinthepast)		
 
 
 		actuatordata,usedactuatorlist=actuatordbmod.getAllActuatorDataPeriodv2(enddate,daysinthepast)

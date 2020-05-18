@@ -3,13 +3,14 @@
 "QueryGroup": [	
 				{
 				"QueryItems":[
+				{ "name":"Data Parameter 1","value":"","format":"string","param":"","usedfor":"","visible":"yes","GUItype":"title"},
 				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
 				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
 				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
 				{ "name":"Time","value":"Time Now", "allowedvalues":["Time Now","Time +1 day","Time +2 days","Time -1 day","Time -2 days"],"format":"%Y/%m/%d","param":"dt","usedfor":"queryparam"}
 				],
 				"ParseItems":[
-					{"visible":"yes", "GUItype":"output", "name": "RainForecast+0day(mm)", "note":"This data is provided by querying the weather provider API",
+					{"visible":"yes", "GUItype":"output", "name": "RainForecast +0day(mm)", "note":"This data is provided by querying the weather provider API",
 						"searchpath":[
 						{"keyword":"forecast"},
 						{"keyword":"forecastday"},
@@ -20,13 +21,14 @@
 					}]},
 				{
 				"QueryItems":[
+				{ "name":"Data Parameter 2","value":"","format":"string","param":"","usedfor":"","visible":"yes","GUItype":"title"},
 				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
 				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
 				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
 				{ "name":"Time","value":"Time +1 day", "allowedvalues":["Time Now","Time +1 day","Time +2 days","Time -1 day","Time -2 days"],"format":"%Y/%m/%d","param":"dt","usedfor":"queryparam"}
 				],
 				"ParseItems":[
-					{"visible":"yes", "GUItype":"output", "name": "RainForecast+1day(mm)", "note":"This data is provided by querying the weather provider API",
+					{"visible":"yes", "GUItype":"output", "name": "RainForecast +1day(mm)", "note":"This data is provided by querying the weather provider API",
 						"searchpath":[
 						{"keyword":"forecast"},
 						{"keyword":"forecastday"},
@@ -37,13 +39,14 @@
 					}]},
 				{
 				"QueryItems":[
+				{ "name":"Data Parameter 3","value":"","format":"string","param":"","usedfor":"","visible":"yes","GUItype":"title"},
 				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
 				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
 				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
 				{ "name":"Time","value":"Time +2 days", "allowedvalues":["Time Now","Time +1 day","Time +2 days","Time -1 day","Time -2 days"],"format":"%Y/%m/%d", "param":"dt","usedfor":"queryparam"}
 				],
 				"ParseItems":[
-					{"visible":"yes", "GUItype":"output", "name": "RainForecast+2day(mm)", "note":"This data is provided by querying the weather provider API",
+					{"visible":"yes", "GUItype":"output", "name": "RainForecast +2day(mm)", "note":"This data is provided by querying the weather provider API",
 						"searchpath":[
 						{"keyword":"forecast"},
 						{"keyword":"forecastday"},
@@ -51,7 +54,38 @@
 						{"keyword":"day"},
 						{"keyword":"totalprecip_mm"}
 						]
-					}]}
+					}]},
+				{
+				"QueryItems":[
+				{ "name":"Location Parameters","value":"","format":"string","param":"","usedfor":"","visible":"yes","GUItype":"title"},
+				{ "name":"URL","value":"http://api.weatherapi.com/v1/forecast.json?","format":"string","param":"","usedfor":"url"},
+				{ "name":"Key","visible":"yes","GUItype":"input","value":"","format":"string","param":"key","usedfor":"queryparam"},
+				{ "name":"Location","visible":"yes","GUItype":"input","value":"","format":"string","param":"q","usedfor":"queryparam"},
+				{ "name":"days","value":"1","format":"string","param":"days","usedfor":"queryparam"}
+				],
+				"ParseItems":[
+					{"visible":"yes", "GUItype":"output", "name": "Location Name", "note":"This data is provided by querying the weather provider API",
+						"searchpath":[
+						{"keyword":"location"},
+						{"keyword":"name"}
+						]
+					},
+					{"visible":"yes", "GUItype":"output", "name": "Location Region", "note":"This data is provided by querying the weather provider API",
+						"searchpath":[
+						{"keyword":"location"},
+						{"keyword":"region"}
+						]
+					},
+					{"visible":"yes", "GUItype":"output", "name": "Location Country", "note":"This data is provided by querying the weather provider API",
+						"searchpath":[
+						{"keyword":"location"},
+						{"keyword":"country"}
+						]
+					}					
+					
+					
+					
+					]}
 
 			],
 "CounterInfo": {"visible":"yes" , "GUItype":"title" , "name": "RainMultiplier", 

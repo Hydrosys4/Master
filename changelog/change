@@ -627,6 +627,16 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Minor graphic changes
 
+2020-05-13 -> release 320a
+
+- Optimize database reading for graph
+- Made the weather GUI better, location query has been included
+
+2020-05-17 -> release 320b
+
+- fixed the midnight activity
+
+
 ------- Future releases: -----------
 
 NOTE:

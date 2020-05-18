@@ -18,47 +18,28 @@
         </div>
 		
 		
-	<form action="{{ url_for('weatherAPI') }}" method="post" >  
-	<!-- select and load preset HW config -->
-
-
-		 <div class="page-header">
-				<h4 id="header">Select Preset API config</h4>
-		</div>
-
-		<div class="form-group">
-			
-			<select class="form-control input-sm dontwantgap" name="APIfilelist">
-			{% for name in presetfilenamelist %}	
-				{% set option_i = loop %}
-				<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name.filename}}">{{name.title}}</option>
-			{% endfor %}											
-			</select>
-			
-		</div>	
-															
-		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="applypreset">Apply Selected API Setting</button>
-		<div class="small">All the customization will be lost</div>		
-												
 		
-		<div class="page-header">
-				<h4 id="header">User Setting</h4>
-		</div>					
 								
 
 													
-		<div class="form-group">			
-		<div class="row">
-			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			<legend>Parameters Setting</legend>  
-			</div>	
-		</div>	
-		</div>							
+					
 		
 		
 	{% if GUIitems|length > 0 %}	
 	
 	<div class="well bs-component">		
+		
+		
+	<form action="{{ url_for('weatherAPI') }}" method="post" >  
+								
+		
+		<div class="page-header">
+				<h3 id="header">API Provider</h3>
+		</div>					
+		
+		
+		
+		
 	
 		{% for items in GUIitems %}
 				
@@ -73,10 +54,10 @@
 					<legend>{{items.name}}</legend>
 				</div>
 				{% else %}
-					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">				
-					<label>{{items.name}}</label>
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4" style="text-align:right;">				
+					<div>{{items.name}}</div>
 					</div>
-					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
 					{% if items.GUItype=="input" %}	
 						<input value="{{items.value}}" class="form-control input-sm" name="{{items.nameID}}" type="text">
 					{% elif items.GUItype=="output" %}
@@ -104,12 +85,19 @@
 		{% endfor %}										
 													
 	</div>	
-
-		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="TestQuery">Query to the provider API</button>
-		<div class="small">Note: If the query is successful the parameters in the above table will be populated</div>						
-																	
-			
-						
+	
+	
+		<!-- testing buttons -->
+		<div class="form-group">	
+		<div class="row">
+				
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">	
+			<button class="btn-sm btn btn-success btn-block " type="submit" name="buttonsub" value="TestQuery">Query the provider API</button>
+			<div class="small">Note: If the query is successful the parameters in the above table will be populated</div>	
+			</div>	
+		</div>		
+		</div>		
+	
 		<!-- testing buttons -->
 		<div class="form-group">					
 		<div class="row">
@@ -226,7 +214,40 @@
 
 	</form>
 	
+	
+	<div class="well bs-component">	
+  
+		<!-- Configuration management -->
+		 <form  action="{{ url_for('weatherAPI') }}" id="menuFormupload" enctype="multipart/form-data" method="post" >	
+	
+	
+		<!-- select and load preset HW config -->
 
+
+		 <div class="page-header">
+				<h3 id="header">Select Preset API config</h3>
+		</div>
+
+		<div class="form-group">
+			
+			<select class="form-control input-sm dontwantgap" name="APIfilelist">
+			{% for name in presetfilenamelist %}	
+				{% set option_i = loop %}
+				<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name.filename}}">{{name.title}}</option>
+			{% endfor %}											
+			</select>
+			
+		</div>	
+															
+		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="applypreset">Apply Selected API Setting</button>
+		<div class="small">All the customization will be lost</div>		
+				
+
+			
+		</form>
+
+	</div> <!-- well componenet -->
+		
 	
 	
 	<div class="well bs-component">	

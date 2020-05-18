@@ -112,42 +112,77 @@ def getActuatorDataPeriod(selsensor,sensordata,enddate,pastdays):
 				print("Error in database reading ",rowdata)
 
 	# sensor data --------------------------------------------
+
+
+def getactuatordbdatadaysV2(selsensor,sensordata,startdate, enddate): # V2 try to optimize access to database
+
+	fieldlist=[]
+	fieldlist.append(TIMEFIELD)
+	fieldlist.append(DATAFIELD)
+
+	# no info about number of samples per day try with a number
+	#samplingintervalminutes=5 # assumption
+	#samplesnumber=int(days*24*60/samplingintervalminutes)
+	samplesnumber=1000
+	offset=0
+	lastitem=2
+	dateref=enddate
+	rowdata=[]
+	while (dateref>startdate)and(lastitem>0):
+		print (selsensor, " Get Database Data : samplesnumber ", samplesnumber, " offset ", offset)
+		partrowdata=databasemod.returnrowdatafromfieldslimitV2(DBFILENAME,selsensor,fieldlist,samplesnumber,offset)	
+		lastitem=len(partrowdata)
+		if lastitem>=samplesnumber:
+			offset=offset+lastitem
+			dateref=datetime.strptime(partrowdata[lastitem-1][0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+		else:
+			lastitem=0
+		#print( " dataref ", dateref)			
+		#print( " rowdata ", rowdata)
+		print (selsensor, " Get Database Data : dateref ", dateref, " DB part lenght ", lastitem)
+		rowdata.extend(partrowdata)
+		
+	# check the last value of the returned array
+
+	# return only the data in right datetime interval and in list form (instead of tuple)
+	for data in rowdata:
+		try:
+			dateref=datetime.strptime(data[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			if (dateref>=startdate)and(dateref<=enddate):
+				value=float(data[1])
+				templist=[data[0], value]
+				sensordata.append(templist)
+				
+		except:
+			print("Error in database reading ",rowdata)
+ 
+
+
+
+
 	
 def getAllActuatorDataPeriodv2(enddate,pastdays):
-	usedsensorlist=[]
+
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	#print " actuatordbmod"
-	#print " stratdate " ,startdate
-	#print " enddate ", enddate
+
+
 	outputallsensordata=[]
+	usedsensorlist=[]
 	sensorlist=gettablelist()
+
 	for selsensor in sensorlist:
-		allsensordata=[]
-		getActuatordbdata(selsensor,allsensordata)
 		sensordata=[]
-		# fetch raw data from database
-		for rowdata in allsensordata:
-			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
-			if (dateref>=startdate)and(dateref<=enddate):
-				try:
-					value=float(rowdata[1])
-					dateinsecepoch=(dateref - datetime(1970,1,1)).total_seconds()
-					templist=[rowdata[0], value]
-					sensordata.append(templist)
-				except ValueError:
-					print("Error in database reading ",rowdata)
+
+		getactuatordbdatadaysV2(selsensor,sensordata,startdate, enddate)
+
 		if len(sensordata)>0:
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)
-	
-		
+
 	return outputallsensordata,usedsensorlist
-	# sensor data --------------------------------------------	
-	
-	
-	
+	# sensor data --------------------------------------------
 
 
 def RemoveActuatorDataPeriod(removebeforedays, maxremovepersensor=300):

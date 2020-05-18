@@ -96,8 +96,8 @@ def deleteallrow():
 	for tablename in tablelist :
 		databasemod.deleteallrow(DBFILENAME,tablename)
 	
-def insertrowfields(rowfield,rowvalue):
-	databasemod.insertrowfields(DBFILENAME,DBTABLE,rowfield,rowvalue)
+def insertrowfields(table,rowfield,rowvalue):
+	databasemod.insertrowfields(DBFILENAME,table,rowfield,rowvalue)
 
 def gettable(searchfield,searchvalue):
 	return databasemod.gettable(DBFILENAME,DBTABLE,searchfield,searchvalue)
@@ -131,6 +131,79 @@ def getsensordbdatadays(selsensor,sensordata,days):
 	else:
 		databasemod.getdatafromfields(DBFILENAME,selsensor,fieldlist,sensordata)
 
+def getsensordbdatadaysV2(selsensor,sensordata,startdate, enddate): # V2 try to optimize access to database
+	fieldlist=[]
+	fieldlist.append(TIMEFIELD)
+	fieldlist.append(DATAFIELD)
+	#sampletime=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,selsensor,hardwaremod.HW_FUNC_TIME)
+	
+	timelist=hardwaremod.gettimedata(selsensor) # return list of int [0] sec, [1] min, [2] hours
+	samplingintervalminutes=timelist[0]*60+timelist[1]
+
+	schedtype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,selsensor,hardwaremod.HW_FUNC_SCHEDTYPE) # ["oneshot", "periodic"] #scheduling type
+	#samplingintervalminutes=hardwaremod.toint(sampletime.split(":")[1],0)	# return zero in case of problems
+	if (samplingintervalminutes>=1)and(schedtype=="periodic"):
+		
+		#minutessperiod=((enddate-startdate).total_seconds()+1 ) // 60		
+		minutessperiod=((datetime.now()-startdate).total_seconds()+1 ) // 60	# sub optima approach
+		# in this case we know the number of samples per day, so we query only the last samples of the database, this makes query way faster
+		samplesnumber=minutessperiod//samplingintervalminutes
+		# WARNING: with offset, there is an issue, every day the system loose some saple at midnight rescheduling only if the sample interval is less than 5 min.
+		# in case of holes in the data sampling, it also provides wrong offset. Decided to use the non optimal approach
+		offset=0
+		#lastdata=databasemod.returnrowdatafromfieldslimitV2(DBFILENAME,selsensor,fieldlist,1,0)
+		#if lastdata:
+		#	dateref=datetime.strptime(lastdata[0][0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+		#	print( " dataref ", dateref , " enddate ", enddate)
+		#	if dateref>enddate:
+		#		minutessoffset=int( (dateref-enddate).total_seconds() / 60) 
+		#		dayssoffset=minutessoffset//(24*60)
+		#		print ("dayssoffset", dayssoffset , " minutessoffset ", minutessoffset)
+		#		offset=int(minutessoffset/samplingintervalminutes) - (dayssoffset*10) # assume to loose max 10 samples per day
+		#		samplesnumber=samplesnumber+ 2 * (dayssoffset*10) # allunga il periodo di samples
+		#		offset=max(offset,0)
+		#		print ("Defined samplesnumber ", samplesnumber , " offset ", offset)
+		print (selsensor, " Get Database Data : samplesnumber ", samplesnumber, " offset ", offset , " Type " , schedtype , "samplingintervalminutes ", samplingintervalminutes)
+		rowdata=databasemod.returnrowdatafromfieldslimitV2(DBFILENAME,selsensor,fieldlist,samplesnumber,offset)
+		#print( " rowdata ", rowdata)	
+	else:
+		# no info about number of samples per day try with a number
+		samplingintervalminutes=5 # assumption
+		#samplesnumber=int(days*24*60/samplingintervalminutes)
+		samplesnumber=1000
+		offset=0
+		lastitem=2
+		dateref=enddate
+		rowdata=[]
+		while (dateref>startdate)and(lastitem>0):
+			print (selsensor, " Get Database Data : samplesnumber ", samplesnumber, " offset ", offset)
+			partrowdata=databasemod.returnrowdatafromfieldslimitV2(DBFILENAME,selsensor,fieldlist,samplesnumber,offset)	
+			lastitem=len(partrowdata)
+			if lastitem>=samplesnumber:
+				offset=offset+lastitem
+				dateref=datetime.strptime(partrowdata[lastitem-1][0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			else:
+				lastitem=0
+			#print( " dataref ", dateref)			
+			#print( " rowdata ", rowdata)
+			print (selsensor, " Get Database Data : dateref ", dateref, " DB part lenght ", lastitem)
+			rowdata.extend(partrowdata)
+		# check the last value of the returned array
+
+	# return only the data in right datetime interval and in list form (instead of tuple)
+	for data in rowdata:
+		try:
+			dateref=datetime.strptime(data[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
+			if (dateref>=startdate)and(dateref<=enddate):
+				value=float(data[1])
+				templist=[data[0], value]
+				sensordata.append(templist)
+				
+		except:
+			print("Error in database reading ")
+ 
+
+
 def getsensordbdatasamplesN(selsensor,sensordata,samplesnumber):
 	fieldlist=[]
 	fieldlist.append(TIMEFIELD)
@@ -160,17 +233,8 @@ def getSensorDataPeriod(selsensor,sensordata,enddate,pastdays):
 	#print " enddate ", enddate
 	allsensordata=[]
 	#getsensordbdata(selsensor,allsensordata)
-	getsensordbdatadays(selsensor,allsensordata,num)
-	del sensordata[:]
-	for rowdata in allsensordata:
-		try:
-			dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
-			if (dateref>=startdate)and(dateref<=enddate):
-				value=float(rowdata[1])
-				templist=[rowdata[0], value]
-				sensordata.append(templist)
-		except ValueError:
-			print("Error in database reading ",rowdata)
+	getsensordbdatadaysV2(selsensor,sensordata,startdate,enddate)
+
 	# sensor data --------------------------------------------
 
 def getSensorDataPeriodXminutes(selsensor,datax,datay,startdate,enddate): # return sensordata in form of a matrix Nx2
@@ -205,44 +269,26 @@ def timediffdays(data2, data1):
 
 
 def getAllSensorsDataPeriodv2(enddate,pastdays):
-	usedsensorlist=[]
+
 	num = int(pastdays)
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	#print "sensordbmod "
-	#print " stratdate " ,startdate
-	#print " enddate ", enddate
+
+
 	outputallsensordata=[]
+	usedsensorlist=[]
 	sensorlist=gettablelist()
-	mintime=(enddate - datetime(1970,1,1)).total_seconds()
-	maxtime=0
+
 	for selsensor in sensorlist:
-		allsensordata=[]
-		#getsensordbdata(selsensor,allsensordata)
-		#print " reading sensor database " , selsensor
-		getsensordbdatadays(selsensor,allsensordata,num+(datetime.now()-enddate).days+1)
-		#print " reading sensor database DONE!"		
 		sensordata=[]
-		# fetch raw data from database
-		for rowdata in allsensordata:
-			try:
-				dateref=datetime.strptime(rowdata[0].split(".")[0],'%Y-%m-%d %H:%M:%S')
-				if (dateref>=startdate)and(dateref<=enddate):
-					value=float(rowdata[1])
-					dateinsecepoch=(dateref - datetime(1970,1,1)).total_seconds()
-					templist=[rowdata[0], value]
-					sensordata.append(templist)
-					if mintime>dateinsecepoch:
-						mintime=dateinsecepoch
-					if maxtime<dateinsecepoch:
-						maxtime=dateinsecepoch					
-			except:
-				print("Error in database reading ",rowdata)
+
+		getsensordbdatadaysV2(selsensor,sensordata,startdate, enddate)
+
 		if len(sensordata)>0:
 			outputallsensordata.append(sensordata)
 			usedsensorlist.append(selsensor)
 
-	return outputallsensordata,usedsensorlist,mintime,maxtime
+	return outputallsensordata,usedsensorlist
 	# sensor data --------------------------------------------
 
 
@@ -378,36 +424,47 @@ def consistencycheck():
 			
 
 if __name__ == '__main__':
-
+	import time
 	DBFILENAME='Sensordb.db'
-	init_db()
-	insertrandomrecords(5)
-	sensordata=[]
-	getsensordbdata("temp1",sensordata)
-	getSensorDataPeriod("temp1",sensordata,datetime.now(),1)
-	print("data: ")
-	print(sensordata)
-	rowvalue=[]
-	teperatura=10
-	PHreading=10
-	ECreading=10
-	light=10
-	rowvalue.append(datetime.now().replace(microsecond=0))
-	rowvalue.append(teperatura)
-	rowvalue.append(PHreading)
-	rowvalue.append(ECreading)
-	rowvalue.append(light)
-	rowfield=[]
-	rowfield.append("readtime")
-	rowfield.append("temp1")
-	rowfield.append("ph1")
-	rowfield.append("ec1")
-	rowfield.append("light1")
-	insertrowfields(rowfield,rowvalue)
-
-
+	table="tempsensor1"
+	# insert a number of random values in table "tempsensor1"
 	
+	print( " Add random rows to the table ")	
+	start = time.time()
+	for i in range(0,0):
+		rowvalue=[]
+		teperatura=random.randrange(1,101,1)
+		rowvalue.append(datetime.now().replace(microsecond=0))
+		rowvalue.append(teperatura)
+		rowfield=[]
+		rowfield.append(TIMEFIELD)
+		rowfield.append(DATAFIELD)
+		insertrowfields(table,rowfield,rowvalue)	
+	end = time.time()
+	print(end - start)	
 
+	print( " read only the N samples ")
+	start = time.time()
+	sensordata=[]
+	getsensordbdatadaysV2(table,sensordata,datetime.now()-timedelta(days=4),datetime.now()-timedelta(days=2))
+	print("lenght list ", len(sensordata))
+	#print(" list ", sensordata)
+	end = time.time()
+	print(" TIMER : --- ", end - start)	
+
+	print( " read All samples ")	
+	start = time.time()	
+	sensordata=[]
+	#getsensordbdata(table,sensordata)
+	print("lenght list ", len(sensordata))
+	end = time.time()
+	print(" TIMER : --- ", end - start)	
+
+	print( " read All samples ")	
+	start = time.time()	
+	#getAllSensorsDataPeriodv2(datetime.now(),2)
+	end = time.time()
+	print(" TIMER : --- ", end - start)	
 
 
 
