@@ -78,7 +78,28 @@
 
 								</div>				
 							</div>
-							
+
+
+							<div class="form-group">		
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>WiFi Enabled/Disabled:
+								</label>
+
+								
+								</div>
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								
+								{% set arr=["Enabled","Disabled"] %}	 			
+								  <select class="form-control dontwantgap" name="WIFIENDIS">
+									{% for item in arr %}
+									<option {% if item==WIFIENDIS %}selected="selected"{% endif %} >{{item}}</option>
+									{% endfor %}
+								  </select>
+								
+								<div class="small">In case you have wired connection you can disable the WiFi using this setting. There should be no saved wifi networks </div>
+
+								</div>				
+							</div>							
 							
 							<div class="form-group">		
 								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">

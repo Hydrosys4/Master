@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.20b"
+Release="3.21"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -1327,6 +1327,7 @@ def networksetting():
 			AP_SSID=request.form['AP_SSID']
 			AP_PASSWORD=request.form['AP_PASSWORD']
 			AP_TIME=request.form['AP_TIME']
+			WIFIENDIS=request.form['WIFIENDIS']
 			HOSTNAME=request.form['HOSTNAME']
 			
 			
@@ -1351,6 +1352,7 @@ def networksetting():
 				AP_SSIDold=networkmod.localwifisystem	
 				AP_TIMEold=str(networkmod.WAITTOCONNECT)
 				HOSTNAMEold=networkmod.gethostname()
+				WIFIENDISold=networkmod.WIFIENDIS
 				
 							
 				
@@ -1358,7 +1360,7 @@ def networksetting():
 				networkdbmod.changesavesetting('LocalIPaddress',IPADDRESS)
 				networkdbmod.changesavesetting('LocalAPSSID',AP_SSID)
 				networkdbmod.changesavesetting('APtime',AP_TIME)			
-
+				networkdbmod.changesavesetting('WIFIENDIS',WIFIENDIS)
 				
 				# save and change values in the HOSTAPD config file
 				sysconfigfilemod.hostapdsavechangerow("ssid",AP_SSID)
@@ -1378,16 +1380,23 @@ def networksetting():
 				
 				if HOSTNAME!=HOSTNAMEold:
 					networkmod.setnewhostname(HOSTNAME)
-				
+									
 				
 				# proceed with changes
 				networkmod.applyparameterschange(AP_SSID, AP_PASSWORD, IPADDRESS)
 				networkmod.WAITTOCONNECT=AP_TIME
+				networkmod.WIFIENDIS=WIFIENDIS
 				
 				# Change hostapd file first row with HERE
 				data=[]
 				networkdbmod.readdata(data)
-				sysconfigfilemod.hostapdsavechangerow_spec(data)				
+				sysconfigfilemod.hostapdsavechangerow_spec(data)	
+				
+				if WIFIENDISold!=WIFIENDIS:
+					if WIFIENDIS=="Disabled":
+						networkmod.Disable_WiFi()	
+					else:
+						networkmod.connect_network()		
 
 				flash('Network setting Saved')   
 				return redirect(url_for('network'))
@@ -1407,7 +1416,8 @@ def networksetting():
 	IPADDRESS=networkmod.IPADDRESS
 	PORT=networkmod.PUBLICPORT
 	AP_SSID=networkmod.localwifisystem	
-	AP_TIME=str(networkmod.WAITTOCONNECT)	
+	AP_TIME=str(networkmod.WAITTOCONNECT)
+	WIFIENDIS=networkmod.WIFIENDIS
 	connectedssidlist=networkmod.connectedssid()
 	if len(connectedssidlist)>0:
 		connectedssid=connectedssidlist[0]
@@ -1417,7 +1427,7 @@ def networksetting():
 
 
 
-	return render_template('networksetting.html', IPADDRESS=IPADDRESS, AP_SSID=AP_SSID, AP_PASSWORD=AP_PASSWORD, AP_TIME=AP_TIME , HOSTNAME=HOSTNAME)	
+	return render_template('networksetting.html', IPADDRESS=IPADDRESS, AP_SSID=AP_SSID, AP_PASSWORD=AP_PASSWORD, AP_TIME=AP_TIME , HOSTNAME=HOSTNAME, WIFIENDIS=WIFIENDIS)	
 	
 
 
@@ -1759,7 +1769,8 @@ def show_sensordata():
 					hygrosensornumlistwithoutactive.append(inde) # create list with index number of the actuator
 
 		#select hygrometers without associated actuator, 
-		sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)
+		#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)
+		sensorlist=autowateringdbmod.getsensorlist()
 		for hygro in sensorlist:
 			if hygro in usedsensorlist:
 				if not usedsensorlist.index(hygro) in hygrosensornumlist:
@@ -1874,8 +1885,9 @@ def autowatering():
 		selectedelement=elementlist[0]	
 	
 
-	sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)	
-	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,"Moisturecontrol",hardwaremod.HW_INFO_NAME)
+	#sensorlist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_MEASURE,"Moisture",hardwaremod.HW_INFO_NAME)	
+
+	sensorlist= autowateringdbmod.getsensorlist()	
 	#print "sensorlist ",sensorlist
 	
 	modelist=["None", "Full Auto" , "under MIN over MAX" , "Emergency Activation" , "Alert Only"]

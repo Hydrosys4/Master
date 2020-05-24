@@ -138,10 +138,24 @@ def saveWTsetting():
 def getelementlist():
 	recordkey=hardwaremod.HW_FUNC_USEDFOR
 	recordvalue="watercontrol"
+	recordkey1=hardwaremod.HW_INFO_IOTYPE
+	recordvalue1="output"
 	keytosearch=hardwaremod.HW_INFO_NAME
-	datalist=hardwaremod.searchdatalist(recordkey,recordvalue,keytosearch)
+	datalist=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
 	#print "elementlist= ",datalist
 	return datalist
+
+def getsensorlist():
+	recordkey=hardwaremod.HW_FUNC_USEDFOR
+	recordvalue="watercontrol"
+	recordkey1=hardwaremod.HW_INFO_IOTYPE
+	recordvalue1="input"
+	keytosearch=hardwaremod.HW_INFO_NAME
+	datalist=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
+	#print "elementlist= ",datalist
+	return datalist
+
+
 
 def gethygrosensorfromactuator(actuatorname):
 	recordkey="element"

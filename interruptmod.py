@@ -183,6 +183,7 @@ def setinterruptevents():
 			print(" what a sensor ", sensor)
 			if sensor!="":
 				startblockingstate(element,10,False)
+				t.sleep(0.02)
 			
 			
 	return ""
@@ -500,14 +501,15 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 	#print(" validinterruptcount --------------------->", validinterruptcount) 	
 
 	#print "********" ,validinterruptcount , "******"	
+	if validinterruptcount>=interrupt_triggernumber:
+		# set the validinterruptcount to zero
+		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",0)
 		
-	if not blockingstate: # outside the preemption period , first activation
-		#print " outside the preemption period "
-		#logger.info('outside the preemption period')	
-		# before action, evaluate if trigger number is reached
+		if not blockingstate: # outside the preemption period , first activation
+			#print " outside the preemption period "
+			#logger.info('outside the preemption period')	
+			# before action, evaluate if trigger number is reached
 	
-		if validinterruptcount>=interrupt_triggernumber:
-
 					
 			print("Implement Actuator Value ", value)
 			logger.info('Procedure to start actuator %s, for value = %s', element, value)		
@@ -527,58 +529,49 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 					statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
 				
 			
-			#save data
-			print("first save in database")
-			saveblockingdiff(sensor)
-			#--				
+		
 			# start the blocking state
 			print("Start blocking state")
 			startblockingstate(element,preemptiontime)
 			
-			#save data
-			saveblockingdiff(sensor)
-			#--					
+			
 
+
+		else:
+			# inside blocking state, this is the follow-up
+			#print " inside the preemption period, starting followup actions: " , actionmodeafterfirst
+			#logger.info('inside the preemption period, check followup actions %s :', actionmodeafterfirst)
+			
+			if actionmodeafterfirst=="None":
+				return
+				
+			if actionmodeafterfirst=="Extend blocking state": # extend only the pre-emption blocking period, no action
+				print("Extend blocking state")
+				startblockingstate(element,preemptiontime)
+
+			if actionmodeafterfirst=="Remove blocking state" or actionmodeafterfirst=="Remove and Follow-up": # remove the pre-emption blocking period, no action
+				print("Remove blocking state")
+				endblocking(element)
+			
+
+			if actionmodeafterfirst=="Follow-up action" or actionmodeafterfirst=="Remove and Follow-up": # execute the action followup, no variation in the preemption period
+				value=actuatoroutputfollowup
+				# followup action					
+				print("Implement Actuator Value followup", value)
+				logger.info('Procedure to start actuator followup %s, for value = %s', element, value)		
+				isok=activateactuator(element, value)
 					
-
-		
-			
-
-	else:
-		# inside blocking state
-		#print " inside the preemption period, starting followup actions: " , actionmodeafterfirst
-		#logger.info('inside the preemption period, check followup actions %s :', actionmodeafterfirst)
-		
-		if actionmodeafterfirst=="None":
-			return
-			
-		if actionmodeafterfirst=="Extend blocking state": # extend only the pre-emption blocking period, no action
-			print("Extend blocking state")
-			startblockingstate(element,preemptiontime)
-
-		if actionmodeafterfirst=="Remove blocking state" or actionmodeafterfirst=="Remove and Follow-up": # remove the pre-emption blocking period, no action
-			print("Remove blocking state")
-			endblocking(element)
-		
-
-		if actionmodeafterfirst=="Follow-up action" or actionmodeafterfirst=="Remove and Follow-up": # execute the action followup, no variation in the preemption period
-			value=actuatoroutputfollowup
-			# followup action					
-			print("Implement Actuator Value followup", value)
-			logger.info('Procedure to start actuator followup %s, for value = %s', element, value)		
-			isok=activateactuator(element, value)
-				
-			# invia mail, considered as info, not as alert
-			if mailtype!="none":
-				if mailtype!="warningonly":
-					textmessage="INFO: " + sensor + " event , activating:" + element + " with Value " + str(value)
-					x = threading.Thread(target=emailmod.sendallmail, args=("alert", textmessage))
-					x.start()
-					#emailmod.sendallmail("alert", textmessage)
-				if isok:
-					statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
-					statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
-				
+				# invia mail, considered as info, not as alert
+				if mailtype!="none":
+					if mailtype!="warningonly":
+						textmessage="INFO: " + sensor + " event , activating:" + element + " with Value " + str(value)
+						x = threading.Thread(target=emailmod.sendallmail, args=("alert", textmessage))
+						x.start()
+						#emailmod.sendallmail("alert", textmessage)
+					if isok:
+						statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
+						statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
+					
 	return isok
 		
 
@@ -587,6 +580,13 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 def startblockingstate(element,periodsecond,saveend=True):
 	#logger.warning("StartBOLCKINGSTATE Started ---> Period %d", periodsecond)
 	global BLOCKING_data
+	sensor=interruptdbmod.searchdata("element",element,"sensor")	
+	#save data
+	print("first save in database")
+	if saveend:
+		saveblockingdiff(sensor)
+	#--				
+
 	if periodsecond>0:
 		global AUTO_data
 		# in case another timer is active on this element, cancel it 
@@ -595,12 +595,17 @@ def startblockingstate(element,periodsecond,saveend=True):
 			#print "cancel the Thread of element=",element
 			threadID.cancel()
 		else:
-			sensor=interruptdbmod.searchdata("element",element,"sensor")
+
 			# change blocking counter
 			BlockingNumbers=statusdataDBmod.read_status_data(BLOCKING_data,sensor,"BlockingNumbers")	
 			BlockingNumbers=BlockingNumbers+1
 			statusdataDBmod.write_status_data(BLOCKING_data,sensor,"BlockingNumbers",BlockingNumbers)
 			#--
+						
+			#save data
+			if saveend:
+				saveblockingdiff(sensor)
+			#--			
 		
 		statusdataDBmod.write_status_data(AUTO_data,element,"blockingstate",True)
 		statusdataDBmod.write_status_data(hardwaremod.Blocking_Status,element,"priority",ACTIONPRIORITYLEVEL) #increse the priority to execute a command
@@ -615,12 +620,13 @@ def startblockingstate(element,periodsecond,saveend=True):
 def endblocking(element, saveend=True):
 
 	sensor=interruptdbmod.searchdata("element",element,"sensor")
-	#save data
-	if saveend:
-		saveblockingdiff(sensor)
-	#--		
 	if checkstopcondition(element):
 		global AUTO_data
+		#save data
+		if saveend:
+			saveblockingdiff(sensor)
+		#--		
+		
 		threadID=statusdataDBmod.read_status_data(AUTO_data,element,"threadID")
 		if threadID!=None and threadID!="":
 			#print "cancel the Thread of element=",element

@@ -636,6 +636,20 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - fixed the midnight activity
 
+2020-05-18 -> release 320b
+
+- Fix bug in interrupt "Frequency Algorithm" when activation in blocking mode
+
+
+2020-05-18 -> release 320d-f
+
+- Improve the interrupt algorithm
+- Fix the "watercontrol" field usage
+
+2020-05-18 -> release 321
+
+- Add the disable WiFi option
+
 
 ------- Future releases: -----------
 

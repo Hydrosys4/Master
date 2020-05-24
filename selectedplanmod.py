@@ -250,9 +250,13 @@ def heartbeat():
 	connectedssid=networkmod.connectedssid()
 	connected=False
 	if len(connectedssid)==0:
-		logger.warning('Heartbeat check , no network connected -------------- try to connect')
-		print('Heartbeat check , no network connected -------------- try to connect')
-		connected=networkmod.connect_network()
+
+		if not networkmod.WIFIENDIS=="Disabled":
+			logger.warning('Heartbeat check , no network connected -------------- try to connect')
+			print('Heartbeat check , no network connected -------------- try to connect')			
+			connected=networkmod.connect_network()
+		else:
+			logger.info('Heartbeat check , wifi disabled')
 	else:
 		logger.info('Heartbeat check , Connected Wifi Network: %s ', connectedssid[0])
 		if connectedssid[0]==networkmod.localwifisystem:

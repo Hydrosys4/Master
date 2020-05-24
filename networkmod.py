@@ -26,6 +26,7 @@ if localwifisystem=="":
 LOCALPORT=5020
 PUBLICPORT=networkdbmod.getPORT()
 WAITTOCONNECT=networkdbmod.getWAITTOCONNECT()
+WIFIENDIS=networkdbmod.getWIFIENDIS()
 if WAITTOCONNECT=="":
 	WAITTOCONNECT=180 # should be 180 at least
 	networkdbmod.changesavesetting('APtime',WAITTOCONNECT) # if field not present it will be added
@@ -815,11 +816,26 @@ def connect_network_init(internetcheck=False, backtoAP=False):
 	
 	return connected
 
+def Disable_WiFi():
+	logger.info('Try to disable WiFi network')
+	print("try to disable WiFi network")
+	isOk=wpa_cli_mod.disable_all("wlan0")	
+	#ifdown("wlan0")		
+	stop_dnsmasq()	
+	stop_hostapd()
+
+
 
 def connect_network(internetcheck=False, backtoAP=False):
 	# this is the procedure that disable the AP and connect to wifi network 
 	connected=False
-	print(" try to connect to wifi network")
+	
+	if WIFIENDIS=="Disabled":  # WIFI disables setting
+		logger.info('Wifi set to disabled')	
+		Disable_WiFi()	
+		return connected
+	
+	
 	thessid=connect_preconditions() # get the first SSID of saved wifi network to connect with and see if the SSID is on air
 	
 	

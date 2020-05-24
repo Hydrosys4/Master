@@ -101,6 +101,14 @@ def getWAITTOCONNECT():
 	keytosearch="APtime"
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
+
+def getWIFIENDIS():
+	recordkey="name"
+	recordvalue="IPsetting"
+	keytosearch="WIFIENDIS"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	return dataitem
+
 	
 def getCUSTOMURL():
 	recordkey="name"
