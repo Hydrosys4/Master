@@ -1,1 +1,0 @@
-{"workmode": "SceduledTime", "element": "", "waterZone": "","minactivationsec": "30", "time":"01:00"}
