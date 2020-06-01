@@ -1,1 +1,0 @@
-{"element": "", "sensor_threshold": ["2.0", "4.0"],"workmode": "None","sensor": "","stepnumber": "1","allowedperiod": ["00:00","00:00"], "pausebetweenwtstepsmin":"45", "averagesample":"2", "mailalerttype":"warningonly" , "actuator_threshold": ["0.0", "0.0"] ,"mathoperation":"average" }
