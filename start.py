@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.21"
+Release="3.21b"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -1257,10 +1257,17 @@ def testit():
 	ret_data={}
 	
 	name=request.args['name']
-	if name=="testing":
+	if name=="testing1":
 		answer="done"
-		print("testing")
-		answer=Autotesting()
+		print("testing1")
+		answer=Autotesting1()
+
+	name=request.args['name']
+	if name=="testing2":
+		answer="done"
+		print("testing2")
+		answer=Autotesting2()
+
 
 	ret_data = {"answer": answer}
 	print("The actuator ", ret_data)
@@ -2922,11 +2929,18 @@ def currentpath(filename):
 	return os.path.join(MYPATH, filename)
 
 
-def Autotesting():
+def Autotesting1():
 	print("Auto testing Automation HAT")
 	print("Ensure that the right HWsetting is loaded")
 	
-	ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
+	#ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
+	recordkey=hardwaremod.HW_INFO_IOTYPE
+	recordvalue="output"
+	recordkey1=hardwaremod.HW_CTRL_CMD
+	recordvalue1="pulse"
+	keytosearch="name"
+	ActuatorList=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
+
 
 	for target in ActuatorList:
 		hardwaremod.makepulse(target,"1",True, 0)
@@ -2957,19 +2971,87 @@ def Autotesting():
 				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
 			else:
 				 Errorcounter=Errorcounter+1
-				 print(" sensorname " , sensorname , " data out of range :( ")
+				 errorstring=" sensorname " + sensorname + " data out of range :( "
+				 print(errorstring)
+				 break
 		except:
 			Errorcounter=Errorcounter+1
-			print(" sensorname " , sensorname , " Not able to read the sensor :( ")
+			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
+			print(errorstring)
+			break
 		time.sleep(1)			
 		
 	if Errorcounter>0:
-		returnstr="Probelms :("
+		returnstr="Probelms " + errorstring
 	else:
 		returnstr="Well DONE ! :)"
 		
 	return returnstr
 
+
+def Autotesting2():
+	print("Auto testing Automation HAT")
+	print("Ensure that the right HWsetting is loaded")
+	
+	#ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
+	recordkey=hardwaremod.HW_INFO_IOTYPE
+	recordvalue="output"
+	recordkey1=hardwaremod.HW_CTRL_CMD
+	recordvalue1="pulse"
+	keytosearch="name"
+	ActuatorList=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
+
+	# test pulse actuators
+	for target in ActuatorList:
+		hardwaremod.makepulse(target,"1",True, 0)
+		print(" Actuator ", target)
+		time.sleep(1.5)
+		
+	# test PINS of irrigation hat
+	PINlist=["7","8"]
+	for PIN in PINlist:
+		hardwaremod.GPIO_setup(PIN, "out" , "pull_down")
+		recdata=[]
+		priority=0
+		sendstring="pulse:"+PIN+":"+"2"+":"+"neg"+":"+"0"
+		ack=hardwaremod.sendcommand("pulse",sendstring,recdata,target,priority)	
+		time.sleep(1)		
+	
+	Sensorlist=[ 
+		{"name":"humidsensor1","min":0, "max":100},
+		{"name":"tempsensor1", "min":10, "max":40},
+		{"name":"lightsensor1","min":10, "max":5000}
+	]
+	Errorcounter=0
+	for sensor in Sensorlist:
+		sensorname=sensor["name"]
+		rangemin=sensor["min"]
+		rangemax=sensor["max"]
+		readingstr=hardwaremod.getsensordata(sensorname,1)
+		try:
+			reading=float(readingstr)
+			print(" sensorname " , sensorname , " data " , reading)	
+				
+			if (reading>rangemin)and(reading<rangemax):
+				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
+			else:
+				 Errorcounter=Errorcounter+1
+				 errorstring=" sensorname " + sensorname + " data out of range :( "
+				 print(errorstring)
+				 break
+		except:
+			Errorcounter=Errorcounter+1
+			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
+			print(errorstring)
+			break
+		time.sleep(1)			
+		
+	if Errorcounter>0:
+		returnstr="Probelms " + errorstring
+	else:
+		returnstr="Well DONE ! :)"
+		
+	return returnstr
 
 def functiontest():
 	print(" testing ")
