@@ -142,6 +142,8 @@ Blocking_Status["default"]={'priority':0} # priority level, the commands are exe
 Actuator_Enable_Status={}
 Actuator_Enable_Status["default"]={'Enabled':"enable"}
 
+Data_Visible_Status={}
+Data_Visible_Status["default"]={'Visible':"True"}
 
 # ///////////////// --- END STATUS VARIABLES ------
 
@@ -156,6 +158,16 @@ def WriteActuatorEnabled(Target, status):
 	global Actuator_Enable_Status
 	statusdataDBmod.write_status_data(Actuator_Enable_Status,Target,'Enabled',status,True,"Actuator_Enable_Status")
 	
+# Status variable  --> Data_Visible_Status
+
+def ReadVisibleStatus(Target):
+	return statusdataDBmod.read_status_data(Data_Visible_Status,Target,'Visible',True,"Data_Visible_Status")
+
+def WriteVisibleStatus(Target, status):
+	global Data_Visible_Status
+	statusdataDBmod.write_status_data(Data_Visible_Status,Target,'Visible',status,True,"Data_Visible_Status")
+
+
 
 
 #-- start filestorage utility--------////////////////////////////////////////////////////////////////////////////////////	

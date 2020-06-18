@@ -650,6 +650,15 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Add the disable WiFi option
 
+2020-06-13 -> release 321b
+
+- Added autotesting for the Irrigation hat
+
+2020-06-17 -> release 321c
+
+- Add setup for the DATA page where to set items visible or not visible
+
+
 
 ------- Future releases: -----------
 

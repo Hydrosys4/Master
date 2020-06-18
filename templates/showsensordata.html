@@ -903,18 +903,19 @@ $(function() {
 
 
 
-							<div class="page-header">
+			<div class="page-header">
 
-										<h4>Delete Data Record</h4>
+						<h4>Delete Data Record</h4>
 
-							</div>
-							<div class="row">							
-									<div class="col-xs-12">
-									<button class="thebutton btn btn-default" idref="actionbtn"  type="submit" name="delete">Delete all data</button>
-									</div>
-									
+			</div>
+			<div class="row">							
+					<div class="col-xs-12">
+					<button class="thebutton btn btn-default" idref="actionbtn"  type="submit" name="delete">Delete all data</button>
+					</div>
+					
 
-							</div>
+			</div>
+
 
 				
 		</form>	
@@ -936,7 +937,27 @@ $(function() {
 		
 		</script>  
 
+	<form novalidate="true" action="{{ url_for('DATAsetup') }}" id="DATAsetup" method="post" >
+ 			<div class="page-header">
+
+						<h4>Setting</h4>
+
+			</div>
+ 
+			<div class="row">
+				<div class="col-xs-4">
+				
+					<!-- advanced setting button -->
+			
+					<button name="buttonsub" value="show" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
+						Advanced Setting
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
 		
+				</div>
+			</div>
+
+		</form> 
 		
 		
 		

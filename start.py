@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.21b"
+Release="3.21c"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -1671,7 +1671,45 @@ def sethbridge():  # set the hbridge zero point
 
 
 	return render_template('sethbridge.html',hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist)
-		
+
+
+@application.route('/DATAsetup/', methods=['GET', 'POST'])
+def DATAsetup():  # set the items to ble visualized by default in the graphs
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+
+	print (" we are here to show data")
+
+	sensorlist=sensordbmod.gettablelist()
+	actuatorlist=actuatordbmod.gettablelist()
+	itemslist = sensorlist + actuatorlist
+
+	if request.method == 'POST':
+		requesttype=request.form['buttonsub']
+		if requesttype=="cancel":
+			return redirect(url_for('show_sensordata'))	
+		if requesttype=="save":
+			for item in itemslist:
+				#print "selsettingactive_" + item
+				isactive=request.form["selsettingactive_" + item]
+				#save isactive
+				hardwaremod.WriteVisibleStatus(item,isactive)
+
+			return redirect(url_for('show_sensordata'))	
+	
+	
+
+	finalitemlist=[]
+	for item in itemslist:
+		dicttemp={}
+		dicttemp["name"]=item
+		dicttemp["active"]=hardwaremod.ReadVisibleStatus(item)
+		finalitemlist.append(dicttemp)
+
+	print(finalitemlist)
+
+	return render_template('DATAsetup.html', finalitemlist=finalitemlist)
+
 	
 @application.route('/Sensordata/', methods=['GET', 'POST'])
 def show_sensordata():
@@ -1719,8 +1757,7 @@ def show_sensordata():
 		daysinthepast=perioddaysdict[periodtype]
 		enddate=datetime.now()			
 		startdate = enddate - timedelta(days=daysinthepast)	
-
-		
+	
 	else:
 
 		sensorlist=sensordbmod.gettablelist()
@@ -1749,10 +1786,32 @@ def show_sensordata():
 		
 			
 		
-		sensordata, usedsensorlist = sensordbmod.getAllSensorsDataPeriodv2(enddate,daysinthepast)		
+		sensordatafull, usedsensorlistfull = sensordbmod.getAllSensorsDataPeriodv2(enddate,daysinthepast)		
 
 
-		actuatordata,usedactuatorlist=actuatordbmod.getAllActuatorDataPeriodv2(enddate,daysinthepast)
+		actuatordatafull,usedactuatorlistfull =actuatordbmod.getAllActuatorDataPeriodv2(enddate,daysinthepast)
+
+		# Modify usedsensorlist and usedactuatorlist and remove the item that should be not visible
+		usedsensorlist=[]
+		sensordata=[]
+		for inde in range(len(usedsensorlistfull)):
+			item=usedsensorlistfull[inde]
+			print ("item ", item , " visible ", hardwaremod.ReadVisibleStatus(item))
+			if hardwaremod.ReadVisibleStatus(item)=="True":
+				usedsensorlist.append(item)
+				sensordata.append(sensordatafull[inde])
+		
+		print("SENSOR LIST USED ", usedsensorlist )
+
+		usedactuatorlist=[]
+		actuatordata=[]
+		for inde in range(len(usedactuatorlistfull)):
+			item=usedactuatorlistfull[inde]
+			print ("item ", item , " visible ", hardwaremod.ReadVisibleStatus(item))
+			if hardwaremod.ReadVisibleStatus(item)=="True":
+				usedactuatorlist.append(item)
+				actuatordata.append(actuatordatafull[inde])
+
 
 		actuatorlist=actuatordbmod.gettablelist()
 		# associate same number to coupled actuators and sensors

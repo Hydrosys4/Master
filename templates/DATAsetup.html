@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+{% set active_page = "showsensordata" %}
+{% block body %}
+  {% if session.logged_in %}
+  
+   
+<div class="container-fluid">
+		
+		
+
+		
+		
+								
+  <form  action="{{ url_for('DATAsetup') }}" id="menuForm3" class="jotform-form" method="post" >
+													
+
+	<div class="well bs-component">				
+			<!-- watering actuator choice  -->
+		<div class="form-group">			
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<legend>Select data to show in the Graph</legend>  
+			</div>	
+		</div>	
+		</div>	
+			
+		 <table class="table table-sm" style="width: 100%">
+				<colgroup>
+				   <col span="1" style="width: 5%;">
+				   <col span="1" style="width: 95%;">
+				</colgroup>
+		   	<tbody>		
+			
+			{% for item in finalitemlist %}
+			<tr>		
+				<td>
+					
+						{% if item.active=="True" %}
+						<input class="toggle-event" checked="checked" type="checkbox" reference="selsettingactive_{{ item.name }}">
+						<input value="True" id="selsettingactive_{{ item.name }}" name="selsettingactive_{{ item.name }}" type="hidden">					
+						{% else %}						
+						<input class="toggle-event" type="checkbox" reference="selsettingactive_{{ item.name }}">
+						<input value="False" id="selsettingactive_{{ item.name }}" name="selsettingactive_{{ item.name }}" type="hidden">	
+						{% endif %}
+
+
+				</td>						
+				<td>
+
+						<label>{{ item.name }}</label>
+
+				</td>
+
+			</tr>					
+			{% endfor %}	
+			
+
+			</tbody>
+		</table>
+		
+	</div> <!-- well componenet -->									
+				
+	<div class="form-group">
+        <div class="col-lg-10">
+		<button name="buttonsub" value="cancel" type="submit" class="thebutton btn btn-sm btn-warp">
+			cancel
+		</button>								
+
+		
+		<button name="buttonsub" value="save" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
+			Save
+		<span class="glyphicon glyphicon-cog"></span>
+		</button>
+	</div>
+	</div>
+		
+		
+		
+		
+		
+		
+
+
+		</form>
+
+
+	
+</div>
+
+
+
+
+			<script>
+			  $(function() {
+				$('.toggle-event').change(function() {
+					var togglevalue=$(this).prop('checked');
+					var reference=$(this).attr('reference');		
+					if (togglevalue==true) {
+						$("#"+reference).val("True");										
+					} else {
+						$("#"+reference).val("False");	
+					}
+				})
+			  })
+			</script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+																																						
+
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}
