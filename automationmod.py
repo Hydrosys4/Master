@@ -278,6 +278,10 @@ def activateactuator(target, value):  # return true in case the state change: ac
 	# check the actuator 
 	isok=False
 	actuatortype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,target,hardwaremod.HW_CTRL_CMD)
+	actuatortypelist=actuatortype.split("/")
+	if actuatortypelist:
+		actuatortype=actuatortypelist[0]
+	print (" Automation Actuator " + actuatortype + "  target " +  target)
 	supportedactuators=["pulse","servo","stepper"]
 	# stepper motor
 	if actuatortype=="stepper":

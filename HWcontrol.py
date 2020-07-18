@@ -141,6 +141,7 @@ def execute_task(cmd, message, recdata):
 	global stepper_data
 	global hbridge_data
 	
+	print(" RASPBERRY HARDWARE CONTROL ")
 	
 	if cmd==HWCONTROLLIST[0]:
 		return get_DHT22_temperature(cmd, message, recdata , DHT22_data)
@@ -1069,7 +1070,22 @@ def gpio_pulse(cmd, message, recdata):
 	MAX=0	
 	if messagelen>6:	
 		MAX=int(msgarray[6])	
-	
+
+	activationmode=""
+	if messagelen>7:	
+		activationmode=msgarray[7]
+
+	if isPinActive(PIN,logic):
+		if activationmode=="NOADD": # no action needed
+			print("No Action, pulse activated when PIN already active and activationmode is NOADD")
+			logger.warning("No Action, pulse activated when PIN already active and activationmode is NOADD")
+			successflag=1
+			recdata.append(cmd)
+			recdata.append(PIN)
+			recdata.append(successflag)
+			return True
+
+
 
 	# in case another timer is active on this PIN, cancel it 
 	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
@@ -1124,6 +1140,17 @@ def gpio_stoppulse(cmd, message, recdata):
 	MAX=0	
 	if messagelen>6:	
 		MAX=int(msgarray[6])	
+	
+	
+	if not isPinActive(PIN,logic):
+		print("No Action, Already OFF")
+		logger.warning("No Action, Already OFF")
+		successflag=1
+		recdata.append(cmd)
+		recdata.append(PIN)
+		recdata.append(successflag)
+		return True	
+	
 	
 	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
 	if not PINthreadID==None:
@@ -1446,6 +1473,7 @@ def sendcommand(cmd, message, recdata):
 	if ISRPI:
 		ack=execute_task(cmd, message, recdata)
 	else:
+		print(" NO Raspberry detected ")
 		ack=execute_task_fake(cmd, message, recdata)
 	return ack
 	

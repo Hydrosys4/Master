@@ -11,7 +11,7 @@ set -x
 function killpython()
 {
 
-sudo killall python
+sudo killall python3
 
 }
 
@@ -61,28 +61,32 @@ function install_dependencies()
 
 #--- start installing dependencies
 
-sudo apt-get -y install python-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo apt-get -y install python-pip || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install flask || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install apscheduler || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install pyserial || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install python3-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt -y install python3-pip || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip3 install flask || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip3 install apscheduler || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip3 install pyserial || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get install python3-future
 
 #(for the webcam support)
 sudo apt-get -y install fswebcam || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 #(for the image thumbnail support)
 sudo apt-get -y install libjpeg-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-sudo pip install Pillow || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt install libopenjp2-7
+sudo pip3 install pillow || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 #(for external IP address, using DNS)
 sudo apt-get -y install dnsutils || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 #(encryption)
-sudo pip install pbkdf2 || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip3 install pbkdf2 || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 #(web server)
-sudo pip install tornado || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip3 install tornado || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
+#(GPIO)
+sudo pip3 install RPi.GPIO
 }
 
 function enable_I2C()
@@ -116,7 +120,7 @@ sed -i -e "\$abcm2835-v4l2" $aconf
 
 
 # --- install I2C tools
-sudo apt-get -y install git build-essential python-dev python-smbus || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install git build-essential python3-dev python3-smbus || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 sudo apt-get -y install -y i2c-tools  || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 }
@@ -153,7 +157,7 @@ hwclock -s || true
 
 echo "HYDROSYS4-start system ****************************************"
 cd /home/pi/env/autonom/
-sudo python /home/pi/env/autonom/bentornado.py &
+sudo python3 /home/pi/env/autonom/bentornado.py &
 
 #END HYDROSYS4 SECTION
 
@@ -272,33 +276,6 @@ fi
 
 
 
-install_MotorShieldlib ()
-{
-
-# --- installing the python dev-library
-sudo apt-get -y install build-essential python-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-
-# check if file exist in local folder
-aconf="/home/pi/env/autonom/libraries/MotorHat/master.zip"
-if [ -f $aconf ]; then
-	cd /home/pi/env/autonom/libraries/MotorHat
-	unzip master.zip
-	cd Adafruit-Motor-HAT-Python-Library-master
-	sudo python setup.py install
-	cd /home/pi
-else
-	cd /home/pi
-	sudo rm -r MotorHat
-	mkdir MotorHat
-	cd MotorHat
-	wget https://github.com/adafruit/Adafruit-Motor-HAT-Python-Library/archive/master.zip
-	unzip master.zip
-	cd Adafruit-Motor-HAT-Python-Library-master
-	sudo python setup.py install
-	cd /home/pi
-fi
-}
-
 
 
 
@@ -306,28 +283,19 @@ install_DHT22lib ()
 {
 
 # --- installing the DHT22 Sensor libraries	
-sudo apt-get -y install build-essential python-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install build-essential python3-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
-# check if file exist in local folder
+# This is just going to install the lybrary present in local folder
 aconf="/home/pi/env/autonom/libraries/DHT22/master.zip"
 if [ -f $aconf ]; then
 
 	cd /home/pi/env/autonom/libraries/DHT22
 	unzip master.zip
 	cd Adafruit_Python_DHT-master
-	# setup1plus is file that try to make the DTH22 work with both RaspberryPi zero,1 and model 2,3 
-	sudo python setup1plus.py install
+	# setup1plus is file that make the DTH22 work with both RaspberryPi zero,1 and model 2,3 
+	sudo python3 setup1plus.py install
 	cd /home/pi
-else
-	cd /home/pi
-	sudo rm -r DHT22
-	mkdir DHT22
-	cd DHT22
-	wget https://github.com/adafruit/Adafruit_Python_DHT/archive/master.zip
-	unzip master.zip
-	cd Adafruit_Python_DHT-master
-	sudo python setup.py install
-	cd /home/pi
+
 fi
 }
 
@@ -338,72 +306,13 @@ install_SPIlib ()
 
 # --- INSTALL SPI library:
 
-sudo apt-get -y install python2.7-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install python3-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo pip3 install spidev
 
-# check if file exist in local folder
-aconf="/home/pi/env/autonom/libraries/SPI/master.zip"
-if [ -f $aconf ]; then
-
-	cd /home/pi/env/autonom/libraries/SPI
-	unzip master.zip
-	cd py-spidev-master
-	sudo python setup.py install
-	cd /home/pi
-else
-
-cd /home/pi
-sudo rm -r SPIDEV
-mkdir SPIDEV
-cd SPIDEV
-
-wget https://github.com/Gadgetoid/py-spidev/archive/master.zip
-
-unzip master.zip
-
-rm master.zip
-
-cd py-spidev-master
-
-sudo python setup.py install
-
-cd ..
-cd ..
-
-fi
 }
 
 
-install_BMPlib ()
-{
 
-# --- INSTALL BMP180 library (pressure sensor)
-
-sudo apt-get -y install build-essential python-dev python-smbus || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
-
-
-# check if file exist in local folder
-aconf="/home/pi/env/autonom/libraries/BMP/master.zip"
-if [ -f $aconf ]; then
-
-	cd /home/pi/env/autonom/libraries/BMP
-	unzip master.zip
-	cd Adafruit_Python_BMP-master
-	sudo python setup.py install
-	cd /home/pi
-else
-
-cd /home/pi
-sudo rm -r bmp180
-sudo mkdir bmp180
-cd bmp180
-wget https://github.com/adafruit/Adafruit_Python_BMP/archive/master.zip
-cd Adafruit_Python_BMP-master
-sudo python setup.py install
-cd ..
-cd ..
-
-fi
-}
 
 
 install_hydrosys4 ()
@@ -423,7 +332,7 @@ else
 	cd env
 	sudo rm -r autonom
 	git clone https://github.com/Hydrosys4/Master.git
-	sudo killall python
+	sudo killall python3
 	mv Master autonom
 	cd ..
 
@@ -602,7 +511,7 @@ cd ..
 
 install_nginx ()
 {
-# this function is not used anymore
+# this function is used
 cd /home/pi
 
 sudo apt-get -y install nginx
@@ -651,7 +560,7 @@ cd ..
 
 install_squid3 ()
 {
-# this function is used to install the squid3 program used as reverse proxy
+# this function is NOT USED
 cd /home/pi
 
 sudo apt-get install squid3 -y || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
@@ -798,8 +707,6 @@ install_nginx
 install_hydrosys4 # this should be called before the DHT22 , SPI and BMP due to local library references
 install_DHT22lib
 install_SPIlib
-install_BMPlib
-install_MotorShieldlib
 edit_defaultnetworkdb
 #edit_networkdb
 iptables_blockports

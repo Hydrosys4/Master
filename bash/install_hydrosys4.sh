@@ -241,6 +241,23 @@ if [ "$ChangeHostName" == "y" ]; then
 	echo "Confirmed Hostname: "$NewHostName
 fi
 
+read -p "Do you want to install MQTT support? (y,n): " -e -i y MQTTsupport
+echo "Confirmed Answer: "$MQTTsupport
+
+}
+
+
+install_MQTTsupport ()
+{
+
+# --- change system hostname
+if [ "$MQTTsupport" == "y" ]; then
+
+	sudo apt-get -y install mosquitto || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+	sudo pip3 install paho-mqtt
+	
+fi
+
 }
 
 
@@ -707,6 +724,7 @@ install_nginx
 install_hydrosys4 # this should be called before the DHT22 , SPI and BMP due to local library references
 install_DHT22lib
 install_SPIlib
+install_MQTTsupport
 edit_defaultnetworkdb
 #edit_networkdb
 iptables_blockports

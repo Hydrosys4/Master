@@ -658,7 +658,15 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Add setup for the DATA page where to set items visible or not visible
 
+2020-07-12 -> release 322
 
+- Add initial support for MQTT
+- Broker integrated in the Raspberry
+- Support output pulse operations
+
+2020-07-18 -> release 322c
+
+- Add option in Hydrosys4 installer to install the Mqtt local broker
 
 ------- Future releases: -----------
 

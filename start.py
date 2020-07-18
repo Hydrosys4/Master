@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.21c"
+Release="3.22c"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -178,7 +178,9 @@ if not isconnecting:
 	if not selectedplanmod.CheckNTPandAdjustClockandResetSched():
 		selectedplanmod.waitandsetmastercallback(20,0)
 
-	
+# init MQTT --------------------------------------
+# to connect with the boker there is no need to wait the network connection as thie broker is localhost. In case not localhost then it will retry in the hearthbeat function
+hardwaremod.initMQTT()
 
 	
 #prove varie qui ---------------------------------------------------
@@ -742,7 +744,7 @@ def echohome():
 			paneldatarow["max"]=""
 			paneldatarow["unit"]=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_INFO_MEASUREUNIT)
 			cmdtype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,name,hardwaremod.HW_CTRL_CMD)
-			if cmdtype=="pulse":
+			if cmdtype.split("/")[0]=="pulse":
 				paneldatarow["enabled"]=hardwaremod.ReadActuatorEnabled(name)
 			else:
 				paneldatarow["enabled"]="none"
@@ -831,6 +833,9 @@ def doit():
 	ret_data={}
 	argumentlist=request.args.getlist('name')
 	name=argumentlist[0]
+	namelist=name.split("/")
+	if namelist:
+		name=namelist[0]
 	#print "value passed ", argumentlist
 	#print "type " , name 
 	
@@ -1257,6 +1262,12 @@ def testit():
 	ret_data={}
 	
 	name=request.args['name']
+	if name=="testing":
+		answer="done"
+		print("testing")
+		answer=Generictesting()	
+	
+	name=request.args['name']
 	if name=="testing1":
 		answer="done"
 		print("testing1")
@@ -1267,6 +1278,7 @@ def testit():
 		answer="done"
 		print("testing2")
 		answer=Autotesting2()
+
 
 
 	ret_data = {"answer": answer}
@@ -1514,12 +1526,11 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	
 
 	actuatorlist=[]
-	actuatorlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"pulse",hardwaremod.HW_INFO_NAME)
+	actuatorlist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"pulse*",hardwaremod.HW_INFO_NAME)
 	
 
 	#print " actuator list " , actuatorlist
-	lightsetting=[]
-	lightsetting.append(hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,"light1",hardwaremod.HW_FUNC_TIME))
+
 	photosetting=[]
 	photosetting.append(hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_FUNC_TIME))
 	photosetting.append(hardwaremod.searchdata(hardwaremod.HW_FUNC_USEDFOR,"photocontrol",hardwaremod.HW_CTRL_LOGIC))
@@ -1580,7 +1591,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	print("Current timezone ->", timezone)
 	
 	
-	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,lightsetting=lightsetting,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
+	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
 
 
 @application.route('/setinputcalibration/', methods=['GET', 'POST'])
@@ -2987,6 +2998,18 @@ def weatherAPI():
 def currentpath(filename):
 	return os.path.join(MYPATH, filename)
 
+def Generictesting():
+	print("Generic testing routine")
+	Errorcounter=0
+	hardwaremod.initMQTT()
+
+		
+	if Errorcounter>0:
+		returnstr="Probelms " + errorstring
+	else:
+		returnstr="No error"
+		
+	return returnstr
 
 def Autotesting1():
 	print("Auto testing Automation HAT")

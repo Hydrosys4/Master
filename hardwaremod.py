@@ -19,6 +19,7 @@ from datetime import datetime,date,timedelta
 import time
 import filestoragemod
 import HWcontrol
+import MQTTcontrol
 import photomod
 import cameradbmod
 import struct
@@ -87,7 +88,7 @@ HWdataKEYWORDS[HW_INFO_IOTYPE]=["input"  , "output" ]
 HWdataKEYWORDS[HW_INFO_NAME]=[]
 HWdataKEYWORDS[HW_INFO_MEASUREUNIT]=MEASUREUNITLIST
 HWdataKEYWORDS[HW_INFO_MEASURE]=MEASURELIST
-HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST
+HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST+MQTTcontrol.HWCONTROLLIST
 HWdataKEYWORDS[HW_CTRL_PIN]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 HWdataKEYWORDS[HW_CTRL_PIN2]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 
@@ -265,7 +266,10 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 			#print " Target output ", target , "priority status: ", prioritystatus , " Command Priority: ", priority
 			#check if the actions are blocked
 			if priority>=prioritystatus:
-				return HWcontrol.sendcommand(cmd,sendstring,recdata)
+				if cmd in HWcontrol.HWCONTROLLIST:
+					return HWcontrol.sendcommand(cmd,sendstring,recdata)
+				elif cmd in MQTTcontrol.HWCONTROLLIST:
+					return MQTTcontrol.sendcommand(cmd,sendstring,recdata)
 			else:
 				successflag=0
 				recdata.append(cmd)
@@ -280,7 +284,10 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 			return True
 			
 	else:
-		return HWcontrol.sendcommand(cmd,sendstring,recdata)
+		if cmd in HWcontrol.HWCONTROLLIST:
+			return HWcontrol.sendcommand(cmd,sendstring,recdata)
+		elif cmd in MQTTcontrol.HWCONTROLLIST:
+			return MQTTcontrol.sendcommand(cmd,sendstring,recdata)
 
 def normalizesensordata(reading_str,sensorname):
 	scaledefault=1
@@ -362,22 +369,16 @@ def getsensordata(sensorname,attemptnumber): #needed
 	return Thereading
 
 def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , addtime=True extend the pulse time with new time , addtime=False let the current pulse finish , 
+	
+	if addtime:
+		activationmode="ADD"
+	else:
+		activationmode="NOADD"
+	
+	
 	#search the data in IOdata
-	
-	#print "Check target is already ON ", target
-	activated=getpinstate(target, priority)
-	if activated=="error":
-		return "error"
-	if activated=="on":
-		if not addtime:
-			print("Already ON, no action")
-			return "Already ON"
-		else:
-			print("Already ON, add time")
 
-	
-	#print "Fire Pulse - ", target
-	
+	command=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)	
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
 	
 
@@ -395,14 +396,18 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 	# MIN and MAX are the duration of the subpulses in seconds.
 	MIN=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MIN),0)
 	MAX=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MAX),0)
+	
+	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)	
+	
 	if MIN and MAX:
 		# dual pulse setting
 		if (MIN>=testpulsetimeint)or(MAX>=testpulsetimeint):
 			return "error MIN or MAX >Pulsetime"
-		sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)
+		sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)+":"+activationmode+":"+target+":"+title
 	else:
 		# normal pulse
-		sendstring="pulse:"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN
+		sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":0"+":0"+":"+activationmode+":"+target+":"+title
 
 	#print "logic " , logic , " sendstring " , sendstring
 	isok=False	
@@ -413,7 +418,7 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
-			ack= sendcommand("pulse",sendstring,recdata,target,priority)
+			ack= sendcommand(command,sendstring,recdata,target,priority)
 			#print "returned data " , recdata
 			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
 			if ack and recdata[2]:
@@ -430,16 +435,14 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 	
 def stoppulse(target):
 	#search the data in IOdata
-	
-	#print "Check target is already OFF ", target
-	activated=getpinstate(target)
-	if activated=="error":
-		return "error"
-	if activated=="off":
-		print("Already OFF")
-		return "Already OFF"
 
 	#print "Stop Pulse - ", target
+	cmd=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
+	cmdlist=cmd.split("/")
+	stopcmd="stoppulse"
+	if len(cmdlist)>1:
+		stopcmd=stopcmd+"/"+cmdlist[1]
+	
 	
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
 	
@@ -450,12 +453,16 @@ def stoppulse(target):
 	# MIN and MAX are the duration of the subpulses in seconds.
 	MIN=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MIN),0)
 	MAX=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MAX),0)
+		
+	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)	
+			
 	if MIN and MAX:
 		# dual pulse setting
-		sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)
+		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)+":"+address+":"+title
 	else:
 		# normal pulse
-		sendstring="stoppulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN
+		sendstring=stopcmd+"pulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":0"+":0"+":"+address+":"+title
 
 	#print "logic " , logic , " sendstring " , sendstring
 
@@ -464,7 +471,7 @@ def stoppulse(target):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= sendcommand("stoppulse",sendstring,recdata,target,5)
+		ack= sendcommand(stopcmd,sendstring,recdata,target,5)
 		#print "returned data " , recdata
 		if ack and recdata[1]!="e":
 			#print target, "correctly activated"
@@ -763,6 +770,7 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 	print(" position " , position_string)
  
 	try:
+		command=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
 		PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
 		PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)	
 		logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)	
@@ -797,7 +805,7 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 	steps=steps+zerooffset
 	
 	
-	sendstring="hbridge:"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic
+	sendstring=command+":"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic
 	print(" sendstring " , sendstring)
 
 	errorcode="error"
@@ -805,7 +813,7 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= sendcommand("hbridge",sendstring,recdata,target,priority) 
+		ack= sendcommand(command,sendstring,recdata,target,priority) 
 		print("returned data " , recdata)
 		if ack and recdata[1]!="e":
 			print(target, "correctly activated")
@@ -834,22 +842,28 @@ def sethbridgeposition(element, position):
 def getpinstate(target, priority=0):
 	#search the data in IOdata
 	print("Check PIN state ", target)
+	cmd=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
+	cmdlist=cmd.split("/")
+	pinstartecmd="pinstate"
+	cmd=pinstartecmd
+	if len(cmdlist)>1:
+		cmd=pinstartecmd+"/"+cmdlist[1]
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
-	return getpinstate_pin(PIN, logic, priority)
+	return getpinstate_pin(cmd, PIN, logic, priority)
 
 
-def getpinstate_pin(PIN, logic, priority=0):
+def getpinstate_pin(cmd, PIN, logic, priority=0):
 
-	sendstring="status:"+PIN
-
+	sendstring=cmd+":"+PIN
+	print (sendstring)
 	isok=False
 	value=0
 	i=0
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= sendcommand("pinstate",sendstring,recdata)
+		ack= sendcommand(cmd,sendstring,recdata)
 		print("returned data " , recdata)
 		if ack and recdata[1]!="e":
 			value=recdata[1]
@@ -932,6 +946,31 @@ def initallGPIOpins():
 	removeallinterruptevents()
 	checkGPIOconsistency()
 	initallGPIOoutput()
+	return True
+
+
+def initMQTT():
+	# define the list of parameters for the initialization
+	MQTTitemlist=searchdatalistinstr(HW_CTRL_CMD,"/mqtt",HW_INFO_NAME)
+
+	for items in MQTTitemlist:
+		client={}		
+		client["broker"]= searchdata(HW_INFO_NAME,items,HW_CTRL_ADDR)
+		client["port"]=1883 # for non encrypted operations
+		client["username"]=""
+		client["password"]=""
+		client["pubtopic"]="" # this will be provided during operations
+		if searchdata(HW_INFO_NAME,items,HW_INFO_IOTYPE)=="output":
+			client["subtopic"]=searchdata(HW_INFO_NAME,items,HW_CTRL_TITLE)+"/#"  #in this way it subscribe to the topic and all the sub levels topic
+		else:
+			client["subtopic"]=searchdata(HW_INFO_NAME,items,HW_CTRL_TITLE)
+		MQTTcontrol.CLIENTSLIST[items]=client
+		
+		
+		
+	print(MQTTcontrol.CLIENTSLIST)
+	MQTTcontrol.Create_connections_and_subscribe()
+
 	return True
 
 def setallGPIOinputs():	# this function sets all GPIO to input, actually it disable I2C and SPI as this functions are set using the PIN special mode Alt0
@@ -1311,10 +1350,28 @@ def searchdatalist(recordkey,recordvalue,keytosearch):
 	datalist=[]
 	for ln in IOdata:
 		if recordkey in ln:
-			if ln[recordkey]==recordvalue:
+			if "*"==recordvalue[-1]:  # last character of the string is "*"
+				pos=ln[recordkey].find(recordvalue[:-1])
+				if pos==0:
+					if keytosearch in ln:
+						datalist.append(str(ln[keytosearch]))
+				
+			else:
+				if ln[recordkey]==recordvalue:
+					if keytosearch in ln:
+						datalist.append(str(ln[keytosearch]))	
+	return datalist
+
+
+def searchdatalistinstr(recordkey,recordvalue,keytosearch):
+	datalist=[]
+	for ln in IOdata:
+		if recordkey in ln:
+			if recordvalue.upper() in ln[recordkey].upper():
 				if keytosearch in ln:
 					datalist.append(str(ln[keytosearch]))	
 	return datalist
+
 
 def searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch):
 	datalist=[]
