@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% set active_page = "" %}
+{% block body %}
+  {% if session.logged_in %}
+
+  <div class="container-fluid">
+
+
+		<div class="row">
+          <div class="col-xs-12">
+            <div class="page-header">
+				<div class="row">
+					<div class="col-xs-8">
+						<h4 id="header">EMBED PAGE</h4>
+					</div>
+				</div>
+            </div>
+          </div>
+        </div>
+         
+<iframe frameborder='0' noresize='noresize' style='position: absolute; background: transparent; width: 100%; height:100%;' src="{{ iframe }}" frameborder="0"></iframe>        
+  </div>
+        
+        
+  {% else %}
+
+		<h1>Please log in</h1>
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

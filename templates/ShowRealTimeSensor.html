@@ -17,8 +17,9 @@
 							success: function(s) {
 								var data = eval(s); // this will convert your json string to a javascript object
 								for (var key in data) {
-									//alert(key+': '+data[key]); // this will show each key with it's value
-									$('#' +key).text(data[key]);	
+									//alert(key+': '+data[key]["reading"]); // this will show each key with it's value
+									$('#' +key+"_reading").text(data[key]["reading"]);
+									$('#' +key+"_statusmsg").text(data[key]["statusmsg"]);
 						
 								}
 							},								
@@ -81,27 +82,24 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for item in sensorlist %}	
 
-					{% if selectedsensor==item %} 
 					
 					 <tr>			
-							<td >{{ item }}</td>
+							<td >{{ selectedsensor }}</td>
 
-							<td id="{{ item }}"></td>
+							<td id="{{ selectedsensor }}_reading"></td>
 							
 												
-							<td>{{ unitdict[item] }}</td>
+							<td>{{ unitdict[selectedsensor] }}</td>
 							
 					 </tr>	
 					
-					{% endif %}
-					
-					{% endfor %}
+
 				
 				</tbody>
 			</table>
  
+
 
 			<div class="row">
 			<!--  progress bar bootstrap-->
@@ -113,6 +111,15 @@
 			</div>
 			</div>
 			</div>
+			<!--   Status -->
+			 <div class="row">
+				<div class="col-xs-4">
+					<label>Status:</label>
+				</div>
+				<div class="col-xs-8">
+					<label class="form-label-left" id="{{ selectedsensor }}_statusmsg" for="input_3"></label>
+				</div>
+			</div>	
 		
 	 <button class="btn btn-success btn-default" type="submit" name="buttonsub" value="confirm">Back</button>
 	  </div>

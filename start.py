@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.22c"
+Release="3.23d"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -30,6 +30,8 @@ exc_logger = logging.getLogger('exception')
 
 from flask import Flask, request, session, g, redirect, url_for, abort, \
 	 render_template, flash, _app_ctx_stack, jsonify , Response
+
+import requests
 
 from datetime import datetime,date,timedelta
 import systemtimeMod
@@ -119,6 +121,7 @@ def runallconsistencycheck():
 	autofertilizerdbmod.consistencycheck()
 	sensordbmod.consistencycheck()
 	actuatordbmod.consistencycheck()
+	hardwaremod.initMQTT()
 	return True
 
 def runallreadfile():
@@ -178,9 +181,7 @@ if not isconnecting:
 	if not selectedplanmod.CheckNTPandAdjustClockandResetSched():
 		selectedplanmod.waitandsetmastercallback(20,0)
 
-# init MQTT --------------------------------------
-# to connect with the boker there is no need to wait the network connection as thie broker is localhost. In case not localhost then it will retry in the hearthbeat function
-hardwaremod.initMQTT()
+
 
 	
 #prove varie qui ---------------------------------------------------
@@ -681,9 +682,11 @@ def echo():
 		# take reading for all sensors
 		ret_data = hardwaremod.readallsensors()	
 	else:
-		sensorvalue={}
-		sensorvalue[element]=hardwaremod.getsensordata(element,3)
-		ret_data=sensorvalue
+		isok, reading , errmsg = hardwaremod.getsensordata(element,3)
+		print("isok " ,isok, "reading " ,reading , "statusmsg ", errmsg) 
+		answer={}
+		answer[element]={"isok":isok, "reading":reading , "statusmsg":errmsg}
+		ret_data=answer
 
 
 	#print ret_data
@@ -698,6 +701,27 @@ def echodatabase():
 	if element=="all":
 		# take reading for all sensors
 		ret_data = sensordbmod.readallsensorsdatabase()	
+	else:
+		ret_data={}
+
+
+	#print ret_data
+	return jsonify(ret_data)
+	
+@application.route('/echoMQTT/', methods=['GET'])
+def echoMQTT():
+	print(" ECHO MQTT ************************************")
+	if not session.get('logged_in'):
+		ret_data = {"answer":"Login needed"}
+		return jsonify(ret_data)
+	element=request.args['element']
+	if element=="all":
+		# take reading for all sensors
+		# it is a dict with MQTT name as key and a dict of info as value
+		ret_data = hardwaremod.getSTATfromall()
+		print(" ECHO MQTT ************************************")
+		print(ret_data)
+		
 	else:
 		ret_data={}
 
@@ -1590,8 +1614,12 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	timezone=clockdbmod.gettimezone()
 	print("Current timezone ->", timezone)
 	
+	MQTTclientexist=False
+	if len(hardwaremod.MQTTcontrol.CLIENTSLIST):
+		MQTTclientexist=True
 	
-	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone)
+	
+	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone, MQTTclientexist=MQTTclientexist)
 
 
 @application.route('/setinputcalibration/', methods=['GET', 'POST'])
@@ -1634,6 +1662,28 @@ def showdeviceaddresseslist():  # set the hbridge zero point
 
 	return render_template('showdeviceaddresseslist.html',deviceaddresseslist=deviceaddresseslist)
 
+@application.route('/showmqttdevicelist/', methods=['GET', 'POST'])
+def showmqttdevicelist():  # set the hbridge zero point
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print("showmqttdevicelist menu :")
+	if request.method == 'POST':
+		requesttype=request.form['buttonsub']
+		if requesttype=="cancel":
+			return redirect(url_for('show_Calibration'))	
+	
+	hardwaremod.SendSTATcmdtoall()
+	MQTTclientdict=hardwaremod.MQTTcontrol.CLIENTSLIST
+	MQTTclientlist=[]
+	for clientname in MQTTclientdict:
+		clientinfo=MQTTclientdict[clientname]
+		infodict={}
+		infodict["subtopic"]=clientinfo["subtopic"]
+		infodict["subtopicstat5"]=clientinfo["subtopicstat5"]
+		infodict["name"]=clientname
+		MQTTclientlist.append(infodict)
+		
+	return render_template('showmqttdevicelist.html',MQTTclientlist=MQTTclientlist)
 
 	
 @application.route('/setstepper/', methods=['GET', 'POST'])
@@ -2998,18 +3048,34 @@ def weatherAPI():
 def currentpath(filename):
 	return os.path.join(MYPATH, filename)
 
+# interesting code to use flask as proxy to view the page contents. It works only for view
+@application.route('/embedpage/', defaults={'path': ''})
+@application.route('/embedpage/<path:path>')
+def embedpage(path):
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+
+	SITE_NAME="http://192.168.1.179/"
+	r = requests.get(f'{SITE_NAME}{path}')
+	return r.content
+
+
+
 def Generictesting():
 	print("Generic testing routine")
 	Errorcounter=0
-	hardwaremod.initMQTT()
+	#hardwaremod.initMQTT()
 
 		
 	if Errorcounter>0:
 		returnstr="Probelms " + errorstring
 	else:
 		returnstr="No error"
-		
+	
+	
 	return returnstr
+
+
 
 def Autotesting1():
 	print("Auto testing Automation HAT")
@@ -3044,7 +3110,7 @@ def Autotesting1():
 		sensorname=sensor["name"]
 		rangemin=sensor["min"]
 		rangemax=sensor["max"]
-		readingstr=hardwaremod.getsensordata(sensorname,1)
+		isok, readingstr, errmsg = hardwaremod.getsensordata(sensorname,1)
 		try:
 			reading=float(readingstr)
 			print(" sensorname " , sensorname , " data " , reading)	
@@ -3109,7 +3175,7 @@ def Autotesting2():
 		sensorname=sensor["name"]
 		rangemin=sensor["min"]
 		rangemax=sensor["max"]
-		readingstr=hardwaremod.getsensordata(sensorname,1)
+		isok, readingstr, errmsg = hardwaremod.getsensordata(sensorname,1)
 		try:
 			reading=float(readingstr)
 			print(" sensorname " , sensorname , " data " , reading)	

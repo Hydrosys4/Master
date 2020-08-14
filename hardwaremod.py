@@ -327,6 +327,9 @@ def normalizesensordata(reading_str,sensorname):
 def getsensordata(sensorname,attemptnumber): #needed
 	# this procedure was initially built to communicate using the serial interface with a module in charge of HW control (e.g. Arduino)
 	# To lower the costs, I used the PI hardware itself but I still like the way to communicate with the HWcontrol module that is now a SW module not hardware
+	isok=False
+	statusmessage=""
+	
 	cmd=searchdata(HW_INFO_NAME,sensorname,HW_CTRL_CMD)
 	Thereading=""	
 	if not cmd=="":
@@ -337,8 +340,15 @@ def getsensordata(sensorname,attemptnumber): #needed
 		arg4=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_LOGIC))
 		arg5=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_ADDR))
 		arg6=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_PIN2))
+		arg7=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_TITLE))
 		
-		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4+":"+arg5+":"+arg6
+		timestr=searchdata(HW_INFO_NAME,sensorname,HW_FUNC_TIME)
+		mastertimelist=separatetimestringint(timestr)
+		timeperiodsec=mastertimelist[0]*3600+mastertimelist[1]*60+mastertimelist[0]
+		
+		arg8=str(timeperiodsec)
+				
+		sendstring=sensorname+":"+pin+":"+arg1+":"+arg2+":"+arg3+":"+arg4+":"+arg5+":"+arg6+":"+arg7+":"+arg8
 		recdata=[]
 		ack=False
 		i=0
@@ -349,14 +359,18 @@ def getsensordata(sensorname,attemptnumber): #needed
 			if recdata[0]==cmd: # this was used to check the response and command consistency when serial comm was used
 				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
 					#print " Sensor " , sensorname  , "reading ",recdata[1]	
+					isok=True
 									
 					Thereading=normalizesensordata(recdata[1],sensorname)  # output is a string
 
 					print(" Sensor " , sensorname  , "Normalized reading ",Thereading)												
 					logger.info("Sensor %s reading: %s", sensorname,Thereading)
+					if len(recdata)>3:
+						statusmessage=recdata[3]
 				else:
 					print("Problem with sensor reading ", sensorname)
 					logger.error("Problem with sensor reading: %s", sensorname)
+					statusmessage=recdata[1]
 			else:
 				print("Problem with response consistency ", sensorname , " cmd " , cmd)
 				logger.error("Problem with response consistency : %s", sensorname)
@@ -366,7 +380,7 @@ def getsensordata(sensorname,attemptnumber): #needed
 	else:
 		print("sensor name not found in list of sensors ", sensorname)
 		logger.error("sensor name not found in list of sensors : %s", sensorname)
-	return Thereading
+	return isok, Thereading, statusmessage
 
 def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , addtime=True extend the pulse time with new time , addtime=False let the current pulse finish , 
 	
@@ -459,10 +473,10 @@ def stoppulse(target):
 			
 	if MIN and MAX:
 		# dual pulse setting
-		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)+":"+address+":"+title
+		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)+":"+target+":"+title
 	else:
 		# normal pulse
-		sendstring=stopcmd+"pulse:"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":0"+":0"+":"+address+":"+title
+		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":0"+":0"+":"+target+":"+title
 
 	#print "logic " , logic , " sendstring " , sendstring
 
@@ -926,7 +940,7 @@ def readallsensors():
 	sensorlist=searchdatalist(HW_INFO_IOTYPE,"input",HW_INFO_NAME)
 	sensorvalues={}
 	for sensorname in sensorlist:
-		sensorvalues[sensorname]=getsensordata(sensorname,3)
+		isok, sensorvalues[sensorname], errmsg =getsensordata(sensorname,3)
 	return sensorvalues
 
 
@@ -938,7 +952,7 @@ def checkallsensors():
 	sensorlist=searchdatalist(HW_INFO_IOTYPE,"input",HW_INFO_NAME)
 	sensorvalues={}
 	for sensorname in sensorlist:
-		sensorvalues[sensorname]=getsensordata(sensorname,3)
+		isok, sensorvalues[sensorname], errmsg = getsensordata(sensorname,3)
 	return sensorvalues
 
 		
@@ -950,6 +964,8 @@ def initallGPIOpins():
 
 
 def initMQTT():
+
+	MQTTcontrol.Disconnect_clients()
 	# define the list of parameters for the initialization
 	MQTTitemlist=searchdatalistinstr(HW_CTRL_CMD,"/mqtt",HW_INFO_NAME)
 
@@ -960,10 +976,36 @@ def initMQTT():
 		client["username"]=""
 		client["password"]=""
 		client["pubtopic"]="" # this will be provided during operations
+		fulltopic=searchdata(HW_INFO_NAME,items,HW_CTRL_TITLE)
 		if searchdata(HW_INFO_NAME,items,HW_INFO_IOTYPE)=="output":
-			client["subtopic"]=searchdata(HW_INFO_NAME,items,HW_CTRL_TITLE)+"/#"  #in this way it subscribe to the topic and all the sub levels topic
+			# read on "stat"
+			stattopic = fulltopic.replace("cmnd", "stat")
+			subtopic=stattopic+"/RESULT" 
+			client["subtopic"]=subtopic
+			# subscribe topic for IP stats
+			client["subtopicstat5"]=stattopic+"/STATUS5"
+
+			
 		else:
-			client["subtopic"]=searchdata(HW_INFO_NAME,items,HW_CTRL_TITLE)
+			# the initial part of the fulltopic is the MQTT topic, then after the "//" double back slash, there are the Json fiels to look for.
+			# Json fields are separated by "/"
+			stinglist=fulltopic.split("//")
+			subtopic=stinglist[0]
+			client["subtopic"]=subtopic
+			if len(stinglist)>1:
+				jsonlist=stinglist[1].split("/")
+			client["jsonlist"]=jsonlist			
+			# subscribe topic for IP stats
+			stattopic = subtopic.replace("tele", "stat")
+			stattopicstatus5=stattopic.replace("SENSOR", "STATUS5")
+			client["subtopicstat5"]=stattopicstatus5
+
+			
+		# subscribe topic for IP stats command
+		cmdtopicstat5=client["subtopicstat5"].replace("stat", "cmnd")
+		cmdtopicstat5=cmdtopicstat5.replace("STATUS5", "STATUS")
+		client["cmdtopicstat5"]=cmdtopicstat5
+			
 		MQTTcontrol.CLIENTSLIST[items]=client
 		
 		
@@ -972,6 +1014,15 @@ def initMQTT():
 	MQTTcontrol.Create_connections_and_subscribe()
 
 	return True
+
+def SendSTATcmdtoall():
+	MQTTcontrol.MQTT_output_all_stats()
+	return True
+		
+def getSTATfromall():
+	return MQTTcontrol.MQTT_get_all_stats()	
+
+
 
 def setallGPIOinputs():	# this function sets all GPIO to input, actually it disable I2C and SPI as this functions are set using the PIN special mode Alt0
 	for pinstr in HWcontrol.RPIMODBGPIOPINLIST:

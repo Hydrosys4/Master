@@ -1,0 +1,122 @@
+{% extends "layout.html" %}
+{% set active_page = "showcalibration" %}
+{% block body %}
+  {% if session.logged_in %}
+  <div class="container-fluid">
+	  
+	  
+		<!-- hbridge Actuators test -->
+  
+  		<form novalidate="true" action="{{ url_for('showmqttdevicelist') }}" id="menuForm" method="post" >
+			<div class="page-header">
+					  <h3>MQTT device info</h3>   
+			</div>
+
+
+			
+			<div class="well bs-component smallgap">
+
+			
+
+			<table class="table" margin: 20px;>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Topic</th>
+					<th>IP</th>
+					<th>WiFi-power</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			
+			
+
+			{% for item in MQTTclientlist %}	
+
+			<tr>
+				
+				<td>
+					{{ item.name }}
+				</td>
+			
+				<td>
+					{{ item.subtopic }}
+				</td>
+
+				<td id="{{ item.name }}_1"></td>
+				
+				<td id="{{ item.name }}_2"></td>
+				
+
+
+			</tr>
+			{% endfor %}				
+
+        </tbody>
+    </table>
+	
+
+
+
+	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Cancel</button>
+
+		</div>
+
+			
+			
+		</form>			
+			
+
+
+		
+   </div> 
+   
+      <!-- new Table for sensor data using ajax -->
+   
+   		<script type=text/javascript>
+
+
+			$(document).ready(function() {
+				//alert("starting");
+				$.ajax({
+
+							type: "GET",
+							url: $SCRIPT_ROOT + "/echoMQTT/?element=" + "all" ,
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" },
+							success: function(s) {
+								var data = eval(s); // this will convert your json string to a javascript object
+								for (var key in data) {
+									//alert(key+': '+data[key]); // this will show each key with it's value
+									$('#' +key+"_1").text(data[key]["IPAddress"]);	
+									$('#' +key+"_2").text(data[key]["WifiPower"]);
+								}
+							},								
+							complete: function() {
+							  // Schedule the next request when the current one's complete
+
+							}
+
+
+							//error: function(jqXHR, textStatus, errorThrown) {
+							//    alert(errorThrown);
+							//}
+						});
+			  
+			  });
+
+		</script>
+   
+   
+   
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

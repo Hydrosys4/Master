@@ -390,6 +390,35 @@
 		{% endif %}
 
 
+<!-- MQTT devices Addressed listing (MQTT topic, IP, status) -->
+ 		{% if MQTTclientexist %}		 
+		<form novalidate="true" action="{{ url_for('showmqttdevicelist') }}" id="showmqttdevicelist" method="post" >
+			<div class="page-header">
+					  <h3>Show MQTT Devices </h3>   
+			</div>
+		
+			
+		<!-- Button for device addresses show-->
+		
+			<div class="row">
+
+				<div class="col-xs-12">
+				
+					
+			
+					<button id="showmqttdevicelistbtn" name="buttonsub" value="showmqttdevicelistbtn" type="submit" class="btn btn-success btn-sm btn-warp">
+						Show MQTT clients
+					<span class="glyphicon glyphicon-cog"></span>
+					</button>
+		
+				</div>
+				</div>			
+		
+		</form>  		
+		{% endif %}
+
+
+
 			
 <!-- Hbridge Actuators test -->
   

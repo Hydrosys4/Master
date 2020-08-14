@@ -1,5 +1,7 @@
 
 import time, logging
+import statusdataDBmod
+from datetime import datetime,date,timedelta
 
 try:
   __import__("paho")
@@ -10,6 +12,9 @@ else:
   MQTTlib=True	
   import paho.mqtt.client as mqtt
 
+
+SubscriptionLog={}
+SubscriptionLog["default"]={}
 
 logger = logging.getLogger("hydrosys4."+__name__)
 
@@ -32,10 +37,21 @@ def Create_connections_and_subscribe(CLIENTSLIST):
       clientinfo["clientobj"]=aclient
       clientinfo["clientID"]=clientID
       aclient.connect() 
-      aclient.subscribe()
+      aclient.subscribe() # subscribe to default subtopic
+      aclient.subscribe(clientinfo["subtopicstat5"])
       aclient.loop_start() 
 
-  
+def Disconnect_clients(CLIENTSLIST):
+  if MQTTlib:
+  # expected CLIENTLIST structure: {clientid1:{"broker":"","port":"" ...} ,clientid2:{"broker":"","port":"" ...}, clientid3:{"broker":"","port":"" ...} }
+    for clientname in CLIENTSLIST:
+      clientinfo=CLIENTSLIST[clientname]
+      if "clientobj" in clientinfo:
+        aclient=clientinfo["clientobj"]
+        aclient.loop_stop() 
+        aclient.disconnect() 
+
+ 
     
  
 class Client:
@@ -65,8 +81,12 @@ class Client:
     
        
   def on_message(self,mqttc, obj, msg):
-    print(self.clientid + "  " + "Message: "+ msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
-
+    global SubscriptionLog
+    payload=msg.payload.decode('utf-8')
+    print(self.clientid + "  " + "Message: "+ msg.topic + " " + str(msg.qos) + " " + payload)
+    statusdataDBmod.write_status_data(SubscriptionLog,msg.topic,"jsonstring",payload)
+    timestamp=datetime.utcnow()
+    statusdataDBmod.write_status_data(SubscriptionLog,msg.topic,"timestamp",timestamp)    
 
   def on_publish(self,mqttc, obj, mid):
     print(self.clientid + "  " + "Published: "+ "  " +"mid: " + str(mid))

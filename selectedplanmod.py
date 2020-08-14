@@ -201,7 +201,7 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 def periodicdatarequest(sensorname):
 	print("Read sensors request: ", sensorname , " " , datetime.now())
 	logger.info('Read sensor data: %s - %s', sensorname, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-	sensorvalue=hardwaremod.getsensordata(sensorname,3)
+	isok, sensorvalue, errmsg = hardwaremod.getsensordata(sensorname,3)
 	if sensorvalue!="":
 		sensordbmod.insertdataintable(sensorname,sensorvalue)
 		# Automation algoritm 

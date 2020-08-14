@@ -668,6 +668,30 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Add option in Hydrosys4 installer to install the Mqtt local broker
 
+2020-08-05 -> release 322d
+
+- Added initMQTT in consistencyceck to reset the connections
+- implemented stop/MQTT 
+
+2020-08-08 -> release 322e
+
+- Make MQTT (for relays) commands compatible with Tasmota sw. 
+
+2020-08-10 -> release 323
+
+- MQTT support for sensor reading
+
+2020-08-10 -> release 323a
+
+- MQTT support for sensor reading asynch reading management
+
+2020-08-13 -> release 323d
+
+- MQTT better implement the asynch management
+- Add the MQTT devide list page with IP addresses
+
+
+
 ------- Future releases: -----------
 
 NOTE:

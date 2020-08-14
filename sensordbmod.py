@@ -216,7 +216,7 @@ def readallsensorsdatabase():
 	sensorvalues={}
 	sensortimestamp={}
 	for sensorname in sensorlist:
-		#sensorvalues[sensorname]=getsensordata(sensorname,3)
+
 		databasevalues=[]
 		samplesnumber=1
 		getsensordbdatasamplesN(sensorname,databasevalues,samplesnumber)
