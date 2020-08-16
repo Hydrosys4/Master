@@ -966,6 +966,7 @@ def initallGPIOpins():
 def initMQTT():
 
 	MQTTcontrol.Disconnect_clients()
+	MQTTcontrol.CLIENTSLIST={}
 	# define the list of parameters for the initialization
 	MQTTitemlist=searchdatalistinstr(HW_CTRL_CMD,"/mqtt",HW_INFO_NAME)
 

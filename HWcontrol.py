@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 
-#to kill python processes use  -- pkill python
 from __future__ import print_function
 from __future__ import division
 from builtins import str
@@ -34,7 +33,12 @@ else:
 	basepath=os.getcwd()
 	libpath="libraries/BMP/bmp180" # should be without the backslash at the beginning
 	sys.path.append(os.path.join(basepath, libpath)) # this adds new import paths to add modules
-	from grove_i2c_barometic_sensor_BMP180  import BMP085
+	from grove_i2c_barometic_sensor_BMP180  import BMP085	
+	
+	libpath="libraries/BMP/bme280" # should be without the backslash at the beginning
+	sys.path.append(os.path.join(basepath, libpath)) # this adds new import paths to add modules
+	import bme280
+
 	libpath="libraries/MotorHat" # should be without the backslash at the beginning
 	sys.path.append(os.path.join(basepath, libpath)) # this adds new import paths to add modules	
 	from stepperDOUBLEmod import Adafruit_MotorHAT, Adafruit_DCMotor, Adafruit_StepperMotor	
@@ -53,7 +57,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature"]
 RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
@@ -150,7 +154,7 @@ def execute_task(cmd, message, recdata):
 		return get_DHT22_humidity(cmd, message, recdata , DHT22_data)
 
 	elif cmd==HWCONTROLLIST[2]:
-		return get_BMP180_pressure(cmd, message, recdata)
+		return get_BMP180_data(cmd, message, recdata, "pressure")
 
 	elif cmd==HWCONTROLLIST[3]:
 		retok=get_MCP3008_channel(cmd, message, recdata)
@@ -211,6 +215,18 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[23]: # weather API counter
 		return get_WeatherAPI_reading(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[24]: # BME280
+		return get_BME280_data(cmd, message, recdata, "temperature")
+
+	elif cmd==HWCONTROLLIST[25]: # BME280
+		return get_BME280_data(cmd, message, recdata, "humidity")
+
+	elif cmd==HWCONTROLLIST[26]: # BME280
+		return get_BME280_data(cmd, message, recdata, "pressure")
+
+	elif cmd==HWCONTROLLIST[27]:
+		return get_BMP180_data(cmd, message, recdata, "temperature")
 
 	else:
 		print("Command not found")
@@ -370,10 +386,22 @@ def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
 	return DHT22_data[element]['lastupdate']
 
 
-def get_BMP180_pressure(cmd, message, recdata):
+def get_BMP180_data(cmd, message, recdata, datatype):
+	
+	
 	successflag=0
-	Pressure=0
+	reading=0
 
+	msgarray=message.split(":")
+	measureUnit=""
+	if len(msgarray)>4:
+		measureUnit=msgarray[4]
+
+	SensorAddress="0x77"
+	if len(msgarray)>6:
+		if msgarray[6]!="":
+			SensorAddress=msgarray[6]	
+			
 	# Initialise the BMP085 and use STANDARD mode (default value)
 	# bmp = BMP085(0x77, debug=True)
 	# bmp = BMP085(0x77, 1)
@@ -382,30 +410,127 @@ def get_BMP180_pressure(cmd, message, recdata):
 	# bmp = BMP085(0x77, 0)  # ULTRALOWPOWER Mode
 	# bmp = BMP085(0x77, 1)  # STANDARD Mode
 	# bmp = BMP085(0x77, 2)  # HIRES Mode
-	bmp = BMP085(0x77, 3)  # ULTRAHIRES Mode
+	Hiresmode=3
+	bmp = BMP085(int(SensorAddress, 0), Hiresmode)  # ULTRAHIRES Mode
 
 	#temp = bmp.readTemperature()
 
 	try:
-		isok, Pressure = bmp.readPressure()
-		if isok:
-			Pressure = '{0:0.2f}'.format(Pressure/100) # the reading is in Hpa
-			successflag=1
+		if datatype=="pressure":
+			isok, reading = bmp.readPressure()
+			if isok:
+				reading = '{0:0.2f}'.format(reading/100) # the reading is in Hpa
+				successflag=1			
+			
+		if datatype=="temperature":
+			isok, reading = bmp.readTemperature()
+			if isok:
+				if (measureUnit=="F"):
+					reading=reading*1.8+32
+				reading = '{0:0.2f}'.format(reading)
+				successflag=1	
+
 	except:
 		#print " I2C bus reading error, BMP180 , pressure sensor "
-		logger.error(" I2C bus reading error, BMP180 , pressure sensor ")
+		logger.error(" I2C bus reading error, BMP180 sensor %s " , datatype)
+		print("Error, BMP180 reading " , datatype)
+		recdata.append(cmd)
+		recdata.append("I2C bus reading error, BMP180")
+		recdata.append(0)
+		
+		
+		
+		
 	#pressure is in hecto Pascal
 	recdata.append(cmd)
-	recdata.append(Pressure)
+	recdata.append(reading)
 	recdata.append(successflag)	
 	return True
+
+
+
+
+def get_BME280_data(cmd, message, recdata, datatype):
+	
+	# datatype can be "temperature", "humidity", "pressure"
+	
+	successflag=0
+	
+	Pressure=0
+	Temperature=0
+	Humidity=0
+	
+	msgarray=message.split(":")
+
+	measureUnit=""
+	if len(msgarray)>4:
+		measureUnit=msgarray[4]
+
+	SensorAddress="0x76"
+	if len(msgarray)>6:
+		if msgarray[6]!="":
+			SensorAddress=msgarray[6]	
+   
+	I2C_bus="1"
+
+	bme280.bme280_i2c.create_bus(int(SensorAddress, 0),int(I2C_bus))
+
+	isok, msg = bme280.setup()
+	if not isok:
+		print(msg)
+		logger.error(msg)
+		recdata.append(cmd)
+		recdata.append(msg)
+		recdata.append(0)
+		return True		
+
+	data_all = bme280.read_all()
+	
+	if data_all:
+		if datatype in data_all:
+			reading=data_all[datatype]
+			# convert to farenheit
+			if datatype=="temperature":
+				if (measureUnit=="F"):
+					reading=reading*1.8+32
+
+			successflag=1	
+			logger.info("BME280 %s reading: %s", datatype,  reading)
+			print("BME280 ", datatype, " reading: ", reading)
+			recdata.append(cmd)
+			recdata.append(reading)
+			recdata.append(successflag)
+			statusmsg=""
+			recdata.append(statusmsg)
+			return True
+		
+
+	print("Error, BME280 reading ")
+	logger.error("Error, BME reading ")
+	recdata.append(cmd)
+	recdata.append("Generic Error, BME280")
+	recdata.append(0)
+	return True
+
+
 
 	
 def get_BH1750_light(cmd, message, recdata):
 	successflag=0
 	
+	msgarray=message.split(":")
+	measureUnit=""
+	if len(msgarray)>4:
+		measureUnit=msgarray[4]
+
+	SensorAddress="0x23"
+	if len(msgarray)>6:
+		if msgarray[6]!="":
+			SensorAddress=msgarray[6]	
 	
-	DEVICE     = 0x23 # Default device I2C address
+	#DEVICE     = 0x23 # Default device I2C address
+	
+	DEVICE = int(SensorAddress,0)
 	POWER_DOWN = 0x00 # No active state
 	POWER_ON   = 0x01 # Power on
 	RESET      = 0x07 # Reset data register value
@@ -434,6 +559,12 @@ def get_BH1750_light(cmd, message, recdata):
 	except:
 		#print " I2C bus reading error, BH1750 , light sensor "
 		logger.error(" I2C bus reading error, BH1750 , light sensor ")
+		print("Error, I2C bus reading error, BH1750 , light sensor  ")
+		logger.error("Error, BH1750 reading ")
+		recdata.append(cmd)
+		recdata.append("Generic Error, BH1750")
+		recdata.append(0)
+		return True
 	
 	recdata.append(cmd)
 	recdata.append(light)

@@ -690,6 +690,19 @@ Verified clock setting behavior, when the Internet connection is present the set
 - MQTT better implement the asynch management
 - Add the MQTT devide list page with IP addresses
 
+2020-08-13 -> release 323e
+
+- MQTT fixed the clientlist reset after hardwarechange.
+
+2020-08-15 -> release 324
+
+- Sensor BME280 has been integrated
+
+2020-08-16 -> release 324a
+
+- Sensor BMP180, support for temperature reading
+- Sensor BH1750, support for double I2C addresses
+
 
 
 ------- Future releases: -----------
