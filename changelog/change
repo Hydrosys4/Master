@@ -703,6 +703,44 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Sensor BMP180, support for temperature reading
 - Sensor BH1750, support for double I2C addresses
 
+2020-08-16 -> release 324b
+
+- Add GPIO1 in the list of pins (even if Raspberry does not have gpio1)
+- Generalize Hbridge routine
+
+2020-11-15 -> release 324c
+
+- removed MIN and MAX options from pulse
+- Tested and fixed the hbridge function in MQTT mode
+
+
+2020-11-15 -> release 325
+
+- add support for the I2C GPIO expansion
+
+2020-11-15 -> release 325a
+
+- fix the expansion GPIO numbering
+
+2020-11-15 -> release 325b
+
+- Add support of multiple GPIO expansions
+- fix other bugs relevant to GPIO
+
+2020-11-24 -> release 326
+
+- Updated DHT library and changed the bash file to add python3-setuptools, not installed anymore by default
+
+2020-12-01 -> release 326a
+
+- Add extend + followup in the interrupt options
+- chnaged the interrupt parameter "Duration of pre-emptive blocking status" in seconds instead of minutes
+
+2020-12-02 -> release 326b
+
+- Change definterruptdata.txt in database folder to accomodate the change in default value from minutes to seconds (preemptiveperiod)
+
+
 
 
 ------- Future releases: -----------

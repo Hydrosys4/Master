@@ -2,7 +2,7 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.24a"
+Release="3.26b"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -122,6 +122,7 @@ def runallconsistencycheck():
 	sensordbmod.consistencycheck()
 	actuatordbmod.consistencycheck()
 	hardwaremod.initMQTT()
+	hardwaremod.initGPIOEXP()
 	return True
 
 def runallreadfile():
@@ -1578,7 +1579,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	for stepper in stepperlist:
 		stepperstatuslist.append(hardwaremod.getstepperposition(stepper))	
 	# hbridge
-	hbridgelist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"hbridge",hardwaremod.HW_INFO_NAME)
+	hbridgelist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"hbridge*",hardwaremod.HW_INFO_NAME)
 	hbridgestatuslist=[]
 	for hbridge in hbridgelist:
 		hbridgestatuslist.append(hardwaremod.gethbridgeposition(hbridge))		
@@ -2212,7 +2213,7 @@ def interrupt():
 	modelist=["None","Pre-emptive Blocking","Counter Only" ]
 	triggermode=["Counter","Frequency"]
 	sensormodelist=["First Edge" , "First Edge + Level", "Second Edge" , "Second Edge + Level (inv)", "both Edges"]
-	followupactionlist=["None", "Extend blocking state" , "Remove blocking state" , "Follow-up action" , "Remove and Follow-up" ]
+	followupactionlist=["None", "Extend blocking state" , "Remove blocking state" , "Follow-up action" , "Remove and Follow-up" , "Extend and Follow-up"]
 	formlist=["workmode", "sensor" , "sensor_mode", "actuator_output", "preemptive_period", "actionmode_afterfirst", "folloup_output", "allowedperiod" , "mailalerttype" , "interrupt_triggernumber" , "interrupt_validinterval", "trigger_mode"]
 	alertlist=["infoandwarning", "warningonly","none"]
 

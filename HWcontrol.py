@@ -57,8 +57,8 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","hbridgestatus","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature"]
-RPIMODBGPIOPINLIST=["2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","empty","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature"]
+RPIMODBGPIOPINLIST=["1","2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI"]
 RPIMODBGPIOPINLISTNA=NALIST+RPIMODBGPIOPINLIST
@@ -73,8 +73,6 @@ DHT22_data["default"]={'temperature':None,'humidity':None,'lastupdate':datetime.
 stepper_data={}
 stepper_data["default"]={'busyflag':False}
 
-hbridge_data={}
-hbridge_data["default"]={'busyflag':False}
 
 GPIO_data={}
 GPIO_data["default"]={"level":None, "state":None, "threadID":None}
@@ -193,10 +191,10 @@ def execute_task(cmd, message, recdata):
 		return read_input_pin(cmd, message, recdata)
 		
 	elif cmd==HWCONTROLLIST[16]: #hbridge	
-		return gpio_set_hbridge(cmd, message, recdata, hbridge_data)	
+		return ""	
 
 	elif cmd==HWCONTROLLIST[17]: #hbridge status	
-		return get_hbridge_status(cmd, message, recdata, hbridge_data)
+		return ""
 
 	elif cmd==HWCONTROLLIST[18]: #DS18B20 temperature sensor	
 		return get_DS18B20_temperature(cmd, message, recdata)
@@ -485,6 +483,7 @@ def get_BME280_data(cmd, message, recdata, datatype):
 		return True		
 
 	data_all = bme280.read_all()
+	print("here we are with BME :", data_all)
 	
 	if data_all:
 		if datatype in data_all:
@@ -942,7 +941,10 @@ def get_MCP3008_channel(cmd, message, recdata):
 		#something wrog, wait too long, avoid initiate further processing
 		print("MCP3008 wait time EXCEEDED ")
 		logger.warning("Wait Time exceeded, not able to read ADCdata Channel: %d", channel)
-		return False
+		recdata.append(cmd)
+		recdata.append("Wait Time exceeded, not able to read ADCdata Channel: "+str(channel))
+		recdata.append(0)
+		return True
 
 	MCP3008_busy_flag=True		
 
@@ -994,8 +996,14 @@ def get_MCP3008_channel(cmd, message, recdata):
 		spi.close()
 		successflag=1
 	except:
+		# this will not work, there is no way to detect if the MCP3008 is attached to SPI interface or not.
+		# MCP3008 has no internal register to interrogate, the 
 		print(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
 		logger.error(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
+		recdata.append(cmd)
+		recdata.append("Error, DPI bus reading error, MCP3008 , AnalogDigitalConverter")
+		recdata.append(0)
+		return True	
 	
 	recdata.append(cmd)
 	recdata.append(volts)
@@ -1153,7 +1161,7 @@ def GPIO_remove_event_detect(PINstr):
 
 
 
-def endpulse(PINstr,logic,POWERPIN,MIN=0,MAX=0):
+def endpulse(PINstr,logic,POWERPIN):
 	#GPIO_data[PIN]["threadID"]=None
 	write_status_data(GPIO_data,PINstr,"threadID",None)
 	if logic=="pos":
@@ -1161,16 +1169,9 @@ def endpulse(PINstr,logic,POWERPIN,MIN=0,MAX=0):
 	else:
 		level=1
 	
-	if MIN and MAX:
-		# dual pulse option
-		# stop the pulse after MAX seconds
-		levelinvert=1-level		
-		GPIO_output_nostatus(PINstr, levelinvert)
-		NorecordthreadID=threading.Timer(MAX, GPIO_output, [PINstr , level]) 
-		NorecordthreadID.start()
-	else:
-		# normal pulse stop
-		GPIO_output(PINstr, level)
+
+	# normal pulse stop
+	GPIO_output(PINstr, level)
 	
 	powerPIN_stop(POWERPIN,0)
 
@@ -1193,17 +1194,9 @@ def gpio_pulse(cmd, message, recdata):
 	POWERPIN=""	
 	if messagelen>4:	
 		POWERPIN=msgarray[4]	
-
-	MIN=0	
-	if messagelen>5:	
-		MIN=int(msgarray[5])	
-		
-	MAX=0	
-	if messagelen>6:	
-		MAX=int(msgarray[6])	
-
+	
 	activationmode=""
-	if messagelen>7:	
+	if messagelen>7:
 		activationmode=msgarray[7]
 
 	if isPinActive(PIN,logic):
@@ -1232,15 +1225,9 @@ def gpio_pulse(cmd, message, recdata):
 		else:
 			level=0
 		GPIO_output(PIN, level)
-		if MIN and MAX:
-			# dual pulse  mode
-			#print "dual pulse Mode"
-			# stop the pulse after MIN seconds
-			levelinvert=1-level
-			NorecordthreadID=threading.Timer(MIN, GPIO_output_nostatus, [PIN , levelinvert])
-			NorecordthreadID.start()
 
-	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN , MIN , MAX])
+
+	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN ])
 	NewPINthreadID.start()
 	write_status_data(GPIO_data,PIN,"threadID",NewPINthreadID)
 
@@ -1263,15 +1250,8 @@ def gpio_stoppulse(cmd, message, recdata):
 	POWERPIN=""
 	if messagelen>4:	
 		POWERPIN=msgarray[4]
-		
-	MIN=0	
-	if messagelen>5:	
-		MIN=int(msgarray[5])	
-		
-	MAX=0	
-	if messagelen>6:	
-		MAX=int(msgarray[6])	
-	
+
+
 	
 	if not isPinActive(PIN,logic):
 		print("No Action, Already OFF")
@@ -1288,7 +1268,7 @@ def gpio_stoppulse(cmd, message, recdata):
 		#print "cancel the Thread of PIN=",PIN
 		PINthreadID.cancel()
 		
-	endpulse(PIN,logic,POWERPIN,MIN,MAX)	#this also put powerpin off		
+	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
 	recdata.append(cmd)
 	recdata.append(PIN)
 	return True	
@@ -1416,87 +1396,6 @@ def isPinActive(PIN, logic):
 	return activated
 
 
-# START hbridge section
-
-	
-def gpio_set_hbridge(cmd, message, recdata , hbridge_data ):
-			
-	msgarray=message.split(":")
-	messagelen=len(msgarray)
-	PIN1=msgarray[1]
-	PIN2=msgarray[2]
-	direction=msgarray[3]
-	durationsecondsstr=msgarray[4]
-	logic=msgarray[5]
-	
-	#print "hbridge ", PIN1, "  ",  PIN2, "  ",  direction, "  ",  durationsecondsstr,  "  ", logic
-
-	# check that both pins are at logic low state, so Hbridge is off
-	PIN1active=isPinActive(PIN1, logic)
-	PIN2active=isPinActive(PIN2, logic)
-	hbridgebusy=PIN1active or PIN2active
-
-
-	if hbridgebusy:
-		print("hbridge motor busy ")
-		logger.warning("hbridge motor Busy, not proceeding ")
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append("busy")
-		return False
-	
-	#  no busy, proceed	
-
-
-	try:
-		POWERPIN="N/A"
-
-		if direction=="FORWARD":
-			sendstring="pulse:"+PIN1+":"+durationsecondsstr+":"+logic+":"+POWERPIN		
-		else:
-			sendstring="pulse:"+PIN2+":"+durationsecondsstr+":"+logic+":"+POWERPIN	
-		#Send pulse to one of the Hbridge port
-		#print "logic " , logic , " sendstring " , sendstring
-		isok=False	
-		if float(durationsecondsstr)>0:
-			#print "Sendstring  ", sendstring	
-			isok=False
-			recdatapulse=[]
-			ack = gpio_pulse("pulse",sendstring,recdatapulse)
-			#print "returned hbridge data " , recdatapulse
-			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
-			if ack and recdatapulse[2]:
-				#print "Hbridge correctly activated"
-				isok=True
-
-
-	except:
-
-		print("problem hbridge execution")
-		logger.error("problem hbridge execution")
-		recdata.append(cmd)
-		recdata.append("e")
-		return False
-
-		
-	#print "Hbridge: PIN1=", PIN1 , " PIN2=", PIN2 , " direction=", direction , " duration=", durationsecondsstr , " logic=", logic 
-
-	recdata.append(cmd)
-	recdata.append(PIN1+PIN2)
-	
-	return True	
-
-def get_hbridge_status(cmd, message, recdata , hbridge_data):
-	#print "get hbridge status"
-	msgarray=message.split(":")
-	messagelen=len(msgarray)
-	PIN1=msgarray[1]
-	PIN2=msgarray[2]
-	returndata=read_status_dict(hbridge_data,PIN1+PIN2)
-	recdata.append(cmd)
-	recdata.append(returndata)
-	return True
-
 # START stepper section
 
 def gpio_set_stepper(cmd, message, recdata , stepper_data):
@@ -1621,9 +1520,15 @@ if __name__ == '__main__':
 	if arduino answer including the same identifier then the message is acknowledged (return true) command is "1"
 	the data answer "recdata" is a vector. the [0] field is the identifier, from [1] start the received data
 	"""
-	recdata=[]
-	for i in range(0,30):
-		get_DHT22_temperature_fake("tempsensor1", "" , recdata , DHT22_data )
-		time.sleep(0.4)
-		print(DHT22_data['lastupdate'])
+	# Open SPI bus
+
+	spi_speed = 1000000 # 1 MHz
+	spi = spidev.SpiDev()
+	print(spi)
+	print(spi.open(0,0))
+	print("SPI test")
+	channel=0	
+	# read data from selected channel
+	adc = spi.xfer2([1,(8+channel)<<4,0])
+	data = ((adc[1]&3) << 8) + adc[2]
 

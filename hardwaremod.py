@@ -20,6 +20,7 @@ import time
 import filestoragemod
 import HWcontrol
 import MQTTcontrol
+import GPIOEXPI2Ccontrol
 import photomod
 import cameradbmod
 import struct
@@ -88,7 +89,7 @@ HWdataKEYWORDS[HW_INFO_IOTYPE]=["input"  , "output" ]
 HWdataKEYWORDS[HW_INFO_NAME]=[]
 HWdataKEYWORDS[HW_INFO_MEASUREUNIT]=MEASUREUNITLIST
 HWdataKEYWORDS[HW_INFO_MEASURE]=MEASURELIST
-HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST+MQTTcontrol.HWCONTROLLIST
+HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST+MQTTcontrol.HWCONTROLLIST+GPIOEXPI2Ccontrol.HWCONTROLLIST
 HWdataKEYWORDS[HW_CTRL_PIN]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 HWdataKEYWORDS[HW_CTRL_PIN2]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 
@@ -270,6 +271,8 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 					return HWcontrol.sendcommand(cmd,sendstring,recdata)
 				elif cmd in MQTTcontrol.HWCONTROLLIST:
 					return MQTTcontrol.sendcommand(cmd,sendstring,recdata)
+				elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
+					return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
 			else:
 				successflag=0
 				recdata.append(cmd)
@@ -288,6 +291,8 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 			return HWcontrol.sendcommand(cmd,sendstring,recdata)
 		elif cmd in MQTTcontrol.HWCONTROLLIST:
 			return MQTTcontrol.sendcommand(cmd,sendstring,recdata)
+		elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
+			return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
 
 def normalizesensordata(reading_str,sensorname):
 	scaledefault=1
@@ -394,34 +399,32 @@ def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , ad
 
 	command=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)	
 	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
+
+	print( " MakePulse ")
+	
+	return activatepulse(command,PIN,duration,activationmode,target,priority)
+	
 	
 
+	
+def activatepulse(command,PIN,duration,activationmode,target,priority):	
+	
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
+	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)	
+	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)		
+	
+		
 	try:
 		testpulsetimeint=int(duration)
 		testpulsetime=str(testpulsetimeint) # durantion in seconds 
 	except ValueError:
 		print(" No valid data or zero  ", target)
-		return "error"
-
-	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
-	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
-
-	# dual pulse option, a short pulse activate at beginning of th time and another short pulse at the end of the activation period, 
-	# MIN and MAX are the duration of the subpulses in seconds.
-	MIN=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MIN),0)
-	MAX=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MAX),0)
+		return "error"		
 	
-	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
-	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)	
 	
-	if MIN and MAX:
-		# dual pulse setting
-		if (MIN>=testpulsetimeint)or(MAX>=testpulsetimeint):
-			return "error MIN or MAX >Pulsetime"
-		sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)+":"+activationmode+":"+target+":"+title
-	else:
-		# normal pulse
-		sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":0"+":0"+":"+activationmode+":"+target+":"+title
+	# normal pulse
+	sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+ address +":0"+":"+activationmode+":"+target+":"+title
 
 	#print "logic " , logic , " sendstring " , sendstring
 	isok=False	
@@ -463,20 +466,12 @@ def stoppulse(target):
 	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
 	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
 
-	# dual pulse option, a short pulse activate at beginning of th time and another short pulse at the end of the activation period, 
-	# MIN and MAX are the duration of the subpulses in seconds.
-	MIN=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MIN),0)
-	MAX=toint(searchdata(HW_INFO_NAME,target,HW_CTRL_MAX),0)
 		
 	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
 	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)	
 			
-	if MIN and MAX:
-		# dual pulse setting
-		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+str(MIN) +":"+str(MAX)+":"+target+":"+title
-	else:
-		# normal pulse
-		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":0"+":0"+":"+target+":"+title
+	# normal pulse
+	sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+address+":0"+":"+target+":"+title
 
 	#print "logic " , logic , " sendstring " , sendstring
 
@@ -725,55 +720,9 @@ def GO_hbridge_position(target,position,priority=0):
 	return out , isdone
 
 
-def get_hbridge_busystatus(target): 
-	
-	PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
-	PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)		
-	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
-	
-	print("Check target is already ON ", target)
-	priority=0
-	activated1=getpinstate_pin(PIN1,logic, priority)
-	activated2=getpinstate_pin(PIN2,logic, priority)
-
-	if (activated1=="off")and(activated2=="off"):
-		return False
-	else:
-		return True
-		
-	return ""
-	
-	
-	
-def get_hbridge_HWstatus(target): 
-	#search the data in IOdata
-	isok=False
-	
-	try:
-		PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
-		PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)			
-	except ValueError:
-		return "error" , isok
-		
-	sendstring="hbridgestatus:"+PIN1+PIN2
-	print(" sendstring " , sendstring)
-	i=0
-	while (not(isok))and(i<2):
-		i=i+1
-		recdata=[]
-		ack= sendcommand("hbridgestatus",sendstring,recdata,target,0) 
-		print("returned data " , recdata)
-		if ack:
-			print(target, "correctly activated")	
-			print("get hbridge status : " , recdata[1])
-			isok=True
-			return recdata[1], isok
-			
-	return "Error" , isok
 
 
-
-def GO_hbridge(target,steps,zerooffset,direction,priority=0): 
+def GO_hbridge(target,steps_str,zerooffset,direction,priority=0): 
 	global Hbridge_Status
 	#search the data in IOdata
 	isok=False
@@ -790,36 +739,47 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 		logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)	
 		MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
 		MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+		address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
 
-		steps=int(steps)
+		steps=int(steps_str)
+		
+		print("PIN1 ", PIN1 , "PIN2 ", PIN2 , "steps ", steps , " direction " , direction, " MIN ", MIN , " MAX ", MAX)
 		
 		if steps<=0:
 			print(" No valid range for pulse ", target)
 			return "Out of Range" , isok
 		
+		print(" position " , position_string)
 		# simulate endpoints
 		position=int(position_string)
+		
+		print(" position int " , position)
 		
 		if direction=="FORWARD":
 			position=position+steps
 		elif direction=="BACKWARD":
 			position=position-steps
-
+			
+		print(" position int " , position)
+		
 		if int(MIN)<=(position)<=int(MAX):
 			print("range OK")
 		else:
 			print(" No valid range for hbridge ", target)
 			return "Out of Range" , isok
 
+
+
+
 	except ValueError:
-		print(" No valid data for hbridge", target)
+		print(" No valid data for hbridge, please check the HardwareTable parameters ", target)
 		return "error" , isok
 
 	# here apply the offset
 	steps=steps+zerooffset
 	
 	
-	sendstring=command+":"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic
+	sendstring=command+":"+PIN1+":"+PIN2+":"+direction+":"+str(steps)+":"+logic+":"+address
 	print(" sendstring " , sendstring)
 
 	errorcode="error"
@@ -827,7 +787,7 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 	while (not(isok))and(i<2):
 		i=i+1
 		recdata=[]
-		ack= sendcommand(command,sendstring,recdata,target,priority) 
+		ack= gpio_set_hbridge(command,sendstring,recdata,target,priority) 
 		print("returned data " , recdata)
 		if ack and recdata[1]!="e":
 			print(target, "correctly activated")
@@ -842,6 +802,73 @@ def GO_hbridge(target,steps,zerooffset,direction,priority=0):
 				
 	return errorcode , isok
 
+
+
+	
+def gpio_set_hbridge(cmd, message, recdata, target, priority ):
+			
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN1=msgarray[1]
+	PIN2=msgarray[2]
+	direction=msgarray[3]
+	durationsecondsstr=msgarray[4]
+	logic=msgarray[5]
+	address=msgarray[6]
+	
+	#print "hbridge ", PIN1, "  ",  PIN2, "  ",  direction, "  ",  durationsecondsstr,  "  ", logic
+
+	# check that both pins are at logic low state, so Hbridge is off
+	PIN1active=getpinstate(target, address,  PIN1, logic)
+	PIN2active=getpinstate(target, address,  PIN2, logic)
+	
+	hbridgebusy=PIN1active or PIN2active
+
+	# Make the command suitable for other devices
+	cmdlist=cmd.split("/")
+	basecmd="pulse"
+	cmd=basecmd
+	if len(cmdlist)>1:
+		cmd=basecmd+"/"+cmdlist[1]
+
+
+	if hbridgebusy:
+		print("hbridge motor busy ")
+		logger.warning("hbridge motor Busy, not proceeding ")
+		recdata.append(cmd)
+		recdata.append("e")
+		recdata.append("busy")
+		return False
+	
+
+	POWERPIN="N/A"
+	activationmode="NOADD"
+
+	if direction=="FORWARD":
+		#sendstring=cmd+":"+PIN1+":"+durationsecondsstr+":"+logic+":"+POWERPIN		
+		statusmsg=activatepulse(cmd,PIN1,durationsecondsstr,activationmode,target,priority)
+	else:
+		#sendstring=cmd+":"+PIN2+":"+durationsecondsstr+":"+logic+":"+POWERPIN	
+		statusmsg=activatepulse(cmd,PIN2,durationsecondsstr,activationmode,target,priority)
+			
+
+
+	if statusmsg=="error":
+
+		print("problem hbridge execution")
+		logger.error("problem hbridge execution")
+		recdata.append(cmd)
+		recdata.append("e")
+		return False
+
+
+	recdata.append(cmd)
+	recdata.append(PIN1+PIN2)
+	
+	return True	
+
+
+
 def gethbridgeposition(element):
 	return statusdataDBmod.read_status_data(Hbridge_Status,element,'position',True,"Hbridge_Status")
 
@@ -853,23 +880,23 @@ def sethbridgeposition(element, position):
 # END hbridge section
 
 
-def getpinstate(target, priority=0):
+def getpinstate(target, address, PIN, logic, priority=0):
 	#search the data in IOdata
 	print("Check PIN state ", target)
 	cmd=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
 	cmdlist=cmd.split("/")
-	pinstartecmd="pinstate"
-	cmd=pinstartecmd
+	basecmd="pinstate"
+	cmd=basecmd
 	if len(cmdlist)>1:
-		cmd=pinstartecmd+"/"+cmdlist[1]
-	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
-	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
-	return getpinstate_pin(cmd, PIN, logic, priority)
+		cmd=basecmd+"/"+cmdlist[1]
+	return getpinstate_pin(cmd, address, PIN, logic, priority)
 
 
-def getpinstate_pin(cmd, PIN, logic, priority=0):
+def getpinstate_pin(cmd, address, PIN, logic, priority=0):
+	
+	print("cmd " , cmd, "logic ", logic)
 
-	sendstring=cmd+":"+PIN
+	sendstring=cmd+":"+PIN+":"+address
 	print (sendstring)
 	isok=False
 	value=0
@@ -888,14 +915,14 @@ def getpinstate_pin(cmd, PIN, logic, priority=0):
 	if isok:
 		if logic=="neg":
 			if value=="0":
-				activated="on"
+				activated=True
 			else:
-				activated="off"
+				activated=False
 		elif logic=="pos":
 			if value=="1":
-				activated="on"
+				activated=True
 			else:
-				activated="off"		
+				activated=False		
 
 				
 	return activated
@@ -960,7 +987,12 @@ def initallGPIOpins():
 	removeallinterruptevents()
 	checkGPIOconsistency()
 	initallGPIOoutput()
+	initallGPIOoutputEXP()
 	return True
+
+
+def initGPIOEXP():
+	GPIOEXPI2Ccontrol.initMCP23017()
 
 
 def initMQTT():
@@ -1107,32 +1139,104 @@ def initallGPIOoutput():
 					HWcontrol.GPIO_output(PIN1, 1)
 					HWcontrol.GPIO_output(PIN2, 1)				
 			
-		# powerpin		
-		if (HW_CTRL_PWRPIN in ln):
-			PWRPIN=ln[HW_CTRL_PWRPIN] 
-			HWcontrol.GPIO_setup(PWRPIN, "out")
-			if (HW_CTRL_LOGIC in ln):
-				if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
-					HWcontrol.GPIO_output(PWRPIN, 0)
-					#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
-				else:
-					HWcontrol.GPIO_output(PWRPIN, 1)
-					#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
-			else:			
-				HWcontrol.GPIO_output(PWRPIN, 0) # assume logic is positive
-				print("power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available ") 	
+		# powerpin
+		# check if there is an extension of the command after "/"
+		cmd=ln[HW_CTRL_CMD]
+		cmdlist=cmd.split("/")
+		cmdext=""
+		if len(cmdlist)>1:
+			cmdext=cmdlist[1]
+		
+		if cmdext=="":
+			if (HW_CTRL_PWRPIN in ln):
+				PWRPIN=ln[HW_CTRL_PWRPIN] 
+				HWcontrol.GPIO_setup(PWRPIN, "out")
+				if (HW_CTRL_LOGIC in ln):
+					if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
+						HWcontrol.GPIO_output(PWRPIN, 0)
+						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
+					else:
+						HWcontrol.GPIO_output(PWRPIN, 1)
+						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
+				else:			
+					HWcontrol.GPIO_output(PWRPIN, 0) # assume logic is positive
+					print("power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available ") 	
 
-		# Input: enable one wire
-		if (iotype=="input") :
-			if (ln[HW_CTRL_CMD]=="DS18B20"):
-				# safe code in case of non int input
-				PIN=ln[HW_CTRL_PIN]
-				logic=ln[HW_CTRL_LOGIC]
-				Set_1wire_Pin(PIN,logic)
+			# Input: enable one wire
+			if (iotype=="input") :
+				if (ln[HW_CTRL_CMD]=="DS18B20"):
+					# safe code in case of non int input
+					PIN=ln[HW_CTRL_PIN]
+					logic=ln[HW_CTRL_LOGIC]
+					Set_1wire_Pin(PIN,logic)
 
 
 	#print HWcontrol.GPIO_data
 	return True
+
+
+
+def initallGPIOoutputEXP():	
+	for ln in IOdata:
+		iotype=ln[HW_INFO_IOTYPE]
+		address=""
+		if HW_CTRL_ADDR in ln:
+			address=ln[HW_CTRL_ADDR]
+		if address=="":
+			address="0x20"
+		
+		# output: set gpio status
+		if (iotype=="output") :
+			if (ln[HW_CTRL_CMD]=="pulse/I2CGPIOEXP"):
+				# safe code in case of non int input
+				PIN=ln[HW_CTRL_PIN]
+				GPIOEXPI2Ccontrol.GPIO_setup(address, PIN, "out")
+				if ln[HW_CTRL_LOGIC]=="pos":
+					GPIOEXPI2Ccontrol.GPIO_output(address, PIN, 0)
+				else:
+					GPIOEXPI2Ccontrol.GPIO_output(address, PIN, 1)
+			elif (ln[HW_CTRL_CMD]=="hbridge/I2CGPIOEXP"):
+				PIN1=ln[HW_CTRL_PIN]
+				PIN2=ln[HW_CTRL_PIN2]
+				GPIOEXPI2Ccontrol.GPIO_setup(address, PIN1, "out")
+				GPIOEXPI2Ccontrol.GPIO_setup(address, PIN2, "out")
+				if ln[HW_CTRL_LOGIC]=="pos":
+					GPIOEXPI2Ccontrol.GPIO_output(address, PIN1, 0)
+					I2CGPIOEXP.GI2CGPIOEXPPIO_output(address, PIN2, 0)
+				else:
+					GPIOEXPI2Ccontrol.GPIO_output(address, PIN1, 1)
+					GPIOEXPI2Ccontrol.GPIO_output(address, PIN2, 1)				
+			
+		# powerpin		
+		# check if there is an extension of the command after "/"
+		cmd=ln[HW_CTRL_CMD]
+		cmdlist=cmd.split("/")
+		cmdext=""
+		if len(cmdlist)>1:
+			cmdext=cmdlist[1]
+		
+		if cmdext=="I2CGPIOEXP":
+			if (HW_CTRL_PWRPIN in ln):
+				PWRPIN=ln[HW_CTRL_PWRPIN] 
+				GPIOEXPI2Ccontrol.GPIO_setup(address, PWRPIN, "out")
+				if (HW_CTRL_LOGIC in ln):
+					if (ln[HW_CTRL_LOGIC]=="pos") or (ln[HW_CTRL_LOGIC]==""):
+						GPIOEXPI2Ccontrol.GPIO_output(address, PWRPIN, 0)
+						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0 " 
+					else:
+						GPIOEXPI2Ccontrol.GPIO_output(address, PWRPIN, 1)
+						#print "power PIN ", ln[HW_CTRL_PWRPIN] , " set to 1 " 					
+				else:			
+					GPIOEXPI2Ccontrol.GPIO_output(address, PWRPIN, 0) # assume logic is positive
+					print("power PIN ", ln[HW_CTRL_PWRPIN] , " set to 0, No logic information available ") 	
+
+
+	return True
+
+
+
+
+
 
 def Set_1wire_Pin(PIN,logic):
 	#Newer kernels (4.9.28 and later) allow you to use dynamic overlay loading, 

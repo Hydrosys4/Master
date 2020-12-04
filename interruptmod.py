@@ -304,7 +304,6 @@ def interruptexecute(refsensor,element):
 
 	interrupt_triggernumber=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"interrupt_triggernumber"),1)
 	actuatoroutput=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"actuator_output"),0)
-	actuatoroutputfollowup=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"folloup_output"),0)
 
 	# evaluate variables for operational period check
 	starttime = datetime.strptime(interruptdbmod.searchdata("element",element,"allowedperiod")[0], '%H:%M').time()
@@ -316,17 +315,8 @@ def interruptexecute(refsensor,element):
 
 	triggermode=interruptdbmod.searchdata("element",element,"trigger_mode")	
 	
-	preemptiontimemin=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
+	preemptiontime=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
 	
-	if preemptiontimemin==0:
-		# if relay, meaning cmd = pulse
-		actuatortype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,element,hardwaremod.HW_CTRL_CMD)
-		if actuatortype=="pulse":
-			preemptiontime=actuatoroutput # if set to zero then get the time as the actuator (in case of relay)
-		else:
-			preemptiontime=0
-	else:
-		preemptiontime=preemptiontimemin*60
 	
 	mailtype=interruptdbmod.searchdata("element",element,"mailalerttype")
 	
@@ -345,7 +335,7 @@ def interruptexecute(refsensor,element):
 		#print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 		if timeok:
 
-			CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodeafterfirst,actuatoroutputfollowup,mailtype,interrupt_triggernumber,interrupt_validinterval,triggermode)
+			CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodeafterfirst,mailtype,interrupt_triggernumber,interrupt_validinterval,triggermode)
 				
 		else:
 			logger.info('out of allowed operational time')
@@ -436,7 +426,7 @@ def WaitandRegisterNew(element, sensor, counter):
 	
 
 
-def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodeafterfirst,actuatoroutputfollowup,mailtype,interrupt_triggernumber,interrupt_validinterval,triggermode):
+def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodeafterfirst,mailtype,interrupt_triggernumber,interrupt_validinterval,triggermode):
 	value=actuatoroutput
 	isok=False
 	global AUTO_data
@@ -514,6 +504,12 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 			print("Implement Actuator Value ", value)
 			logger.info('Procedure to start actuator %s, for value = %s', element, value)		
 			isok=activateactuator(element, value)
+			
+			if isok:
+				statusdataDBmod.write_status_data(AUTO_data,element,"lasteventtime",datetime.utcnow())
+				statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
+				statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
+							
 				
 			# invia mail, considered as info, not as alert
 			if mailtype!="none":
@@ -523,11 +519,7 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 					x = threading.Thread(target=emailmod.sendallmail, args=("alert", textmessage))
 					x.start()	
 					#emailmod.sendallmail("alert", textmessage)
-				if isok:
-					statusdataDBmod.write_status_data(AUTO_data,element,"lasteventtime",datetime.utcnow())
-					statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
-					statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
-				
+
 			
 		
 			# start the blocking state
@@ -538,43 +530,60 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 
 
 		else:
-			# inside blocking state, this is the follow-up
+			# inside blocking state, when the event is activated 
 			#print " inside the preemption period, starting followup actions: " , actionmodeafterfirst
 			#logger.info('inside the preemption period, check followup actions %s :', actionmodeafterfirst)
 			
 			if actionmodeafterfirst=="None":
 				return
 				
-			if actionmodeafterfirst=="Extend blocking state": # extend only the pre-emption blocking period, no action
+			# Extend blocking state
+			if actionmodeafterfirst=="Extend blocking state" or actionmodeafterfirst=="Extend and Follow-up": # extend only the pre-emption blocking period, no action
 				print("Extend blocking state")
 				startblockingstate(element,preemptiontime)
 
+			# Remove blocking state
 			if actionmodeafterfirst=="Remove blocking state" or actionmodeafterfirst=="Remove and Follow-up": # remove the pre-emption blocking period, no action
 				print("Remove blocking state")
 				endblocking(element)
 			
-
-			if actionmodeafterfirst=="Follow-up action" or actionmodeafterfirst=="Remove and Follow-up": # execute the action followup, no variation in the preemption period
-				value=actuatoroutputfollowup
-				# followup action					
-				print("Implement Actuator Value followup", value)
-				logger.info('Procedure to start actuator followup %s, for value = %s', element, value)		
-				isok=activateactuator(element, value)
-					
-				# invia mail, considered as info, not as alert
+			# section below is the follow-up	
+			isok=CheckandFollowup(element)
+			# invia mail, considered as info, not as alert
+			if isok:
 				if mailtype!="none":
 					if mailtype!="warningonly":
 						textmessage="INFO: " + sensor + " event , activating:" + element + " with Value " + str(value)
 						x = threading.Thread(target=emailmod.sendallmail, args=("alert", textmessage))
 						x.start()
-						#emailmod.sendallmail("alert", textmessage)
-					if isok:
-						statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
-						statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
-					
+						#emailmod.sendallmail("alert", textmessage)			
+			
+							
 	return isok
 		
+def CheckandFollowup(element):
+	global AUTO_data
+	actionmodeafterfirst=interruptdbmod.searchdata("element",element,"actionmode_afterfirst")
+	actuatoroutputfollowup=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"folloup_output"),0)
+	# section below is the follow-up
+	if actionmodeafterfirst=="Follow-up action" or actionmodeafterfirst=="Remove and Follow-up" or actionmodeafterfirst=="Extend and Follow-up": # execute the action followup, no variation in the preemption period
+		value=actuatoroutputfollowup
+		# followup action					
+		print("Implement Actuator Value followup", value)
+		logger.info('Procedure to start actuator followup %s, for value = %s', element, value)		
+		isok=activateactuator(element, value)
+		
+		if isok:
+			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
+			statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)				
+			return True
+	return False
 
+
+
+	
+	
+	
 
 
 def startblockingstate(element,periodsecond,saveend=True):
@@ -648,10 +657,11 @@ def endblocking(element, saveend=True):
 	else: # renew the blocking status
 		print("Interrupt LEVEL High, Do not stop blocking period, Extend it")
 		# reload the period in case this is chnaged
-		preemptiontimemin=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
-		period=preemptiontimemin*60
-		if period>0:
-			startblockingstate(element,period)
+		preemptiontime=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
+		if preemptiontime>0:
+			startblockingstate(element,preemptiontime)
+		#follow-up
+		CheckandFollowup(element)
 	
 
 
@@ -663,7 +673,7 @@ def checkstopcondition(element):
 
 
 	
-	if actionmodeafterfirst=="Extend blocking state" or actionmodeafterfirst=="Extend and Follo-up": # extend only the pre-emption blocking period, no action
+	if actionmodeafterfirst=="Extend blocking state" or actionmodeafterfirst=="Extend and Follow-up": # extend the pre-emption blocking period
 		seonsormode=interruptdbmod.searchdata("element",element,"sensor_mode")
 		#print "SENSORMODE" , seonsormode
 		recordkey=hardwaremod.HW_INFO_NAME

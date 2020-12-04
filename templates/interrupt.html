@@ -155,7 +155,9 @@
 						<option {% if name==settingparam[3] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
 					</select>
-					<div class="small">Mode of activation of the interrupt </div>
+					<div class="small">Mode of activation of the interrupt, the interrupt is triggered bu the raising edge or falling edge. </div>
+					<div class="small">If the interrupt in HardwareSetting has been configured with "pos" logic, then the fist edge is the rising edge </div>
+					<div class="small">If the interrupt in HardwareSetting has been configured with "neg" logic, then the fist edge is the falling edge </div>
 
 				</div>
 	
@@ -228,7 +230,7 @@
 
 					<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
 					<div class="small">If Counter mode: Max Time interval between consecutive interrupts to count as a sequence, if time between two interrupts is bigger then it restart counting</div>
-					<div class="small">If Frequency mode: Max Time interval to count the interrupts </div>                                       
+					<div class="small">If Frequency mode: Time interval to count the interrupts </div>                                       
 				</div>
 	
 			</div>	
@@ -263,15 +265,15 @@
 			<div class="form-group">		
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Duration of pre-emptive blocking status (minutes):
+				<label>Duration of pre-emptive blocking status (seconds):
 				</label>
 
 				
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 				<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
-				<div class="small">If set to Zero, the pre-emptive blocking state will be kept for the same time as the duration of the Actuator action (only for relays)</div>
-				<div class="small">The pre-emptive blocking state will be kept for a number of minutes after the fist interrupt event</div>
+				<div class="small">The Blocking state is the period in which the actuator can be activated only by the interrupts.</div>
+				<div class="small">The pre-emptive blocking state will start after the fist interrupt event and will be kept for the number of seconds set in this field</div>
 
 				</div>
 			</div>				
@@ -303,9 +305,11 @@
 					</select>
 					<div class="small">Action to be taken if further interrupts happen within the duration of the pre-emptive status </div>
 						<div class="small">- Remove and Follow-up: removes the pre-emptive status, reset and perform the follow-up action</div>
-						<div class="small">- Extend blocking state: If other interrupts are detected in the pre-emption perios then this period will be extended according to the set duration </div>
+						<div class="small">- Extend blocking state: If other interrupts are detected in the pre-emption period then this period will be extended according to the set duration </div>
 						<div class="small">- Remove blocking state: removes the pre-emptive status</div>
+						<div class="small">- Extend and Follow-up: If other interrupts are detected in the pre-emption period then this period will be extended according to the set duration and the follow-up action will start </div>
 						<div class="small">- Follow-up action: perform the follow-up action</div>
+						<div class="small">- NOTE: Follow-up action can start both with event triggered during the blocking period and at the extension fo the blocking period if the pin level is active according to the "activation mode" field (if set to level)</div>
 
 
 				</div>	

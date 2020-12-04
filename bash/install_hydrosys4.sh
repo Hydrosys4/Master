@@ -300,7 +300,7 @@ install_DHT22lib ()
 {
 
 # --- installing the DHT22 Sensor libraries	
-sudo apt-get -y install build-essential python3-dev || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+sudo apt-get -y install build-essential python3-dev python3-setuptools || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
 
 # This is just going to install the lybrary present in local folder
 aconf="/home/pi/env/autonom/libraries/DHT22/master.zip"
@@ -309,8 +309,7 @@ if [ -f $aconf ]; then
 	cd /home/pi/env/autonom/libraries/DHT22
 	unzip master.zip
 	cd Adafruit_Python_DHT-master
-	# setup1plus is file that make the DTH22 work with both RaspberryPi zero,1 and model 2,3 
-	sudo python3 setup1plus.py install
+	sudo python3 setup.py install
 	cd /home/pi
 
 fi

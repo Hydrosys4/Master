@@ -26,7 +26,7 @@ CLIENTSLIST={}
 
 if ISRPI:
 	#HWCONTROLLIST=["pulse/MQTT","stoppulse/MQTT","pinstate/MQTT","hbridge/MQTT","hbridgestatus/MQTT"]
-	HWCONTROLLIST=["pulse/MQTT","stoppulse/MQTT","readinput/MQTT"]
+	HWCONTROLLIST=["pulse/MQTT","stoppulse/MQTT","readinput/MQTT","pinstate/MQTT","hbridge/MQTT"]
 else:
 	HWCONTROLLIST=[]
 
@@ -35,8 +35,7 @@ else:
 
 # status variables
 
-hbridge_data={}
-hbridge_data["default"]={'busyflag':False}
+
 
 GPIO_data={}
 GPIO_data["default"]={"level":0, "state":None, "threadID":None}
@@ -85,12 +84,13 @@ def execute_task(cmd, message, recdata):
 
 		elif cmd==HWCONTROLLIST[2]:	# readinput
 			return readinput_MQTT(cmd, message, recdata)
+		
+		elif cmd==HWCONTROLLIST[3]:	# pinstate
+			return gpio_pin_level(cmd, message, recdata)
 			
-		#elif cmd==HWCONTROLLIST[3]: #hbridge	
-		#	return MQTT_set_hbridge(cmd, message, recdata, hbridge_data)	
+		elif cmd==HWCONTROLLIST[4]: #hbridge	
+			return ""	
 
-		#elif cmd==HWCONTROLLIST[4]: #hbridge status	
-		#	return get_hbridge_status(cmd, message, recdata, hbridge_data)
 
 
 	else:
@@ -120,6 +120,22 @@ def execute_task_fake(cmd, message, recdata):
 		
 	return True
 	
+
+
+def gpio_pin_level(cmd, message, recdata):
+	msgarray=message.split(":")
+	PIN=msgarray[1]
+	recdata.append(msgarray[0])
+	PINlevel=statusdataDBmod.read_status_data(GPIO_data,PIN,"level")
+	if PINlevel is not None:
+		recdata.append(str(PINlevel))
+		return True
+	else:
+		recdata.append("e")
+		return False	
+
+
+
 
 def DictPath_SearchReplace(searchpathlist,jsondata,newvalue): # parse for sinlge param item
 	# this function work only with wrapper.
@@ -494,17 +510,6 @@ def MQTT_pulse(cmd, message, recdata):
 	if messagelen>4:	
 		POWERPIN=msgarray[4]	
 
-	MIN=0	
-	if messagelen>5:	
-		MIN=int(msgarray[5])	
-		
-	MAX=0	
-	if messagelen>6:	
-		MAX=int(msgarray[6])	
-		
-	MAX=0	
-	if messagelen>6:	
-		MAX=int(msgarray[6])
 		
 	activationmode=""	
 	if messagelen>7:	
@@ -590,13 +595,6 @@ def MQTT_stoppulse(cmd, message, recdata):   # when ON send MQTT message with th
 	if messagelen>4:	
 		POWERPIN=msgarray[4]
 		
-	MIN=0	
-	if messagelen>5:	
-		MIN=int(msgarray[5])	
-		
-	MAX=0	
-	if messagelen>6:	
-		MAX=int(msgarray[6])	
 	
 	address=""	# this is the MQTT client ID
 	if messagelen>7:	
@@ -676,97 +674,6 @@ def isPinActive(PIN):
 
 
 
-# START hbridge section
-
-	
-def MQTT_set_hbridge(cmd, message, recdata , hbridge_data ):
-			
-	msgarray=message.split(":")
-	messagelen=len(msgarray)
-	PIN1=msgarray[1]
-	PIN2=msgarray[2]
-	direction=msgarray[3]
-	durationsecondsstr=msgarray[4]
-	logic=msgarray[5]
-	
-	#print "hbridge ", PIN1, "  ",  PIN2, "  ",  direction, "  ",  durationsecondsstr,  "  ", logic
-
-	# check that both pins are at logic low state, so Hbridge is off
-	PIN1active=isPinActive(PIN1, logic)
-	PIN2active=isPinActive(PIN2, logic)
-	hbridgebusy=PIN1active or PIN2active
-
-
-	if hbridgebusy:
-		print("hbridge motor busy ")
-		logger.warning("hbridge motor Busy, not proceeding ")
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append("busy")
-		return False
-	
-	#  no busy, proceed	
-
-
-	try:
-		POWERPIN="N/A"
-
-		if direction=="FORWARD":
-			sendstring="pulse:"+PIN1+":"+durationsecondsstr+":"+logic+":"+POWERPIN		
-		else:
-			sendstring="pulse:"+PIN2+":"+durationsecondsstr+":"+logic+":"+POWERPIN	
-		#Send pulse to one of the Hbridge port
-		#print "logic " , logic , " sendstring " , sendstring
-		isok=False	
-		if float(durationsecondsstr)>0:
-			#print "Sendstring  ", sendstring	
-			isok=False
-			recdatapulse=[]
-			ack = gpio_pulse("pulse",sendstring,recdatapulse)
-			#print "returned hbridge data " , recdatapulse
-			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
-			if ack and recdatapulse[2]:
-				#print "Hbridge correctly activated"
-				isok=True
-
-
-	except:
-
-		print("problem hbridge execution")
-		logger.error("problem hbridge execution")
-		recdata.append(cmd)
-		recdata.append("e")
-		return False
-
-		
-	#print "Hbridge: PIN1=", PIN1 , " PIN2=", PIN2 , " direction=", direction , " duration=", durationsecondsstr , " logic=", logic 
-
-	recdata.append(cmd)
-	recdata.append(PIN1+PIN2)
-	
-	return True	
-
-def get_hbridge_status(cmd, message, recdata , hbridge_data):
-	#print "get hbridge status"
-	msgarray=message.split(":")
-	messagelen=len(msgarray)
-	PIN1=msgarray[1]
-	PIN2=msgarray[2]
-	returndata=read_status_dict(hbridge_data,PIN1+PIN2)
-	recdata.append(cmd)
-	recdata.append(returndata)
-	return True
-
-	
-def get_hbridge_status(cmd, message, recdata , hbridge_data):
-	#print "get hbridge status"
-	msgarray=message.split(":")
-	messagelen=len(msgarray)
-	Interface=msgarray[1]
-	returndata=read_status_dict(hbridge_data,Interface)
-	recdata.append(cmd)
-	recdata.append(returndata)
-	return True
 
 
 def sendcommand(cmd, message, recdata):
