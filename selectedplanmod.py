@@ -313,7 +313,7 @@ def heartbeat():
 				# first mail has not been sent succesfully of IPEXTERNALSENT was not available by the time
 				print("System has been reconnected")
 				logger.info("System has been reconnected, IPEXTERNALSENT was empty")
-				emailmod.sendallmail("alert","System has been reconnected")							
+				emailmod.sendallmail("alert","System has been reconnected", localmessage=False)							
 
 	else:
 		print("not able to establish an internet connection")

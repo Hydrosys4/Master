@@ -6,8 +6,11 @@
    
 <div class="container-fluid">
 
+   	{% if posts|length > 0 %}
 
 	<form novalidate="true" action="{{ url_for('messagebox') }}" id="messagebox" method="post" > 
+
+
 
 				{% for panelinfo in posts %}
 
@@ -57,6 +60,15 @@
                 <input value="" id="actionbtn" name="actionbtn" type="hidden">
 
 	</form> 
+
+
+
+	{% else %}
+	   <h3>No Messages</h3>   
+	
+	{% endif %}
+	
+	
 	
 			<script type="text/javascript" charset="utf-8">
                 
@@ -67,12 +79,16 @@
 						$('#actionbtn').attr("value", selvalue);
 					});  
 				});  
-        </script>		
+			</script>		
 		
  </div>
 
-  {% endif %}
-  <ul class=entries>
+  {% else %}
 
-  </ul>
+		<h1>Please log in</h1>
+
+
+  
+  {% endif %}
+		
 {% endblock %}

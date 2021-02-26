@@ -1,6 +1,6 @@
 import sqlite3
 import os
-
+from datetime import datetime
 import basicSetting  # for the database path
 
 
@@ -83,7 +83,7 @@ class _DataBase:
 class _MessageBox:
 	def __init__(self,databasetable):
 		self.database=_DataBase(databasetable)
-		#dictitem={'title':"eccolo", 'content': " bla bla bla bla"}
+		#dictitem={'title':"eccolo", 'content': " bla bla bla bla", 'created':" "}
 		#self.database.add_row(dictitem)
 		self.RemoveExceeding(13)
 
@@ -117,6 +117,8 @@ def GetMessages():
 	return _MessageBoxIst.GetMessages()
 
 def SaveMessage(dictitem):
+	DATEFORMAT="%d/%m/%Y - %H:%M:%S"
+	dictitem['created']=datetime.now().strftime(DATEFORMAT)
 	return _MessageBoxIst.SaveMessage(dictitem)
 	
 def DeleteMessage(index):

@@ -178,6 +178,9 @@ def convertLOCtoUTC_datetime(dtime):
 	delta=deltadatetimetoUTC()
 	UTCdtime=dtime-delta
 	return UTCdtime
+
+
+
 	
 if __name__ == '__main__':
 	# comment

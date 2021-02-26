@@ -289,12 +289,13 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 	
 
 
-def sendallmail(mailtype,intromessage,bodytextlist=[]):
+def sendallmail(mailtype,intromessage,bodytextlist=[],localmessage=True):
 	
 	# archive the message in messagebox
 	if mailtype=="alert":
-		dictitem={'title': "System Message (Alert)", 'content': intromessage }
-		messageboxmod.SaveMessage(dictitem)
+		if localmessage:
+			dictitem={'title': "System Message (Alert)", 'content': intromessage }
+			messageboxmod.SaveMessage(dictitem)
 	usedfor="mailcontrol"
 	hwnamelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
 	for hwname in hwnamelist:
