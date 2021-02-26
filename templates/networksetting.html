@@ -24,11 +24,11 @@
 							<div class="form-group">
 
 								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-									<label>IP Address</label>
+									<label>WiFi IP Address</label>
 								</div>		
 								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 								<input type="text" class="form-control" placeholder={% if address=="" %}"IP address"{% else %}"{{IPADDRESS}}"{% endif %} name="IPADDRESS" value="{{IPADDRESS}}">
-								<div class="small">IP address for local connection</div>
+								<div class="small">Wifi IP address for local connection, the system will try to set this address as static IP address in the router. Make sure this Address belongs to the same WiFi subnet for the router</div>
 
 								</div>
 
@@ -96,7 +96,7 @@
 									{% endfor %}
 								  </select>
 								
-								<div class="small">In case you have wired connection you can disable the WiFi using this setting. There should be no saved wifi networks </div>
+								<div class="small">In case you have wired connection you can disable the WiFi using this setting. Make sure to delete all the already saved wifi networks (clicking "forget") </div>
 
 								</div>				
 							</div>							

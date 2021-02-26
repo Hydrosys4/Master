@@ -338,21 +338,22 @@ sudo apt-get -y install git || { echo "ERROR --------------------------Installat
 
 
 # check if file exist in local folder
-aconf="/home/pi/env/autonom"
-if [ -d $aconf ]; then  # if the directory exist
+#aconf="/home/pi/env/autonom"
+#if [ -d $aconf ]; then  # if the directory exist
+#	cd /home/pi
+#else
 	cd /home/pi
-else
-	cd /home/pi
+	sudo killall python3	
 	sudo rm -r env
 	mkdir env
 	cd env
-	sudo rm -r autonom
+	#sudo rm -r autonom
 	git clone https://github.com/Hydrosys4/Master.git
-	sudo killall python3
 	mv Master autonom
 	cd ..
+	cd ..
 
-fi
+#fi
 
 }
 

@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% set active_page = "message" %}
+{% block body %}
+  {% if session.logged_in %}
+
+   
+<div class="container-fluid">
+
+
+	<form novalidate="true" action="{{ url_for('messagebox') }}" id="messagebox" method="post" > 
+
+				{% for panelinfo in posts %}
+
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="panel panel-green">
+                        <div class="panel-heading ">
+								<div class="row dontwantgap">
+
+									<!-- Title-->
+
+									<div class="col-lg-6 col-xs-6 text-left dontwantgapright dontwantgapleft big">{{panelinfo.title}}
+									</div>
+
+									
+								</div>	
+								
+									<!-- data list here -->
+								<hr class="dontwantgaptop"></hr>
+
+								<div class="row dontwantgap">
+
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-left dontwantgap">{{panelinfo.content}}:
+									</div>
+
+								</div>
+								
+
+									
+									
+
+                        </div>
+                        <div class="panel-footer ">
+							
+                                <span class="pull-left " >{{panelinfo.created}}</span>
+                                <span class="pull-right"><button class="thebutton btn dontwantgap" type="submit" name="{{panelinfo.id}}"><i class="fa fa-close" style="font-size:18px;color:red"></i> Delete</button></span>
+
+
+                           
+                                <div class="clearfix"></div>
+                              
+                        </div>
+
+                    </div>
+                </div>
+
+                {% endfor %}
+                <input value="" id="actionbtn" name="actionbtn" type="hidden">
+
+	</form> 
+	
+			<script type="text/javascript" charset="utf-8">
+                
+			$(function() {
+					$(".thebutton").click(function() {
+						var selvalue=$(this).attr('name');
+						//alert(selvalue);
+						$('#actionbtn').attr("value", selvalue);
+					});  
+				});  
+        </script>		
+		
+ </div>
+
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

@@ -740,6 +740,20 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Change definterruptdata.txt in database folder to accomodate the change in default value from minutes to seconds (preemptiveperiod)
 
+2021-02-16 -> release 326c
+
+- Added the SuperHAT preset config
+- Added superHat testing (not complete)
+- Modified the Hydrosys4_installation script to overwrite existing installation
+
+2021-02-16 -> release 326d
+
+- Added more schema (P1-P16)
+
+
+2021-02-20 -> release 327
+
+- Added messagebox menu (for system messages)
 
 
 

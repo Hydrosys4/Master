@@ -2,7 +2,8 @@
 from __future__ import print_function
 from builtins import str
 from builtins import range
-Release="3.26b"
+
+Release="3.27a"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -75,7 +76,7 @@ import sysconfigfilemod
 import debuggingmod
 import filemanagementmod
 import weatherAPImod
-
+import messageboxmod
 
 
 # Raspberry Pi camera module (requires picamera package)
@@ -1303,6 +1304,12 @@ def testit():
 		answer="done"
 		print("testing2")
 		answer=Autotesting2()
+
+	name=request.args['name']
+	if name=="testing3":
+		answer="done"
+		print("testing2")
+		answer=Autotesting3()
 
 
 
@@ -3042,7 +3049,16 @@ def weatherAPI():
 
 
 
+@application.route('/message/' , methods=['GET','POST'])
+def messagebox():
+	if request.method == 'POST':
+		actiontype=request.form['actionbtn']
+		print(actiontype)
+		messageboxmod.DeleteMessage(int(actiontype))
 
+
+	posts=messageboxmod.GetMessages()
+	return render_template('messagebox.html', posts=posts)
 
 
 
@@ -3066,6 +3082,7 @@ def Generictesting():
 	print("Generic testing routine")
 	Errorcounter=0
 	#hardwaremod.initMQTT()
+	emailmod.sendallmail("alert", "sono un messaggio di prova")
 
 		
 	if Errorcounter>0:
@@ -3092,9 +3109,9 @@ def Autotesting1():
 
 
 	for target in ActuatorList:
-		hardwaremod.makepulse(target,"1",True, 0)
+		hardwaremod.makepulse(target,"10",True, 0)
 		print(" Actuator ", target)
-		time.sleep(1.5)
+
 	
 	Sensorlist=[ 
 		{"name":"pressuresensor1","min":800, "max":1200},
@@ -3152,9 +3169,8 @@ def Autotesting2():
 
 	# test pulse actuators
 	for target in ActuatorList:
-		hardwaremod.makepulse(target,"1",True, 0)
+		hardwaremod.makepulse(target,"10",True, 0)
 		print(" Actuator ", target)
-		time.sleep(1.5)
 		
 	# test PINS of irrigation hat
 	PINlist=["7","8"]
@@ -3201,6 +3217,71 @@ def Autotesting2():
 		returnstr="Well DONE ! :)"
 		
 	return returnstr
+
+
+
+def Autotesting3():
+	print("Auto testing Super HAT")
+	print("Ensure that the right HWsetting is loaded")
+	
+	#ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
+	recordkey=hardwaremod.HW_INFO_IOTYPE
+	recordvalue="output"
+	recordkey1=hardwaremod.HW_CTRL_CMD
+	recordvalue1="pulse/I2CGPIOEXP"
+	keytosearch="name"
+	ActuatorList=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
+	print(" Testing Pulse output ********** ")
+
+	for target in ActuatorList:
+		hardwaremod.makepulse(target,"10",True, 0)
+		print(" Actuator ", target)
+
+	
+	Sensorlist=[ 
+		{"name":"Analog1","min":2.4, "max":2.6},
+		{"name":"Analog2","min":2.4, "max":2.6},
+		{"name":"Analog3","min":2.4, "max":2.6},
+		{"name":"Analog4","min":2.4, "max":2.6},
+		{"name":"Analog5","min":2.4, "max":2.6},
+		{"name":"Analog6","min":2.4, "max":2.6},
+		{"name":"Analog7","min":2.4, "max":2.6},				
+		{"name":"Analog8_15v","min":4.5, "max":5.5}
+	]
+	Errorcounter=0
+	for sensor in Sensorlist:
+		sensorname=sensor["name"]
+		rangemin=sensor["min"]
+		rangemax=sensor["max"]
+		isok, readingstr, errmsg = hardwaremod.getsensordata(sensorname,1)
+		try:
+			reading=float(readingstr)
+			print(" sensorname " , sensorname , " data " , reading)	
+				
+			if (reading>rangemin)and(reading<rangemax):
+				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
+			else:
+				 Errorcounter=Errorcounter+1
+				 errorstring=" sensorname " + sensorname + " data out of range :( "
+				 print(errorstring)
+				 break
+		except:
+			Errorcounter=Errorcounter+1
+			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
+			print(errorstring)
+			break
+		time.sleep(1)			
+		
+	if Errorcounter>0:
+		returnstr="Probelms " + errorstring
+	else:
+		returnstr="Well DONE ! :)"
+		
+	return returnstr
+
+
+
+
 
 def functiontest():
 	print(" testing ")

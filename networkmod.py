@@ -15,6 +15,7 @@ import urllib.request, urllib.error, urllib.parse
 import socket
 import time
 import wpa_cli_mod
+import messageboxmod
 
 logger = logging.getLogger("hydrosys4."+__name__)
 
@@ -506,6 +507,8 @@ def checkGWsubnet(interface): #-------------------
 			logger.warning("STATIC ip address will not be set")
 			message="Warning: Last wifi connection, subnet not matching gateway ip = "+ ipaddr +" static ip =" + IPADDRESS +". Change the static IP address to match the Wifi GW subnet e.g " + newstaticIP
 			networkdbmod.storemessage(message)
+			dictitem={'title': "System Message (Alert)", 'content': message }
+			messageboxmod.SaveMessage(dictitem)
 			return False , ipaddr
 		else:
 			logger.info("ok: same subnet")	
