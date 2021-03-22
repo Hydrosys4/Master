@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.27b"
+Release="3.28d"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -159,9 +159,10 @@ print("Finish interrupt initialization")
 print("path ",hardwaremod.get_path())
 MYPATH=hardwaremod.get_path()
 
-# RUN ALL consistency chacks ------------------------
+# RUN ALL consistency checks ------------------------
 runallconsistencycheck()
-
+automationmod.cycleresetall()
+autowateringmod.cycleresetall()
 
 #scheduler start---------------------
 selectedplanmod.start_scheduler()
@@ -2089,8 +2090,11 @@ def autowatering():
 	for element in elementlist:
 		if not (element in autowateringmod.AUTO_data):
 			autowateringmod.cyclereset(element)
-		cyclestatus=[]		
-		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestartdate"].strftime("%Y-%m-%d %H:%M:%S"))
+		cyclestatus=[]
+		LOCtime=clockmod.convertUTCtoLOC_datetime(autowateringmod.AUTO_data[element]["cyclestartdate"])
+		cyclestatus.append(LOCtime.strftime("%Y-%m-%d %H:%M:%S"))
+		LOCtime=clockmod.convertUTCtoLOC_datetime(autowateringmod.AUTO_data[element]["lastwateringtime"])
+		cyclestatus.append(LOCtime.strftime("%Y-%m-%d %H:%M:%S"))		
 		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestatus"])
 		cyclestatus.append(autowateringmod.AUTO_data[element]["watercounter"])
 		cyclestatus.append(autowateringmod.AUTO_data[element]["alertcounter"])		
@@ -2123,7 +2127,7 @@ def automation():
 	
 	
 	modelist=["None", "Full Auto" , "Emergency Activation" , "Alert Only"]
-	formlist=["workmode", "sensor" , "sensor_threshold", "actuator_threshold", "stepnumber", "pausebetweenwtstepsmin", "averagesample", "allowedperiod" , "mailalerttype" ,"mathoperation" ]
+	formlist=["workmode", "sensor" , "sensor_threshold", "actuator_threshold", "stepnumber", "pausebetweenwtstepsmin", "averagesample", "allowedperiod" , "mailalerttype" ,"mathoperation", "activationdelay" ]
 	alertlist=["infoandwarning", "warningonly","none"]
 	operationlist=["average", "min" , "max" ]
 
@@ -2151,7 +2155,7 @@ def automation():
 			dicttemp["allowedperiod"]=[request.form[element+'_8_1'],request.form[element+'_8_2']]
 			dicttemp["mailalerttype"]=request.form[element+'_9']
 			dicttemp["mathoperation"]=request.form[element+'_10']
-
+			dicttemp["activationdelay"]=request.form[element+'_11']
 
 			#print "dicttemp ----->",dicttemp 
 			automationdbmod.replacerow(element,dicttemp)		
@@ -2187,8 +2191,9 @@ def automation():
 	for element in elementlist:
 		if not (element in automationmod.AUTO_data):
 			automationmod.cyclereset(element)
-		cyclestatus=[]		
-		cyclestatus.append(automationmod.AUTO_data[element]["lastactiontime"].strftime("%Y-%m-%d %H:%M:%S"))
+		cyclestatus=[]	
+		LOCtime=clockmod.convertUTCtoLOC_datetime(automationmod.AUTO_data[element]["lastactiontime"])
+		cyclestatus.append(LOCtime.strftime("%Y-%m-%d %H:%M:%S"))
 		cyclestatus.append(automationmod.AUTO_data[element]["status"])
 		cyclestatus.append(automationmod.AUTO_data[element]["actionvalue"])
 		cyclestatus.append(automationmod.AUTO_data[element]["alertcounter"])		
@@ -3235,7 +3240,16 @@ def Autotesting3():
 
 	for target in ActuatorList:
 		hardwaremod.makepulse(target,"10",True, 0)
+		time.sleep(0.01)
 		print(" Actuator ", target)
+
+
+	GPIOpinlist=["21","16","5","24","25","26","13","7","27","15","20","6","22","18","4","19","12","23","17","14"]
+
+	for gpio in GPIOpinlist:
+		# Set the pin as output at level 1
+		hardwaremod.setPinOutput(gpio,1)
+
 
 	
 	Sensorlist=[ 

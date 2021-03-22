@@ -14,7 +14,8 @@ import sensordbmod
 import actuatordbmod
 import autofertilizermod
 import statusdataDBmod
-
+import math
+import threading
 
 
 logger = logging.getLogger("hydrosys4."+__name__)
@@ -35,17 +36,12 @@ def cyclereset(element):
 	statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",0)	
 	statusdataDBmod.write_status_data(AUTO_data,element,"infocounter",0)
 
-
-
-
-
 def cycleresetall():
-	global AUTO_data
 	elementlist= automationdbmod.getelementlist()
 	for element in elementlist:
 		waitingtime=hardwaremod.toint(automationdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
-		AUTO_data[element]={"lastactiontime":datetime.utcnow() - timedelta(minutes=waitingtime),"status":"ok","actionvalue":0, "alertcounter":0, "infocounter":0}
-
+		#print("Cycle reset all ------------------------------------_>", waitingtime , "   ", element)
+		cyclereset(element)
 
 def automationcheck(refsensor):
 	logger.info('Starting Automation Evaluation, Sensor: %s' , refsensor)
@@ -68,7 +64,7 @@ def automationexecute(refsensor,element):
 		if (workmode=="None"):
 			# None case
 			print("No Action required, workmode set to None, element: " , element)
-			logger.info("No Action required, workmode set to None, element: %s " , element)
+			# logger.info("No Action required, workmode set to None, element: %s " , element)
 			return
 
 		if (workmode==""):
@@ -92,6 +88,9 @@ def automationexecute(refsensor,element):
 		mailtype=automationdbmod.searchdata("element",element,"mailalerttype")
 		averageminutes=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"averagesample"),1)
 		mathoperation=automationdbmod.searchdata("element",element,"mathoperation")
+		
+		# new parameter for the activationdelay
+		activationdelay=hardwaremod.tonumber(automationdbmod.searchdata("element",element,"activationdelay"),0)		
 
 		# check sensor timetrigger
 		sensorcontrolcommand=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,refsensor,hardwaremod.HW_CTRL_CMD)
@@ -111,11 +110,11 @@ def automationexecute(refsensor,element):
 			print("No Action required, maxstepnumber <1, element: " , element)
 			logger.info("No Action required, maxstepnumber <1, element: %s " , element)
 			return
-		interval=old_div((sensormaxthreshold-sensorminthreshold),maxstepnumber)
-		actuatorinterval=old_div((actuatormaxthreshold-actuatorminthreshold),maxstepnumber)
+		interval=(sensormaxthreshold-sensorminthreshold)/maxstepnumber
+		actuatorinterval=(actuatormaxthreshold-actuatorminthreshold)/maxstepnumber
 		P=[]
-		for I in range(0, maxstepnumber+1):
-			P.append(actuatorminthreshold+I*actuatorinterval)
+		for I in range(0, maxstepnumber+1):		# I goes from 0 to maxstepnumber (tihs is how range works) 
+			P.append(int(actuatorminthreshold+I*actuatorinterval))
 		
 		
 		
@@ -137,66 +136,32 @@ def automationexecute(refsensor,element):
 						print("Algorithm , element: " , element)
 						logger.info("Forward algorithm  , element: %s " , element)
 						
-					
-						Inde=0
-						maxs=sensorminthreshold+Inde*interval
-						if sensorvalue<=maxs:
-							status="belowthreshold"
-							logger.info('below Minthreshold')
-							value=P[Inde]
-							# do relevant stuff	
-							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-						
-						Inde=1
-						for I in range(Inde, maxstepnumber):
-							mins=sensorminthreshold+(I-1)*interval
-							maxs=sensorminthreshold+I*interval
-							if mins<sensorvalue<=maxs:
-								value=P[I]			
-								logger.info('inside Range')		
-								# do relevant stuff	
-								CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
-						
-						Inde=maxstepnumber
-						mins=sensorminthreshold+(Inde-1)*interval										
-						if mins<sensorvalue:
-							print("INDE:",Inde)
-							value=P[Inde]
-							logger.info('beyond Range')
-							# do relevant stuff	
-							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-						# END MAIN ALGORITHM
-						
 					else: # to be added case of inverse sensor condition, where the sensorminthreshold is higher than the sensormaxthreshold
 						print("Reverse Algorithm , element: " , element)
 						logger.info("Reverse Algorithm  , element: %s " , element)						
-									
+
+					Inde=math.ceil((sensorvalue-sensorminthreshold)/interval)						
+						
+						
+					if Inde<0:
+						status="belowthreshold"
+						logger.info('under left threshold')
 						Inde=0
-						maxs=sensorminthreshold+Inde*interval
-						if sensorvalue>=maxs:
-							status="belowthreshold"
-							logger.info('Above MAXthreshold')
-							value=P[Inde]
-							# do relevant stuff	
-							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-						
-						Inde=Inde+1
-						for I in range(Inde, maxstepnumber):
-							mins=sensorminthreshold+(I-1)*interval
-							maxs=sensorminthreshold+I*interval
-							if mins>sensorvalue>=maxs:
-								value=P[I]					
-								# do relevant stuff	
-								CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)		
-						
+					if Inde>maxstepnumber:
+						logger.info('beyond right threshold')
 						Inde=maxstepnumber
-						mins=sensorminthreshold+(Inde-1)*interval										
-						if mins>sensorvalue:
-							print("INDE:",Inde)
-							value=P[Inde]
-							# do relevant stuff	
-							CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)
-						# END MAIN ALGORITHM - Reverse				
+					value=P[Inde]
+
+					# END MAIN ALGORITHM
+					logger.info('Activation phase Value=%d',value)
+								
+					# do relevant stuff	with delay
+					argvect=[element,waitingtime,value,mailtype,sensor,sensorvalue]
+					t = threading.Timer(activationdelay, CheckActivateNotify, argvect).start()
+					#CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue)	
+					
+					
+										
 				else:
 					logger.error('No valid calculation operation on the stored sensor data')
 			else:

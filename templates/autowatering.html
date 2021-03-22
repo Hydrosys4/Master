@@ -329,22 +329,18 @@
 			<div class="form-group">		
 			<div class="row">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Valid reading Min threshold:
+				<label>Valid reading Range ( min : max ):
 				</label>
 
 				
 				</div>
+				
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				{% set arr=["0.1","0.2","0.3","0.4","0.5","0.7","1.0"] %}	 			
-				  <select class="form-control input-sm" name="{{elem}}_11">
-					{% for item in arr %}
-					<option {% if item==settingparam[9] %}selected="selected"{% endif %} >{{item}}</option>
-					{% endfor %}
-				  </select>
-					
-				<div class="small">below this value the sensor reading will not be considered valid for the algorithm </div>
+				<input value="{{settingparam[9]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
+				<div class="small">Ouside the range the sensor reading is not considered valid , format Min : Max e.g: 0:100  </div>
+				</div>				
+				
 
-				</div>
 			</div>				
 			</div>				
 
@@ -391,9 +387,10 @@
 					<table class="table" margin: 20px;>
 					<thead>
 						<tr>
-							<th>Cycle start</th>
+							<th>Cycle Start</th>
+							<th>Last Watering</th>
 							<th>Status</th>
-							<th>Watering Connter</th>
+							<th>Watering Counter</th>
 							<th>Warning</th>
 						</tr>
 					</thead>
@@ -415,6 +412,10 @@
 
 						 <td>				
 							<div>{{ cyclestatuslist[loop.index0][3] }}</div>
+						 </td>	
+
+						 <td>				
+							<div>{{ cyclestatuslist[loop.index0][4] }}</div>
 						 </td>	
 
 						</tr>

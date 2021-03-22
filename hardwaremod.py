@@ -241,17 +241,34 @@ def checkdata(fieldtocheck,dictdata,temp=True): # check if basic info in the fie
 	#dictdata[HW_INFO_MEASURE]=MEASURELIST
 	#dictdata[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST
 
+	# check if the PIN is same when using the "pulse"
 	fieldname=HW_CTRL_PIN	
 	correlatedfield=HW_CTRL_CMD
 	if (fieldtocheck==fieldname)or(fieldtocheck==""):
 		if (correlatedfield in dictdata)and(fieldname in dictdata):
-			if dictdata[correlatedfield]=="pulse":
+			if "pulse"==dictdata[correlatedfield]:
 
 				fieldvalue=dictdata[fieldname]	
 				if fieldvalue!="N/A":
-					if searchmatch(fieldname,fieldvalue,temp):
+					listkeyvalue=[{"key":fieldname , "value":fieldvalue},{"key":correlatedfield , "value":dictdata[correlatedfield]}]
+					if searchmatchN(listkeyvalue,temp):
 						message="Same PIN already used"
 						return False, message
+
+	# check if the PIN is same when using the "pulse/I2CGPIOEXP"
+	fieldname=HW_CTRL_PIN	
+	correlatedfield=HW_CTRL_CMD
+	if (fieldtocheck==fieldname)or(fieldtocheck==""):
+		correlatedfieldvalue=dictdata.get(correlatedfield)
+		if "pulse/I2CGPIOEXP"==correlatedfieldvalue:
+			fieldvalue=dictdata.get(fieldname)	
+			if fieldvalue!="N/A":
+				listkeyvalue=[{"key":fieldname , "value":fieldvalue},{"key":correlatedfield , "value":correlatedfieldvalue},{"key":HW_CTRL_ADDR , "value":dictdata.get(HW_CTRL_ADDR)}]
+				if searchmatchN(listkeyvalue,temp):
+					message="Same PIN already used"
+					return False, message
+
+
 		
 	#dictdata[HW_CTRL_ADCCH]=HWcontrol.ADCCHANNELLIST
 	#dictdata[HW_CTRL_PWRPIN]=HWcontrol.RPIMODBGPIOPINLIST
@@ -443,8 +460,9 @@ def activatepulse(command,PIN,duration,activationmode,target,priority):
 				isok=True
 				return "Pulse Started"
 			else:
-				if not recdata[2]:
-					return recdata[1]
+				if len(recdata)>2:
+					if not recdata[2]:
+						return recdata[1]
 			
 			
 	return "error"
@@ -1112,6 +1130,10 @@ def checkGPIOconsistency():
 
 	return True
 
+def setPinOutput(PIN,level):
+	HWcontrol.GPIO_setup(PIN, "out")
+	HWcontrol.GPIO_output(PIN, level)
+
 		
 def initallGPIOoutput():	
 	for ln in IOdata:
@@ -1459,6 +1481,29 @@ def searchmatch(recordkey,recordvalue,temp):
 				if ln[recordkey]==recordvalue:
 					return True	
 		return False
+
+
+def searchmatchN(listkeyvalue,temp):
+	# listkeyvalue is a list of dictionaries key , value
+	if temp:
+		reflist=IOdatatemp
+	else:
+		reflist=IOdata		
+		
+	for ln in reflist:
+		alltrue=True
+		for serachitem in listkeyvalue:
+			recordkey=serachitem["key"]
+			recordvalue=serachitem["value"]
+			if recordkey in ln:
+				if ln[recordkey]!=recordvalue:
+					alltrue=False
+					break
+		if alltrue:
+			return True
+					
+	return False
+
 
 def gettimedata(name):
 	# return list with three integer values: hour , minute, second

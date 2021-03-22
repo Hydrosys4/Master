@@ -179,6 +179,10 @@ def convertLOCtoUTC_datetime(dtime):
 	UTCdtime=dtime-delta
 	return UTCdtime
 
+def convertUTCtoLOC_datetime(dtime):
+	delta=deltadatetimetoUTC()
+	LOCdtime=dtime+delta
+	return LOCdtime
 
 
 	

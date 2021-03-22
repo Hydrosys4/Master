@@ -268,6 +268,24 @@
 			</div>				
 			</div>					
 
+			<div class="form-group">
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Activation delay (seconds)</label>
+					</div>		
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					
+						<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
+						<div class="small">This parameter delays the activation of the actuator of a number of seconds from the sensor reading </div>
+						<div class="small">NOTE: this is not accounted in the operational time below, this delay may cause the actuator to activate outside the operational time</div>
+					</div>
+
+				</div>
+			</div>
+
+
+
+
 
 			<div class="form-group">					
 			<div class="row">
@@ -334,21 +352,21 @@
 			</div>	
 		
 			<div class="form-group">
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Math operation on samples</label>
-				</div>		
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="{{elem}}_10">
-					{% for name in operationlist %}	
-						<option {% if name==settingparam[10] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-					{% endfor %}											
-					</select>
-				<div class="small">Operation between the samples to calculate the sensor value</div>
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Math operation on samples</label>
+					</div>		
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+						<select class="form-control input-sm dontwantgap" name="{{elem}}_10">
+						{% for name in operationlist %}	
+							<option {% if name==settingparam[10] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+						{% endfor %}											
+						</select>
+					<div class="small">Operation between the samples to calculate the sensor value</div>
 
 
+					</div>
 				</div>
-			</div>
 			</div>	
 			
 <!---- Status section -->

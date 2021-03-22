@@ -44,7 +44,6 @@ def cyclereset(element):
 
 
 def cycleresetall():
-	global AUTO_data
 	elementlist= autowateringdbmod.getelementlist()
 	for element in elementlist:
 		cyclereset(element)
@@ -98,7 +97,8 @@ def autowateringexecute(refsensor,element):
 		waitingtime=hardwaremod.toint(autowateringdbmod.searchdata("element",element,"pausebetweenwtstepsmin"),0)
 		samplesminutes=hardwaremod.tonumber(autowateringdbmod.searchdata("element",element,"samplesminutes"),120) # new addition
 		mailtype=autowateringdbmod.searchdata("element",element,"mailalerttype")
-		minaccepted=hardwaremod.tonumber(autowateringdbmod.searchdata("element",element,"sensorminacceptedvalue"),0.1)
+		rangeacceptedstr=autowateringdbmod.searchdata("element",element,"sensorminacceptedvalue")
+		
 		
 		# ------------------------ Workmode split
 		if workmode=="Full Auto":
@@ -112,7 +112,7 @@ def autowateringexecute(refsensor,element):
 			logger.info('full auto mode')
 			if timeok:
 				logger.info('inside allowed time')
-				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
+				belowthr,valid=checkminthreshold(sensor,minthreshold,rangeacceptedstr,samplesminutes)
 				if valid:
 					if belowthr:
 						status="lowthreshold"
@@ -171,7 +171,7 @@ def autowateringexecute(refsensor,element):
 								else: # slope not OK, probable hardware problem
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<3:
-										textmessage="CRITICAL: Water line Disabled or Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										textmessage="CRITICAL:  WATERING HAS BEEN STOPPED!!.  "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times."
 										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
@@ -252,7 +252,7 @@ def autowateringexecute(refsensor,element):
 			timeok=isNowInTimePeriod(starttime, endtime, nowtime)
 			print("inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime)
 			if timeok:			
-				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
+				belowthr,valid=checkminthreshold(sensor,minthreshold,rangeacceptedstr,samplesminutes)
 				if valid:
 					if belowthr:
 						# wait to seek a more stable reading of hygrometer
@@ -307,7 +307,7 @@ def autowateringexecute(refsensor,element):
 								else: # slope not OK, probable hardware problem
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<3:
-										textmessage="CRITICAL: Water line Disabled or Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										textmessage="CRITICAL:  WATERING HAS BEEN STOPPED!!. "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
 										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
@@ -337,7 +337,7 @@ def autowateringexecute(refsensor,element):
 			print("inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime)
 			if timeok:			
 				logger.info('Insede operative time')
-				belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
+				belowthr,valid=checkminthreshold(sensor,minthreshold,rangeacceptedstr,samplesminutes)
 				if valid:
 					logger.info('valid sensor reading')
 					if belowthr:
@@ -395,7 +395,7 @@ def autowateringexecute(refsensor,element):
 								else: # slope not OK, probable hardware problem
 									alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 									if alertcounter<3:
-										textmessage="CRITICAL: Water line Disabled or Possible hardware problem, "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
+										textmessage="CRITICAL: WATERING HAS BEEN STOPPED!!. "+ sensor + " value below the MINIMUM threshold " + str(minthreshold) + " still after activating the watering :" + element + " for " + str(maxstepnumber) + " times"
 										print(textmessage)
 										if (mailtype!="none"):
 											#send alert mail notification
@@ -425,7 +425,7 @@ def autowateringexecute(refsensor,element):
 						
 
 		elif workmode=="Alert Only":
-			belowthr,valid=checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes)
+			belowthr,valid=checkminthreshold(sensor,minthreshold,rangeacceptedstr,samplesminutes)
 			if valid:
 				if belowthr:
 					# invia mail if couter alert is lower than
@@ -486,7 +486,7 @@ def autowateringexecute(refsensor,element):
 
 		# implment Critical alert message in case the threshold is below the 0.5 of the minimum
 		if workmode!="None":
-			belowthr,valid=checkminthreshold(sensor,minthreshold*0.5,minaccepted,samplesminutes)
+			belowthr,valid=checkminthreshold(sensor,minthreshold*0.5,rangeacceptedstr,samplesminutes)
 			if valid:
 				if belowthr:
 					logger.info('sensor %s below half of the actual set threshold', sensor)
@@ -501,7 +501,7 @@ def autowateringexecute(refsensor,element):
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 			else:
 				logger.info('sensor %s below valid data', sensor)
-				textmessage="WARNING: "+ sensor + " below valid data range, need to check sensor"
+				textmessage="WARNING: "+ sensor + " outside valid data range ("+ rangeacceptedstr +"), need to check sensor"
 				print(textmessage)
 				#send alert mail notification
 				alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
@@ -522,14 +522,27 @@ def isNowInTimePeriod(startTime, endTime, nowTime):
 
 	
 
-def checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes):
+def checkminthreshold(sensor,minthreshold,rangeacceptedstr,samplesminutes):
 	belowthr=False
 	validity=True		
 	# check the hygrometer sensor levels 
 	sensorreadingaverage=sensorreading(sensor,samplesminutes)
-	# if the average level after 4 measure (15 min each) is below threshold apply emergency 
-	print(" Min accepted threshold " , minaccepted)
-	if (sensorreadingaverage>minaccepted):
+
+	
+	print(" accepted range " , rangeacceptedstr)
+	rangelist=rangeacceptedstr.split(":")
+	sensorrangeok=True
+	if len(rangelist)==2:
+		try:
+			mins=float(rangelist[0])
+			maxs=float(rangelist[1])
+			if (sensorreadingaverage<mins)or(sensorreadingaverage>maxs):			
+				sensorrangeok=False
+		except:
+			print("No valid parameter for sensor range , ignored ") 
+			logger.info("No valid parameter for sensor range , ignored ")
+			
+	if sensorrangeok:
 		if (sensorreadingaverage>minthreshold):		
 			logger.info('Soil moisture check, Sensor reading=%s > Minimum threshold=%s ', str(sensorreadingaverage), str(minthreshold))			
 			print('Soil moisture check, Sensor reading=%s > Minimum threshold=%s ')
@@ -539,8 +552,8 @@ def checkminthreshold(sensor,minthreshold,minaccepted,samplesminutes):
 			print('Soil moisture check, activating watering procedure ')
 			belowthr=True
 	else:	
-		logger.warning('Sensor reading lower than acceptable values %s no action', str(sensorreadingaverage))
-		print('Sensor reading lower than acceptable values ', sensorreadingaverage ,' no action')
+		logger.warning('Sensor reading outside acceptable range %s no action', str(sensorreadingaverage))
+		print('Sensor reading outside acceptable range ', sensorreadingaverage ,' no action')
 		validity=False
 
 	return belowthr, validity
