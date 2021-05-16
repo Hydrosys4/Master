@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.28d"
+Release="3.29f"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -77,6 +77,7 @@ import debuggingmod
 import filemanagementmod
 import weatherAPImod
 import messageboxmod
+import wateringplansensordbmod
 
 
 # Raspberry Pi camera module (requires picamera package)
@@ -122,6 +123,7 @@ def runallconsistencycheck():
 	autofertilizerdbmod.consistencycheck()
 	sensordbmod.consistencycheck()
 	actuatordbmod.consistencycheck()
+	wateringplansensordbmod.consistencycheck()
 	hardwaremod.initMQTT()
 	hardwaremod.initGPIOEXP()
 	return True
@@ -1591,11 +1593,13 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	hbridgestatuslist=[]
 	for hbridge in hbridgelist:
 		hbridgestatuslist.append(hardwaremod.gethbridgeposition(hbridge))		
+
 	# servo
 	servolist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"servo",hardwaremod.HW_INFO_NAME)
 	servostatuslist=[]
 	for servo in servolist:	
 		servostatuslist.append(hardwaremod.getservopercentage(servo))	
+
 	#servolist.insert(0, "none")
 	#servostatuslist.insert(0, "None")	
 	videolist=hardwaremod.videodevlist()
@@ -1605,10 +1609,8 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	
 	sensorlist = []
 	sensorlist=sensordbmod.gettablelist()
-	
-	deviceaddresseslist=[]
-	deviceaddresseslist=hardwaremod.get_devices_list()
-	
+		
+
 	#read the sensors data
 	#print "read sensor data " 
 	unitdict={}
@@ -1628,7 +1630,7 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 		MQTTclientexist=True
 	
 	
-	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,deviceaddresseslist=deviceaddresseslist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone, MQTTclientexist=MQTTclientexist)
+	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone, MQTTclientexist=MQTTclientexist)
 
 
 @application.route('/setinputcalibration/', methods=['GET', 'POST'])
@@ -1735,7 +1737,7 @@ def sethbridge():  # set the hbridge zero point
 	for hbridge in hbridgelist:
 		tempdict={}
 		tempdict["position"]=hardwaremod.gethbridgeposition(hbridge)
-		tempdict["busy"]=hardwaremod.get_hbridge_busystatus(hbridge)		
+		tempdict["busy"]="" #hardwaremod.get_hbridge_busystatus(hbridge)		
 		hbridgestatuslist.append(tempdict)	
 	
 
@@ -2004,6 +2006,15 @@ def wateringplan():
 		if actiontype == "advconfig":	
 			print("open advanced setting")
 			return redirect('/Advanced/')
+
+		if actiontype == "changename":	
+			print("change schema name")
+			return hardwaresettingeditfieldschemaname()
+
+
+		if actiontype == "sensorselect":	
+			print("select sensor for wateringplan")
+			return wateringplansensorselect()
 			
 		
 	return render_template("wateringplan.html", title=title,paramlist=paramlist,elementlist=elementlist,schemaementlist=schemaementlist,table=table,table1=table1,table2=table2,selectedelement=selectedelement)
@@ -2405,7 +2416,9 @@ def advanced():
 	title = "Advanced Watering Schedule"
 	paramlist= advancedmod.getparamlist()
 	elementlist= advancedmod.getelementlist()
+	
 	table=advancedmod.gettable()
+
 	tablehead=advancedmod.gettableheaders()
 
 	selectedelement = request.args.get('selectedelement')
@@ -2421,9 +2434,10 @@ def advanced():
 		if actiontype == "save":
 
 
-			element=request.form['element']
+			elementnum=request.form['element']
+			element=elementlist[int(elementnum)]	
 			print("save advanced form...:" , element)
-			selectedelement=element	
+
 
 
 			table=advancedmod.gettable()
@@ -2433,6 +2447,7 @@ def advanced():
 			elementlist= advancedmod.getelementlist()
 			tablehead=advancedmod.gettableheaders()
 			
+			selectedelement=element			
 
 			#add proper formatting
 			dicttemp={}
@@ -2440,7 +2455,7 @@ def advanced():
 			# table includes all the elements: Element, Parameters, rows, columns
 			# element is fixed and not relevent for save procedure
 			a=-1
-			for param in table[elementlist.index(element)]:
+			for param in table[int(elementnum)]:
 				a=a+1
 				b=-1
 				listrowtemp=[]
@@ -2450,8 +2465,8 @@ def advanced():
 					listcoltemp=[]
 					for colp in rowp:
 						c=c+1
-						#print "cursore" , element+paramlist[a]+ "_" + str(b) + str(c)
-						strtemp = request.form[element+paramlist[a]+ "_" + str(b) + str(c)]
+						#print ("cursore" , str(element)+paramlist[a]+ "_" + str(b) + str(c))
+						strtemp = request.form[str(elementnum)+paramlist[a]+ "_" + str(b) + str(c)]
 						listcoltemp.append(strtemp)
 					listrowtemp.append(listcoltemp)
 						
@@ -2785,8 +2800,79 @@ def hardwaresettingeditfield():
 #	return render_template('hardwaresettingedit.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , HWfilelist=HWfilelist)
 
 	hwdata=hardwaremod.IOdatatemp
+	
+	
+	#print ("--------------------------------------" , fields) 
+	#print ("---------------------------------------" , hwdata) 
+	#print ("---------------------------------------" , tablehead)
+	
+	returnfunction="hardwaresettingeditfield"
+	
+	ajaxurl="HWsettingEditAjax"
 
-	return render_template('hardwaresettingeditfield.html',fields=fields, hwdata=hwdata, tablehead=tablehead )
+	return render_template('hardwaresettingeditfield.html',returnfunction=returnfunction, ajaxurl=ajaxurl ,fields=fields, hwdata=hwdata, tablehead=tablehead )
+
+
+@application.route('/hardwaresettingeditfieldschemaname/', methods=['GET', 'POST'])
+def hardwaresettingeditfieldschemaname():  
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print("visualizzazione menu hardwareSettingeditschemaname:")
+
+	
+	fields={'name':[]}
+
+	tablehead=['name']
+
+
+	if request.method == 'POST':
+		print("daje")
+		
+		buttonsub = request.form.get('buttonsub', None)
+		requestinfo=""
+		requesttype=""
+
+		if buttonsub:
+			
+			requestinfo=request.form['buttonsub']
+			requesttype=requestinfo.split("_")[0]
+
+			print("hardwaresettingeditfieldschemaname requesttype POST "  , requestinfo , " " , requesttype)
+
+					
+			if requesttype=="confirm":
+				print("Confirm table")
+				print(advancedmod.tempelementdict)
+							
+				advancedmod.replaceschemanameandsave(advancedmod.tempelementdict)
+
+				return redirect(url_for('wateringplan'))
+
+			#if requesttype=="reload":	
+			#	hardwaremod.IOdatatempalign()
+
+			if requesttype=="cancel":
+				return redirect(url_for('wateringplan'))
+
+		else:
+			print("Not a real POST")
+			
+	hwdata=[]
+
+
+	advancedmod.tempelementdict={}
+	elementlist= advancedmod.getelementlist()
+	for item in elementlist:
+		hwdata.append({'name':item})
+		advancedmod.tempelementdict[item]=item
+
+
+	
+	returnfunction="hardwaresettingeditfieldschemaname"
+	
+	ajaxurl="SchemaNameEditAjax"
+
+	return render_template('hardwaresettingeditfield.html',returnfunction=returnfunction , ajaxurl=ajaxurl ,fields=fields, hwdata=hwdata, tablehead=tablehead )
 
 
 
@@ -2843,6 +2929,139 @@ def HWsettingEditAjax():
 		print("data NOK ", message)
 		ret_data = message
 		return ret_data,400
+
+
+@application.route('/SchemaNameEditAjax/', methods=['GET','POST'])
+def SchemaNameEditAjax():
+	if not session.get('logged_in'):
+		ret_data = {"answer":"Login Needed"}
+		return jsonify(ret_data)
+
+	isok=True
+	message="ok"
+	
+	recdata=[]
+	ret_data={}
+	if request.method == 'POST':
+		print("we are in the SchemaNameEdit")
+		pk = request.form['pk']
+		value = request.form['value']
+		name = request.form['name']
+		#print "request type : " , pk , "  " , value , "  " , name		
+		
+		print(pk)
+		previousname=pk
+		print(value)
+		newname=value
+		print(name)	
+		
+		# check if the new name is already present
+		if newname in advancedmod.tempelementdict:
+			message="name already present"
+			print(message)
+			isok=False
+		if newname in advancedmod.tempelementdict.values():
+			message="name already present"
+			print(message)
+			isok=False
+
+		if newname=="":
+			message="name cannot be empty"
+			print(message)
+			isok=False		
+
+
+	if isok:
+		advancedmod.tempelementdict[previousname]=newname
+		print(advancedmod.tempelementdict)		
+		ret_data = {"answer": message}
+		return jsonify(ret_data)
+	else:
+		print("data NOK ", message)
+		ret_data = message
+		return ret_data,400
+
+
+
+
+@application.route('/wateringplansensorselect/', methods=['GET', 'POST'])
+def wateringplansensorselect():  
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+	print("visualizzazione menu wateringplansensorselect:")
+	#wateringplansensordbmod
+	
+	sensorlist=wateringplansensordbmod.sensorlist()
+	selsensorlist, selsensorlist2=wateringplansensordbmod.getactivesensor()
+	selduration=wateringplansensordbmod.getselduration()
+	selcondition=wateringplansensordbmod.getselcondition()
+
+
+	
+	if request.method == 'POST':
+		
+		buttonsub = request.form.get('buttonsub', None)
+		requestinfo=""
+		requesttype=""
+
+		if buttonsub:
+		
+			
+			requestinfo=request.form['buttonsub']
+			requesttype=requestinfo.split("_")[0]
+			#print "requesttype "  , requestinfo , " " , requesttype
+			
+				
+			
+			if requesttype=="save":
+				print("save")	
+				
+				# time interval
+				selduration=request.form['durationmin']
+				print(selduration)
+				wateringplansensordbmod.saveselduration(selduration)
+				# logic condition
+				selcondition=request.form['condition']
+				print(selcondition)
+				wateringplansensordbmod.saveselcondition(selcondition)
+
+				selsensorlist=[]
+				sensorlist=wateringplansensordbmod.sensorlist() #provides the list of value of the checked items
+
+				selsensorlist = request.form.getlist('list1') 
+				print(selsensorlist)
+				selsensorlist2 = request.form.getlist('list2') 
+				print(selsensorlist2)
+
+				wateringplansensordbmod.saveselsensors(selsensorlist,selsensorlist2)
+				
+				wateringplansensordbmod.savesetting()
+				return redirect(url_for('wateringplan'))
+				
+			if requesttype=="cancel":
+				return redirect(url_for('wateringplan'))
+
+	print ("selsensorlist ", selsensorlist)
+
+	selsensorlistGUI=[]
+	for item in sensorlist:
+		dicttemp={}
+		dicttemp["name"]=item
+		if item in selsensorlist:
+			dicttemp["active"]="True"
+		else:
+			dicttemp["active"]="False"
+		if item in selsensorlist2:
+			dicttemp["active2"]="True"
+		else:
+			dicttemp["active2"]="False"
+		selsensorlistGUI.append(dicttemp)
+		
+	durationlist=["60","120","360","720","1440"]
+	conditionlist=["AND","OR"]
+
+	return render_template('waterinplansensorselect.html', selcondition=selcondition, conditionlist=conditionlist, selduration=selduration, durationlist=durationlist, selsensorlistGUI=selsensorlistGUI)
+
 
 
 
@@ -3087,8 +3306,12 @@ def Generictesting():
 	print("Generic testing routine")
 	Errorcounter=0
 	#hardwaremod.initMQTT()
-	emailmod.sendallmail("alert", "sono un messaggio di prova")
+	#emailmod.sendallmail("alert", "sono un messaggio di prova")
 
+	ThesholdOFFON="55"
+	ThesholdONOFF="85"
+
+	selectedplanmod.startpump("water1",10,ThesholdOFFON,ThesholdONOFF)
 		
 	if Errorcounter>0:
 		returnstr="Probelms " + errorstring

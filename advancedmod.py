@@ -24,6 +24,7 @@ DEFDATAFILENAME="default/defaddata.txt"
 
 global data
 data=[]
+tempelementdict={}
 
 # read data -----
 if not filestoragemod.readfiledata(DATAFILENAME,data): #read watering setting file
@@ -47,6 +48,31 @@ if not filestoragemod.readfiledata(DATAFILENAME,data): #read watering setting fi
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
 
+def replaceschemanameandsave(replacedict): 
+	filename=DATAFILENAME
+	filedata=[]
+	filestoragemod.readfiledata(filename,filedata)
+	# questo il possibile dizionario: { 'name':'', 'm':0.0, 'q':0.0, 'lastupdate':'' } #variabile tipo dizionario
+	for old in replacedict.keys():
+		new=replacedict[old]
+		if old != new:
+			line=filedata[0]
+			for key in line.keys():
+				if line[key]==old:
+					line[key]=new
+					print(key , "  " , line[key])		
+						
+			for i in range(3,len(filedata)):
+				line=filedata[i]
+				if line["name"]==old:
+					line["name"]=new
+					print(old , "  " , new)
+				
+
+	filestoragemod.savefiledata(filename,filedata)
+	global data
+	data=filedata
+	return True
 
 		
 

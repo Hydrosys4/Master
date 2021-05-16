@@ -5,7 +5,7 @@
   <div class="container-fluid">
 	  
 	  
-		<!-- hbridge Actuators test -->
+
   
   		<form novalidate="true" action="{{ url_for('showdeviceaddresseslist') }}" id="menuForm" method="post" >
 			<div class="page-header">
@@ -16,7 +16,7 @@
 			
 			<div class="well bs-component smallgap">
 
-			
+		{% if deviceaddresseslist|length > 0 %}			
 
 			<table class="table" margin: 20px;>
 			<thead>
@@ -66,8 +66,14 @@
 
         </tbody>
     </table>
+    
+    {% else %}
+    		<div class="page-header">
+					  <h4>There are no device with address</h4>   
+			</div>
+    
 	
-
+	{% endif %}
 
 
 	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Cancel</button>

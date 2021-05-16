@@ -8,7 +8,7 @@
 			{% for name in elementlist %}
 			{% set row_i = loop %}
 				<li {% if name == selectedelement %} class="active"{% endif%}  style="font-size:1.4em;">
-					<a href="#{{ name }}" data-toggle="tab">{{ name }}</a>
+					<a href="#{{ row_i.index0  }}" data-toggle="tab">{{ name }}</a>
 				</li>
 			{% endfor %}
 		</ul>
@@ -21,15 +21,15 @@
 			
 		{% for elem in elementlist %}
 		{% set row_i = loop %}	
-         <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
+         <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ row_i.index0 }}">
 			 
 			 <!---- start panel  -->
 			 
 		<form novalidate="true" action="{{ url_for('advanced') }}" method="post" name="theform">
 			 
-			 <input name="element" value="{{elem}}" type="hidden" />
+			 <input name="element" value="{{row_i.index0}}" type="hidden" />
 			 
-			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
+			 <input value="none" id="actionbtn{{row_i.index0}}" name="actionbtn" type="hidden" />
 			 
 			 <div class="panel panel-primary">
 			  <div class="panel-heading">
@@ -38,14 +38,14 @@
 
 					</span></div>
 						<div class=" col-xs-4">				
-								<button name="goback" idref="actionbtn{{elem}}" value="back" type="submit" class="thebutton btn btn-primary btn-md btn-block btn-warp dontwantgap">
+								<button name="goback" idref="actionbtn{{row_i.index0}}" value="back" type="submit" class="thebutton btn btn-primary btn-md btn-block btn-warp dontwantgap">
 									Back
 
 								</button>
 						</div>
 
 					<div class=" col-xs-4">
-					<button name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+					<button name="save" idref="actionbtn{{row_i.index0}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
 					<span class="glyphicon glyphicon-saved"></span>
 					</button>
 					</div>
@@ -73,7 +73,7 @@
 											<div class="panel-body">
 						 
 												
-													<div class="row" id="{{ elem }}{{ name }}">
+													<div class="row" id="{{ row_i.index0 }}{{ name }}">
 
 
 
@@ -94,12 +94,12 @@
 																		<div align="center">(min:sec)</div>
 																		</th>
 																		<th>
-																		<img src="/static/temperature BW.png" style="width:45px;height:40px" class="center-block"/>
-																		<div align="center">Temp</div>
+																		<img src="/static/ONOFF_BW.png" style="width:55px;height:55px" class="center-block"/>
+																		<div align="center">Active Above</div>
 																		</th>																		
 																		<th>
-																		<img src="/static/humidity BW.png" style="width:45px;height:40px" class="center-block"/>
-																		<div align="center">Humid</div>
+																		<img src="/static/OFFON_BW.png" style="width:55px;height:55px" class="center-block"/>
+																		<div align="center">Active Below</div>
 																		</th>																			
 																		
 																		
@@ -117,7 +117,7 @@
 																				<!-- new -->
 
 																						<div style="width: 100%" class="input-group clockpicker" data-autoclose="true">
-																							<input readonly="readonly" type="text" class="form-control input-sm dontwantgap " value="{{ rowp[0] }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}0">
+																							<input readonly="readonly" type="text" class="form-control input-sm dontwantgap " value="{{ rowp[0] }}" name="{{row_i.index0}}{{ name }}_{{rowp_i.index0}}0">
 																							<script type="text/javascript">
 																							$('.clockpicker').clockpicker({ placement: 'top'});
 																							</script>								
@@ -133,41 +133,37 @@
 																					<table class="dontwantgap" style="width: 100%">
 																					<tr class="dontwantgap">
 																					<td>	
-																					<input style="text-align:left" type="number" class="form-control  dontwantgap input-sm" min="0" max="599"  step="1" value="0" id="{{elem}}{{ name }}_{{rowp_i.index0}}1minutes" />
+																					<input style="text-align:left" type="number" class="form-control  dontwantgap input-sm" min="0" max="599"  step="1" value="0" id="{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1minutes" />
 																					</td>
 																					<td>	
 																					<b>:<b/>
 																					</td>
 																					<td>
-																					<input type="number" class="form-control  dontwantgap input-sm" min="0" step="1" max="59" value="0" id="{{elem}}{{ name }}_{{rowp_i.index0}}1seconds" />
+																					<input type="number" class="form-control  dontwantgap input-sm" min="0" step="1" max="59" value="0" id="{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1seconds" />
 																					</td>
 																					</tr>
 																					</table>
 																					</div>
 																					
 																					<!-- real value sent to the system -->
-																					<input type="hidden" class="calculatetime " min="0" step="1" value="{{  rowp[1]  }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}1" />
+																					<input type="hidden" class="calculatetime " min="0" step="1" value="{{  rowp[1]  }}" name="{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1" />
 
 																				</div>																	
-
-																					<script type=text/javascript>
+																					<script type="text/javascript">
 																						var timeinsecstr={{rowp[1]}};
 																						var timeinsec = parseInt(timeinsecstr, 10);
 																						if (isNaN(timeinsec)) { timeinsec=0; }
 																						var minutes = Math.floor(timeinsec / 60);
 																						var seconds = timeinsec - minutes * 60;
-																						$("#{{elem}}{{ name }}_{{rowp_i.index0}}1seconds").val(seconds)
-																						$("#{{elem}}{{ name }}_{{rowp_i.index0}}1minutes").val(minutes)
-	
-								
-																					</script>
-																			
+																						$("#{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1seconds").val(seconds)
+																						$("#{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1minutes").val(minutes)
+																					</script>  
 																			</td>
 
 																			<td class="col-xs-3 ">
 																				<div class="form-group">
 																					<div class="controls">
-																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{  rowp[2]  }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}2" />
+																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{  rowp[2]  }}" name="{{row_i.index0}}{{ name }}_{{rowp_i.index0}}2" />
 																					</div>
 																					<div class="help-block with-errors"></div>
 																				</div>																	
@@ -178,7 +174,7 @@
 																			<td class="col-xs-3 ">
 																				<div class="form-group">
 																					<div class="controls">
-																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{  rowp[3]  }}" name="{{elem}}{{ name }}_{{rowp_i.index0}}3" />
+																					<input type="number" class="form-control dontwantgap input-sm" min="0" step="1" value="{{  rowp[3]  }}" name="{{row_i.index0}}{{ name }}_{{rowp_i.index0}}3" />
 																					</div>
 																					<div class="help-block with-errors"></div>
 																				</div>																	
@@ -203,7 +199,7 @@
 
 											</div>
 											<!--<div class="panel-footer">
-												<input value="{% if (table|length)>0 %}{{ table[row_i.index0][col_i.index0]}}{% endif %}" id="{{ elem }}{{ name }}_input" name="{{elem}}_{{col_i.index0}}" class="form-control" />						
+												<input value="{% if (table|length)>0 %}{{ table[row_i.index0][col_i.index0]}}{% endif %}" id="{{ row_i }}{{ name }}_input" name="{{row_i}}_{{col_i.index0}}" class="form-control" />						
 
 											</div>-->
 										</div>
@@ -226,19 +222,19 @@
 							</span>
 						</div>
 						<div class=" col-xs-3">				
-								<button name="goback" idref="actionbtn{{elem}}" value="back" type="submit" class="thebutton btn btn-primary btn-md btn-block btn-warp dontwantgap">
+								<button name="goback" idref="actionbtn{{row_i.index0}}" value="back" type="submit" class="thebutton btn btn-primary btn-md btn-block btn-warp dontwantgap">
 									Back
 
 								</button>
 						</div>
 						<div class=" col-xs-3">				
-								<button name="setdefault" idref="actionbtn{{elem}}" value="setdefault" type="submit" class="thebutton small btn btn-danger btn-md btn-block btn-warp dontwantgap">
+								<button name="setdefault" idref="actionbtn{{row_i.index0}}" value="setdefault" type="submit" class="thebutton small btn btn-danger btn-md btn-block btn-warp dontwantgap">
 									Restore Default
 								<span class="glyphicon glyphicon-cog"></span>
 								</button>
 						</div>
 						<div class=" col-xs-3">
-						<button name="save" idref="actionbtn{{elem}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
+						<button name="save" idref="actionbtn{{row_i.index0}}" value="save" type="submit" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
 						<span class="glyphicon glyphicon-saved"></span>
 						</button>
 						</div>
@@ -278,11 +274,12 @@
 					var selvalue=$(this).attr('name');
 					//alert(selvalue);
 					var idref=$(this).attr('idref');
+							
 					$('#' + idref).attr("value", selvalue);
 					timetoseconds();
 				});  
 			}); 
-	
+			
 			function timetoseconds() {
 				
 			   $(".calculatetime").each(function() {
@@ -293,16 +290,16 @@
 				   if (isNaN(min_num)) { min_num=0; }
 				   var totseconds=sec_num + min_num * 60;																
 					
-				$(this).val(totseconds)
+				$(this).val(totseconds);
 
 
 				});	
-
 				
 			}
 	
 		
 		</script>  
+
 
 
 

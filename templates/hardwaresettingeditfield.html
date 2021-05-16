@@ -33,7 +33,7 @@
 							
 <!-- edit entyre table -->	
 
-<form novalidate="true" action="{{ url_for('hardwaresettingeditfield') }}" id="menuForm" method="post" >
+<form novalidate="true" action="{{ url_for(returnfunction) }}" id="menuForm" method="post" >
 							
 													<div class="table-responsive">
 															<table id="tablemain" class="table table-striped">
@@ -62,11 +62,11 @@
 																		<td>
 																			<div class="form-group">	
 																			{% if fields[th]|length<1 %}
-<a class="editable" href="#" id={{ th }} data-type="text" data-pk={{ rowdict["name"] }} data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}">{{ rowdict[th] }}</a>
+<a class="editable" href="#" id={{ th }} data-type="text" data-pk={{ rowdict["name"] }} data-url="/{{ajaxurl}}/" data-title="Enter {{ th }}" data-name="{{ th }}">{{ rowdict[th] }}</a>
 
 																			{% else %}		
 																			
-<a class="editable-select-{{ th }}" href="#" id={{ th }} data-type="select" data-pk={{ rowdict["name"] }} data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}" data-Value={{ rowdict[th] }}></a>
+<a class="editable-select-{{ th }}" href="#" id={{ th }} data-type="select" data-pk={{ rowdict["name"] }} data-url="/{{ajaxurl}}/" data-title="Enter {{ th }}" data-name="{{ th }}" data-Value={{ rowdict[th] }}></a>
 																					
 																			{% endif %}
 																			</div>																							

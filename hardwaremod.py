@@ -1291,7 +1291,6 @@ def get_devices_list():
 	devtype="One Wire"
 	devicelist=HWcontrol.get_1wire_devices_list()
 	
-	print(devicelist)
 	for item in devicelist:
 		outlist.append({"address":item , "type":devtype})
 		
@@ -1594,7 +1593,6 @@ def getfieldvaluelisttemp(fielditem,valuelist):
 	del valuelist[:]
 	for line in IOdatatemp:
 		valuelist.append(line[fielditem])
-
 
 
 def getfieldinstringvalue(fielditem,stringtofind,valuelist):

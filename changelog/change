@@ -751,10 +751,49 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Added more schema (P1-P16)
 
 
-2021-02-20 -> release 327
+2021-02-20 -> release 327 / 327b
 
 - Added messagebox menu (for system messages)
 
+2021-02-20 -> release 328
+
+- Reworked the Automation algorithm
+- Added delay to the automation function
+- autowatering modify the acceptable sensor range parameters
+
+2021-02-20 -> release 328a
+
+- Fix bug with automation algorithm
+
+2021-02-20 -> release 328b
+
+- Fix bug with automation algorithm
+- replace "-" with ":" in the acceptable range Autowastering
+
+2021-02-20 -> release 328d
+
+- extend testing of the SuperHat
+- same pin already used in pulse (edit hardwaresetting)
+
+2021-05-09 -> release 329a
+
+- remove volts from autowatering
+- add support for SPI2
+- add timeout for the scanning of I2C devices when not present
+- fixed the Hbridge "position setting" not working
+
+
+2021-05-09 -> release 329b
+
+- Procedure to change name to watering schema 
+
+2021-05-10 -> release 329c
+
+- Select the sensor for humidity and temperature used in wateringplan in a dedicated page
+
+2021-05-10 -> release 329d
+
+- Wateringplan Logic for the Activate Below , activate above
 
 
 ------- Future releases: -----------

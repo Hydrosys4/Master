@@ -1,0 +1,241 @@
+{% extends "layout.html" %}
+{% set active_page = "wateringplan" %}
+{% block body %}
+  {% if session.logged_in %}
+  
+   
+<div class="container-fluid">
+		
+
+<!-- Configuration management -->
+ <form  action="{{ url_for('wateringplansensorselect') }}" id="menuFormupload" enctype="multipart/form-data" method="post" >	
+
+			
+			
+	<div class="well bs-component">				
+			<!-- watering actuator choice  -->
+		<div class="form-group">			
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<legend>Select Sensors for the WateringPlan conditional activation</legend>  
+			</div>	
+		</div>	
+		</div>	
+			
+		 <table class="table table-sm" style="width: 100%">
+				<colgroup>
+				   <col span="1" style="width: 5%;">
+				   <col span="1" style="width: 20%;">
+				   <col span="1" style="width: 20%;">
+				</colgroup>
+				  <tr>
+					<th style="text-align:center"></th>
+					<th style="text-align:center">Activate Above</th>
+					<th style="text-align:center">Activate Below</th>
+				  </tr>
+				
+				
+				
+		   	<tbody>		
+			
+			{% for item in selsensorlistGUI %}
+			<tr>		
+					
+				<td>
+
+						<label>{{ item.name }}</label>
+
+				</td>
+				<td style="text-align:center">
+					
+						{% if item.active=="True" %}
+						<input class="toggle-event list1" checked="checked" type="checkbox" name="list1" value="{{ item.name }}">				
+						{% else %}						
+						<input class="toggle-event list1" type="checkbox" name="list1" value="{{ item.name }}">
+						{% endif %}
+
+				</td>					
+
+				<td style="text-align:center">
+					
+						{% if item.active2=="True" %}
+						<input class="toggle-event list2" checked="checked" type="checkbox" name="list2" value="{{ item.name }}">				
+						{% else %}						
+						<input class="toggle-event list2" type="checkbox" name="list2" value="{{ item.name }}">
+						{% endif %}
+
+				</td>	
+
+
+			</tr>					
+			{% endfor %}	
+			
+
+			</tbody>
+		</table>
+		
+	</div> <!-- well componenet -->									
+												
+													
+
+				
+		<div class="well bs-component">	
+
+
+		<!-- select average interval -->
+
+
+			<div class="form-group">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Average Duration (minutes)</label>
+				</div>		
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<select class="form-control input-sm dontwantgap" name="durationmin">
+					{% for name in durationlist %}	
+						<option {% if name==selduration %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+					{% endfor %}											
+					</select>
+				<div class="small">Duration of the interval to calcualte the average of the sensor values. This average will be then compared with the threshold</div>
+
+
+				</div>
+			</div>
+			</div>											
+		
+
+			<div class="form-group">
+			<div class="row">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<label>Condition to activate the Irrigation</label>
+				</div>		
+				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<select class="form-control input-sm dontwantgap" name="condition">
+					{% for name in conditionlist %}	
+						<option {% if name==selcondition %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+					{% endfor %}											
+					</select>
+				<div class="small">AND: activates the irrigation if both conditions are true, OR: activate if one of the two conditions is True</div>
+
+
+				</div>
+			</div>
+			</div>		
+
+		</div> <!-- well componenet -->			
+			
+
+
+
+
+
+
+							
+		<!-- testing buttons -->
+		<div class="form-group">					
+
+	
+		<div class="row">
+
+
+			<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+				<button class=" btn btn-danger btn-block" type="submit" name="buttonsub" value="save">Save Config</button>
+			</div>
+			<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">				
+				<button class=" btn btn-success btn-block" type="submit" name="buttonsub" value="cancel">Back</button>
+
+			</div>			
+			
+			
+
+		</div>	
+		
+		
+		
+		
+		</div>
+
+
+	</form>
+	
+	
+		
+		
+		
+		
+	
+</div>
+
+
+
+			<script>
+			  $(function() {
+				// jquery
+				var $checkboxes1 = $('.list1');
+
+				$checkboxes1.change(function(){
+				  $checkboxes1.not(this).removeAttr('checked');
+				});				  
+
+				var $checkboxes2 = $('.list2');
+
+				$checkboxes2.change(function(){
+				  $checkboxes2.not(this).removeAttr('checked');
+				});		
+
+			  })
+			</script>
+
+
+
+   
+   		<script type=text/javascript>
+
+
+				$(".testbutton").click(function() {
+				//alert("test button pressed");
+				// send ajax interrupt to flask to initiate the actuator test
+				$('#'+elem).val("Started ...");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem ,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#'+elem).val(data.answer);
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+			
+			 
+			</script>
+
+
+
+
+
+
+
+
+  
+
+
+
+
+																																						
+
+  {% else %}
+
+		<h1>Please log in</h1>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

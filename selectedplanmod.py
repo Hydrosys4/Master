@@ -32,6 +32,7 @@ import automationmod
 import debuggingmod
 import basicSetting
 import weatherAPImod
+import wateringplansensordbmod
 
 DEBUGMODE=basicSetting.data["DEBUGMODE"]
 MASTERSCHEDULERTIME="00:05:00"
@@ -88,8 +89,46 @@ def dictionarydataforactuator(actuatorname,data1,data2, description):
 	listdict.append(dicttemp)
 	return listdict
 
+def checksensorcondition(sensornamelist,threshold, MinutesOfAverage, ONOFF=True):
 
-def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
+	valid=False	
+	passed=False
+	thresholdnum=hardwaremod.tonumber(threshold,"NA")
+	
+	if (thresholdnum!="NA"):	
+
+		if sensornamelist:
+			valid=True
+			
+			sensordata=[]		
+			sensorname=sensornamelist[0]  # get first found sensor in the list
+			sensordbmod.getsensordbdata(sensorname,sensordata)
+			starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
+			isok , calclist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())
+			calculation=calclist["average"]
+			logger.info('Waterpump Check sensor =%s ', sensorname)
+			logger.info('Sensor=%s , Theshold=%s ', str(calculation), str(threshold))
+			print('Sensor= ', str(calculation),', Theshold= ', str(threshold))
+			
+			test="below ON"
+			if (calculation<thresholdnum):
+				passed=True
+			if not ONOFF:
+				passed=not passed
+				test="above ON"
+							
+			print('check ', test)
+			if passed:		
+				logger.info('check %s PASSED, sensor1=%s , Theshold=%s ', test , str(calculation), str(threshold))	
+				print('PASSED, sensor1=%s , Theshold=%s ',  str(calculation), str(threshold))		
+			else:
+				logger.info('check %s FAILED', test)
+				print('check FAILED')		
+	
+	return valid , passed	
+	
+		
+def startpump(target,activationseconds,ThesholdOFFON,ThesholdONOFF):
 
 	logger.info('WateringPlan Startpump evaluation: %s', target)	
 	#workmode=autowateringmod.checkworkmode(target)
@@ -103,64 +142,40 @@ def startpump(target,activationseconds,MinAveragetemp,MaxAverageHumid):
 	duration=hardwaremod.toint(activationseconds,0)
 	print(target, " ",duration, " " , datetime.now()) 
 
-	# evaluate parameters
-	#MinAverageLight=500 not used now
-	MinutesOfAverage=120 #minutes in which the average data is calculated from sensor sampling
-
 	print("waterpump check")
 	logger.info('execute water pump check %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-	# then check the temperature and Humidity
+	# evaluate parameters
+	MinutesOfAverage=hardwaremod.toint(wateringplansensordbmod.getselduration(),120) #minutes in which the average data is calculated from sensor sampling
 
-	print("Check Humidity and Temperature")
+	tsensornamelist, hsensornamelist=wateringplansensordbmod.getactivesensor()		
 	
-	MinAveragetempnum=hardwaremod.tonumber(MinAveragetemp,"NA")
-	MaxAverageHumidnum=hardwaremod.tonumber(MaxAverageHumid,"NA")
+	valid1, passed1 = checksensorcondition(tsensornamelist,ThesholdOFFON, MinutesOfAverage, False)
+	valid2, passed2 = checksensorcondition(hsensornamelist,ThesholdONOFF, MinutesOfAverage, True)
 	
-	# all the below conditions should be verified to start the PUMP
+	# apply AND or OR condition
+	condition=wateringplansensordbmod.getselcondition()  # "AND" , "OR"
+	
 	pumpit=True	
 	
-	hsensornamelist=hardwaremod.getsensornamebymeasure(hardwaremod.MEASURELIST[1])
-	if hsensornamelist:
-		sensordata=[]		
-		hsensorname=hsensornamelist[0]  # get first found sensor in the list
-		sensordbmod.getsensordbdata(hsensorname,sensordata)
-		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
-		isok , quantitylist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())
-		humquantity=quantitylist["average"]
-
-		logger.info('Waterpump Check parameter if humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))
-		print('Waterpump Check parameter if humquantity=',humquantity,' < MaxAverageHumid=' ,MaxAverageHumid)
-		
-		if (MaxAverageHumidnum!="NA"):
-			if (humquantity<MaxAverageHumidnum):		
-				logger.info('Humidity check PASSED, humquantity=%s < MaxAverageHumid=%s ', str(humquantity), str(MaxAverageHumid))			
-			else:
-				logger.info('Humidity check FAILED')
-				print('Humidity check FAILED')
-				pumpit=False			
-		
 	
-	tsensornamelist=hardwaremod.getsensornamebymeasure(hardwaremod.MEASURELIST[0])
-	if tsensornamelist:
-		sensordata=[]		
-		tsensorname=tsensornamelist[0]  # get first found sensor in the list
-		sensordbmod.getsensordbdata(tsensorname,sensordata)
-		starttimecalc=datetime.now()-timedelta(minutes=int(MinutesOfAverage))
-		isok , quantitylist=sensordbmod.EvaluateDataPeriod(sensordata,starttimecalc,datetime.now())
-		tempquantity=quantitylist["average"]
-		logger.info('Waterpump Check parameter if tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))
-		print('Waterpump Check parameter if tempquantity=',tempquantity,' > MinAveragetemp=' ,MinAveragetemp)
+	if valid1 and valid2:
+		if condition=="AND":
+			pumpit=passed1 and passed2
+		elif condition=="OR":
+			pumpit=passed1 or passed2			
+			
+	else:
+		if valid1:
+			pumpit=passed1
+		if valid2:
+			pumpit=passed2
 		
-		if (MinAveragetempnum!="NA"):
-			if (tempquantity>MinAveragetempnum):		
-				logger.info('Temperature check PASSED, tempquantity=%s > MinAveragetemp=%s ', str(tempquantity), str(MinAveragetemp))			
-			else:
-				logger.info('Temperature check FAILED')
-				print('Temperature check FAILED')
-				pumpit=False	
+	print('valid1= ' , valid1 , 'valid2= ' , valid2)
+	print('passed1= ' , passed1 , 'passed2= ' , passed2)
+	print('pumpit= ' , pumpit, 'condition= ' , condition)
+	logger.info('Condition for activation =%s ', pumpit)
 				
-	
 	# weather Forecast
 	sensorname=weatherAPImod.DefaultCounterName()
 	sensorlist=sensordbmod.gettablelist()

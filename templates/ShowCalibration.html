@@ -359,7 +359,7 @@
 
 			
 <!-- devices Addressed listing (Onewire, I2C etc) -->
- 		{% if deviceaddresseslist|length > 0 %}		 
+ 
 		<form novalidate="true" action="{{ url_for('showdeviceaddresseslist') }}" id="showdeviceaddresseslist" method="post" >
 			<div class="page-header">
 					  <h3>Show Devices Addresses</h3>   
@@ -381,13 +381,10 @@
 		
 				</div>
 				</div>			
-		
-		
-		
 
 		
 		</form>  		
-		{% endif %}
+
 
 
 <!-- MQTT devices Addressed listing (MQTT topic, IP, status) -->
