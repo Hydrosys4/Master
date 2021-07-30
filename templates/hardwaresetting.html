@@ -166,7 +166,7 @@ function actionFormatter(value, row, index) {
 																																											
 
 		<!-- Download file -->
-		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="dwform" class="jotform-form" method="post" >
+		<form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="dwform" class="jotform-form" method="post" >
 
 			<div class="page-header">
 					  <h4>Download file (debugging only)</h4>   
@@ -401,9 +401,57 @@ function actionFormatter(value, row, index) {
 			  });
 			</script>
 
+	
 
+
+
+		<!-- section with refresh button -->
+		<form novalidate="true" action="{{ url_for('hardwaresetting') }}" method="post" >
+			<!-- Refresh hardware setting            -->
+			<div class="page-header">
+				<h4>Refresh Hardware Setting</h4>   
+			</div>
+
+
+			<!-- RPi reset button-->
+
+			<div class="row">
+
+				<div class="col-xs-4">
+					<button class="btn-sm btn btn-success" type="submit" name="buttonsub" value="refresh">Refresh</button>
+				</div>
+			</div>				
 
 		</form>
+
+
+
+
+			
+			<!-- RPi reset button            -->
+			<div class="page-header">
+				<h4>Don't Click the button below</h4>   
+			</div>
+
+
+			<!-- RPi reset button-->
+
+			<div class="row">
+
+			<div class="col-xs-12">
+
+			<a href="{{ url_for('dontclick') }}">
+			<button id="dontclickbtn" name="buttonsub" value="dontclickbtn" class="btn btn-danger btn-sm btn-warp">
+				Don't click me
+			<span class="glyphicon glyphicon-cog"></span>
+			</button>
+			</a>
+
+
+			</div>
+			</div>			
+
+
 
 
 			<div class="page-header">

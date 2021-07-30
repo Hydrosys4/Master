@@ -1,0 +1,1 @@
+{"ChiperKey": "default", "Activate": "Enabled", "Tmode": "FU4", "Power": "4", "Channel": "3"}

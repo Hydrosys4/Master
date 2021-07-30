@@ -68,19 +68,23 @@ def initMCP23017():
 	global MCPDEVICES
 	global ISGPIOEXP
 	global HWCONTROLLIST
+	global EXPGPIOPINLIST
 	
 	MCPDEVICES={}
 	for i in range(0x20,0x28):
-		print(hex(i))
+		
 		obj = MCP23017(address = i, num_gpios = 16) # MCP23017
 		if obj.error:
 			print(obj.errormsg)
 		else:
 			MCPDEVICES[hex(i)]=obj
+			print("MCP23017 found at address = ",  hex(i))
 
 	# Add to the list of possible commands
+	ISGPIOEXP=False
 	if MCPDEVICES:
 		ISGPIOEXP=True
+
 	if ISGPIOEXP:
 		HWCONTROLLIST=["pulse/I2CGPIOEXP","stoppulse/I2CGPIOEXP","pinstate/I2CGPIOEXP","hbridge/I2CGPIOEXP"]
 	else:

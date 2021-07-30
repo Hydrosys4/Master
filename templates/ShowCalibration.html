@@ -323,16 +323,11 @@
 			
 <!-- Sensors inputs calibration -->
  		{% if sensorlist|length > 0 %}		 
-		<form novalidate="true" action="{{ url_for('setinputcalibration') }}" id="setinputcalibration" method="post" >
+
 			<div class="page-header">
 					  <h3>Sensor input Calibration</h3>   
 			</div>
-			
-			
-			
 
-			
-			
 			
 		<!-- Button for input calibration -->
 		
@@ -341,26 +336,21 @@
 				<div class="col-xs-12">
 				
 					
-			
-					<button id="setinputcalibrationbtn" name="buttonsub" value="setinputcalibration" type="submit" class="btn btn-success btn-sm btn-warp">
+					<a href="{{ url_for('setinputcalibration') }}">
+					<button id="setinputcalibrationbtn" name="buttonsub" value="setinputcalibration"  class="btn btn-success btn-sm btn-warp">
 						Sensor Calibration
 					<span class="glyphicon glyphicon-cog"></span>
 					</button>
-		
+					</a>
 				</div>
-				</div>			
+			</div>			
 		
-		
-		
-
-		
-		</form>  		
+	
 		{% endif %}
 
 			
 <!-- devices Addressed listing (Onewire, I2C etc) -->
- 
-		<form novalidate="true" action="{{ url_for('showdeviceaddresseslist') }}" id="showdeviceaddresseslist" method="post" >
+
 			<div class="page-header">
 					  <h3>Show Devices Addresses</h3>   
 			</div>
@@ -373,28 +363,50 @@
 				<div class="col-xs-12">
 				
 					
-			
-					<button id="showdeviceaddresseslistbtn" name="buttonsub" value="showdeviceaddresseslistbtn" type="submit" class="btn btn-success btn-sm btn-warp">
+					<a href="{{ url_for('showdeviceaddresseslist') }}">
+					<button id="showdeviceaddresseslistbtn" name="buttonsub" value="showdeviceaddresseslistbtn" class="btn btn-success btn-sm btn-warp">
 						Show Addresses
 					<span class="glyphicon glyphicon-cog"></span>
 					</button>
-		
+					</a>
 				</div>
-				</div>			
+			</div>			
 
+	
+
+<!-- HS12 setting              -->
+	{% if HC12ok %}	
+		<div class="page-header">
+					<h3>Show Devices Addresses</h3>   
+		</div>
+	
+				
+		<!-- Button for HC12 setting-->
 		
-		</form>  		
+		<div class="row">
+
+			<div class="col-xs-12">
+		
+				<a href="{{ url_for('HC12setting') }}">
+				<button id="HC12settingbtn" name="buttonsub" value="HC12settingbtn" class="btn btn-success btn-sm btn-warp">
+					HC-12 Wireless Setting
+				<span class="glyphicon glyphicon-cog"></span>
+				</button>
+				</a>
+
+
+			</div>
+		</div>			
+	{% endif %}
 
 
 
 <!-- MQTT devices Addressed listing (MQTT topic, IP, status) -->
  		{% if MQTTclientexist %}		 
-		<form novalidate="true" action="{{ url_for('showmqttdevicelist') }}" id="showmqttdevicelist" method="post" >
 			<div class="page-header">
 					  <h3>Show MQTT Devices </h3>   
 			</div>
 		
-			
 		<!-- Button for device addresses show-->
 		
 			<div class="row">
@@ -402,16 +414,15 @@
 				<div class="col-xs-12">
 				
 					
-			
+					<a href="{{ url_for('showmqttdevicelist') }}">
 					<button id="showmqttdevicelistbtn" name="buttonsub" value="showmqttdevicelistbtn" type="submit" class="btn btn-success btn-sm btn-warp">
 						Show MQTT clients
 					<span class="glyphicon glyphicon-cog"></span>
 					</button>
-		
+					</a>
 				</div>
-				</div>			
-		
-		</form>  		
+			</div>			
+
 		{% endif %}
 
 

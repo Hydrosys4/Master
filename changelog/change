@@ -795,6 +795,70 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Wateringplan Logic for the Activate Below , activate above
 
+2021-05-10 -> release 329 e-f
+
+2021-05-26 -> release 329 g
+
+- Add logging to supeHat report
+- Add preset config for the AutomationHat_11
+- Add testing procedure for the Automationhat_11
+
+2021-07-04 -> release 330
+
+- Testint the HC-12 Wireless inrface
+
+2021-07-04 -> release 330a
+
+- Testing the HC-12 Wireless interface enhachment
+
+2021-07-04 -> release 330b
+
+- Reorganizing and integrating the HC-12 module with Hydrosys4
+
+2021-07-04 -> release 330c
+
+- HC-12 message add chipering
+
+2021-07-12 -> release 330d
+
+- HC-12 message string format
+
+2021-07-12 -> release 330e
+
+- HC-12 multi entity communication
+- HC12 integration with Hydrosys4
+
+2021-07-16 -> release 331
+
+- create layout2 and use bootstrap 5 (put in standby for the moment)
+
+2021-07-16 -> release 331a
+
+- added the Jsonform library (https://github.com/jsonform/jsonform)
+
+2021-07-16 -> release 331c
+
+- fix save config file bug
+
+2021-07-16 -> release 331d
+
+- Check serial 
+- add the reset and shutdown buttons
+
+2021-07-16 -> release 332
+
+- Bug fixing
+
+2021-07-16 -> release 332a
+
+- Bug fixing, testing multiple HC-12 from sensor side
+- Added one config with MCP23017 extension config example
+
+2021-07-16 -> release 332b
+
+- Bug fixing, testing HC-12 on several raspberry models PI4, Pi3, PIZeroW
+- Fix crash when Serial is not enabled
+- Added the Hardware setup refresh button
 
 ------- Future releases: -----------
 

@@ -20,6 +20,7 @@ import time
 import filestoragemod
 import HWcontrol
 import MQTTcontrol
+import HC12control
 import GPIOEXPI2Ccontrol
 import photomod
 import cameradbmod
@@ -27,6 +28,7 @@ import struct
 import imghdr
 import copy
 import statusdataDBmod
+
 
 
 
@@ -89,7 +91,7 @@ HWdataKEYWORDS[HW_INFO_IOTYPE]=["input"  , "output" ]
 HWdataKEYWORDS[HW_INFO_NAME]=[]
 HWdataKEYWORDS[HW_INFO_MEASUREUNIT]=MEASUREUNITLIST
 HWdataKEYWORDS[HW_INFO_MEASURE]=MEASURELIST
-HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST+MQTTcontrol.HWCONTROLLIST+GPIOEXPI2Ccontrol.HWCONTROLLIST
+HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST+MQTTcontrol.HWCONTROLLIST+HC12control.HWCONTROLLIST+GPIOEXPI2Ccontrol.HWCONTROLLIST
 HWdataKEYWORDS[HW_CTRL_PIN]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 HWdataKEYWORDS[HW_CTRL_PIN2]=HWcontrol.RPIMODBGPIOPINLISTPLUS
 
@@ -146,6 +148,11 @@ Actuator_Enable_Status["default"]={'Enabled':"enable"}
 
 Data_Visible_Status={}
 Data_Visible_Status["default"]={'Visible':"True"}
+
+def UpdateCMDcontrol():
+	global HWdataKEYWORDS
+	HWdataKEYWORDS[HW_CTRL_CMD]=HWcontrol.HWCONTROLLIST+MQTTcontrol.HWCONTROLLIST+HC12control.HWCONTROLLIST+GPIOEXPI2Ccontrol.HWCONTROLLIST
+
 
 # ///////////////// --- END STATUS VARIABLES ------
 
@@ -288,6 +295,8 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 					return HWcontrol.sendcommand(cmd,sendstring,recdata)
 				elif cmd in MQTTcontrol.HWCONTROLLIST:
 					return MQTTcontrol.sendcommand(cmd,sendstring,recdata)
+				elif cmd in HC12control.HWCONTROLLIST:
+					return HC12control.sendcommand(cmd,sendstring,recdata)
 				elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
 					return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
 			else:
@@ -308,6 +317,8 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 			return HWcontrol.sendcommand(cmd,sendstring,recdata)
 		elif cmd in MQTTcontrol.HWCONTROLLIST:
 			return MQTTcontrol.sendcommand(cmd,sendstring,recdata)
+		elif cmd in HC12control.HWCONTROLLIST:
+			return HC12control.sendcommand(cmd,sendstring,recdata)
 		elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
 			return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
 
@@ -1012,6 +1023,27 @@ def initallGPIOpins():
 def initGPIOEXP():
 	GPIOEXPI2Ccontrol.initMCP23017()
 
+def initHC12():
+	# check if the pins for the HC12 connection are not already used
+	ProblemFound=False
+	pinlist=HC12control.pinlist
+	for hc12pin in pinlist:
+		itemname=searchdatalist(HW_CTRL_PIN,hc12pin,HW_INFO_NAME)
+		if itemname:
+			cmd=searchdatalist(HW_INFO_NAME,itemname,HW_CTRL_CMD)
+			if not ("/" in cmd):
+				ProblemFound=True
+				logger.warning("Not possible to connect for the HC-12, require pins already used for other purposes PIN= %s", hc12pin)
+				print("Not possible to connect for the HC-12, require pins already used for other purposes", hc12pin)
+				break
+	if ProblemFound:
+		HC12control.ISRPI=False
+		if HC12control.HC12mod.HC12radionet: 
+			HC12control.HC12mod.HC12radionet.mediumconnected=False
+		HC12control.HWCONTROLLIST=[]
+	else:
+		HC12control.initHC12()
+
 
 def initMQTT():
 
@@ -1200,6 +1232,7 @@ def initallGPIOoutput():
 
 def initallGPIOoutputEXP():	
 	for ln in IOdata:
+		time.sleep(0.02)
 		iotype=ln[HW_INFO_IOTYPE]
 		address=""
 		if HW_CTRL_ADDR in ln:
@@ -1224,7 +1257,7 @@ def initallGPIOoutputEXP():
 				GPIOEXPI2Ccontrol.GPIO_setup(address, PIN2, "out")
 				if ln[HW_CTRL_LOGIC]=="pos":
 					GPIOEXPI2Ccontrol.GPIO_output(address, PIN1, 0)
-					I2CGPIOEXP.GI2CGPIOEXPPIO_output(address, PIN2, 0)
+					GPIOEXPI2Ccontrol.GPIO_output(address, PIN2, 0)
 				else:
 					GPIOEXPI2Ccontrol.GPIO_output(address, PIN1, 1)
 					GPIOEXPI2Ccontrol.GPIO_output(address, PIN2, 1)				
@@ -1381,7 +1414,7 @@ def removeinterruptevents():
 		print("set event for the PIN ", PINstr)
 
 		try:
-			HWcontrol.GPIO_remove_event_detect(PIN)
+			HWcontrol.GPIO_remove_event_detect(PINstr)
 		except:
 			print("Warning, not able to remove the event detect")
 			logger.info('Warning, not able to remove the event detect')
@@ -1801,28 +1834,6 @@ def takephoto(Activateanyway=False):
 	return isok	
 
 		
-
-def resetandbackuplog_bak():
-	#setup log file ---------------------------------------
-	mainpath=get_path()
-	filename=LOGFILENAME
-	try:
-		#os.rename(os.path.join(mainpath,filename), os.path.join(mainpath,filename+".txt"))
-		shutil.copyfile(os.path.join(mainpath,filename), os.path.join(mainpath,filename+".txt"))
-
-	except:
-		print("No log file")
-
-	logger.FileHandler(filename=os.path.join(mainpath,filename), mode='w')	
-	#logger.basicConfig(filename=os.path.join(mainpath,filename),level=logger.INFO)
-	#logger.basicConfig(format='%(asctime)s %(message)s')
-	#logger.basicConfig(format='%(levelname)s %(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-	
-	# set up logging to file - see previous section for more details
-	logger.basicConfig(level=logging.INFO,
-						format='%(asctime)-2s %(levelname)-8s %(message)s',
-						datefmt='%H:%M:%S',
-						filename=os.path.join(mainpath,filename))
 
 
 def get_path():

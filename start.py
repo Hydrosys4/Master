@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.29f"
+Release="3.32b"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -78,6 +78,8 @@ import filemanagementmod
 import weatherAPImod
 import messageboxmod
 import wateringplansensordbmod
+from HC12mod import HC12radionet
+
 
 
 # Raspberry Pi camera module (requires picamera package)
@@ -126,6 +128,8 @@ def runallconsistencycheck():
 	wateringplansensordbmod.consistencycheck()
 	hardwaremod.initMQTT()
 	hardwaremod.initGPIOEXP()
+	hardwaremod.initHC12()
+	hardwaremod.UpdateCMDcontrol()
 	return True
 
 def runallreadfile():
@@ -1363,7 +1367,59 @@ def systemmailsetting():
 	password=emaildbmod.getpassword()
 	address=emaildbmod.getaddress()
 	return render_template('systemmailsetting.html', address=address, password=password)	
+
+
+@application.route('/HC12setting/', methods=['GET', 'POST'])
+def HC12setting():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+
+	formDataClass=HC12radionet.dataManagement
+	jsonschema, itemslist =formDataClass.readJsonFormFilePlusValues()
+
+	if request.method == 'POST':
+		print(" HC12 setting POST")
+		datadict={}
+		for item in itemslist:
+			itemdata = request.form.get(item)
+			#print(itemdata , ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+			if itemdata:
+				datadict[item]=itemdata
+		
+		# save hte new setting
+		if datadict:
+			isok = HC12radionet.saveDataFileAndApply(datadict)
+			jsonschema["value"]=datadict
+			if isok:
+				flash('Setting has been applied')
+			else:
+				flash('problem with Setting','danger')
+		# Apply the new setting to the devide
+
+
+	return render_template('HC12setting.html', jsonschema=jsonschema)	
 	
+
+@application.route('/dontclick/', methods=['GET', 'POST'])
+def dontclick():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+		
+	print(" Why did you click it !")
+	if request.method == 'POST':
+
+		itemdata = request.form.get("buttonsub")
+		print("value from button ", itemdata)
+		if itemdata=="reset":
+			os.system("reboot")
+		if itemdata=="shutdown":
+			os.system("halt")
+		if itemdata=="cancel":
+			return redirect(url_for('hardwaresetting'))	
+
+	return render_template('dontclick.html')	
+	
+
 @application.route('/networksetting/', methods=['GET', 'POST'])
 def networksetting():
 	if not session.get('logged_in'):
@@ -1629,8 +1685,9 @@ def show_Calibration():  #on the contrary of the name, this show the setting men
 	if len(hardwaremod.MQTTcontrol.CLIENTSLIST):
 		MQTTclientexist=True
 	
+	HC12ok=HC12radionet.mediumconnected	
 	
-	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone, MQTTclientexist=MQTTclientexist)
+	return render_template('ShowCalibration.html',servolist=servolist,servostatuslist=servostatuslist,stepperlist=stepperlist,stepperstatuslist=stepperstatuslist,hbridgelist=hbridgelist,hbridgestatuslist=hbridgestatuslist,videolist=videolist,actuatorlist=actuatorlist, sensorlist=sensorlist,photosetting=photosetting, camerasettinglist=camerasettinglist ,mailsettinglist=mailsettinglist, unitdict=unitdict, initdatetime=initdatetime, countries=countries, timezone=timezone, MQTTclientexist=MQTTclientexist, HC12ok=HC12ok)
 
 
 @application.route('/setinputcalibration/', methods=['GET', 'POST'])
@@ -2638,6 +2695,12 @@ def hardwaresetting():
 		if requesttype=="edit":
 			return hardwaresettingedit()
 
+		if requesttype=="refresh":
+			runallconsistencycheck()
+			initallGPIOpins()
+			flash('Hardware configuration has been Reset ')
+
+
 
 	return render_template('hardwaresetting.html',fields=fields, hwdata=json.dumps(hwdata), tablehead=tablehead , presetfilenamelist=presetfilenamelist, debugmode=debugmode)
 
@@ -3305,6 +3368,7 @@ def embedpage(path):
 def Generictesting():
 	print("Generic testing routine")
 	Errorcounter=0
+	errorstring=""
 	#hardwaremod.initMQTT()
 	#emailmod.sendallmail("alert", "sono un messaggio di prova")
 
@@ -3322,8 +3386,75 @@ def Generictesting():
 	return returnstr
 
 
-
 def Autotesting1():
+	print("Auto testing Automation HAT")
+	print("Ensure that the right HWsetting is loaded")
+	
+	#ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
+	recordkey=hardwaremod.HW_INFO_IOTYPE
+	recordvalue="output"
+	recordkey1=hardwaremod.HW_CTRL_CMD
+	recordvalue1="pulse"
+	keytosearch="name"
+	ActuatorList=hardwaremod.searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearch)
+
+
+	for target in ActuatorList:
+		hardwaremod.makepulse(target,"10",True, 0)
+		print(" Actuator ", target)
+
+
+	GPIOpinlist=["21","25","7","24"]
+
+	for gpio in GPIOpinlist:
+		# Set the pin as output at level 1
+		hardwaremod.setPinOutput(gpio,1)
+	
+	Sensorlist=[ 
+		{"name":"pressuresensor1","min":800, "max":1200},
+		{"name":"tempsensor1", "min":10, "max":40},
+		{"name":"Analog0","min":2.4, "max":2.6},
+		{"name":"Analog1","min":2.4, "max":2.6},
+		{"name":"Analog2","min":2.4, "max":2.6},
+		{"name":"Analog3","min":2.4, "max":2.6},
+		{"name":"Analog4","min":2.4, "max":2.6},
+		{"name":"Analog5_15v","min":4.1, "max":5.9},
+		{"name":"Analog3","min":2.4, "max":2.6},
+		{"name":"Analog4","min":2.4, "max":2.6}
+	]
+	Errorcounter=0
+	for sensor in Sensorlist:
+		sensorname=sensor["name"]
+		rangemin=sensor["min"]
+		rangemax=sensor["max"]
+		isok, readingstr, errmsg = hardwaremod.getsensordata(sensorname,1)
+		try:
+			reading=float(readingstr)
+			print(" sensorname " , sensorname , " data " , reading)	
+				
+			if (reading>rangemin)and(reading<rangemax):
+				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
+			else:
+				 Errorcounter=Errorcounter+1
+				 errorstring=" sensorname " + sensorname + " data out of range :( "
+				 print(errorstring)
+				 break
+		except:
+			Errorcounter=Errorcounter+1
+			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
+			print(errorstring)
+			break
+		time.sleep(1)			
+		
+	if Errorcounter>0:
+		returnstr="Probelms " + errorstring
+	else:
+		returnstr="Well DONE ! :)"
+		
+	return returnstr
+
+
+def Autotesting1_v10():
 	print("Auto testing Automation HAT")
 	print("Ensure that the right HWsetting is loaded")
 	
@@ -3384,7 +3515,7 @@ def Autotesting1():
 
 
 def Autotesting2():
-	print("Auto testing Automation HAT")
+	print("Auto testing Irrigation HAT")
 	print("Ensure that the right HWsetting is loaded")
 	
 	#ActuatorList=["Relay1_2","Relay1_3","Relay1_4","Relay1_5","Relay1_6","Relay1_7","Relay1_8","Relay2_1","Relay2_2","Relay2_3","Relay2_4","Relay2_5","Relay2_6","Relay2_7","Relay2_8"]
@@ -3493,7 +3624,8 @@ def Autotesting3():
 		isok, readingstr, errmsg = hardwaremod.getsensordata(sensorname,1)
 		try:
 			reading=float(readingstr)
-			print(" sensorname " , sensorname , " data " , reading)	
+			print(" sensorname " , sensorname , " data " , reading)
+			logger.info('Testing SuperHat: Sensor= %s , Reading %s', sensorname, readingstr)
 				
 			if (reading>rangemin)and(reading<rangemax):
 				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")

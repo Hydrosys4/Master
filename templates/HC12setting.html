@@ -1,0 +1,51 @@
+{% extends "layout.html" %} <!-- Layout2 uses bootstrap 5 ***-->
+{% block body %}
+  {% if session.logged_in %}
+    <link rel="stylesheet" href="{{url_for('static', filename='jsonform/deps/opt/bootstrap.css') }}" />
+    <script type=text/javascript src="{{url_for('static', filename='jsonform/deps/underscore.js') }}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='jsonform/lib/jsonform.js') }}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='jsonform/deps/opt/jsv.js') }}"></script>
+
+  <div class="container-fluid">
+
+
+
+
+        <!--
+        <div class="well bs-component">
+              
+                <div class="form-group">
+                        <h1>Getting started with JSON Form</h1>
+
+                        <form class="form-horizontal" action="{{ url_for('HC12setting') }}" method=post>
+                        <div id="res" class="alert"></div>
+                       </form>
+                </div>
+        </div> -->
+
+            <div class="row">
+              <div class="col-md-5">
+                <div class="well bs-component">
+                <form class="form-vertical" action="{{ url_for('HC12setting') }}" method=post>
+                </div>
+              </div>
+            </div>
+        </div>
+
+
+    
+
+
+
+
+    <script type="text/javascript">
+        var jsonschemarx = JSON.parse('{{ jsonschema | tojson | safe}}');
+        $('form').jsonForm(jsonschemarx);
+    </script>
+ 
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

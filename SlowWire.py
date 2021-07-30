@@ -223,7 +223,7 @@ if __name__ == '__main__':
 	"""
 	This is an usage example, connected to GPIO PIN 17 (BCM)
 	"""
-	PINDATA=17
+	PINDATA=18
 	GPIO.setmode(GPIO.BCM)
 	Sensor_bus = SlowWire(dout_pin=PINDATA)
 	

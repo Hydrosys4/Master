@@ -1,0 +1,76 @@
+{
+    "schema": {
+        "ChiperKey": {
+        "title": "Chiper Key (max 10 characters)",
+        "description": "The chiper key used to chipher the transmission",
+        "type": "string",
+        "maxLength":10,
+        "required": true
+        },
+        "Activate": {
+            "title": "Activate Radio Transmission",
+            "description": "Enable or disable radio",
+            "type": "string",
+            "enum": [
+                "Enabled",
+                "Disabled"
+            ]
+            },
+
+        "Tmode": {
+        "title": "Transmission Mode",
+        "description": "the HC-12 transmission mode",
+        "type": "string",
+        "enum": [
+            "FU3",
+            "FU4"
+        ]
+        },
+        "Power": {
+            "type": "integer",
+            "title": "Transmission Power (Countries may have different limitations at 433MHz)",
+            "description": "POwer: 1=-1dBm , 2=2dBm , 3=5dBm , 4 =8dBm , 5=11dBm, 6=14dBm , 7=17dBm, 8=20dBm",
+            "default": 4,
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 8
+        },
+        "Channel": {
+            "type": "integer",
+            "title": "Transmission Channel (1-100)",
+            "description": "Transmission channel starting from 433MHz steps 400KHz ",
+            "default": 1,
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 100
+        }
+    },
+    "form": [
+        {
+            "key": "Activate"
+        },
+        {
+            "key": "ChiperKey"
+        },
+        {
+            "key": "Tmode"
+        },
+        {
+          "key": "Power",
+          "type": "range",
+          "step": 1,
+          "indicator": true
+        },
+        {
+            "key": "Channel",
+            "type": "range",
+            "step": 1,
+            "indicator": true
+          },
+        {
+        "type": "submit",
+        "title": "Confirm & Apply"
+        } 
+      ]
+
+}
