@@ -35,8 +35,6 @@ else:
 
 # status variables
 
-
-
 GPIO_data={}
 GPIO_data["default"]={"level":0, "state":None, "threadID":None}
 
@@ -67,6 +65,15 @@ def tonumber(thestring, outwhenfail):
 	except:
 		return outwhenfail
 
+def returnmsg(recdata,cmd,msg,successful):
+    recdata.clear()
+    print(msg)
+    recdata.append(cmd)
+    recdata.append(msg)
+    recdata.append(successful)
+    if not successful:
+        logger.error("Error: %s" ,msg)
+    return True
 
 def execute_task(cmd, message, recdata):
 	global hbridge_data
@@ -86,7 +93,7 @@ def execute_task(cmd, message, recdata):
 			return readinput_MQTT(cmd, message, recdata)
 		
 		elif cmd==HWCONTROLLIST[3]:	# pinstate
-			return gpio_pin_level(cmd, message, recdata)
+			return MQTT_pin_level(cmd, message, recdata)
 			
 		elif cmd==HWCONTROLLIST[4]: #hbridge	
 			return ""	
@@ -94,45 +101,27 @@ def execute_task(cmd, message, recdata):
 
 
 	else:
-		print("Command not found")
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append(0)
-		return False;
-	return False;
+		returnmsg(recdata,cmd,"Command not Found",0)
+		return False
+	return False
 
 
 def execute_task_fake(cmd, message, recdata):
 	
 	
 	if cmd==HWCONTROLLIST[0]:	
-		gpio_pulse(cmd, message, recdata)
-		return True;
+		print("fake command")
+		return True
 
 
 		
 	else:
-		print("no fake command available" , cmd)
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append(0)
-		return False;
+		msg="no fake command available" + cmd
+		returnmsg(recdata,cmd,msg,0)
+		return False
 		
 	return True
 	
-
-
-def gpio_pin_level(cmd, message, recdata):
-	msgarray=message.split(":")
-	PIN=msgarray[1]
-	recdata.append(msgarray[0])
-	PINlevel=statusdataDBmod.read_status_data(GPIO_data,PIN,"level")
-	if PINlevel is not None:
-		recdata.append(str(PINlevel))
-		return True
-	else:
-		recdata.append("e")
-		return False	
 
 
 
@@ -221,12 +210,8 @@ def readinput_MQTT(cmd, message, recdata):
 
 
 	if (Topic==""):
-		print("Error, MQTT reading no topic defined", Topic)
-		# address not correct
-		logger.error("MQTT reading no topic defined %s", Topic)
-		recdata.append(cmd)
-		recdata.append("Topic not configured ")
-		recdata.append(0)
+		msg="Error, MQTT reading no topic defined " +Topic
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
 	# Get the last value pubished for this topic. 
@@ -244,12 +229,8 @@ def readinput_MQTT(cmd, message, recdata):
 	
 	
 	if jsonstring=="":
-		print("Error, MQTT reading no Reading for the topic ", subtopic)
-		# address not correct
-		logger.error("MQTT reading no Reading for the topic %s", subtopic)
-		recdata.append(cmd)
-		recdata.append("Error, MQTT no Reading for the topic " + subtopic)
-		recdata.append(0)
+		msg="Error, MQTT reading no Reading for the topic "+ subtopic
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
 	deltaseconds=(datetime.utcnow()-timestamp).total_seconds()
@@ -258,12 +239,8 @@ def readinput_MQTT(cmd, message, recdata):
 	
 	if deltaseconds<0:
 		#MQTT reading happenend in the future .... somethign wrong, issue error
-		print("Error, MQTT reading in the future ")
-		# address not correct
-		logger.error("MQTT reading in the future")
-		recdata.append(cmd)
-		recdata.append("Error, MQTT reading in the future ...")
-		recdata.append(0)
+		msg="Error, MQTT reading in the future "
+		returnmsg(recdata,cmd,msg,0)
 		return True		
 	
 
@@ -284,12 +261,8 @@ def readinput_MQTT(cmd, message, recdata):
 	
 	if isok:
 		if result=="":
-			print("Error, MQTT no updates from the sensor since ", str(deltaseconds) , " (sec)")
-			# address not correct
-			logger.error("MQTT no updates from the sensor %s (sec)", str(deltaseconds))
-			recdata.append(cmd)
-			recdata.append("Error, MQTT no updates from the sensor")
-			recdata.append(0)
+			msg="Error, MQTT no updates from the sensor since "+ str(deltaseconds) + "(sec)"
+			returnmsg(recdata,cmd,msg,0)
 			return True
 
 		else:
@@ -297,9 +270,7 @@ def readinput_MQTT(cmd, message, recdata):
 			successflag=1	
 			logger.info("MQTT input reading: %s", reading)
 			print("MQTT input reading ", reading)
-			recdata.append(cmd)
-			recdata.append(reading)
-			recdata.append(successflag)
+			returnmsg(recdata,cmd,reading,successflag)
 			statusmsg="MQTT last update " + '{:.1f}'.format(deltaseconds) + " seconds "
 			recdata.append(statusmsg)
 			return True
@@ -307,10 +278,8 @@ def readinput_MQTT(cmd, message, recdata):
 
 	print("Error, MQTT reading ", jsonstring)
 	logger.error("MQTT reading %s", jsonstring)
-	recdata.append(cmd)
-	recdata.append("Generic Error, MQTT reading")
-	recdata.append(0)
-		
+	msg="Generic Error, MQTT reading"
+	returnmsg(recdata,cmd,msg,0)
 	return True
 
 
@@ -525,12 +494,9 @@ def MQTT_pulse(cmd, message, recdata):
 	
 
 	if title=="":
-		print("missing topic") 
-		logger.error("No topic specified, please insert it in the Title field")
 		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)
-		recdata.append("Missing MQTT topic")
+		msg="Missing MQTT topic"
+		returnmsg(recdata,cmd,msg,successflag)
 		return recdata
 		
 
@@ -538,7 +504,7 @@ def MQTT_pulse(cmd, message, recdata):
 
 	# start pulse activation logic
 
-	REGID=MQTT_CMD["ID"]
+	REGID=MQTT_CMD["ID"]  # this is made by the string "topic"+"PIN"
 	ignorepowerpincount=False
 	# in case another timer is active on this TOPIC ID it means that the PIN is activated 
 	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,REGID,"threadID")
@@ -547,9 +513,7 @@ def MQTT_pulse(cmd, message, recdata):
 		# pin already active
 		if activationmode=="NOADD": # no action needed
 			successflag=1
-			recdata.append(cmd)
-			recdata.append(PIN)
-			recdata.append(successflag)
+			returnmsg(recdata,cmd,PIN,successflag)
 			return True		
 		
 		PINthreadID.cancel() # cancel thread 
@@ -575,9 +539,7 @@ def MQTT_pulse(cmd, message, recdata):
 
 
 	successflag=1
-	recdata.append(cmd)
-	recdata.append(PIN)
-	recdata.append(successflag)
+	returnmsg(recdata,cmd,PIN,successflag)
 	return True	
 
 def MQTT_stoppulse(cmd, message, recdata):   # when ON send MQTT message with the duration in seconds of the activation, and when OFF send zero.
@@ -606,11 +568,10 @@ def MQTT_stoppulse(cmd, message, recdata):   # when ON send MQTT message with th
 		title=msgarray[8]	
 	
 	if title=="":
-		print("missing topic") 
+		msg="missing topic in Title field"
 		logger.error("No topic specified, please insert it in the Title field")
 		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,msg,successflag)
 		return recdata
 	
 	MQTT_CMD, MQTT_CMD_PWR = create_pulse_CMD_list(PIN,POWERPIN,title,0)
@@ -622,46 +583,22 @@ def MQTT_stoppulse(cmd, message, recdata):   # when ON send MQTT message with th
 		PINthreadID.cancel()
 		
 	endpulse(MQTT_CMD, MQTT_CMD_PWR,address)	#this also put powerpin off		
-	recdata.append(cmd)
-	recdata.append(PIN)
+	returnmsg(recdata,cmd,PIN,1)
 	return True	
 
 
 def MQTT_pin_level(cmd, message, recdata):
 	msgarray=message.split(":")
 	PIN=msgarray[1]
-	recdata.append(msgarray[0])
 	PINlevel=statusdataDBmod.read_status_data(GPIO_data,PIN,"level")
 	if PINlevel is not None:
-		recdata.append(str(PINlevel))
+		returnmsg(recdata,cmd,str(PINlevel),1)
 		return True
 	else:
-		recdata.append("e")
+		returnmsg(recdata,cmd,"error",0)
 		return False	
 
 
-def read_input_pin(cmd, message, recdata):
-	
-	# this is useful for the real time reading. Suggest to put in oneshot for the hardware configuration because the database record timing is given by the interrupts
-	successflag=1
-	msgarray=message.split(":")
-	#print " read pin input ", message
-	PINstr=msgarray[1]
-	isRealPIN,PIN=CheckRealHWpin(PINstr)
-	recdata.append(cmd)		
-	if isRealPIN:
-		if GPIO.input(PIN):
-			reading="1"
-		else:
-			reading="0"
-		recdata.append(reading)
-		recdata.append(successflag)	
-	else:
-		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)	
-	return True
-	
 	
 
 def isPinActive(PIN):
@@ -688,7 +625,7 @@ def sendcommand(cmd, message, recdata):
 	
 
 def connecttobroker(address,port,timeout=180):
-	client = mqtt.Client()
+	client = MQTTutils.Client()
 	client.connect(address, port, timeout)	
 	client.loop_forever()
 	

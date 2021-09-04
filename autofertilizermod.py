@@ -62,7 +62,7 @@ def checkactivate(elementwater,durationwater):
 def activatedoser(element, duration):
 	print(element, " ",duration, " " , datetime.now()) 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
-	pulseok=hardwaremod.makepulse(element,duration)
+	msg , pulseok=hardwaremod.makepulse(element,duration)
 	# salva su database
 	actuatordbmod.insertdataintable(element,duration)
 	# put flag down

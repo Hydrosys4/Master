@@ -22,7 +22,7 @@ import filestoragemod
 DATAFILENAME="addata.txt"
 DEFDATAFILENAME="default/defaddata.txt"
 
-global data
+
 data=[]
 tempelementdict={}
 
@@ -47,6 +47,11 @@ if not filestoragemod.readfiledata(DATAFILENAME,data): #read watering setting fi
 # filestoragemod.appendfiledata(filename,filedata)
 # filestoragemod.savechange(filename,searchfield,searchvalue,fieldtochange,newvalue)
 # filestoragemod.deletefile(filename)
+
+def readfromfile():
+	global data
+	filestoragemod.readfiledata(DATAFILENAME,data)
+
 
 def replaceschemanameandsave(replacedict): 
 	filename=DATAFILENAME
@@ -100,7 +105,30 @@ def getparamlist():
 					
 	return datalist
 
-def getelementlist():
+
+def getSelCycleOpt(default=""):
+	recordkey="cycleOption"
+	datadict={}
+	for ln in data:
+		if recordkey in ln:
+			datadict[ln["name"]]=ln[recordkey]
+		else:
+			datadict[ln["name"]]=default
+	return datadict
+
+def getSelDayCycle(default=""):
+	recordkey="dayCycle"
+	datadict={}
+	for ln in data:
+		if recordkey in ln:
+			datadict[ln["name"]]=ln[recordkey]
+		else:
+			datadict[ln["name"]]=default
+	return datadict
+
+
+
+def getelementlist(): # return the schemas ordered
 	recordkey="name"
 	recordvalue="listelements"
 	datalist=[]
@@ -138,7 +166,9 @@ def getrowdata(recordvalue,paramlist):
 	for ln in data:
 		if ln[recordkey]==recordvalue:
 			for param in paramlist:
-					datalist.append((ln[param]))					
+				if param in ln:
+					datalist.append((ln[param]))	
+									
 	return datalist
 
 def gettable():
@@ -151,13 +181,16 @@ def gettable():
 	return datalist
 
 
+
 def replacerow(element,dicttemp):
+	global data
 	searchfield="name"
 	searchvalue=element
 	for line in data:
 		if line[searchfield]==searchvalue:
-			for row in line:
-				line[row]=dicttemp[row]
+			data.remove(line)
+			data.append(dicttemp)
+			#print (" data  ", data)
 			filestoragemod.savefiledata(DATAFILENAME,data)
 			return True
 	return False

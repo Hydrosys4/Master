@@ -33,9 +33,10 @@ import debuggingmod
 import basicSetting
 import weatherAPImod
 import wateringplansensordbmod
+import ActuatorControllermod
 
 DEBUGMODE=basicSetting.data["DEBUGMODE"]
-MASTERSCHEDULERTIME="00:05:00"
+MASTERSCHEDULERTIME="00:01:00"
 STOREPASTDAYS="364"
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
@@ -60,13 +61,12 @@ logger = logging.getLogger("hydrosys4."+__name__)
 def activateandregister(target,activationseconds): # function to activate the actuators
 	duration=hardwaremod.toint(activationseconds,0)
 	print(target, " ",duration, " " , datetime.now()) 
-	logger.info('Pulse time for sec = %s', duration)
+	logger.info('Activate for Value = %s', duration)
 	# start pulse
-	pulseok=hardwaremod.makepulse(target,duration)
-	# salva su database
-	if "Started" in pulseok:
-		actuatordbmod.insertdataintable(target,duration)
-	return pulseok
+	#msg,pulseok=hardwaremod.makepulse(target,duration)
+	# the above is replaced by a more generic method to activate actuators
+	msg , pulseok=ActuatorControllermod.activateactuator(target,duration) # it also save in database
+	return msg
 
 def pulsenutrient(target,activationseconds): #scheduled doser activity for fertilizer
 	duration=hardwaremod.toint(activationseconds,0)
@@ -656,9 +656,9 @@ def mastercallback(fromscheduledtime=False):
 	#print paramlist
 	#print elementlistly
 	#print table
-	paramlistdrop= advancedmod.getparamlist() # day of the week
-	elementlistdrop= advancedmod.getelementlist() # drops ordered
-	tabledrop=advancedmod.gettable() # table, each row is a schema number (drop number), each column is a weekday
+
+	waterSchemaList=advancedmod.getelementlist()
+	tabledrop=advancedmod.gettable() # table, each row is a schema number (drop number), each column is a weekday, return ofject is list with Time and duration
 
 	for pumpnumber in range(len(elementlist)):
 		#print "number =",pumpnumber
@@ -680,18 +680,40 @@ def mastercallback(fromscheduledtime=False):
 		if waterdropnumber>0:			
 			#print " month  " , month, " drop  " , waterdropnumber
 			calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,pumpname,hardwaremod.HW_FUNC_SCHEDTYPE)
-			for todayevent in tabledrop[waterschemanumber-1][weekday]:
-				
-				timelist=hardwaremod.separatetimestringint(todayevent[0])
-				timelist[2]=timelist[2]+watertimedelaysec
-				argument=[]
-				argument.append(pumpname)
-				durationinseconds=hardwaremod.toint(todayevent[1],0)*waterdropnumber
-				argument.append(durationinseconds)				
-				for i in range(2,len(todayevent)):
-						argument.append(todayevent[i])
-				if durationinseconds>0: #check if the duration in second is >0
-					setschedulercallback(calltype,timelist,argument,callback,pumpname)
+			
+			# have to verify if the Schema is relevant ot Weekly cycle of daily cycle.
+			
+			waterschema=waterSchemaList[int(waterschemanumber-1)]
+			cycledatalist=advancedmod.getrowdata(waterschema,["cycleOption","dayCycle","startDate"])
+			rightDay=True
+			if len(cycledatalist)>2:
+				if cycledatalist[0]=="Daily Setting":
+					rightDay=False
+					# now it is required to understand if the event can be triggered using the start date adn daycycle
+					# the weekday to be used is the day=0 (Monday)
+					startdate=datetime.strptime(cycledatalist[2], "%d/%m/%Y")
+					today=datetime.now()
+					deltadays = (today - startdate).days
+					if deltadays>0:
+						modulo=deltadays % hardwaremod.toint(cycledatalist[1],1)
+						print ("Element ", pumpname , "Schema ", waterschema , " Modulo " , modulo)
+						if modulo==0:
+							weekday=0 # choose the first table
+							rightDay=True
+
+			if rightDay:
+				for todayevent in tabledrop[waterschemanumber-1][weekday]: # given schema and weekday, provide the list of actions
+					
+					timelist=hardwaremod.separatetimestringint(todayevent[0])
+					timelist[2]=timelist[2]+watertimedelaysec*waterdropnumber
+					argument=[]
+					argument.append(pumpname)
+					durationinseconds=hardwaremod.toint(todayevent[1],0)*waterdropnumber
+					argument.append(durationinseconds)				
+					for i in range(2,len(todayevent)):
+							argument.append(todayevent[i])
+					if durationinseconds>0: #check if the duration in second is >0
+						setschedulercallback(calltype,timelist,argument,callback,pumpname)
 
 
 	logger.info('Start other scheduler activities - doser')
@@ -781,7 +803,7 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 		thedate=clockmod.convertLOCtoUTC_datetime(thedateloc)
 		
 		if len(argument)>0:
-			print("date ", thedate , " callbackname " , callbackname , " Pump line ", argument[0])
+			print("date ", thedate , " callbackname " , callbackname , " Element ", argument[0])
 		else:
 			print("date ", thedate , " callbackname " , callbackname) 
 		try:

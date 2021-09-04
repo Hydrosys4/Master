@@ -34,6 +34,7 @@ if WAITTOCONNECT=="":
 IPADDRESS =networkdbmod.getIPaddress()
 EXTERNALIPADDR=""
 DHCP_COUNTER=0
+FORCESTATICIP=networkdbmod.getForceStaticIP()
 
 def getCUSTOMURL():
 	return networkdbmod.getCUSTOMURL()
@@ -465,7 +466,7 @@ def checkGWsubnet(interface): #-------------------
 	cmd = ['ip', 'route']
 	ifup_output=""
 	try:
-		time.sleep(4)
+		time.sleep(1)
 		ifup_output = subprocess.check_output(cmd).decode('utf-8')
 		time.sleep(0.5)
 	except:
@@ -795,7 +796,8 @@ def applyparameterschange(newlocalwifisystem, newpassword, newIPaddress):
 				logger.info('NO connected SSID')
 			print("Connected to the SSID ", ssid)
 			logger.info('Connected SSID: %s -- ', ssid)	
-			addIP("wlan0")	
+			if FORCESTATICIP=="True":
+				addIP("wlan0")	
 
 		else:
 			print(" No need WiFi restart")
@@ -897,7 +899,8 @@ def connect_network(internetcheck=False, backtoAP=False):
 				logger.info('NO connected SSID')
 			print("Connected to the SSID ", ssid)
 			logger.info('Connected SSID: %s -- ', ssid)		
-			addIP("wlan0")	
+			if FORCESTATICIP=="True":
+				addIP("wlan0")	
 
 		else:
 			print("already connected to the SSID ", ssid)

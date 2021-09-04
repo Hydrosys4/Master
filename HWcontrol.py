@@ -98,6 +98,17 @@ def toint(thestring, outwhenfail):
 	except:
 		return outwhenfail
 
+
+def returnmsg(recdata,cmd,msg,successful):
+    recdata.clear()
+    print(msg)
+    recdata.append(cmd)
+    recdata.append(msg)
+    recdata.append(successful)
+    if not successful:
+        logger.error("Error: %s" ,msg)
+    return True
+
 def read_status_data(data,element,variable):
 	#print data
 	if element in data:
@@ -179,9 +190,7 @@ def execute_task(cmd, message, recdata):
 	elif cmd==HWCONTROLLIST[13]: #return zero	
 		#print "returnzero"
 		returndata="0"
-		recdata.append(cmd)
-		recdata.append(returndata)
-		recdata.append(1) # confirm data for acknowledge
+		returnmsg(recdata,cmd,returndata,1)
 		return True
 
 	elif cmd==HWCONTROLLIST[14]:	# stoppulse
@@ -227,12 +236,9 @@ def execute_task(cmd, message, recdata):
 		return get_BMP180_data(cmd, message, recdata, "temperature")
 
 	else:
-		print("Command not found")
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append(0)
-		return False;
-	return False;
+		returnmsg(recdata,cmd,"Command not found",0)
+		return False
+	return False
 
 
 def execute_task_fake(cmd, message, recdata):
@@ -254,11 +260,8 @@ def execute_task_fake(cmd, message, recdata):
 		return True;
 		
 	else:
-		print("no fake command available" , cmd)
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append(0)
-		return False;
+		returnmsg(recdata,cmd,"Fake command not found",0)
+		return False
 		
 	return True
 
@@ -304,9 +307,7 @@ def get_I2C_devices_list():
 
 def get_DHT22_temperature_fake(cmd, message, recdata, DHT22_data):
 
-	recdata.append(cmd)
-	recdata.append("10.10")
-	recdata.append(1)
+	returnmsg(recdata,cmd,"10.10",1)
 	return True
 	
 
@@ -379,18 +380,16 @@ def get_DHT22_reading(cmd, message, recdata, DHT22_data):
 def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
 
 	successflag , element=get_DHT22_reading(cmd, message, recdata, DHT22_data)
-	recdata.append(cmd)
-	recdata.append(DHT22_data[element]['temperature'])
-	recdata.append(successflag)	
+	msg=DHT22_data[element]['temperature']
+	returnmsg(recdata,cmd,msg,successflag)
 	return DHT22_data[element]['lastupdate']
 	
 
 def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
 
 	successflag , element=get_DHT22_reading(cmd, message, recdata, DHT22_data)		
-	recdata.append(cmd)
-	recdata.append(DHT22_data[element]['humidity'])
-	recdata.append(successflag)	
+	msg=DHT22_data[element]['humidity']
+	returnmsg(recdata,cmd,msg,successflag)
 	return DHT22_data[element]['lastupdate']
 
 
@@ -440,19 +439,11 @@ def get_BMP180_data(cmd, message, recdata, datatype):
 
 	except:
 		#print " I2C bus reading error, BMP180 , pressure sensor "
-		logger.error(" I2C bus reading error, BMP180 sensor %s " , datatype)
-		print("Error, BMP180 reading " , datatype)
-		recdata.append(cmd)
-		recdata.append("I2C bus reading error, BMP180")
-		recdata.append(0)
-		
-		
-		
+		msg=" I2C bus reading error, BMP180 sensor " + datatype
+		returnmsg(recdata,cmd,msg,0)
 		
 	#pressure is in hecto Pascal
-	recdata.append(cmd)
-	recdata.append(reading)
-	recdata.append(successflag)	
+	returnmsg(recdata,cmd,reading,successflag)
 	return True
 
 
@@ -485,11 +476,7 @@ def get_BME280_data(cmd, message, recdata, datatype):
 
 	isok, msg = bme280.setup()
 	if not isok:
-		print(msg)
-		logger.error(msg)
-		recdata.append(cmd)
-		recdata.append(msg)
-		recdata.append(0)
+		returnmsg(recdata,cmd,msg,0)
 		return True		
 
 	data_all = bme280.read_all()
@@ -506,19 +493,16 @@ def get_BME280_data(cmd, message, recdata, datatype):
 			successflag=1	
 			logger.info("BME280 %s reading: %s", datatype,  reading)
 			print("BME280 ", datatype, " reading: ", reading)
-			recdata.append(cmd)
-			recdata.append(reading)
-			recdata.append(successflag)
+			returnmsg(recdata,cmd,reading,successflag)
 			statusmsg=""
 			recdata.append(statusmsg)
 			return True
 		
 
-	print("Error, BME280 reading ")
-	logger.error("Error, BME reading ")
-	recdata.append(cmd)
-	recdata.append("Generic Error, BME280")
-	recdata.append(0)
+
+
+	msg="Generic Error, BME280"
+	returnmsg(recdata,cmd,msg,0)
 	return True
 
 
@@ -567,17 +551,11 @@ def get_BH1750_light(cmd, message, recdata):
 		successflag=1  
 	except:
 		#print " I2C bus reading error, BH1750 , light sensor "
-		logger.error(" I2C bus reading error, BH1750 , light sensor ")
-		print("Error, I2C bus reading error, BH1750 , light sensor  ")
-		logger.error("Error, BH1750 reading ")
-		recdata.append(cmd)
-		recdata.append("Generic Error, BH1750")
-		recdata.append(0)
+		msg=" I2C bus reading error, BH1750 , light sensor "
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
-	recdata.append(cmd)
-	recdata.append(light)
-	recdata.append(successflag)	
+	returnmsg(recdata,cmd,light,successflag)
 	return True
 	
 	
@@ -624,10 +602,8 @@ def get_DS18B20_temperature(cmd, message, recdata):
 					
 	if not isOK:
 		# address of the termometer not found
-		logger.error("DS18B20 address not found: %s", SensorAddress)
-		recdata.append(cmd)
-		recdata.append("DS18B20 address not found")
-		recdata.append(0)	
+		msg="DS18B20 address not found: " + SensorAddress
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
 	
@@ -662,9 +638,7 @@ def get_DS18B20_temperature(cmd, message, recdata):
 					#print "error reading the DS18B20"
 					logger.error("error reading the DS18B20")
 	
-	recdata.append(cmd)
-	recdata.append(temperature)
-	recdata.append(successflag)	
+	returnmsg(recdata,cmd,temperature,successflag)
 	return True
 	
 	
@@ -704,12 +678,9 @@ def get_HX711_voltage(cmd, message, recdata):
 
 
 	if (PINDATA<0)or(PINCLK<0):
-		print("HX711 PIN not valid", SensorAddress)
-		# address not correct
+		msg="HX711 PIN not valid" + SensorAddress
 		logger.error("HX711 PIN not valid: Pindata = %s  Pinclk= %s", PINDATA_str,PINCLK_str)
-		recdata.append(cmd)
-		recdata.append("HX711 PIN not valid")
-		recdata.append(0)
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
 	reading=0
@@ -737,10 +708,8 @@ def get_HX711_voltage(cmd, message, recdata):
 			#print "HX711 data:",data
 					
 	if inde==0:
-		logger.error("HX711 reading error")
-		recdata.append(cmd)
-		recdata.append("HX711 reading error")
-		recdata.append(0)
+		msg="HX711 reading error"
+		returnmsg(recdata,cmd,msg,0)
 		return True	
 			
 	successflag=1	
@@ -754,11 +723,7 @@ def get_HX711_voltage(cmd, message, recdata):
 
 	reading=averagefiltered
 
-	print("reading ", reading)
-
-	recdata.append(cmd)
-	recdata.append(reading)
-	recdata.append(successflag)	
+	returnmsg(recdata,cmd,reading,successflag)
 	return True
 	
 def get_SlowWire_reading(cmd, message, recdata):
@@ -788,12 +753,9 @@ def get_SlowWire_reading(cmd, message, recdata):
 
 
 	if (PINDATA<0):
-		print("SlowWire PIN not valid")
 		# address not correct
-		logger.error("SlowWire PIN not valid: Pindata = %s ", PINDATA_str)
-		recdata.append(cmd)
-		recdata.append("SlowWire PIN not valid")
-		recdata.append(0)
+		msg="SlowWire PIN not valid: Pindata = " + PINDATA_str
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
 	reading=0
@@ -826,10 +788,8 @@ def get_SlowWire_reading(cmd, message, recdata):
 						
 						
 	if inde==0:
-		logger.error("SlowWire reading error")
-		recdata.append(cmd)
-		recdata.append("SlowWire reading error")
-		recdata.append(0)
+		msg="SlowWire reading error"
+		returnmsg(recdata,cmd,msg,0)
 		return True	
 			
 	successflag=1	
@@ -841,11 +801,7 @@ def get_SlowWire_reading(cmd, message, recdata):
 
 	reading=averagefiltered
 
-	print("reading ", reading)
-
-	recdata.append(cmd)
-	recdata.append(reading)
-	recdata.append(successflag)	
+	returnmsg(recdata,cmd,reading,successflag)
 	return True
 	
 	
@@ -878,12 +834,8 @@ def get_Hygro24_capacity(cmd, message, recdata):
 		else:
 			SensorAddressInt = int(SensorAddress)
 	except:
-		print("can't parse %s as an i2c address", SensorAddress)
-		# address not correct
-		logger.error("Hygro24_I2C address incorrect: %s", SensorAddress)
-		recdata.append(cmd)
-		recdata.append("Hygro24_I2C address incorrect")
-		recdata.append(0)
+		msg="Hygro24_I2C address incorrect: " + SensorAddress
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
 	reading=0
@@ -897,16 +849,11 @@ def get_Hygro24_capacity(cmd, message, recdata):
 	if isOK:
 		successflag=1
 	else:
-		logger.error("Hygro24_I2C reading error")
-		recdata.append(cmd)
-		recdata.append("Hygro24_I2C reading error")
-		recdata.append(0)
+		msg="Hygro24_I2C reading error"
+		returnmsg(recdata,cmd,msg,0)
 		return True
 	
-	
-	recdata.append(cmd)
-	recdata.append(reading)
-	recdata.append(successflag)	
+	returnmsg(recdata,cmd,reading,successflag)
 	return True
 	
 
@@ -949,11 +896,8 @@ def get_MCP3008_channel(cmd, message, recdata):
 		
 	if (waittime>=maxwait):
 		#something wrog, wait too long, avoid initiate further processing
-		print("MCP3008 wait time EXCEEDED ")
-		logger.warning("Wait Time exceeded, not able to read ADCdata Channel: %d", channel)
-		recdata.append(cmd)
-		recdata.append("Wait Time exceeded, not able to read ADCdata Channel: "+str(channel))
-		recdata.append(0)
+		msg="Wait Time exceeded, not able to read ADCdata Channel: "+str(channel)
+		returnmsg(recdata,cmd,msg,0)
 		return True
 
 	MCP3008_busy_flag=True		
@@ -1011,16 +955,11 @@ def get_MCP3008_channel(cmd, message, recdata):
 	except:
 		# this will not work, there is no way to detect if the MCP3008 is attached to SPI interface or not.
 		# MCP3008 has no internal register to interrogate, the 
-		print(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
-		logger.error(" DPI bus reading error, MCP3008 , AnalogDigitalConverter  ")
-		recdata.append(cmd)
-		recdata.append("Error, DPI bus reading error, MCP3008 , AnalogDigitalConverter")
-		recdata.append(0)
+		msg="Error, DPI bus reading error, MCP3008 , AnalogDigitalConverter"
+		returnmsg(recdata,cmd,msg,0)
 		return True	
 	
-	recdata.append(cmd)
-	recdata.append(volts)
-	recdata.append(successflag)
+	returnmsg(recdata,cmd,volts,successflag)
 
 
 	powerPIN_stop(POWERPIN,0)
@@ -1217,9 +1156,7 @@ def gpio_pulse(cmd, message, recdata):
 			print("No Action, pulse activated when PIN already active and activationmode is NOADD")
 			logger.warning("No Action, pulse activated when PIN already active and activationmode is NOADD")
 			successflag=1
-			recdata.append(cmd)
-			recdata.append(PIN)
-			recdata.append(successflag)
+			returnmsg(recdata,cmd,PIN,successflag)
 			return True
 
 
@@ -1246,9 +1183,7 @@ def gpio_pulse(cmd, message, recdata):
 
 	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
 	successflag=1
-	recdata.append(cmd)
-	recdata.append(PIN)
-	recdata.append(successflag)
+	returnmsg(recdata,cmd,PIN,successflag)
 	return True	
 
 def gpio_stoppulse(cmd, message, recdata):
@@ -1270,9 +1205,7 @@ def gpio_stoppulse(cmd, message, recdata):
 		print("No Action, Already OFF")
 		logger.warning("No Action, Already OFF")
 		successflag=1
-		recdata.append(cmd)
-		recdata.append(PIN)
-		recdata.append(successflag)
+		returnmsg(recdata,cmd,PIN,successflag)
 		return True	
 	
 	
@@ -1282,21 +1215,19 @@ def gpio_stoppulse(cmd, message, recdata):
 		PINthreadID.cancel()
 		
 	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
-	recdata.append(cmd)
-	recdata.append(PIN)
+	returnmsg(recdata,cmd,PIN,1)
 	return True	
 
 
 def gpio_pin_level(cmd, message, recdata):
 	msgarray=message.split(":")
 	PIN=msgarray[1]
-	recdata.append(msgarray[0])
 	PINlevel=read_status_data(GPIO_data,PIN,"level")
 	if PINlevel is not None:
-		recdata.append(str(PINlevel))
+		returnmsg(recdata,cmd,str(PINlevel),1)
 		return True
 	else:
-		recdata.append("e")
+		returnmsg(recdata,cmd,"error",0)
 		return False	
 
 def get_InterruptFrequency_reading(cmd, message, recdata):
@@ -1305,33 +1236,27 @@ def get_InterruptFrequency_reading(cmd, message, recdata):
 	msgarray=message.split(":")
 	#print " read pin input ", message
 	PINstr=msgarray[1]
-	isRealPIN,PIN=CheckRealHWpin(PINstr)
-	recdata.append(cmd)		
+	isRealPIN,PIN=CheckRealHWpin(PINstr)		
 	if isRealPIN:
 		# here the reading
 		reading=interruptmod.ReadInterruptFrequency(PIN)
-		recdata.append(reading)
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,reading,successflag)
 	else:
 		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,"error",successflag)
 	return True
 	
 def get_WeatherAPI_reading(cmd, message, recdata):
 	import weatherAPImod
-	successflag=1
-	recdata.append(cmd)		
+	successflag=1	
 
 	# here the reading
 	isok, reading=weatherAPImod.CalculateRainMultiplier()
 	if isok:
-		recdata.append(reading)
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,reading,successflag)
 	else:
 		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,"error",successflag)
 	return True
 	
 
@@ -1343,19 +1268,17 @@ def read_input_pin(cmd, message, recdata):
 	msgarray=message.split(":")
 	#print " read pin input ", message
 	PINstr=msgarray[1]
-	isRealPIN,PIN=CheckRealHWpin(PINstr)
-	recdata.append(cmd)		
+	isRealPIN,PIN=CheckRealHWpin(PINstr)	
 	if isRealPIN:
 		if GPIO.input(PIN):
 			reading="1"
 		else:
 			reading="0"
-		recdata.append(reading)
-		recdata.append(successflag)	
+
+		returnmsg(recdata,cmd,reading,successflag)
 	else:
 		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,"error",successflag)
 	return True
 
 
@@ -1384,8 +1307,7 @@ def gpio_set_servo(cmd, message, recdata):
 	pwm.stop()
 	time.sleep(0.1)		
 	#print "servo set to frequency", frequency , " PIN=", PIN , " Duty cycle=", duty 
-	recdata.append(cmd)
-	recdata.append(PIN)
+	returnmsg(recdata,cmd,PIN,1)
 	return True	
 	
 def isPinActive(PIN, logic):
@@ -1483,9 +1405,7 @@ def gpio_set_stepper(cmd, message, recdata , stepper_data):
 
 		
 	#print "stepper: Interface", Interface_Number , " direction=", direction , " speed=", speed , " steps=", steps 
-	recdata.append(cmd)
-	recdata.append(Interface_Number)
-	
+	returnmsg(recdata,cmd,Interface_Number,1)
 	return True	
 
 
@@ -1495,8 +1415,7 @@ def get_stepper_status(cmd, message, recdata , stepper_data):
 	messagelen=len(msgarray)
 	Interface=msgarray[1]
 	returndata=read_status_dict(stepper_data,Interface)
-	recdata.append(cmd)
-	recdata.append(returndata)
+	returnmsg(recdata,cmd,returndata,1)
 	return True
 	
 def get_hbridge_status(cmd, message, recdata , hbridge_data):
@@ -1505,8 +1424,7 @@ def get_hbridge_status(cmd, message, recdata , hbridge_data):
 	messagelen=len(msgarray)
 	Interface=msgarray[1]
 	returndata=read_status_dict(hbridge_data,Interface)
-	recdata.append(cmd)
-	recdata.append(returndata)
+	returnmsg(recdata,cmd,returndata,1)
 	return True
 
 

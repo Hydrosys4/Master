@@ -117,7 +117,16 @@ def getCUSTOMURL():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 	
-	
+def getForceStaticIP():
+	recordkey="name"
+	recordvalue="IPsetting"
+	keytosearch="forceStaticIP"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	if dataitem=="":
+		dataitem="True"
+	return dataitem
+
+
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
 	searchvalue="IPsetting"

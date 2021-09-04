@@ -643,11 +643,11 @@ def activatewater(element, duration):
 	# check the activation of the doser before the pump
 	doseron=autofertilizermod.checkactivate(element,duration) # this has a blocking sleep command
 	#activate pump		
-	pulseok=hardwaremod.makepulse(element,duration)
+	msg , pulseok=hardwaremod.makepulse(element,duration)
 	# salva su database
-	if "Started" in pulseok:
+	if pulseok:
 		actuatordbmod.insertdataintable(element,duration)
-	return pulseok
+	return msg
 
 
 if __name__ == '__main__':

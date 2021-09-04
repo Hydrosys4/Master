@@ -33,8 +33,9 @@ class _SerialConnection:
         ser=None
         try:
             ser = serial.Serial(port=self.port,baudrate=self.baudrate,timeout=self.timeout,xonxoff=False) # timeout is in seconds
-            time.sleep(1)
-            ser.flushInput()
+            time.sleep(0.1)
+            #ser.flushInput()
+            #time.sleep(0.2)
         except Exception as e:
             print (e)
             logger.warning("Not able to connect to the Serial interface, try to enable it using raspi-config")
@@ -94,7 +95,6 @@ class _SerialConnection:
         if not self.serial:
             return 
         # wait for data
-        count=4
         while (not self.serial.inWaiting())and(count>0):
             time.sleep(0.1)
             count=count-1
@@ -135,6 +135,7 @@ class _SerialConnection:
 
     def sendBytes(self,bytesdata):
         if not self.serial:
+            print("Serial Not Connected ")
             return 
         self.serial.write(bytesdata)
 
@@ -211,43 +212,59 @@ class HC12:
     def VerifySerialAT(self):
         isok=False
         #send first AT command just to check the HC-12 is answering
-        print("Check if AT commnds are working")
+        print("Check if AT commands are working")
         cmd="AT\n"
         outok , received_data = self.sendReceiveATcmds(cmd)
         if outok:
             if b"ok" in received_data or b"OK" in received_data:
                 isok=True
                 print ("Check AT Successfull")
+            else:
+                #self.disableATpin() 
+                #self.enableATpin()
+                time.sleep(0.5)
         return isok
+
+    def enableATpin(self):
+        print (" Enable AT pin")
+        # the HC-12 set pin should be put to LOW to enable AT commands
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.SetPIN, GPIO.OUT)        
+        GPIO.output(self.SetPIN, GPIO.LOW) # set HC12 to AT mode
+        time.sleep(1)
+
+    def disableATpin(self):
+        print (" Disable AT pin")
+        GPIO.output(self.SetPIN, GPIO.HIGH) # set HC12 to normal mode
+        time.sleep(0.3)
+
 
     def VerifySerialATwithPIN(self):
         # list the requireb baudrate
         baudRateList=[1200,9600]
         # pause the receiver based
 
-        # the HC-12 set pin should be put to LOW to enable AT commands
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.SetPIN, GPIO.OUT, initial=GPIO.LOW) # set pin 7 (GPIO4) to OUTPUT (SET pin of HC12)
-        GPIO.output(self.SetPIN, GPIO.LOW) # set HC12 to AT mode
-        time.sleep(0.2)
 
+        self.enableATpin() 
         isok=False
         for baudrate in baudRateList:
+           
             self.ser=_SerialConnection(baudrate=baudrate)
             if self.ser.serialok:
                 self.ser.listenPauseFlag=True            
-                inde=2
+                inde=5
                 isok=False
                 while (inde>0)and(not isok):
                     isok=self.VerifySerialAT()            
                     inde=inde-1
                 if isok:
                     break
+
             else:
                 break
 
-        GPIO.output(self.SetPIN, GPIO.HIGH) # set HC12 to normal mode
-        time.sleep(0.5)
+        self.disableATpin()
+
         # pause the receiver based
         self.ser.listenPauseFlag=False
         return isok
@@ -259,6 +276,7 @@ class HC12:
         ser.readSerialBuffer() 
         print("send AT command = ", cmd)
         ser.sendString(cmd)
+        time.sleep(0.1)
         j=0
         received_data=b""   
         while (j<3):
@@ -280,13 +298,10 @@ class HC12:
 
     def setATcommands(self):
         self.ser.listenPauseFlag=True 
-        print ("pause standard reading AT started, Set PIN Low (AT enabled) ---------------------------------------------------" )       
-        # the HC-12 set pin should be put to LOW to enable AT commands
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.SetPIN, GPIO.OUT, initial=GPIO.LOW) # set pin 7 (GPIO4) to OUTPUT (SET pin of HC12)
-        GPIO.output(self.SetPIN, GPIO.LOW) # set HC12 to AT mode
-        # pause the receiver based
-        time.sleep(1)
+        print ("pause standard reading AT started) ---------------------------------------------------" )       
+
+        self.enableATpin()
+
         print ("AT commands list ",self.ATcommandslist)
 
         ATok=True  # if one of the AT command is not successful it return false
@@ -319,8 +334,7 @@ class HC12:
             ATok=False
                                    
 
-        GPIO.output(self.SetPIN, GPIO.HIGH) # set HC12 to normal mode
-        time.sleep(1)
+        self.disableATpin()
         #restart the receiver
         self.ser.listenPauseFlag=False
         print ("remove pause, Set PIN High (AT disabled)  ---------------------------------------------------" )  
@@ -357,7 +371,9 @@ class NetworkProtocol:
         self.datadict=dataManagement.readDataFile()
         self.dataBuffer=dataBuffer 
         self.key=self.datadict.get("ChiperKey")  
-        self.mediumconnected=False    
+        self.mediumconnected=False
+        self.ackDict={}
+        self.sendCommandBusy=False
 
 
     def initRadio(self):
@@ -380,7 +396,7 @@ class NetworkProtocol:
         return False       
 
     def gotdata(self,received_data=""):
-        #print("hey I got data ", received_data)
+        print("hey I got data ", received_data)
         # decript data
         databytes=self.dechiper(received_data, self.key)
         datastring=""
@@ -393,11 +409,24 @@ class NetworkProtocol:
         # when using the lowbitrate long distance mode, only 60 bytes at once can be transmitted. for this reason, Json is not used due to too much overhead
         datadict=self.extracNameandValue(datastring)
         #print (datadict)
+        
         if datadict:
-            # confirm the message has been correctly received
-            # send back message with confirmation
-            self.sendAck(self.medium.ser,datadict)
-            self.dataBuffer.addLastData(datadict)
+            # received message can be a Sensor reading, or an ack sent in response to a command
+            # if this is an ack, then the "value" of the datadict should be "OK"
+            if datadict.get("value","")=="OK":
+                # this is an ack
+                # save the ACK in ack list
+                # datadict={"name":datalist[0],"millisindex":datalist[1],"value":datalist[2]}
+                uniString=datadict.get("name","")+datadict.get("millisindex","")
+                self.ackDict[uniString]="OK"
+
+            else:
+                # this is a message and requires an ACK
+
+                # confirm the message has been correctly received
+                # send back message with confirmation
+                self.sendAck(self.medium.ser,datadict)
+                self.dataBuffer.addLastData(datadict)
 
 
     def setmeduimcomm(self):
@@ -415,6 +444,7 @@ class NetworkProtocol:
                 encoded.append(pt[i] ^ keybyte[i % len_key])
             return bytes(encoded)
         return data
+
 
     def extracNameandValue(self, datastr):
         # the formant {nameID:data:millisindex:} is used.
@@ -449,6 +479,72 @@ class NetworkProtocol:
         ser.sendBytes(dataByteschip)
         return datadict
 
+    def createMillisTimestamps(self,strlenght):
+        millis= round(time.time() * 1000)
+        millisstr=str(millis)
+        start=0
+        if len(millisstr)>strlenght:
+            start=len(millisstr)-strlenght
+        return millisstr[start:]
+
+
+
+
+    def sendCommand(self, topic, value , retry):
+        # this function sends a command to be transmitted over the HC-12 and waits the ack
+        # if ACK correct then return True otherwise False
+        waitinde=60
+        while (self.sendCommandBusy) and (waitinde>0): # avoid sending other command if the previous is not finished
+            time.sleep(0.1)
+            waitinde=waitinde-1
+        if self.sendCommandBusy:
+            return False, "HC-12 busy"
+
+        self.sendCommandBusy=True
+
+        returnvals = False , "HC-12 not detected"
+        # check if the medium is connected
+        if self.mediumconnected:
+
+
+            # millisindex is a value to univoquely identify the sent message, and is the number of milliseconds
+            millisindex=self.createMillisTimestamps(6)
+            # prepare the string
+            datastr=bytes("{"+topic+":"+millisindex+":"+value+":}", 'utf-8')
+            print("Send HC-12 command " , datastr)
+            dataByteschip=self.dechiper(datastr, self.key) # in this case it chipers
+
+            # manage the retry 
+            inde=0
+            while (not returnvals[0]) and (inde<retry):
+                print("Transmiting retry " , inde)               
+                inde=inde+1
+                # transmit the string
+
+                self.medium.ser.sendBytes(dataByteschip)
+
+                print("Waiting ACK ")
+                # now wait for possible ACK from the remote device
+
+                uniString=topic+millisindex
+
+                waitinde=90
+                while (not self.ackDict.get(uniString,"")=="OK")and(waitinde>0):
+                    time.sleep(0.1)
+                    waitinde=waitinde-1
+                    print("Waiting ACK " , waitinde)
+                
+                if self.ackDict.get(uniString,"")=="OK":
+                    returnvals = True, "ACK OK"
+                else:
+                    returnvals = False, "No ACK received"
+
+        self.sendCommandBusy=False
+        return returnvals
+
+
+
+
 
 
 if __name__ != '__main__':
@@ -473,7 +569,75 @@ if __name__ != '__main__':
 	
 if __name__ == '__main__':
     
+    """
+    SetPIN=4
+    baudRateList=[1200,9600]
+    # pause the receiver based
 
+    # the HC-12 set pin should be put to LOW to enable AT commands
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(SetPIN, GPIO.OUT, initial=GPIO.LOW) # set pin 7 (GPIO4) to OUTPUT (SET pin of HC12)
+    GPIO.output(SetPIN, GPIO.LOW) # set HC12 to AT mode
+    time.sleep(1.5)
+
+    isok=False
+    for baudrate in baudRateList:
+        ser=_SerialConnection(baudrate=baudrate)
+        time.sleep(0.5)
+        if ser.serialok:
+            ser.listenPauseFlag=True            
+            inde=2
+            isok=False
+            while (inde>0)and(not isok):
+                isok=False
+                #send first AT command just to check the HC-12 is answering
+                print("Check if AT commands are working")
+                cmd="AT\n"
+                isok=False
+                # empty the serial buffer
+                ser.readSerialBuffer() 
+                print("send AT command = ", cmd)
+                ser.sendString(cmd)
+                j=0
+                received_data=b""   
+                while (j<3):
+                    # wait for data
+                    ser.waitfordata(14)
+                    outok, received_data = ser.readSerialBuffer()   
+                    if outok:
+                        if received_data:
+                            print("Received = " , received_data)
+                            print ( "Received = " , received_data.decode('UTF-8'))
+                            isok=True
+                            break
+                        else:
+                            # try to send again the comamand
+                            print("re-send AT command = ", cmd)
+                            ser.sendString(cmd)
+                    print(j, "inside loop Command =",cmd)
+                    j=j+1
+
+
+
+                if outok:
+                    if b"ok" in received_data or b"OK" in received_data:
+                        isok=True
+                        print ("Check AT Successfull")
+
+
+
+                inde=inde-1
+            if isok:
+                break
+        else:
+            break
+
+    GPIO.output(SetPIN, GPIO.HIGH) # set HC12 to normal mode
+    time.sleep(0.5)
+    # pause the receiver based
+    ser.listenPauseFlag=False
+
+    """
     HC12inst=HC12()
 
     SetPIN=4
@@ -485,8 +649,8 @@ if __name__ == '__main__':
 
     time.sleep(1)
     HC12inst.sendReceiveATcmds("AT+RB")   
-    time.sleep(0.3)
-    HC12inst.sendReceiveATcmds("AT+DEFAULT")                                
+    #time.sleep(0.3)
+    #HC12inst.sendReceiveATcmds("AT+DEFAULT")                                
 
     time.sleep(0.3)
     HC12inst.sendReceiveATcmds("AT+V")
@@ -496,7 +660,6 @@ if __name__ == '__main__':
     time.sleep(0.5)
     #restart the receiver 
     print ("remove pause, Set PIN High (AT disabled)  ---------------------------------------------------" )  
-
 
 
 

@@ -16,7 +16,7 @@
 
         <div class="tab-content">
 			
-		{% for elem in elementlist %}
+		{% for elem in elementlist %} <!---- elem is the tab item  -->
 		{% set row_i = loop %}	
          <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
 			 

@@ -116,6 +116,25 @@
 								</div>			
 							</div>
 											
+							<div class="form-group">		
+								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Force Static IP on Router:</label>
+								</div>
+
+	
+								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								
+									{% set arr=["True","False"] %}	 			
+									  <select class="form-control dontwantgap" name="forceStaticIP">
+										{% for item in arr %}
+										<option {% if item==forceStaticIP %}selected="selected"{% endif %} >{{item}}</option>
+										{% endfor %}
+									  </select>
+									
+									<div class="small">If True, try to set the static IP on the WiFi router (some routers might not support this option) </div>
+	
+									</div>			
+							</div>
 			
                   <div class="form-group">
 					  	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">

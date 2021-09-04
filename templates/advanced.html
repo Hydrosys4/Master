@@ -17,7 +17,7 @@
 
 
           	
-        <div class="tab-content">
+        <div id="complete" class="tab-content">
 			
 		{% for elem in elementlist %}
 		{% set row_i = loop %}	
@@ -25,7 +25,7 @@
 			 
 			 <!---- start panel  -->
 			 
-		<form novalidate="true" action="{{ url_for('advanced') }}" method="post" name="theform">
+		<form id="theForm" novalidate="true" action="{{ url_for('advanced') }}" method="post" name="theform">
 			 
 			 <input name="element" value="{{row_i.index0}}" type="hidden" />
 			 
@@ -33,7 +33,11 @@
 			 
 			 <div class="panel panel-primary">
 			  <div class="panel-heading">
-				  <div class="row">
+
+
+				<!---- panel  header -->
+
+				<div class="row">
 					<div class="panel-title col-xs-4"><span style="font-size:1.4em;">{{ elem }}
 
 					</span></div>
@@ -50,25 +54,73 @@
 					</button>
 					</div>
 				</div>
+
+
+				<!---- Second row of the  header -->
+				<div class="row">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+					</div>	
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
+					
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" >
+							<label >Cycle Setting</label>
+						</div>		
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+							<select id="{{ row_i.index0 }}cycleOption" refid="{{ row_i.index0 }}" class="form-control input-sm " name="{{ row_i.index0 }}cycleOption" onchange="toggleCycleUI(this)">
+							{% for name in cycleOptionList %}	
+								<option {% if name==selCycleOption[elem] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+							{% endfor %}											
+							</select>
+						<!--<div class="small">Duration of the interval to calcualte the average of the sensor values. This average will be then compared with the threshold</div>
+						-->
+						</div>	
+					</div>
+				</div>
+
+
+
+				<!---- Third row of the  header -->
+				<div id="dayselect" class="row" >
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+					</div>	
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-8" style="display: none;" id="{{ row_i.index0 }}dayCycleDisp">
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+							<label>Cycle period (days)</label>
+						</div>		
+						<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+							<select id="{{ row_i.index0 }}dayCycle" class="form-control input-sm " name="{{ row_i.index0 }}dayCycle">
+							{% for name in dayCycleList %}	
+								<option {% if name==selDayCycle[elem]  %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+							{% endfor %}											
+							</select>
+
+						</div>
+					</div>
+				</div>
+
 			  </div>
 			  <div class="panel-body dontwantgapleft dontwantgapright">
 
 				
 				<!---- panel  body -->
+
+				<h2 id="{{row_i.index0}}waitPanels"><b style="color:red">Loading <span id="wait">...</span></b> </h2>
+	
 				
 
-				
+
+
 					{% set col = 2 %}
 					{% set col_size = 12//col %}				
-					{% for name in paramlist %}
+					{% for name in paramlist %}  <!--- List of the days -->
 					{% set col_i = loop %}
 
 
 
-									<div class="col-lg-6 col-md-6 col-sm-12">
+									<div class="col-lg-6 col-md-6 col-sm-12 {{row_i.index0}}daypanels" id="day"{{col_i.index0}} style="display: none;">
 										<div class="panel panel-default">
 											<div class="panel-heading">
-												<strong class="lead">{{ name }}</strong>
+												<strong id="{{row_i.index0}}refDay" class="lead">{{ name }}</strong>
 											</div>
 											<div class="panel-body">
 						 
@@ -263,12 +315,76 @@
         </div>
         
 
+		<script type="text/javascript">
+
+
+		function initUI()
+		{
+			//alert("start init")
+			var elementlist={{elementlist| safe }};
+			var selCycleOption={{selCycleOption| safe }};
+			for (var i = 0; i < elementlist.length; i++) {
+				var refid=i;
+				if (elementlist[i] in selCycleOption) {
+					var elementVal=selCycleOption[elementlist[i]];
+					//alert(elementVal)
+					changeUI(elementVal,refid);		
+					removeWaiting(refid);	
+				}			
+				
+			}
+		}
+		window.onload = initUI;
+
+
+		function toggleCycleUI(element)
+		{
+			var refid=element.getAttribute("refid")
+			var elementVal=element.value;
+			//alert(refid)
+			changeUI(elementVal,refid);
+		
+		}
+
+		function removeWaiting(refid)
+		{
+
+			var waitID=refid+"waitPanels";
+			document.getElementById(waitID).remove()
+		
+		}
+
+
+
+
+		function changeUI(elementVal,refid)
+		{
+			var cycleOptionList={{cycleOptionList| safe }};
+			var param0={{paramlist | safe }}[0];
+			var divId=refid+"dayCycleDisp";	
+
+			document.getElementById(divId).style.display = (elementVal != cycleOptionList[0]) ? 'block' : 'none';
+
+			var targetClass=refid+"daypanels";
+			var daypanels = document.getElementsByClassName(targetClass);
+			daypanels.item(0).style.display= 'block';
+			for (var i = 1; i < daypanels.length; i++) {
+				daypanels.item(i).style.display=(elementVal == cycleOptionList[0]) ? 'block' : 'none';
+			}
+
+			var daytitle=refid+"refDay";
+			document.getElementById(daytitle).textContent = (elementVal == cycleOptionList[0]) ? 'Monday' : 'Reference Day';
+
+		
+		}
+
+		</script>  
+
+
 
 
 		<script type="text/javascript">
-
-		
-		
+	
 			$(function() {
 				$(".thebutton").click(function() {
 					var selvalue=$(this).attr('name');

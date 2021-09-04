@@ -159,6 +159,7 @@ def savefiledata(filename,filedata):
 	for line in filedata:
 		#jsonStr=json.dumps(line, sort_keys=True, indent=14)
 		jsonStr=json.dumps(line, sort_keys=True)
+		#print ( " Jsonstring ", jsonStr)
 		out_file.write(jsonStr)
 		out_file.write("\n")
 	out_file.close()

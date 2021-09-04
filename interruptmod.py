@@ -16,6 +16,7 @@ import autofertilizermod
 import statusdataDBmod
 import threading
 import time as t
+import ActuatorControllermod
 
 
 
@@ -503,7 +504,7 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 					
 			print("Implement Actuator Value ", value)
 			logger.info('Procedure to start actuator %s, for value = %s', element, value)		
-			isok=activateactuator(element, value)
+			msg , isok=activateactuator(element, value)
 			
 			if isok:
 				statusdataDBmod.write_status_data(AUTO_data,element,"lasteventtime",datetime.utcnow())
@@ -571,7 +572,7 @@ def CheckandFollowup(element):
 		# followup action					
 		print("Implement Actuator Value followup", value)
 		logger.info('Procedure to start actuator followup %s, for value = %s', element, value)		
-		isok=activateactuator(element, value)
+		msg , isok=activateactuator(element, value)
 		
 		if isok:
 			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
@@ -738,65 +739,8 @@ def saveblocking(sensor,cleanThreadID=True):
 	
 		SAVEBLOCKINGBUSY=False
 		
-
 def activateactuator(target, value):  # return true in case the state change: activation is >0 or a different position from prevoius position.
-	# check the actuator 
-	isok=False
-	actuatortype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,target,hardwaremod.HW_CTRL_CMD)
-	supportedactuators=["pulse","servo","stepper"]
-	# stepper motor
-	if actuatortype=="stepper":
-		out, isok = hardwaremod.GO_stepper_position(target,value,priority=ACTIONPRIORITYLEVEL)
-		if isok:
-			actuatordbmod.insertdataintable(target,value)
-	
-	# hbridge motor
-	if actuatortype=="hbridge":
-		out, isok = hardwaremod.GO_hbridge_position(target,value)
-		if isok:
-			actuatordbmod.insertdataintable(target,value)
-	
-	# pulse
-	if actuatortype=="pulse":
-		duration=hardwaremod.toint(value,0)
-		if duration>0:
-			# check the fertilizer doser flag before activating the pulse
-			doseron=autofertilizermod.checkactivate(target,duration)
-			# start pulse
-			pulseok=hardwaremod.makepulse(target,duration,priority=ACTIONPRIORITYLEVEL)	
-			# salva su database
-			if "Started" in pulseok:
-				actuatordbmod.insertdataintable(target,duration)
-				isok=True
-		else:
-			pulseok=hardwaremod.stoppulse(target)
-		
-	# servo motor 
-	if actuatortype=="servo":
-		out, isok = hardwaremod.servoangle(target,value,0.5,priority=ACTIONPRIORITYLEVEL)
-		if isok:
-			actuatordbmod.insertdataintable(target,value)
-
-	# photo 
-	if actuatortype=="photo":
-		duration=hardwaremod.toint(value,0)
-		if duration>0:
-			isok=hardwaremod.takephoto(True) # True override the daily activation
-			# save action in database
-			if isok:
-				actuatordbmod.insertdataintable(target,1)	
-				
-	# mail 
-	if (actuatortype=="mail+info+link")or(actuatortype=="mail+info"):
-		if value>0:
-			mailtext=str(value)	
-			isok=emailmod.sendmail(target,"info","Interrupt Value:" + mailtext)
-			# save action in database
-			if isok:
-				actuatordbmod.insertdataintable(target,1)
-
-			
-	return isok
+	return ActuatorControllermod.activateactuator(target,value)
 
 
 def isNowInTimePeriod(startTime, endTime, nowTime):

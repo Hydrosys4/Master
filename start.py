@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.32b"
+Release="3.35"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -79,11 +79,7 @@ import weatherAPImod
 import messageboxmod
 import wateringplansensordbmod
 from HC12mod import HC12radionet
-
-
-
-# Raspberry Pi camera module (requires picamera package)
-from camera_pi import Camera
+from camera_pi import Camera   # Raspberry Pi camera module (requires picamera package)
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 application = Flask(__name__)
@@ -140,6 +136,7 @@ def runallreadfile():
 	interruptdbmod.readfromfile()
 	fertilizerdbmod.readfromfile()
 	autofertilizerdbmod.readfromfile()
+	advancedmod.readfromfile()	
 	return True
 
 
@@ -1439,7 +1436,7 @@ def networksetting():
 			AP_TIME=request.form['AP_TIME']
 			WIFIENDIS=request.form['WIFIENDIS']
 			HOSTNAME=request.form['HOSTNAME']
-			
+			forceStaticIP=request.form['forceStaticIP']
 			
 			
 			# Check
@@ -1471,7 +1468,9 @@ def networksetting():
 				networkdbmod.changesavesetting('LocalAPSSID',AP_SSID)
 				networkdbmod.changesavesetting('APtime',AP_TIME)			
 				networkdbmod.changesavesetting('WIFIENDIS',WIFIENDIS)
-				
+				networkdbmod.changesavesetting('forceStaticIP',forceStaticIP)
+				networkmod.FORCESTATICIP=forceStaticIP		
+						
 				# save and change values in the HOSTAPD config file
 				sysconfigfilemod.hostapdsavechangerow("ssid",AP_SSID)
 				if AP_PASSWORD!=Fake_password:
@@ -1496,6 +1495,7 @@ def networksetting():
 				networkmod.applyparameterschange(AP_SSID, AP_PASSWORD, IPADDRESS)
 				networkmod.WAITTOCONNECT=AP_TIME
 				networkmod.WIFIENDIS=WIFIENDIS
+
 				
 				# Change hostapd file first row with HERE
 				data=[]
@@ -1528,6 +1528,7 @@ def networksetting():
 	AP_SSID=networkmod.localwifisystem	
 	AP_TIME=str(networkmod.WAITTOCONNECT)
 	WIFIENDIS=networkmod.WIFIENDIS
+	forceStaticIP=networkmod.FORCESTATICIP
 	connectedssidlist=networkmod.connectedssid()
 	if len(connectedssidlist)>0:
 		connectedssid=connectedssidlist[0]
@@ -1537,7 +1538,7 @@ def networksetting():
 
 
 
-	return render_template('networksetting.html', IPADDRESS=IPADDRESS, AP_SSID=AP_SSID, AP_PASSWORD=AP_PASSWORD, AP_TIME=AP_TIME , HOSTNAME=HOSTNAME, WIFIENDIS=WIFIENDIS)	
+	return render_template('networksetting.html', IPADDRESS=IPADDRESS, AP_SSID=AP_SSID, AP_PASSWORD=AP_PASSWORD, AP_TIME=AP_TIME , HOSTNAME=HOSTNAME, WIFIENDIS=WIFIENDIS, forceStaticIP=forceStaticIP)	
 	
 
 
@@ -2491,7 +2492,7 @@ def advanced():
 		if actiontype == "save":
 
 
-			elementnum=request.form['element']
+			elementnum=request.form['element'] # this returns the Actuator in row_i number
 			element=elementlist[int(elementnum)]	
 			print("save advanced form...:" , element)
 
@@ -2510,7 +2511,7 @@ def advanced():
 			dicttemp={}
 			dicttemp["name"]=element
 			# table includes all the elements: Element, Parameters, rows, columns
-			# element is fixed and not relevent for save procedure
+			# element is fixed and not relevent to save procedure
 			a=-1
 			for param in table[int(elementnum)]:
 				a=a+1
@@ -2528,13 +2529,17 @@ def advanced():
 					listrowtemp.append(listcoltemp)
 						
 				dicttemp[paramlist[a]]= listrowtemp
+				dicttemp["cycleOption"] =request.form[str(elementnum)+"cycleOption"]
+				dicttemp["dayCycle"]=request.form[str(elementnum)+"dayCycle"]
+				dicttemp["startDate"]=datetime.now().strftime("%d/%m/%Y")
 				
-			#print "dicttemp ", dicttemp 
+			#print( "dicttemp ", dicttemp )
 			advancedmod.replacerow(element,dicttemp)
 			# reset the scheduler
-			selectedplanmod.resetmastercallback()
 			print("Table saved")
-			flash('Table has been saved')
+			selectedplanmod.resetmastercallback()
+			print("Schedule has been updated")
+			flash('Schedule has been updated')
 			
 			table=advancedmod.gettable()
 			#print "after",table
@@ -2549,11 +2554,19 @@ def advanced():
 		if actiontype == "goback":	
 			print("open watering plan setting")
 			return redirect('/wateringplan/')
-	
-	
-	
-	
-	return render_template("advanced.html", title=title,paramlist=paramlist,elementlist=elementlist,table=table,tablehead=tablehead,selectedelement=selectedelement)
+
+
+
+	cycleOptionList = ["Weekly Setting","Daily Setting"]
+	dayCycleList = ["1","2","3","4","5","6","7","8","9","10"]
+
+	selCycleOption=advancedmod.getSelCycleOpt(default=cycleOptionList[0])
+	selDayCycle=advancedmod.getSelDayCycle(default=dayCycleList[0])
+
+	print("********* ----" , selCycleOption)
+	print(selDayCycle)
+
+	return render_template("advanced.html", title=title,cycleOptionList=cycleOptionList,dayCycleList=dayCycleList,selCycleOption=selCycleOption,selDayCycle=selDayCycle,paramlist=paramlist,elementlist=elementlist,table=table,tablehead=tablehead,selectedelement=selectedelement)
 
 
 	
@@ -3336,7 +3349,7 @@ def weatherAPI():
 
 
 
-@application.route('/message/' , methods=['GET','POST'])
+@application.route('/notification/' , methods=['GET','POST'])
 def messagebox():
 	if request.method == 'POST':
 		actiontype=request.form['actionbtn']
@@ -3345,6 +3358,7 @@ def messagebox():
 
 
 	posts=messageboxmod.GetMessages()
+	print(posts)
 	return render_template('messagebox.html', posts=posts)
 
 

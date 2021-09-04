@@ -107,6 +107,15 @@ def tonumber(thestring, outwhenfail):
 	except:
 		return outwhenfail
 
+def returnmsg(recdata,cmd,msg,successful):
+    recdata.clear()
+    print(msg)
+    recdata.append(cmd)
+    recdata.append(msg)
+    recdata.append(successful)
+    if not successful:
+        logger.error("Error: %s" ,msg)
+    return True
 
 def execute_task(cmd, message, recdata):
 	global hbridge_data
@@ -131,12 +140,10 @@ def execute_task(cmd, message, recdata):
 
 
 	else:
-		print("Command not found")
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append(0)
-		return False;
-	return False;
+		msg="Command not found"
+		returnmsg(recdata,cmd,msg,0)
+		return False
+	return False
 
 
 def execute_task_fake(cmd, message, recdata):
@@ -149,11 +156,9 @@ def execute_task_fake(cmd, message, recdata):
 
 		
 	else:
-		print("no fake command available" , cmd)
-		recdata.append(cmd)
-		recdata.append("e")
-		recdata.append(0)
-		return False;
+		msg="no fake command available" + cmd
+		returnmsg(recdata,cmd,msg,0)
+		return False
 		
 	return True
 	
@@ -326,9 +331,7 @@ def gpio_pulse(cmd, message, recdata):
 			print("No Action, pulse activated when PIN already active and activationmode is NOADD")
 			logger.warning("No Action, pulse activated when PIN already active and activationmode is NOADD")
 			successflag=1
-			recdata.append(cmd)
-			recdata.append(PIN)
-			recdata.append(successflag)
+			returnmsg(recdata,cmd,PIN,successflag)
 			return True
 
 
@@ -349,11 +352,7 @@ def gpio_pulse(cmd, message, recdata):
 		pulseok=GPIO_output(address, PIN, level)
 		if not pulseok:
 			msg="Not able to activate the pulse in GPIO Expansion, Address I2C: " + address + " PIN: "+ PIN
-			print(msg)
-			logger.error(msg)
-			recdata.append(cmd)
-			recdata.append(msg)
-			recdata.append(0)
+			returnmsg(recdata,cmd,msg,0)
 			return True	
 
 
@@ -364,9 +363,7 @@ def gpio_pulse(cmd, message, recdata):
 
 	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
 	successflag=1
-	recdata.append(cmd)
-	recdata.append(PIN)
-	recdata.append(successflag)
+	returnmsg(recdata,cmd,PIN,successflag)
 	return True	
 
 def gpio_stoppulse(cmd, message, recdata):
@@ -394,9 +391,7 @@ def gpio_stoppulse(cmd, message, recdata):
 		print("No Action, Already OFF")
 		logger.warning("No Action, Already OFF")
 		successflag=1
-		recdata.append(cmd)
-		recdata.append(PIN)
-		recdata.append(successflag)
+		returnmsg(recdata,cmd,PIN,successflag)
 		return True	
 	
 	
@@ -406,8 +401,8 @@ def gpio_stoppulse(cmd, message, recdata):
 		PINthreadID.cancel()
 		
 	endpulse(address, PIN,logic,POWERPIN)	#this also put powerpin off		
-	recdata.append(cmd)
-	recdata.append(PIN)
+
+	returnmsg(recdata,cmd,PIN,1)
 	return True	
 
 
@@ -418,13 +413,12 @@ def gpio_pin_level(cmd, message, recdata):
 	if address=="":
 		address="0x20"
 
-	recdata.append(msgarray[0])
 	PINlevel=statusdataDBmod.read_status_data(GPIO_data,address+PIN,"level")
 	if PINlevel is not None:
-		recdata.append(str(PINlevel))
+		returnmsg(recdata,cmd,str(PINlevel),1)
 		return True
 	else:
-		recdata.append("e")
+		returnmsg(recdata,cmd,"error",0)
 		return False	
 
 
@@ -437,18 +431,15 @@ def read_input_pin(cmd, message, recdata):
 	#print " read pin input ", message
 	PINstr=msgarray[1]
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
-	recdata.append(cmd)		
 	if isRealPIN:
 		if GPIO.input(PIN):
 			reading="1"
 		else:
 			reading="0"
-		recdata.append(reading)
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,reading,successflag)
 	else:
 		successflag=0
-		recdata.append("e")
-		recdata.append(successflag)	
+		returnmsg(recdata,cmd,"error",successflag)
 	return True
 
 def isPinActive(address, PIN, logic):

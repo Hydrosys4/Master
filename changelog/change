@@ -860,6 +860,47 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Fix crash when Serial is not enabled
 - Added the Hardware setup refresh button
 
+2021-08-09 -> release 332c
+
+- Add scheduling watering for option for N Day irrigation
+
+2021-08-10 -> release 332d
+
+- buf fixing
+- Change the menu from Message to notification
+- Reverse the order the notifications appear
+- add note to the MqTT address info
+- add the possibility to use other actuator in the WateringPlan
+- Multiply the watering delay by the Waterdrop number
+
+2021-08-10 -> release 332e
+
+- buf fixing - adjust schema number 
+
+2021-08-16 -> release 333
+
+- Change the MasterScheduler start at 00:01:00 from 00:05:00
+- Add the read advancedmod to the readall function
+
+2021-08-16 -> release 334
+
+- minor modification to bentornado.py
+- HC-12 output commands for pulse implemented (not tested)
+
+2021-08-16 -> release 334a
+
+- bug fixing
+
+2021-08-18 -> release 334b
+
+- increase the ACK wait time in the HC12
+
+2021-08-30 -> release 335
+
+- Static IP address procedure, added the option not to force the static IP address (option in network advanced)
+
+
+
 ------- Future releases: -----------
 
 NOTE:

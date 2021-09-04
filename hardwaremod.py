@@ -299,6 +299,12 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 					return HC12control.sendcommand(cmd,sendstring,recdata)
 				elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
 					return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
+				else:
+					successflag=0
+					recdata.append(cmd)
+					recdata.append("Device not found")
+					recdata.append(successflag)
+					return True
 			else:
 				successflag=0
 				recdata.append(cmd)
@@ -448,7 +454,7 @@ def activatepulse(command,PIN,duration,activationmode,target,priority):
 		testpulsetime=str(testpulsetimeint) # durantion in seconds 
 	except ValueError:
 		print(" No valid data or zero  ", target)
-		return "error"		
+		return "Pulse Duration not valid"	, False	
 	
 	
 	# normal pulse
@@ -463,20 +469,27 @@ def activatepulse(command,PIN,duration,activationmode,target,priority):
 		while (not(isok))and(i<2):
 			i=i+1
 			recdata=[]
-			ack= sendcommand(command,sendstring,recdata,target,priority)
+			ack = sendcommand(command,sendstring,recdata,target,priority)
 			#print "returned data " , recdata
 			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
-			if ack and recdata[2]:
-				#print target, "correctly activated"
+			successflag=0
+			if len(recdata)>2:
+				successflag=recdata[2]
+			msg=""
+			if len(recdata)>1:
+				msg=recdata[1]
+
+			if ack and successflag:
 				isok=True
-				return "Pulse Started"
+				recdata.append("Pulse Started")
+				return "Pulse Started", True
 			else:
-				if len(recdata)>2:
-					if not recdata[2]:
-						return recdata[1]
+				if not successflag:
+					print ( " Return Status ", msg)
+					return msg , False
 			
 			
-	return "error"
+	return "Generic error", False
 	
 	
 def stoppulse(target):
