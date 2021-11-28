@@ -696,6 +696,8 @@ EOF
 
 iptables_blockports ()
 {
+sudo apt-get install iptables -y || { echo "ERROR --------------------------Installation failed ----------------" && exit ;}
+    
 sudo iptables -A INPUT -p tcp -s localhost --dport 5020 -j ACCEPT
 sudo iptables -A INPUT -p tcp -s localhost --dport 5022 -j ACCEPT
 sudo iptables -A INPUT -p tcp --dport 5020 -j DROP
