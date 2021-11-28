@@ -205,7 +205,7 @@
 																						var timeinsecstr={{rowp[1]}};
 																						var timeinsec = parseInt(timeinsecstr, 10);
 																						if (isNaN(timeinsec)) { timeinsec=0; }
-																						var minutes = Math.floor(timeinsec / 60);
+																						var minutes = Math.trunc(timeinsec / 60);
 																						var seconds = timeinsec - minutes * 60;
 																						$("#{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1seconds").val(seconds)
 																						$("#{{row_i.index0}}{{ name }}_{{rowp_i.index0}}1minutes").val(minutes)

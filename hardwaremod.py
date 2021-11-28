@@ -788,7 +788,7 @@ def GO_hbridge(target,steps_str,zerooffset,direction,priority=0):
 		print("PIN1 ", PIN1 , "PIN2 ", PIN2 , "steps ", steps , " direction " , direction, " MIN ", MIN , " MAX ", MAX)
 		
 		if steps<=0:
-			print(" No valid range for pulse ", target)
+			print(" No valid range (ore Zero) for pulse steps", target)
 			return "Out of Range" , isok
 		
 		print(" position " , position_string)

@@ -899,6 +899,32 @@ Verified clock setting behavior, when the Internet connection is present the set
 
 - Static IP address procedure, added the option not to force the static IP address (option in network advanced)
 
+2021-09-26 -> release 335a
+
+- Removed the block of Past>Future in daily watering setting
+- Remade the Watering plan interface (with ugly color)
+- allow the wateringplan to get the value Zero on the scheduler (hbridge position). But not allowed the "00:00" time event
+
+2021-09-26 -> release 335b
+
+- Used .trunc in the advances schema interface for wateringplan
+
+2021-09-26 -> release 335c
+
+- autotesting, fix bugs on the Analog reading (6,7)
+
+2021-09-26 -> release 335e
+
+- Change the reporting of the DHT22 reading rpocedure in HWcontrol (now error messages should be more consistents)
+
+2021-11-27 -> release 335f
+
+- Fix the number of minutes in the automation (sensor selection)
+- Minor change in the HC12 receiver algorithm
+- Fixed critical bug for the Serial listening function. Avoid multiple listening function to activate at the same time
+
+
+
 
 
 ------- Future releases: -----------

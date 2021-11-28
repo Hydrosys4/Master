@@ -681,7 +681,7 @@ def mastercallback(fromscheduledtime=False):
 			#print " month  " , month, " drop  " , waterdropnumber
 			calltype=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,pumpname,hardwaremod.HW_FUNC_SCHEDTYPE)
 			
-			# have to verify if the Schema is relevant ot Weekly cycle of daily cycle.
+			# have to verify if the Schema is relevant to Weekly cycle or daily cycle.
 			
 			waterschema=waterSchemaList[int(waterschemanumber-1)]
 			cycledatalist=advancedmod.getrowdata(waterschema,["cycleOption","dayCycle","startDate"])
@@ -694,25 +694,28 @@ def mastercallback(fromscheduledtime=False):
 					startdate=datetime.strptime(cycledatalist[2], "%d/%m/%Y")
 					today=datetime.now()
 					deltadays = (today - startdate).days
-					if deltadays>0:
-						modulo=deltadays % hardwaremod.toint(cycledatalist[1],1)
-						print ("Element ", pumpname , "Schema ", waterschema , " Modulo " , modulo)
-						if modulo==0:
-							weekday=0 # choose the first table
-							rightDay=True
+					if deltadays<0:
+						print("Scheduler for Daily wayering, current time before the setting time, proceeding anyway")
+						logger.warning("Scheduler for Daily wayering, current time before the setting time, proceeding anyway")
+					modulo=deltadays % hardwaremod.toint(cycledatalist[1],1)
+					print ("Element ", pumpname , "Schema ", waterschema , " Modulo " , modulo)
+					if modulo==0:
+						weekday=0 # choose the first table
+						rightDay=True
 
 			if rightDay:
 				for todayevent in tabledrop[waterschemanumber-1][weekday]: # given schema and weekday, provide the list of actions
-					
-					timelist=hardwaremod.separatetimestringint(todayevent[0])
-					timelist[2]=timelist[2]+watertimedelaysec*waterdropnumber
-					argument=[]
-					argument.append(pumpname)
-					durationinseconds=hardwaremod.toint(todayevent[1],0)*waterdropnumber
-					argument.append(durationinseconds)				
-					for i in range(2,len(todayevent)):
-							argument.append(todayevent[i])
-					if durationinseconds>0: #check if the duration in second is >0
+					# check if the time ofthe event is not 00:00
+					if not todayevent[0]=="00:00":
+						timelist=hardwaremod.separatetimestringint(todayevent[0])
+						timelist[2]=timelist[2]+watertimedelaysec*waterdropnumber
+						argument=[]
+						argument.append(pumpname)
+						durationinseconds=hardwaremod.toint(todayevent[1],0)*waterdropnumber
+						argument.append(durationinseconds)				
+						for i in range(2,len(todayevent)):
+								argument.append(todayevent[i])
+						#if durationinseconds>0: #check if the duration in second is >0 this check has been removed because of more general use with hbridge in which this value represent the position
 						setschedulercallback(calltype,timelist,argument,callback,pumpname)
 
 

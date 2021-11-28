@@ -314,6 +314,7 @@ def get_DHT22_temperature_fake(cmd, message, recdata, DHT22_data):
 def get_DHT22_reading(cmd, message, recdata, DHT22_data):	
 	
 	successflag=0
+	errormsg=""
 	msgarray=message.split(":")
 	pin=int(msgarray[1])
 	element=msgarray[1]
@@ -353,44 +354,57 @@ def get_DHT22_reading(cmd, message, recdata, DHT22_data):
 			if (humidity is not None) and (temperature is not None):
 				# further checks
 				if (humidity>=0)and(humidity<=100)and(temperature>-20)and(temperature<200):
-					print('Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))
-					DHT22_data[element]['humidity']=('{:3.2f}'.format(old_div(humidity, 1.)))
-					DHT22_data[element]['temperature']=('{:3.2f}'.format(old_div(temperature, 1.)))
+					temperaturestr=('{:3.2f}'.format(temperature))	
+					humiditystr=('{:3.2f}'.format(humidity))	
+					DHT22_data[element]['temperature']=temperaturestr								
+					DHT22_data[element]['humidity']=humiditystr
 					DHT22_data[element]['lastupdate']=datetime.datetime.utcnow()
 					successflag=1
+					print('Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))					
 				else:
 					print('Failed to get DHT22 reading')	
 					logger.error("Failed to get DHT22 reading, values in wrong range")					
 			else:
 				print('Failed to get DHT22 reading')	
 				logger.error("Failed to get DHT22 reading")
+			
 			time.sleep(1)
+
+		if not successflag:
+			errormsg="Failed 3 attemps to get DHT22 reading"
+			print(errormsg)	
+			logger.error(errormsg)
+			temperaturestr=errormsg
+			humiditystr=errormsg
+
 		
 		# data in status variable will not be used in case of failure reading, only in case of reading request less than 10sec
 	else:
 		# use the data in memory, reading less than 10 sec ago
-		temperature=read_status_data(DHT22_data,element,'temperature')
-		humidity=read_status_data(DHT22_data,element,'humidity')
-		if (humidity is not None) and (temperature is not None):		
+		temperaturestr=read_status_data(DHT22_data,element,'temperature')
+		humiditystr=read_status_data(DHT22_data,element,'humidity')
+		if (humiditystr!="") and (temperaturestr!=""):		
 			successflag=1
+		else:
+			errormsg="No DHT22 data in Buffer"
+			print(errormsg)	
+			logger.error(errormsg)
+			temperaturestr=errormsg
+			humiditystr=errormsg
 	
-	return successflag, element
+	return successflag, temperaturestr, humiditystr
 
 		
 def get_DHT22_temperature(cmd, message, recdata, DHT22_data):
-
-	successflag , element=get_DHT22_reading(cmd, message, recdata, DHT22_data)
-	msg=DHT22_data[element]['temperature']
-	returnmsg(recdata,cmd,msg,successflag)
-	return DHT22_data[element]['lastupdate']
+	successflag , temperaturestr, humiditystr =get_DHT22_reading(cmd, message, recdata, DHT22_data)
+	returnmsg(recdata,cmd,temperaturestr,successflag)
+	return True
 	
 
 def get_DHT22_humidity(cmd, message, recdata, DHT22_data):
-
-	successflag , element=get_DHT22_reading(cmd, message, recdata, DHT22_data)		
-	msg=DHT22_data[element]['humidity']
-	returnmsg(recdata,cmd,msg,successflag)
-	return DHT22_data[element]['lastupdate']
+	successflag , temperaturestr, humiditystr =get_DHT22_reading(cmd, message, recdata, DHT22_data)
+	returnmsg(recdata,cmd,humiditystr,successflag)
+	return True
 
 
 def get_BMP180_data(cmd, message, recdata, datatype):

@@ -171,8 +171,12 @@ def sensorlisttriggertime():
 	tablelist=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE,"input",hardwaremod.HW_INFO_NAME)
 	timetriggerlist=[]
 	for item in tablelist:
-		timelist=hardwaremod.gettimedata(item)	
-		theinterval=timelist[1] # minutes
+		timelist=hardwaremod.gettimedata(item)
+		try:
+			totminutes=int(timelist[1])+int(timelist[0])*60
+		except:
+			totminutes=0
+		theinterval=str(totminutes)
 		timetriggerlist.append(theinterval)
 	return timetriggerlist
 

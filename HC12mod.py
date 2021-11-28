@@ -15,6 +15,8 @@ logger = logging.getLogger("hydrosys4."+__name__)
 
 class _SerialConnection:
 
+    listenflag=True
+
     def __init__(self, port="/dev/serial0",baudrate=9600,timeout=1):
         self.lastSerRestart=datetime.utcnow() #- timedelta(days=2)
         self.port=port
@@ -25,7 +27,6 @@ class _SerialConnection:
         self.serialok=False
         if self.serial:
             self.serialok=True
-            self.listenflag=True
             self.listenPauseFlag=False
         self.received_data=""
         
@@ -47,7 +48,7 @@ class _SerialConnection:
             return
         print("Listening Serial Port")
         self.serial.flushInput()
-        while self.listenflag:
+        while _SerialConnection.listenflag:
             isok , received_data = self.readSerialBuffer()
             if isok and received_data:
                 #print (received_data)
@@ -57,15 +58,18 @@ class _SerialConnection:
     def listenasinch(self,callback=None):
         if not self.serial:
             return
-        NewthreadID=threading.Timer(1, self.listen, [callback])
-        NewthreadID.start()
+        _SerialConnection.listenflag=False
+        time.sleep(0.4)
+        _SerialConnection.listenflag=True
+        ListenthreadID=threading.Timer(1, self.listen, [callback])
+        ListenthreadID.start()
 
     def listen(self,callback=None): # enable the callback function when data is received
         if not self.serial:
             return
         print("Listening Serial Port, Enabling callback")
         self.serial.flushInput()
-        while self.listenflag:
+        while _SerialConnection.listenflag:
             if not self.listenPauseFlag:
                 isok , received_data = self.readSerialBuffer()
                 if isok and received_data:
@@ -107,22 +111,18 @@ class _SerialConnection:
         ser=self.serial
         received_data=bytearray()  # strig of bytes
         try:        
-            size = ser.inWaiting()
-            if size > 0:
-                #print ("*******************+++ data in the buffer", size)
-                # wait to see if the buffer increments
-                count=20
-                while (ser.inWaiting()>0)and(count>0):
-                    size = ser.inWaiting()
-                    try:
-                        received_data.extend(ser.read(size))
-                        #print (received_data)
-                        #print ("*******************+++ data in the buffer", received_data)
-                    except Exception as ex:
-                        print(ex)
-                        print("problem receiving from serial")
-                    time.sleep(0.1)  
-                    count=count-1
+            count=20
+            while (ser.inWaiting()>0)and(count>0):
+                size = ser.inWaiting()
+                try:
+                    received_data.extend(ser.read(size))
+                    #print (received_data , "---------------------------- COUNT-> ", count)
+                    #print ("*******************+++ data in the buffer", received_data)
+                except Exception as ex:
+                    print(ex)
+                    print("problem receiving from serial")
+                time.sleep(0.1)  
+                count=count-1
         except IOError:
             self.restart()
             return False, received_data

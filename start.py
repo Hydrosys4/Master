@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.35"
+Release="3.35f"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -853,9 +853,9 @@ def echowifi():
 	
 @application.route('/doit/', methods=['GET'])
 def doit():
-	if not session.get('logged_in'):
-		ret_data = {"answer":"Login Needed"}
-		return jsonify(ret_data)
+	#if not session.get('logged_in'):
+	#	ret_data = {"answer":"Login Needed"}
+	#	return jsonify(ret_data)
 	# send command to the actuator for test
 	cmd=""
 	sendstring=""
@@ -3416,6 +3416,8 @@ def Autotesting1():
 	for target in ActuatorList:
 		hardwaremod.makepulse(target,"10",True, 0)
 		print(" Actuator ", target)
+		time.sleep(0.16)
+
 
 
 	GPIOpinlist=["21","25","7","24"]
@@ -3426,15 +3428,15 @@ def Autotesting1():
 	
 	Sensorlist=[ 
 		{"name":"pressuresensor1","min":800, "max":1200},
-		{"name":"tempsensor1", "min":10, "max":40},
+		#{"name":"tempsensor1", "min":10, "max":40},
 		{"name":"Analog0","min":2.4, "max":2.6},
 		{"name":"Analog1","min":2.4, "max":2.6},
 		{"name":"Analog2","min":2.4, "max":2.6},
 		{"name":"Analog3","min":2.4, "max":2.6},
 		{"name":"Analog4","min":2.4, "max":2.6},
 		{"name":"Analog5_15v","min":4.1, "max":5.9},
-		{"name":"Analog3","min":2.4, "max":2.6},
-		{"name":"Analog4","min":2.4, "max":2.6}
+		{"name":"Analog6","min":2.4, "max":2.6},
+		{"name":"Analog7","min":2.4, "max":2.6}
 	]
 	Errorcounter=0
 	for sensor in Sensorlist:
