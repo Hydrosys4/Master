@@ -509,7 +509,9 @@ cd /home/pi
 
 sudo rm -r mjpg-streamer
 
-sudo apt-get -y install cmake libjpeg8-dev git
+sudo apt-get -y install cmake 
+sudo apt-get -y install libjpeg9-dev 
+sudo apt-get -y install git
 
 sudo git clone https://github.com/jacksonliam/mjpg-streamer.git
 

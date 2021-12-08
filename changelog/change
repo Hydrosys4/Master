@@ -923,6 +923,10 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Minor change in the HC12 receiver algorithm
 - Fixed critical bug for the Serial listening function. Avoid multiple listening function to activate at the same time
 
+2021-12-08 -> release 335g
+
+- Fix the hydrosys4_installation bash file updating the library libjpeg9-dev (former libjpeg9-dev8)
+
 
 
 
