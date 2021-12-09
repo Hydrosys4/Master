@@ -928,6 +928,11 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Fix the hydrosys4_installation bash file updating the library libjpeg9-dev (former libjpeg9-dev8)
 
 
+2021-12-09 -> release 336a
+
+- Fix the "readinputpin", "not" pos and "neg" activate the pull_down, pull_up even if the interrupt is not used
+- Added the reading for Raspberry PI internal chip temperature 
+
 
 
 

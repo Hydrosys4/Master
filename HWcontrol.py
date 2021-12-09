@@ -16,6 +16,9 @@ from math import sqrt
 #import os
 import glob
 import logging
+import subprocess
+
+from GPIOEXPI2Ccontrol import tonumber
 
 
 logger = logging.getLogger("hydrosys4."+__name__)
@@ -57,7 +60,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","empty","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","empty","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature","RPI_Core_temperature"]
 RPIMODBGPIOPINLIST=["1","2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI", "SPI2"]
@@ -234,6 +237,9 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[27]:
 		return get_BMP180_data(cmd, message, recdata, "temperature")
+
+	elif cmd==HWCONTROLLIST[28]:
+		return get_RPI_Core_temperature(cmd, message, recdata)
 
 	else:
 		returnmsg(recdata,cmd,"Command not found",0)
@@ -572,7 +578,53 @@ def get_BH1750_light(cmd, message, recdata):
 	returnmsg(recdata,cmd,light,successflag)
 	return True
 	
+def get_RPI_Core_temperature(cmd, message, recdata):
+	# uses the OS commands to get the SoC core temperature
+
+	successflag=0
+	msgarray=message.split(":")
+
+	# needed to provide the temperature in celsius or Farehneit
+	TemperatureUnit="C"
+	if len(msgarray)>4:
+		TemperatureUnit=msgarray[4]
 	
+	temperature=0
+
+	oscmd = ["vcgencmd", "measure_temp"]
+	wordtofind="temp="
+
+	try:
+		result=subprocess.run(oscmd, capture_output="True", text="True")
+		scanoutput=result.stdout
+	
+	except:
+		msg=" Error reading the RPI internal temperature "
+		returnmsg(recdata,cmd,msg,0)
+		return True
+
+	for line in scanoutput.split('\n'):
+		#print " line ",line
+		strstart=line.find(wordtofind)
+		if strstart>-1:
+			substr=line[(strstart+len(wordtofind)):]
+			lastdigit =[i for i in range(len(substr)) if substr[i].isdigit()].pop()
+			substr=substr[:lastdigit+1]
+			print (substr)
+			try:
+				temperature=float(substr)
+				if (TemperatureUnit=="F") and (temperature is not None):
+					temperature=temperature*1.8+32
+				temperature=('{:3.2f}'.format(temperature))
+				successflag=1
+
+			except:
+				msg=" Error reading the RPI internal temperature "
+				returnmsg(recdata,cmd,msg,0)
+				return True
+	
+	returnmsg(recdata,cmd,temperature,successflag)
+	return True
 	
 def get_DS18B20_temperature(cmd, message, recdata):
 	successflag=0

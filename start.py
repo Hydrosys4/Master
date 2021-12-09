@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.35g"
+Release="3.36a"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -3451,10 +3451,10 @@ def Autotesting1():
 			if (reading>rangemin)and(reading<rangemax):
 				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
 			else:
-				 Errorcounter=Errorcounter+1
-				 errorstring=" sensorname " + sensorname + " data out of range :( "
-				 print(errorstring)
-				 break
+				Errorcounter=Errorcounter+1
+				errorstring=" sensorname " + sensorname + " data out of range :( "
+				print(errorstring)
+				break
 		except:
 			Errorcounter=Errorcounter+1
 			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
@@ -3511,10 +3511,10 @@ def Autotesting1_v10():
 			if (reading>rangemin)and(reading<rangemax):
 				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
 			else:
-				 Errorcounter=Errorcounter+1
-				 errorstring=" sensorname " + sensorname + " data out of range :( "
-				 print(errorstring)
-				 break
+				Errorcounter=Errorcounter+1
+				errorstring=" sensorname " + sensorname + " data out of range :( "
+				print(errorstring)
+				break
 		except:
 			Errorcounter=Errorcounter+1
 			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
@@ -3575,10 +3575,10 @@ def Autotesting2():
 			if (reading>rangemin)and(reading<rangemax):
 				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
 			else:
-				 Errorcounter=Errorcounter+1
-				 errorstring=" sensorname " + sensorname + " data out of range :( "
-				 print(errorstring)
-				 break
+				Errorcounter=Errorcounter+1
+				errorstring=" sensorname " + sensorname + " data out of range :( "
+				print(errorstring)
+				break
 		except:
 			Errorcounter=Errorcounter+1
 			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "
@@ -3646,10 +3646,10 @@ def Autotesting3():
 			if (reading>rangemin)and(reading<rangemax):
 				print(" sensorname " , sensorname , " data in RANGE !!!!!!!!!!!! ")
 			else:
-				 Errorcounter=Errorcounter+1
-				 errorstring=" sensorname " + sensorname + " data out of range :( "
-				 print(errorstring)
-				 break
+				Errorcounter=Errorcounter+1
+				errorstring=" sensorname " + sensorname + " data out of range :( "
+				print(errorstring)
+				break
 		except:
 			Errorcounter=Errorcounter+1
 			errorstring=" sensorname " + sensorname + " Not able to read the sensor :(  "

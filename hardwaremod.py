@@ -1028,9 +1028,11 @@ def checkallsensors():
 def initallGPIOpins():	
 	removeallinterruptevents()
 	checkGPIOconsistency()
+	initallGPIOinput()
 	initallGPIOoutput()
 	initallGPIOoutputEXP()
 	return True
+
 
 
 def initGPIOEXP():
@@ -1178,6 +1180,24 @@ def checkGPIOconsistency():
 def setPinOutput(PIN,level):
 	HWcontrol.GPIO_setup(PIN, "out")
 	HWcontrol.GPIO_output(PIN, level)
+
+def initallGPIOinput():
+	for ln in IOdata:
+		iotype=ln[HW_INFO_IOTYPE]
+		
+		# input: set gpio status
+		if (iotype=="input") :
+			if (ln[HW_CTRL_CMD]=="readinputpin"):
+				PINstr=ln[HW_CTRL_PIN]
+				print("set event for the PIN ", PINstr)		
+				if not PINstr=="":	
+					logic=ln[HW_CTRL_LOGIC]
+					# set Sw pull up / down mode
+					if logic=="pos":
+						GPIO_setup(PINstr, "in", "pull_down")
+					else:
+						GPIO_setup(PINstr, "in" , "pull_up")
+
 
 		
 def initallGPIOoutput():	

@@ -300,8 +300,8 @@ def interruptexecute(refsensor,element):
 	interrupt_validinterval=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"interrupt_validinterval"),0)
 	#"Counter Only"
 	if workmode=="Counter Only":
-		 CounterOnlyNew(element,sensor,interrupt_validinterval)
-		 return
+		CounterOnlyNew(element,sensor,interrupt_validinterval)
+		return
 
 	interrupt_triggernumber=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"interrupt_triggernumber"),1)
 	actuatoroutput=hardwaremod.tonumber(interruptdbmod.searchdata("element",element,"actuator_output"),0)
