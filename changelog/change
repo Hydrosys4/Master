@@ -933,8 +933,14 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Fix the "readinputpin", "not" pos and "neg" activate the pull_down, pull_up even if the interrupt is not used
 - Added the reading for Raspberry PI internal chip temperature 
 
+2021-12-17 -> release 336b
 
+- Fixed bug on the Serial Connection for the HC-12
+- Added query to HC-12 AT commands
 
+2021-12-18 -> release 336b
+
+- HC-12 delete the element in the list of uniString when done
 
 ------- Future releases: -----------
 
@@ -951,3 +957,4 @@ Command to dump log: sudo python bentornado.py >> logfile.log 2>&1
 
 
 
+scheduler,

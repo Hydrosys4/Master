@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.36a"
+Release="3.36c"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -1030,6 +1030,28 @@ def doit():
 
 		ret_data = {"answer":answer, "value":datetime}
 
+	elif name=="HC12":
+		element=request.args['element']
+		value=request.args['value']
+		if element=="version":
+			HC12radionet.medium.enableATpin()
+			isOk, versionByteArray = HC12radionet.medium.sendReceiveATcmds(value)
+			HC12radionet.medium.disableATpin()
+			answer="Something went wrong"
+			try:
+				version=versionByteArray.decode('ascii','ignore')
+			except: 
+				version="not able to read the version"
+			if isOk:
+				answer="ready"
+			else:
+				version="Problem reading version"
+			version = version 
+
+		ret_data = {"answer":answer, "value":version}
+
+
+
 	elif name=="APItesting":
 		answer="nothing to declare"
 		testtype=request.args['element']
@@ -1373,6 +1395,7 @@ def HC12setting():
 
 	formDataClass=HC12radionet.dataManagement
 	jsonschema, itemslist =formDataClass.readJsonFormFilePlusValues()
+	ATinfolist=HC12radionet.medium.ATcmdInfoList()
 
 	if request.method == 'POST':
 		print(" HC12 setting POST")
@@ -1394,7 +1417,7 @@ def HC12setting():
 		# Apply the new setting to the devide
 
 
-	return render_template('HC12setting.html', jsonschema=jsonschema)	
+	return render_template('HC12setting.html', jsonschema=jsonschema, ATinfolist=ATinfolist)	
 	
 
 @application.route('/dontclick/', methods=['GET', 'POST'])

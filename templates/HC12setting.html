@@ -11,17 +11,6 @@
 
 
 
-        <!--
-        <div class="well bs-component">
-              
-                <div class="form-group">
-                        <h1>Getting started with JSON Form</h1>
-
-                        <form class="form-horizontal" action="{{ url_for('HC12setting') }}" method=post>
-                        <div id="res" class="alert"></div>
-                       </form>
-                </div>
-        </div> -->
 
             <div class="row">
               <div class="col-md-5">
@@ -30,19 +19,79 @@
                 </div>
               </div>
             </div>
-        </div>
-
-
-    
-
-
-
-
-    <script type="text/javascript">
-        var jsonschemarx = JSON.parse('{{ jsonschema | tojson | safe}}');
-        $('form').jsonForm(jsonschemarx);
-    </script>
  
+
+            <script type="text/javascript">
+                var jsonschemarx = JSON.parse('{{ jsonschema | tojson | safe}}');
+                $('form').jsonForm(jsonschemarx);
+            </script>
+ 
+
+
+
+         <!--  Button to query the HC12 version using Ajax -->
+         <div class="row">
+          <div class="col-md-5">
+            <div class="well bs-component">
+                  <table class="table" margin: 20px;>
+                    <thead>
+                      <tr>
+                        <th>AT command</th>
+                        <th>Query</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                      <td>
+                      <select class="form-control input-sm" id="selectedAT">
+                        {% for ATcmd in ATinfolist %}
+                        <option value="{{ATcmd}}" >{{ATcmd}}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                      <td>                           
+                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HC12" element="version">Send</button>
+                      </td>
+                      <td>
+                          <label id="value_version" for="input_3"></label>
+                      </td>
+                    </tr>
+                      </tbody>
+                  </table>
+            </div>	
+          </div>	
+        </div>	
+
+      </div>
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".ajaxbutton").click(function() {
+				//alert("test button pressed");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+        var value = $("#selectedAT").val();	
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&value=" + value,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#value_' + elem).text(data.value);						
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+				
+
+			  });
+			</script>
+      <!--  Button end-->
+
   
   {% endif %}
   <ul class=entries>

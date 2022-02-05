@@ -16,38 +16,68 @@ logger = logging.getLogger("hydrosys4."+__name__)
 class _SerialConnection:
 
     listenflag=True
+    serialconn=None
+    
 
-    def __init__(self, port="/dev/serial0",baudrate=9600,timeout=1):
+    def __init__(self, port="/dev/serial0",timeout=1):
         self.lastSerRestart=datetime.utcnow() #- timedelta(days=2)
+        self.createSerial()
         self.port=port
-        self.baudrate=baudrate
-        self.timeout=timeout
-        print (" *************************++++  Baud RAte ", self.baudrate)
-        self.serial=self.setserial()
+        self.timeout=timeout # timeout is in seconds
         self.serialok=False
-        if self.serial:
-            self.serialok=True
-            self.listenPauseFlag=False
-        self.received_data=""
-        
-    def setserial(self):
-        ser=None
-        try:
-            ser = serial.Serial(port=self.port,baudrate=self.baudrate,timeout=self.timeout,xonxoff=False) # timeout is in seconds
+        self.listenPauseFlag=False
+
+    def createSerial(self):
+        if not _SerialConnection.serialconn:
+            try:
+                _SerialConnection.serialconn=serial.Serial() # serial instance but not open the port.
+            except Exception as e:
+                print (e)
+                logger.warning("Not able to connect to the Serial interface, try to enable it using raspi-config")
+                print("Not able to connect to the Serial interface, try to enable it using raspi-config")
+
+                    
+    def closeSerialConn(self):
+        if _SerialConnection.serialconn.is_open:
+            # disable the thread using the serial
+            _SerialConnection.listenflag=False
+            time.sleep(0.4)
+            _SerialConnection.listenflag=True            
+            # close the Serial connection
+            _SerialConnection.serialconn.close()
+            print (" Close Serial ")
             time.sleep(0.1)
-            #ser.flushInput()
-            #time.sleep(0.2)
-        except Exception as e:
-            print (e)
-            logger.warning("Not able to connect to the Serial interface, try to enable it using raspi-config")
-            print("Not able to connect to the Serial interface, try to enable it using raspi-config")
-        return ser
+
+
+    def setserial(self,baudrate):
+        if _SerialConnection.serialconn:
+            self.baudrate=baudrate
+            _SerialConnection.serialconn.baudrate=self.baudrate
+            _SerialConnection.serialconn.port=self.port
+            _SerialConnection.serialconn.timeout=self.timeout
+            self.serialok=False
+            try:
+                self.closeSerialConn()
+                _SerialConnection.serialconn.open()
+                time.sleep(0.1)
+                self.serialok=_SerialConnection.serialconn.is_open
+            except Exception as e:
+                print (e)
+                
+            if not self.serialok:
+                logger.warning("Not able to set Serial interface, try to enable it using raspi-config")
+                print("Not able to set the Serial interface, try to enable it using raspi-config")
+            else:
+                print("Serial OPEN and set to baudrate ", _SerialConnection.serialconn.baudrate, " provided " , baudrate)
+                
+
+
 
     def listenSerial(self):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return
         print("Listening Serial Port")
-        self.serial.flushInput()
+        _SerialConnection.serialconn.flushInput()
         while _SerialConnection.listenflag:
             isok , received_data = self.readSerialBuffer()
             if isok and received_data:
@@ -56,7 +86,7 @@ class _SerialConnection:
             time.sleep(0.2)
     
     def listenasinch(self,callback=None):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return
         _SerialConnection.listenflag=False
         time.sleep(0.4)
@@ -65,25 +95,22 @@ class _SerialConnection:
         ListenthreadID.start()
 
     def listen(self,callback=None): # enable the callback function when data is received
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return
         print("Listening Serial Port, Enabling callback")
-        self.serial.flushInput()
+        _SerialConnection.serialconn.flushInput()
         while _SerialConnection.listenflag:
             if not self.listenPauseFlag:
                 isok , received_data = self.readSerialBuffer()
                 if isok and received_data:
-                    if callback:
+                    if callback: 
+                        print(" PAUSE? -------------------------___>", self.listenPauseFlag)
                         callback(received_data)
             time.sleep(0.2)
 
-    def close(self):
-        if not self.serial:
-            return
-        self.serial.close()
 
     def restart(self):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return
         now=datetime.utcnow()
         deltatime=now-self.lastSerRestart
@@ -91,24 +118,22 @@ class _SerialConnection:
             logger.warning("Try to Restart Serial Connection %s", self.lastSerRestart.strftime("%Y-%m-%d %H:%M:%S"))
             print("Try to Restart Serial: last restart attempt: ", self.lastSerRestart.strftime("%Y-%m-%d %H:%M:%S"))
             self.lastSerRestart=now
-            self.serial.close()
-            self.serial.open()
+            self.closeSerialConn()
+            _SerialConnection.serialconn.open()
             time.sleep(1)
 
     def waitfordata(self,count):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return 
         # wait for data
-        while (not self.serial.inWaiting())and(count>0):
+        while (not _SerialConnection.serialconn.inWaiting())and(count>0):
             time.sleep(0.1)
             count=count-1
 
-            
-
     def readSerialBuffer(self):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return 
-        ser=self.serial
+        ser=_SerialConnection.serialconn
         received_data=bytearray()  # strig of bytes
         try:        
             count=20
@@ -129,15 +154,15 @@ class _SerialConnection:
         return True, received_data
 
     def sendString(self,stringdata):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             return 
-        self.serial.write(bytes((stringdata), 'utf-8'))
+        _SerialConnection.serialconn.write(bytes((stringdata), 'utf-8'))
 
     def sendBytes(self,bytesdata):
-        if not self.serial:
+        if not _SerialConnection.serialconn:
             print("Serial Not Connected ")
             return 
-        self.serial.write(bytesdata)
+        _SerialConnection.serialconn.write(bytesdata)
 
 
 class HC12:
@@ -149,10 +174,10 @@ class HC12:
         # define the Set PIN
         self.SetPIN=4
         # start serial connection    
-        # self.ser=_SerialConnection(baudrate=1200)
+        self.ser=_SerialConnection() # create instance of serial class
         # Medium check 
         self.mediumOK=False
-        self.mediumOK=self.VerifySerialATwithPIN()        
+        self.mediumOK=self.VerifySerialATwithPIN() # this also eneble serial connection at the right baud rate.
         if self.mediumOK:
             print("HC-12 active check: OK")
             logger.info("HC-12 active check: OK")
@@ -167,7 +192,11 @@ class HC12:
         else:
             print("HC-12 not detected")
             logger.warning("HC-12 not detected")
-    
+
+
+    def ATcmdInfoList(self):
+        ATcmdlist=["AT+RB", "AT+RC", "AT+RF" , "AT+RP", "AT+V"]
+        return ATcmdlist
 
     def getATcommandlistFromFormData(self,datadict):
         self.ATcommandslist=[]
@@ -231,11 +260,16 @@ class HC12:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.SetPIN, GPIO.OUT)        
         GPIO.output(self.SetPIN, GPIO.LOW) # set HC12 to AT mode
+        self.ser.listenPauseFlag=True
+        print(" Set Serial Listening PAUSE flag to TRUE")
         time.sleep(1)
 
     def disableATpin(self):
         print (" Disable AT pin")
         GPIO.output(self.SetPIN, GPIO.HIGH) # set HC12 to normal mode
+        self.ser.listenPauseFlag=False 
+        # pause the receiver based
+        print(" Set Serial Listening PAUSE flag to FALSE")
         time.sleep(0.3)
 
 
@@ -243,46 +277,43 @@ class HC12:
         # list the requireb baudrate
         baudRateList=[1200,9600]
         # pause the receiver based
-
-
         self.enableATpin() 
         isok=False
         for baudrate in baudRateList:
            
-            self.ser=_SerialConnection(baudrate=baudrate)
+            self.ser.setserial(baudrate=baudrate)
+
             if self.ser.serialok:
-                self.ser.listenPauseFlag=True            
-                inde=5
+                inde=2
                 isok=False
                 while (inde>0)and(not isok):
                     isok=self.VerifySerialAT()            
                     inde=inde-1
                 if isok:
                     break
-
             else:
                 break
 
         self.disableATpin()
 
-        # pause the receiver based
-        self.ser.listenPauseFlag=False
+
+        
         return isok
  
     def sendReceiveATcmds(self,cmd):
-        ser=self.ser
         isok=False
         # empty the serial buffer
-        ser.readSerialBuffer() 
+
+        self.ser.readSerialBuffer() 
         print("send AT command = ", cmd)
-        ser.sendString(cmd)
+        self.ser.sendString(cmd)
         time.sleep(0.1)
         j=0
         received_data=b""   
-        while (j<3):
+        while (j<2):
             # wait for data
-            ser.waitfordata(14)
-            outok, received_data = ser.readSerialBuffer()   
+            self.ser.waitfordata(14)
+            outok, received_data = self.ser.readSerialBuffer()   
             if outok:
                 if received_data:
                     print("Received = " , received_data)
@@ -291,14 +322,12 @@ class HC12:
                 else:
                     # try to send again the comamand
                     print("re-send AT command = ", cmd)
-                    ser.sendString(cmd)
+                    self.ser.sendString(cmd)
             print(j, "inside loop Command =",cmd)
             j=j+1
         return isok , received_data
 
     def setATcommands(self):
-        self.ser.listenPauseFlag=True 
-        print ("pause standard reading AT started) ---------------------------------------------------" )       
 
         self.enableATpin()
 
@@ -325,7 +354,7 @@ class HC12:
                 ATok=False
             if self.ser.baudrate!= 1200:                
                 # set the Baud rate to 1200 in raspberry side
-                self.ser=_SerialConnection(baudrate=1200)
+                self.ser.setserial(1200)
                 if not self.ser.serialok:
                     logger.error("Not able to reconnect to the serial interface")
                     return False
@@ -336,8 +365,7 @@ class HC12:
 
         self.disableATpin()
         #restart the receiver
-        self.ser.listenPauseFlag=False
-        print ("remove pause, Set PIN High (AT disabled)  ---------------------------------------------------" )  
+ 
         return ATok
 
 class dataBufferCl:
@@ -544,6 +572,20 @@ class NetworkProtocol:
 
 
 
+    def waitForAck(self, uniString):
+        waitinde=90
+        while (not self.ackDict.get(uniString,"")=="OK")and(waitinde>0):
+            time.sleep(0.1)
+            waitinde=waitinde-1
+            print("Waiting ACK " , waitinde)
+        
+        if self.ackDict.get(uniString,"")=="OK":
+            returnvals = True, "ACK OK"
+            self.ackDict.pop(uniString, None)
+        else:
+            returnvals = False, "No ACK received"
+
+
 
 
 
@@ -569,76 +611,9 @@ if __name__ != '__main__':
 	
 if __name__ == '__main__':
     
-    """
-    SetPIN=4
-    baudRateList=[1200,9600]
-    # pause the receiver based
 
-    # the HC-12 set pin should be put to LOW to enable AT commands
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(SetPIN, GPIO.OUT, initial=GPIO.LOW) # set pin 7 (GPIO4) to OUTPUT (SET pin of HC12)
-    GPIO.output(SetPIN, GPIO.LOW) # set HC12 to AT mode
-    time.sleep(1.5)
-
-    isok=False
-    for baudrate in baudRateList:
-        ser=_SerialConnection(baudrate=baudrate)
-        time.sleep(0.5)
-        if ser.serialok:
-            ser.listenPauseFlag=True            
-            inde=2
-            isok=False
-            while (inde>0)and(not isok):
-                isok=False
-                #send first AT command just to check the HC-12 is answering
-                print("Check if AT commands are working")
-                cmd="AT\n"
-                isok=False
-                # empty the serial buffer
-                ser.readSerialBuffer() 
-                print("send AT command = ", cmd)
-                ser.sendString(cmd)
-                j=0
-                received_data=b""   
-                while (j<3):
-                    # wait for data
-                    ser.waitfordata(14)
-                    outok, received_data = ser.readSerialBuffer()   
-                    if outok:
-                        if received_data:
-                            print("Received = " , received_data)
-                            print ( "Received = " , received_data.decode('UTF-8'))
-                            isok=True
-                            break
-                        else:
-                            # try to send again the comamand
-                            print("re-send AT command = ", cmd)
-                            ser.sendString(cmd)
-                    print(j, "inside loop Command =",cmd)
-                    j=j+1
-
-
-
-                if outok:
-                    if b"ok" in received_data or b"OK" in received_data:
-                        isok=True
-                        print ("Check AT Successfull")
-
-
-
-                inde=inde-1
-            if isok:
-                break
-        else:
-            break
-
-    GPIO.output(SetPIN, GPIO.HIGH) # set HC12 to normal mode
-    time.sleep(0.5)
-    # pause the receiver based
-    ser.listenPauseFlag=False
-
-    """
     HC12inst=HC12()
+    time.sleep(3)
 
     SetPIN=4
     print ("pause standard reading AT started, Set PIN Low (AT enabled) ---------------------------------------------------" )       
@@ -648,13 +623,16 @@ if __name__ == '__main__':
     GPIO.output(SetPIN, GPIO.LOW) # set HC12 to AT mode
 
     time.sleep(1)
-    HC12inst.sendReceiveATcmds("AT+RB")   
-    #time.sleep(0.3)
-    #HC12inst.sendReceiveATcmds("AT+DEFAULT")                                
+    HC12inst.sendReceiveATcmds("AT+DEFAULT") 
+      
+    time.sleep(0.3)
+    HC12inst.sendReceiveATcmds("AT+RB")                                
 
     time.sleep(0.3)
     HC12inst.sendReceiveATcmds("AT+V")
+
     time.sleep(0.3)
+    HC12inst.sendReceiveATcmds("AT+RB")   
 
     GPIO.output(SetPIN, GPIO.HIGH) # set HC12 to normal mode
     time.sleep(0.5)
