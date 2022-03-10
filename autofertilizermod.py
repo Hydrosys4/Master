@@ -11,6 +11,7 @@ import sensordbmod
 import actuatordbmod
 import fertilizerdbmod
 import statusdataDBmod
+import ActuatorControllermod
 
 logger = logging.getLogger("hydrosys4."+__name__)
 
@@ -35,7 +36,7 @@ def isschedulermode(element):
 		return False
 
 
-def checkactivate(elementwater,durationwater):
+def checkactivate(elementwater,durationwater):  # requires integer input
 	elementlist=fertilizerdbmod.getelementlist()
 	waterok=False
 	for doserelement in elementlist: # provided the waterelement, search for corresponding doserelement 
@@ -62,7 +63,9 @@ def checkactivate(elementwater,durationwater):
 def activatedoser(element, duration):
 	print(element, " ",duration, " " , datetime.now()) 
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
-	msg , pulseok=hardwaremod.makepulse(element,duration)
+	msg, pulseok = ActuatorControllermod.activateactuator(element,duration)
+	# msg , pulseok=hardwaremod.makepulse(element,duration)
+
 	# salva su database
 	actuatordbmod.insertdataintable(element,duration)
 	# put flag down

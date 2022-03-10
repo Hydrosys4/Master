@@ -52,7 +52,7 @@
 						<p>IP PORT: <a><strong>{{ipport}}</strong></a></p>
 						<p></p>				
 						<p>LocalHost: <a><strong>{{hostname}}</strong></a></p>	
-						<p>URL for LOCAL connection: <a><strong>{{hostname}}.local:{{ipport}}</strong></a></p>
+						<p>URL for LOCAL connection: <a><strong>{{hostname}}:{{ipport}}</strong></a></p>
 						<p></p>
 						{% for ipaddr in iplocallist %}
 							<p>URL for LOCAL Connection: <a><strong>{{ipaddr}}:{{ipport}}</strong></a></p>
@@ -70,6 +70,7 @@
 				</div>						
 				</div>							
 				
+			{% if message!="" %}	
 			<div class="page-header">
 				<h3>Warning Message</h3>   
 			</div>	
@@ -81,8 +82,8 @@
 						
 					</div>						
 				</div>						
-				</div>							
-										
+			</div>							
+			{% endif %}			
 						
 
 

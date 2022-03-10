@@ -400,6 +400,31 @@
 	{% endif %}
 
 
+<!-- HASSIO setting              -->
+
+<div class="page-header">
+			<h3>Show Devices Addresses</h3>   
+</div>
+
+		
+<!-- Button for HOme Assistant setting-->
+
+<div class="row">
+
+	<div class="col-xs-12">
+
+		<a href="{{ url_for('HASSIOsetting') }}">
+		<button id="HASSIOsettingbtn" name="buttonsub" value="HASSIOsettingbtn" class="btn btn-success btn-sm btn-warp">
+			Home Assistant Integration
+		<span class="glyphicon glyphicon-cog"></span>
+		</button>
+		</a>
+
+
+	</div>
+</div>			
+
+
 
 <!-- MQTT devices Addressed listing (MQTT topic, IP, status) -->
  		{% if MQTTclientexist %}		 
@@ -455,6 +480,7 @@
 					<th align="center"><span class="glyphicon glyphicon-arrow-left"></span></th>
 					<th align="center"><span class="glyphicon glyphicon-arrow-right"></span></th>
 					<th align="center">Pos</th>
+					<th align="center">STOP</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -474,11 +500,11 @@
 		  					  				
 				  <select class="form-control input-sm" id="selsteps_{{ item }}">
 					<option>1</option>
-					<option>2</option>
 					<option>3</option>
-					<option>20</option>
+					<option>10</option>
 					<option>40</option>
-
+					<option>70</option>
+					<option>100</option>
 				  </select>
 				  </td>	
 				  		
@@ -495,10 +521,14 @@
 					</button>
 				</td>
 
-
-
 				<td>
 						<label class="form-label-left" id="{{ item }}_hbridgestatus" >{{hbridgestatuslist[loop.index0]}}</label>
+				</td>
+
+				<td>
+					<button class="hbridgebutton btn-sm btn btn-warning btn-block" type="button" name="hbridgestop" element="{{item}}" direction="STOP">
+					</span>Stop</span>
+					</button>
 				</td>
 
 			</tr>

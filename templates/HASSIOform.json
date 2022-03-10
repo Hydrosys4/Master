@@ -1,0 +1,92 @@
+{
+    "schema": {
+        "Identifier": {
+            "title": "Device Identifier",
+            "description": "Any string, Used to identify this device with Home Assistant",
+            "type": "string",
+            "maxLength":15,
+            "required": true,
+            "default":"Hydrosys4"
+        },
+        "Workmode": {
+            "title": "Integration Working Mode",
+            "description": "Enable to send Home Assistant the Status, or send status and recieve commands",
+            "type": "string",
+            "enum": [
+                "Status+Commands",
+                "Status",
+                "Disabled"
+            ]
+            },
+
+        "Host": {
+            "title": "IP Address",
+            "description": "IP address of Home Assistant",
+            "type": "string",
+            "default":""
+
+        },
+
+        "Port": {
+            "title": "Port",
+            "description": "Port used in Home Assistant MQTT",
+            "type": "integer",
+            "default": 1883,
+            "minimum": 100,
+            "maximum": 10000
+
+        },
+
+        "Username": {
+            "title": "User Name",
+            "description": "Username of the user in Home Assistant",
+            "type": "string",
+            "default":""
+
+        },
+        "Password": {
+            "title": "Password",
+            "description": "Password of the user in Home Assistant",
+            "type": "password"
+        },
+
+        "Discovery": {
+            "title": "Enable Discovery Mode",
+            "description": "If enabled, the entities of this system will be auto-discoverable on Home Assistant",
+            "type": "string",
+            "enum": [
+                "Yes",
+                "No"
+            ]
+        }
+    },
+    "form": [
+        {
+            "key": "Workmode"
+        },
+        {
+            "key": "Identifier"
+        },
+        {
+            "key": "Host"
+        },
+        {
+            "key": "Port"
+        },
+        {
+            "key": "Username"
+        },
+        {
+            "key": "Password"
+        },
+        {
+            "key": "Discovery"
+        },
+        {
+        "type": "submit",
+        "title": "Confirm & Apply"
+        }
+
+      ]
+
+}

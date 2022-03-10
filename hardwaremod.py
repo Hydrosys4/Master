@@ -448,50 +448,98 @@ def activatepulse(command,PIN,duration,activationmode,target,priority):
 	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
 	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)		
 	
-		
-	try:
-		testpulsetimeint=int(duration)
-		testpulsetime=str(testpulsetimeint) # durantion in seconds 
-	except ValueError:
-		print(" No valid data or zero  ", target)
-		return "Pulse Duration not valid"	, False	
-	
+	testpulsetime=duration
 	
 	# normal pulse
 	sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+ address +":0"+":"+activationmode+":"+target+":"+title
 
-	#print "logic " , logic , " sendstring " , sendstring
-	isok=False	
-	if float(testpulsetime)>0:
-		#print "Sendstring  ", sendstring	
-		isok=False
-		i=0
-		while (not(isok))and(i<2):
-			i=i+1
-			recdata=[]
-			ack = sendcommand(command,sendstring,recdata,target,priority)
-			#print "returned data " , recdata
-			# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
-			successflag=0
-			if len(recdata)>2:
-				successflag=recdata[2]
-			msg=""
-			if len(recdata)>1:
-				msg=recdata[1]
 
-			if ack and successflag:
-				isok=True
-				recdata.append("Pulse Started")
-				return "Pulse Started", True
-			else:
-				if not successflag:
-					print ( " Return Status ", msg)
-					return msg , False
+	isok=False
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack = sendcommand(command,sendstring,recdata,target,priority)
+		#print "returned data " , recdata
+		# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
+		successflag=0
+		if len(recdata)>2:
+			successflag=recdata[2]
+		msg=""
+		if len(recdata)>1:
+			msg=recdata[1]
+
+		if ack and successflag:
+			isok=True
+			recdata.append("Pulse Started")
+			return "Pulse Started", True
+		else:
+			if not successflag:
+				print ( " Return Status ", msg)
+				return msg , False
 			
 			
 	return "Generic error", False
 	
 	
+def switchon(target,addtime=True, priority=0): # pulse in seconds , addtime=True extend the pulse time with new time , addtime=False let the current pulse finish , 
+	
+
+	print ("### Switch ON ###")
+	if addtime:
+		activationmode="ADD"
+	else:
+		activationmode="NOADD"
+	
+	
+	cmd=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
+	cmdlist=cmd.split("/")
+	command="switchon"
+	if len(cmdlist)>1:
+		command=command+"/"+cmdlist[1]
+
+	
+
+	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
+	POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)	
+	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)		
+	
+	testpulsetime=""
+	
+	# normal pulse
+	sendstring=command+":"+PIN+":"+testpulsetime+":"+logic+":"+POWERPIN+":"+ address +":0"+":"+activationmode+":"+target+":"+title
+	print (sendstring)
+
+	isok=False
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack = sendcommand(command,sendstring,recdata,target,priority)
+		#print "returned data " , recdata
+		# recdata[0]=command (string), recdata[1]=data (string) , recdata[2]=successflag (0,1)
+		successflag=0
+		if len(recdata)>2:
+			successflag=recdata[2]
+		msg=""
+		if len(recdata)>1:
+			msg=recdata[1]
+
+		if ack and successflag:
+			isok=True
+			recdata.append("Pulse Started")
+			return "Pulse Started", True
+		else:
+			if not successflag:
+				print ( " Return Status ", msg)
+				return msg , False
+			
+			
+	return "Generic error", False
+
+
 def stoppulse(target):
 	#search the data in IOdata
 
@@ -527,9 +575,62 @@ def stoppulse(target):
 		if ack and recdata[1]!="e":
 			#print target, "correctly activated"
 			isok=True
-			return "Stopped"
+			return "Stopped" , True
 			
-	return "error"
+	return "error" , False
+
+
+def switchOFF(target):
+	#search the data in IOdata
+	print ("### Switch Off ####")
+
+	cmd=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
+	cmdlist=cmd.split("/")
+	cmd="switchoff"
+	if len(cmdlist)>1:
+		cmd=cmd+"/"+cmdlist[1]
+	
+	
+	PIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)	
+	
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)
+	#POWERPIN=searchdata(HW_INFO_NAME,target,HW_CTRL_PWRPIN)
+	POWERPIN=""
+
+		
+	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)	
+			
+	# normal pulse
+	sendstring=cmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+address+":0"+":"+target+":"+title
+
+	#print "logic " , logic , " sendstring " , sendstring
+
+	isok=False
+	i=0
+	while (not(isok))and(i<2):
+		i=i+1
+		recdata=[]
+		ack= sendcommand(cmd,sendstring,recdata,target,5)
+		successflag=0
+		if len(recdata)>2:
+			successflag=recdata[2]
+		msg=""
+		if len(recdata)>1:
+			msg=recdata[1]
+
+		if ack and successflag:
+			isok=True
+			recdata.append("Switch OFF")
+			return "Pulse Stop", True
+		else:
+			if not successflag:
+				print ( " Return Status ", msg)
+				return msg , False
+			
+			
+	return "Generic error", False
+
 
 def servoangle(target,percentage,delay,priority=0): #percentage go from zeo to 100 and is the percentage between min and max duty cycle
 	
@@ -620,8 +721,9 @@ def getservoduty(element):
 # stepper section
 
 def GO_stepper_position(target,position,priority=0):
+	position=toint(position,0)
 	prev_position_string=getstepperposition(target)
-	prev_position=int(prev_position_string)
+	prev_position=toint(prev_position_string,position)
 	steps=position-prev_position
 	isdone=False
 	if steps>0:
@@ -741,24 +843,32 @@ def setstepperposition(element, position):
 
 # START hbridge section
 
-def GO_hbridge_position(target,position,priority=0):
-	prev_position_string=gethbridgeposition(target)
-	prev_position=int(prev_position_string)
+def GO_hbridge_position(target,position_str,priority=0):
+
+	prev_position_string=gethbridgeposition(target) # in range value
+	prev_position=toint(prev_position_string,0)
+	position=toint(position_str,prev_position)
+	
 	MINstr=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)
 	MIN=toint(MINstr,0)
+	MAXstr=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)
+	MAX=toint(MAXstr,0)
+
+
 	zerooffset=0
-	steps=position-prev_position
+	steps=position-prev_position # in range values
 	absolutesteps=abs(steps)
 	if position<=MIN: # the final position is intended to be the minimum
 		zerooffsetstr=searchdata(HW_INFO_NAME,target,HW_CTRL_OFFSET)
 		zerooffset=toint(zerooffsetstr,0)		
 
+	out=""
 	isdone=False
 	if steps>0:
 		out , isdone=GO_hbridge(target,absolutesteps,zerooffset,"FORWARD",priority)
-	else:	
+	elif steps<0:	
 		out , isdone=GO_hbridge(target,absolutesteps,zerooffset,"BACKWARD",priority)
-		
+	
 	return out , isdone
 
 
@@ -770,11 +880,8 @@ def GO_hbridge(target,steps_str,zerooffset,direction,priority=0):
 	isok=False
 	print("Move Hbridge - ", target) 
 	
-	position_string=gethbridgeposition(target)
-	
-	print(" position " , position_string)
- 
 	try:
+
 		command=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
 		PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
 		PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)	
@@ -782,6 +889,11 @@ def GO_hbridge(target,steps_str,zerooffset,direction,priority=0):
 		MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
 		MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
 		address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+
+		position_string=gethbridgeposition(target)
+		
+		print(" position " , position_string)
+
 
 		steps=int(steps_str)
 		
@@ -834,7 +946,8 @@ def GO_hbridge(target,steps_str,zerooffset,direction,priority=0):
 		if ack and recdata[1]!="e":
 			print(target, "correctly activated")
 			# save position as new status
-			statusdataDBmod.write_status_data(Hbridge_Status,target,'position',str(position),True,"Hbridge_Status") # save in persistent mode
+			sethbridgeposition(target, str(position))
+			#statusdataDBmod.write_status_data(Hbridge_Status,target,'position',str(position),True,"Hbridge_Status") # save in persistent mode
 			isok=True
 			return str(position) , isok
 		else:
@@ -892,7 +1005,8 @@ def gpio_set_hbridge(cmd, message, recdata, target, priority ):
 	else:
 		#sendstring=cmd+":"+PIN2+":"+durationsecondsstr+":"+logic+":"+POWERPIN	
 		statusmsg=activatepulse(cmd,PIN2,durationsecondsstr,activationmode,target,priority)
-			
+	
+	startHbridgetimer(target) # here starts to count the seconds
 
 
 	if statusmsg=="error":
@@ -910,13 +1024,99 @@ def gpio_set_hbridge(cmd, message, recdata, target, priority ):
 	return True	
 
 
+def gpio_stop_hbridge(target):
+			
 
-def gethbridgeposition(element):
-	return statusdataDBmod.read_status_data(Hbridge_Status,element,'position',True,"Hbridge_Status")
+	cmd=searchdata(HW_INFO_NAME,target,HW_CTRL_CMD)
+	PIN1=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN)
+	PIN2=searchdata(HW_INFO_NAME,target,HW_CTRL_PIN2)	
+	logic=searchdata(HW_INFO_NAME,target,HW_CTRL_LOGIC)	
+	MIN=searchdata(HW_INFO_NAME,target,HW_CTRL_MIN)	
+	MAX=searchdata(HW_INFO_NAME,target,HW_CTRL_MAX)	
+	address=searchdata(HW_INFO_NAME,target,HW_CTRL_ADDR)	
+	title=searchdata(HW_INFO_NAME,target,HW_CTRL_TITLE)
+
+	# check that both pins are at logic low state, so Hbridge is off
+	PIN1active=getpinstate(target, address,  PIN1, logic)
+	PIN2active=getpinstate(target, address,  PIN2, logic)
+	
+	hbridgebusy=PIN1active or PIN2active
+
+	if hbridgebusy:
+		# proceed to stop the Hbridge 
+		if PIN1active:
+			PIN = PIN1
+			direction="FORWARD"
+		if PIN2active:
+			PIN = PIN2
+			direction="BACKWARD"
+	
+		POWERPIN="N/A"
+		activationmode="NOADD"
+
+		#search the data in IOdata
+
+		#print "Stop Pulse - ", target
+		cmdlist=cmd.split("/")
+		stopcmd="stoppulse"
+		if len(cmdlist)>1:
+			stopcmd=stopcmd+"/"+cmdlist[1]
+					
+		# normal stop pulse
+		sendstring=stopcmd+":"+PIN+":"+"0"+":"+logic+":"+POWERPIN+":"+address+":0"+":"+target+":"+title
+
+		isok=False
+		i=0
+		while (not(isok))and(i<2):
+			i=i+1
+			recdata=[]
+			ack= sendcommand(stopcmd,sendstring,recdata,target,5)
+			#print "returned data " , recdata
+			if ack and recdata[1]!="e":
+				steps = stopHbridgetimer(target)
+				position=toint(gethbridgeposition(target,previous=True),0) # problem this includes already the STEPS
+				print (" Position ", position, " Steps ", steps , "<------------------")
+				if direction=="FORWARD":
+					position=position+steps
+				if direction=="BACKWARD":
+					position=position-steps
+				#print target, "correctly stopped"
+				sethbridgeposition(target,position)
+				isok=True
+				return str(position), True
+			
+	return "error" , False
+	
+
+
+
+
+
+def gethbridgeposition(element, previous=False):
+	if not previous:
+		return statusdataDBmod.read_status_data(Hbridge_Status,element,'position',True,"Hbridge_Status")
+	else:
+		return statusdataDBmod.read_status_data(Hbridge_Status,element,'prev_position',True,"Hbridge_Status")
 
 def sethbridgeposition(element, position):
 	global Hbridge_Status
+	prev_position=statusdataDBmod.read_status_data(Hbridge_Status,element,'position',True,"Hbridge_Status")
+	statusdataDBmod.write_status_data(Hbridge_Status,element,'prev_position',prev_position,True,"Hbridge_Status")
 	return statusdataDBmod.write_status_data(Hbridge_Status,element,'position',position,True,"Hbridge_Status")
+
+def stopHbridgetimer(element):
+	timestop= time.time()
+	timestart=statusdataDBmod.read_status_data(Hbridge_Status,element,'timer')
+	return round(timestop-timestart)
+
+
+def startHbridgetimer(element):
+	global Hbridge_Status
+	timestart= time.time()
+	return statusdataDBmod.write_status_data(Hbridge_Status,element,'timer',timestart)
+
+
+
 
 
 # END hbridge section
@@ -1648,6 +1848,13 @@ def searchdatalist2keys(recordkey,recordvalue,recordkey1,recordvalue1,keytosearc
 					datalist.append(str(ln[keytosearch]))	
 	return datalist
 
+
+def getItemlist(fielditem):
+	valuelist=[]
+	for line in IOdata:
+		if fielditem in line:
+			valuelist.append(line[fielditem])
+	return valuelist
 
 
 def getfieldvaluelist(fielditem,valuelist):

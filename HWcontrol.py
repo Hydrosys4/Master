@@ -60,7 +60,7 @@ else:
 	ISRPI=True
 
 
-HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","empty","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature","RPI_Core_temperature"]
+HWCONTROLLIST=["tempsensor","humidsensor","pressuresensor","analogdigital","lightsensor","pulse","pinstate","servo","stepper","stepperstatus","photo","mail+info+link","mail+info","returnzero","stoppulse","readinputpin","hbridge","empty","DS18B20","Hygro24_I2C","HX711","SlowWire","InterrFreqCounter","WeatherAPI","BME280_temperature","BME280_humidity","BME280_pressure","BMP180_temperature","RPI_Core_temperature","switchoff","switchon"]
 RPIMODBGPIOPINLIST=["1","2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16","17", "18", "19", "20","21","22", "23", "24", "25","26", "27"]
 NALIST=["N/A"]
 GPIOPLUSLIST=["I2C", "SPI", "SPI2"]
@@ -240,6 +240,12 @@ def execute_task(cmd, message, recdata):
 
 	elif cmd==HWCONTROLLIST[28]:
 		return get_RPI_Core_temperature(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[29]:
+		return gpio_switchoff(cmd, message, recdata)
+
+	elif cmd==HWCONTROLLIST[30]:
+		return gpio_switchon(cmd, message, recdata)
 
 	else:
 		returnmsg(recdata,cmd,"Command not found",0)
@@ -1130,11 +1136,16 @@ def GPIO_output(PINstr, level):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
 	if isRealPIN:
 		GPIO.output(PIN, level)
-	#GPIO_data[PIN]["level"]=level
-	write_status_data(GPIO_data,PINstr,"level",level)
-	logger.info("Set PIN=%s to State=%s", PINstr, str(level))
-	#print PINstr , " ***********************************************" , level
-	return True
+		#GPIO_data[PIN]["level"]=level
+		write_status_data(GPIO_data,PINstr,"level",level)
+		logger.info("Set PIN=%s to State=%s", PINstr, str(level))
+		#print PINstr , " ***********************************************" , level
+		return True
+	else:
+		msg= "PIN=" +PINstr+ " not Valid for this Hardware"
+		logger.error(msg)
+		print(msg)
+	return False 
 		
 def GPIO_output_nostatus(PINstr, level):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
@@ -1196,6 +1207,26 @@ def endpulse(PINstr,logic,POWERPIN):
 	#print "pulse ended", time.ctime() , " PIN=", PINstr , " Logic=", logic , " Level=", level
 	return True
 
+def pulse_value(value): #Input the string and output 3 value, valid, str, number
+	isvalid=False
+	value_str=""
+	value_num=0
+	possible_str=["ON", "OFF"]
+	if value in possible_str:
+		isvalid=True
+		value_str=value
+	else: # check if it is an int number
+		try:
+			value_num=int(value)
+			isvalid=True
+			value_str=""
+		except:
+			isvalid=False
+			value_str=""
+			value_num=0
+	return isvalid , value_str, value_num
+
+
 
 def gpio_pulse(cmd, message, recdata):
 	successflag=0
@@ -1203,8 +1234,17 @@ def gpio_pulse(cmd, message, recdata):
 	messagelen=len(msgarray)	
 	PIN=msgarray[1]
 
-	testpulsetime=msgarray[2]
-	pulsesecond=int(testpulsetime)
+	pulsetime_str=msgarray[2]
+
+	isvalid, pulsestr , pulsesecond = pulse_value(pulsetime_str)
+	if not isvalid:
+		msg="Wrong value for pulse" + pulsetime_str
+		logger.error(msg)
+		successflag=0
+		returnmsg(recdata,cmd,msg,successflag)
+		return True	
+
+	
 	logic="pos"
 	if messagelen>3:
 		logic=msgarray[3]
@@ -1234,7 +1274,8 @@ def gpio_pulse(cmd, message, recdata):
 		PINthreadID.cancel()
 	
 	else:
-		powerPIN_start(POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
+		if not pulsetime_str=="ON": # exclude powerpin functiopn in case of ON
+			powerPIN_start(POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
 		GPIO_setup(PIN, "out")
 		if logic=="pos":
 			level=1
@@ -1243,9 +1284,10 @@ def gpio_pulse(cmd, message, recdata):
 		GPIO_output(PIN, level)
 
 
-	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN ])
-	NewPINthreadID.start()
-	write_status_data(GPIO_data,PIN,"threadID",NewPINthreadID)
+	if not pulsetime_str=="ON": # in case is ON, do not call the callback to end the pulse
+		NewPINthreadID=threading.Timer(pulsesecond, endpulse, [PIN , logic , POWERPIN ])
+		NewPINthreadID.start()
+		write_status_data(GPIO_data,PIN,"threadID",NewPINthreadID)
 
 	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
 	successflag=1
@@ -1283,6 +1325,89 @@ def gpio_stoppulse(cmd, message, recdata):
 	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
 	returnmsg(recdata,cmd,PIN,1)
 	return True	
+
+
+
+def gpio_switchon(cmd, message, recdata):
+	print("### Switch ON ###")
+	successflag=0
+	msgarray=message.split(":")
+	messagelen=len(msgarray)	
+	PIN=msgarray[1]
+
+	onoffcmd=msgarray[2]
+
+	logic="pos"
+	if messagelen>3:
+		logic=msgarray[3]
+	
+	POWERPIN=""	
+	if messagelen>4:	
+		POWERPIN=msgarray[4]	
+	
+	activationmode=""
+	if messagelen>7:
+		activationmode=msgarray[7]
+
+	if isPinActive(PIN,logic):
+		if activationmode=="NOADD": # no action needed
+			print("No Action, pulse activated when PIN already active and activationmode is NOADD")
+			logger.warning("No Action, pulse activated when PIN already active and activationmode is NOADD")
+			successflag=1
+			returnmsg(recdata,cmd,PIN,successflag)
+			return True
+
+	# in case another timer is active on this PIN, cancel it 
+	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
+	if not PINthreadID==None:
+		#print "cancel the Thread of PIN=",PIN
+		PINthreadID.cancel()
+	
+	else:
+		GPIO_setup(PIN, "out")
+		if logic=="pos":
+			level=1
+		else:
+			level=0
+		GPIO_output(PIN, level)
+
+	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
+	successflag=1
+	returnmsg(recdata,cmd,PIN,successflag)
+	return True	
+
+def gpio_switchoff(cmd, message, recdata):
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN=msgarray[1]
+	
+	logic="pos"
+	if messagelen>3:
+		logic=msgarray[3]
+	
+	POWERPIN=""
+	if messagelen>4:	
+		POWERPIN=msgarray[4]
+
+
+	
+	if not isPinActive(PIN,logic):
+		print("No Action, Already OFF")
+		logger.warning("No Action, Already OFF")
+		successflag=1
+		returnmsg(recdata,cmd,PIN,successflag)
+		return True	
+	
+	
+	PINthreadID=read_status_data(GPIO_data,PIN,"threadID")
+	if not PINthreadID==None:
+		#print "cancel the Thread of PIN=",PIN
+		PINthreadID.cancel()
+		
+	endpulse(PIN,logic,POWERPIN)	#this also put powerpin off		
+	returnmsg(recdata,cmd,PIN,1)
+	return True	
+
 
 
 def gpio_pin_level(cmd, message, recdata):

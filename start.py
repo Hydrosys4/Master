@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.36c"
+Release="3.40c"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -78,8 +78,11 @@ import filemanagementmod
 import weatherAPImod
 import messageboxmod
 import wateringplansensordbmod
+import HASScompMatrix
 from HC12mod import HC12radionet
 from camera_pi import Camera   # Raspberry Pi camera module (requires picamera package)
+import REGandDBmod
+
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 application = Flask(__name__)
@@ -126,6 +129,7 @@ def runallconsistencycheck():
 	hardwaremod.initGPIOEXP()
 	hardwaremod.initHC12()
 	hardwaremod.UpdateCMDcontrol()
+	HASScompMatrix.HASSIOintegr.remove_and_update_config()
 	return True
 
 def runallreadfile():
@@ -887,7 +891,7 @@ def doit():
 		element=request.args['element']		
 
 		print("stop pulse  " , element)
-		answer=hardwaremod.stoppulse(element)
+		answer=selectedplanmod.activateandregister(element,"0")
 		ret_data = {"answer": answer}
 
 
@@ -954,8 +958,25 @@ def doit():
 		# move hbridge
 		zerooffset=0
 		position , isok=hardwaremod.GO_hbridge(element,steps,zerooffset,direction)
+		if isok:
+			REGandDBmod.register_output_value(element,position,saveonDB=False) # update the status register.
 		ret_data = {"answer": position}
 
+	elif name=="hbridgestop":
+		print("want to stop hbridge")
+		idx=1
+		if idx < len(argumentlist):
+			steps=argumentlist[idx]
+		idx=2
+		if idx < len(argumentlist):
+			direction=argumentlist[idx]
+		
+		element=request.args['element']	
+		# stop hbridge
+		position , isok=hardwaremod.gpio_stop_hbridge(element)
+		if isok:
+			REGandDBmod.register_output_value(element,position,saveonDB=False) # update the status register.
+		ret_data = {"answer": position}
 
 	elif name=="sethbridge":
 		print("want to set hbridge position")
@@ -1050,7 +1071,27 @@ def doit():
 
 		ret_data = {"answer":answer, "value":version}
 
+	elif name=="HASSIO":
+		element=request.args['element']
+		value=request.args['value']
+		msg=""
+		answer=""
+		topic_list=[]
+		if element=="sendupdateconfig":
+			msg, isok = HASScompMatrix.HASSIOintegr.configure_device(True)
+			answer="OK"
 
+		if element=="removeconfig":
+			msg, isok =HASScompMatrix.HASSIOintegr.remove_configuration(True)
+			answer="OK"
+
+		if element=="query_topics":
+			print (" query topic")
+			msg="topics"
+			topic_list=HASScompMatrix.HASSIOintegr.topic_list(value)
+			answer="OK"
+
+		ret_data = {"answer":answer, "value": msg , "topics":topic_list}
 
 	elif name=="APItesting":
 		answer="nothing to declare"
@@ -1419,6 +1460,50 @@ def HC12setting():
 
 	return render_template('HC12setting.html', jsonschema=jsonschema, ATinfolist=ATinfolist)	
 	
+
+
+@application.route('/HASSIOsetting/', methods=['GET', 'POST'])
+def HASSIOsetting():
+	if not session.get('logged_in'):
+		return render_template('login.html',error=None, change=False)
+
+	formDataClass=HASScompMatrix.HASSIOintegr.dataManagement
+	jsonschema, itemslist =formDataClass.readJsonFormFilePlusValues()
+	itemlist=HASScompMatrix.HASSIOintegr.get_item_list()
+
+	if request.method == 'POST':
+		print(" HASSIO setting POST")
+		datadict={}
+		for item in itemslist:
+			itemdata = request.form.get(item)
+			#print(itemdata , ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::")
+			if itemdata:
+				datadict[item]=itemdata
+		
+		# save hte new setting
+		if datadict:
+			
+			isok = HASScompMatrix.HASSIOintegr.saveDataFileAndApply(datadict)
+			jsonschema["value"]=datadict
+
+			if isok:
+
+				if HASScompMatrix.HASSIOintegr.check_loop_and_connect():
+					HASScompMatrix.HASSIOintegr.remove_and_update_config() # if the discovery setting is Yes
+					flash('Setting has been saved')
+				else:
+					flash('Error, not able establish connection with the MQTT broker','danger')
+			else:
+				flash('Error, not able to save setting','danger')
+			
+		
+		# Apply the new setting to the devide
+
+
+	return render_template('HASSIOsetting.html', jsonschema=jsonschema, itemlist=itemlist)	
+	
+
+
 
 @application.route('/dontclick/', methods=['GET', 'POST'])
 def dontclick():
@@ -1813,7 +1898,7 @@ def sethbridge():  # set the hbridge zero point
 			return redirect(url_for('show_Calibration'))	
 
 	# hbridge	
-	hbridgelist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"hbridge",hardwaremod.HW_INFO_NAME)
+	hbridgelist=hardwaremod.searchdatalist(hardwaremod.HW_CTRL_CMD,"hbridge*",hardwaremod.HW_INFO_NAME)
 	hbridgestatuslist=[]
 	for hbridge in hbridgelist:
 		tempdict={}
@@ -3412,7 +3497,8 @@ def Generictesting():
 	ThesholdOFFON="55"
 	ThesholdONOFF="85"
 
-	selectedplanmod.startpump("water1",10,ThesholdOFFON,ThesholdONOFF)
+	HASScompMatrix.HASSIOintegr.check_loop_and_connect()
+	print(" testing the HASSIO hartbeat ò@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 		
 	if Errorcounter>0:
 		returnstr="Probelms " + errorstring

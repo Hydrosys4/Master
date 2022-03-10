@@ -34,6 +34,8 @@ import basicSetting
 import weatherAPImod
 import wateringplansensordbmod
 import ActuatorControllermod
+import REGandDBmod
+import HASScompMatrix
 
 DEBUGMODE=basicSetting.data["DEBUGMODE"]
 MASTERSCHEDULERTIME="00:01:00"
@@ -59,13 +61,12 @@ logger = logging.getLogger("hydrosys4."+__name__)
 #--start the scheduler call-back part--------////////////////////////////////////////////////////////////////////////////////////	
 
 def activateandregister(target,activationseconds): # function to activate the actuators
-	duration=hardwaremod.toint(activationseconds,0)
-	print(target, " ",duration, " " , datetime.now()) 
-	logger.info('Activate for Value = %s', duration)
+	print(target, " ",activationseconds, " " , datetime.now()) 
+	logger.info('Activate for Value = %s', activationseconds)
 	# start pulse
 	#msg,pulseok=hardwaremod.makepulse(target,duration)
 	# the above is replaced by a more generic method to activate actuators
-	msg , pulseok=ActuatorControllermod.activateactuator(target,duration) # it also save in database
+	msg , pulseok=ActuatorControllermod.activateactuator(target,activationseconds) # it also save in database
 	return msg
 
 def pulsenutrient(target,activationseconds): #scheduled doser activity for fertilizer
@@ -218,7 +219,7 @@ def periodicdatarequest(sensorname):
 	logger.info('Read sensor data: %s - %s', sensorname, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	isok, sensorvalue, errmsg = hardwaremod.getsensordata(sensorname,3)
 	if sensorvalue!="":
-		sensordbmod.insertdataintable(sensorname,sensorvalue)
+		REGandDBmod.register_input_value(sensorname,sensorvalue)
 		# Automation algoritm 
 		automationmod.automationcheck(sensorname)
 		# call to automatic algorithms for watering
@@ -337,6 +338,9 @@ def heartbeat():
 	# check clock with NTP and reset master scheduler in case of clock change	
 	if CheckNTPandAdjustClockandResetSched():
 		return True
+
+	# check MQTT connection is UP
+	HASScompMatrix.HASSIOintegr.check_loop_and_connect()
 	
 	
 	#check the static IP address
@@ -847,13 +851,14 @@ if __name__ == '__main__':
 	
 
 	
-	SchedulerMod.start_scheduler()
-	setmastercallback()
-	SchedulerMod.print_job()
-	time.sleep(9999)
-	print("close")
-	SchedulerMod.stop_scheduler()
+	#SchedulerMod.start_scheduler()
+	#setmastercallback()
+	#SchedulerMod.print_job()
+	#time.sleep(9999)
+	#print("close")
+	#SchedulerMod.stop_scheduler()
 	
+	REGandDBmod.register_input_value("RPItemperature","12")
 	
 
 

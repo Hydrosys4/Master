@@ -88,16 +88,20 @@ def readfiledata_plaintext(pathfilename,filedata): #return list with row of the 
 			filedata.append(ln.strip("\n"))
 		return True
 	else:
-		print("-----------------------------------------> warning no file ", pathfilename) 
+		print("---------------> warning no file ", pathfilename) 
 		return False
 
 def savefiledata_plaintext(pathfilename,filedata):
 	#print "save file ", filedata
-	out_file = open(pathfilename,"w")
-	for line in filedata:
-		out_file.write(line)
-		out_file.write("\n")
-	out_file.close()
+	try:
+		out_file = open(pathfilename,"w")
+		for line in filedata:
+			out_file.write(line)
+			out_file.write("\n")
+		out_file.close()
+	except:
+		msg="not able to write file -------->" + pathfilename
+		print (msg)
 
 def readfiledata_spec(pathfilename,identifier,filedata): # used also in networkdbmod
 	if os.path.isfile(pathfilename): #file is there

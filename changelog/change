@@ -938,23 +938,70 @@ Verified clock setting behavior, when the Internet connection is present the set
 - Fixed bug on the Serial Connection for the HC-12
 - Added query to HC-12 AT commands
 
-2021-12-18 -> release 336b
+2021-12-18 -> release 336c
 
 - HC-12 delete the element in the list of uniString when done
 
-------- Future releases: -----------
 
-NOTE:
-So that meant using RPIO for PWM (DMA) and GPIO for GPIO.  Luckily a little bit of hackery made that easy:
+2022-02-06 -> release 337
 
-import RPIO.PWM as PWM
-import RPi.GPIO as RPIO
+- Start Integration with Home Assistant MQTT
+
+2022-02-09 -> release 337c
+
+- Continue building the integration
+
+2022-02-09 -> release 337e
+
+- Add the pulse "ON" / "OFF" function. In this case the pulse will act as a switch. In this function the powerpin will not work.
+- reason to exclude the powerpin in Pulse ON is safety, expecially for the wireless actuators providing the ON command without any timer could lead to the situation that the OFF command is not recived, keeping the actuator runnin indefinitly. As this system will mainly manage the irrigation, pump or vaòve open indefinitly is a issue.
+So no power pin enabled for the pulse ON option.
+
+2022-02-12 -> release 338
+
+- Integrated the I2C expansion board and the HC12 actuators (still MQTT tasmota part to be done)
 
 
-NOTE:
+2022-02-14 -> release 338c
 
-Command to dump log: sudo python bentornado.py >> logfile.log 2>&1
+- Add the HASSIO cover entity to support the HBridge
 
 
+2022-02-16 -> release 338e
 
-scheduler,
+- HASSIO integration, fixed all the visible issues.
+- According to the Home Assistant documentation the MQTT discovery configuration is not Permanent, which is unexplicable.
+This means that after the MQTT discovery configuration has been push to home assistant, in case the system restart, the comfiguration is lost and should be push again. Completely unexplicable why this cannot be considered as a normal configuration. Hopefully in the future this will be changed.
+
+
+2022-02-17 -> release 338f
+
+- HASSIO integration, push the configuration to Home assistant via MQTT every 15min and when changes happen,
+
+2022-02-23 -> release 339
+
+- HASSIO integration, add button to interrogate the topics of the componenets
+
+
+2022-03-04 -> release 339a
+
+- Fix smal issues
+- increase time for teh HC-12 setup
+- test with RaspiOS rel 11
+- added the IFup in the wifi connection procedure (otherwise wifi not working)
+- added start_hostapd otherwise no AP at reboot
+
+
+2022-03-05 -> release 339d
+
+- Fix small issues with the HASSIO integration
+
+
+2022-03-06 -> release 340
+
+- Change the actuator value to String
+
+2022-03-07 -> release 340a/b
+
+- Fixed a bug in the Autofertilizedmod, now call the ActuatorControllerMod
+- Fixed a bug in the Autowatering, now call the ActuatorControllerMod

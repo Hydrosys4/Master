@@ -53,7 +53,7 @@ def getstoredmessage():
 	outstring=""
 	for line in filedata:
 		outstring=outstring+line+'\n'
-	return outstring
+	return outstring.strip()
 
 	
 def storemessage(message):

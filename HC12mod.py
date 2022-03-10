@@ -270,7 +270,7 @@ class HC12:
         self.ser.listenPauseFlag=False 
         # pause the receiver based
         print(" Set Serial Listening PAUSE flag to FALSE")
-        time.sleep(0.3)
+        time.sleep(0.5)
 
 
     def VerifySerialATwithPIN(self):
@@ -305,6 +305,7 @@ class HC12:
         # empty the serial buffer
 
         self.ser.readSerialBuffer() 
+        time.sleep(0.1)
         print("send AT command = ", cmd)
         self.ser.sendString(cmd)
         time.sleep(0.1)
@@ -339,7 +340,7 @@ class HC12:
             # Execute the AT commmands, they will be made effective after the AT PIN is set batck
             for cmd in self.ATcommandslist:
                 isok , received_data = self.sendReceiveATcmds(cmd)
-                time.sleep(0.3)                
+                time.sleep(0.4)                
                 if not isok:
                     print("Warning , No response for AT command = ", cmd)
                     ATok=False
@@ -348,7 +349,7 @@ class HC12:
 
             cmd="AT+B1200"
             isok , received_data = self.sendReceiveATcmds(cmd)
-            time.sleep(0.3)
+            time.sleep(0.4)
             if not isok:
                 print("Warning , No response for AT command = ", cmd)
                 ATok=False
@@ -358,7 +359,7 @@ class HC12:
                 if not self.ser.serialok:
                     logger.error("Not able to reconnect to the serial interface")
                     return False
-                time.sleep(0.3)
+                time.sleep(0.4)
         else:
             ATok=False
                                    
@@ -568,6 +569,7 @@ class NetworkProtocol:
                     returnvals = False, "No ACK received"
 
         self.sendCommandBusy=False
+        print(" Message delivered to HC12 -------> ", returnvals)
         return returnvals
 
 

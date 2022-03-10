@@ -1,0 +1,186 @@
+{% extends "layout.html" %} <!-- Layout2 uses bootstrap 5 ***-->
+{% block body %}
+  {% if session.logged_in %}
+    <link rel="stylesheet" href="{{url_for('static', filename='jsonform/deps/opt/bootstrap.css') }}" />
+    <script type=text/javascript src="{{url_for('static', filename='jsonform/deps/underscore.js') }}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='jsonform/lib/jsonform.js') }}"></script>
+    <script type=text/javascript src="{{url_for('static', filename='jsonform/deps/opt/jsv.js') }}"></script>
+
+  <div class="container-fluid">
+
+
+
+
+
+            <div class="row">
+              <div class="col-md-5">
+                <div class="well bs-component">
+                <form class="form-vertical" action="{{ url_for('HASSIOsetting') }}" method=post>
+                </div>
+              </div>
+            </div>
+ 
+
+            <script type="text/javascript">
+                var jsonschemarx = JSON.parse('{{ jsonschema | tojson | safe}}');
+                $('form').jsonForm(jsonschemarx);
+            </script>
+ 
+
+
+
+
+         <!--  Button to query the hassio using Ajax (not using jsonform)-->
+         <div class="row">
+          <div class="col-md-5">
+            <div class="well bs-component">
+                  <table class="table" margin: 20px;>
+                    <thead>
+                      <tr>
+                        <th>Query</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                      <td>                           
+                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="sendupdateconfig">Send Configuration to Home Assistant</button>
+                      </td>
+                      <td>
+                          <label id="value_sendupdateconfig" for="input_3"></label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>                           
+                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="removeconfig">Remove All Hydrosys Configurations from Home Assistant</button>
+                      </td>
+                      <td>
+                          <label id="value_removeconfig" for="input_3"></label>
+                      </td>
+                    </tr>
+                      </tbody>
+                  </table>
+            </div>	
+          </div>	
+        </div>	
+
+
+         <!--  Button to query the topics relevant to items -->
+         <div class="row">
+          <div class="col-md-5">
+            <div class="well bs-component">
+                  <table class="table" margin: 20px;>
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Action</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                      <td>
+                      <select class="form-control input-sm" id="selectedItem">
+                        {% for item in itemlist %}
+                        <option value="{{item}}" >{{item}}</option>
+                        {% endfor %}
+                      </select>
+                    </td>
+                      <td>                           
+                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="query_topics">Query</button>
+                      </td>
+                      <td>
+                          <label id="value_query_topics" for="input_3"></label>
+                    </tr>
+                      </tbody>
+                  </table>
+
+
+
+
+                  <table class="table" margin: 20px;>
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    
+                    <tr>
+                      <td>
+                          <label id="value_query_topics0" for="input_3"></label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <label id="value_query_topics1" for="input_3"></label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <label id="value_query_topics2" for="input_3"></label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <label id="value_query_topics3" for="input_3"></label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <label id="value_query_topics4" for="input_3"></label>
+                      </td>
+                    </tr>
+                      </tbody>
+                  </table>
+            </div>	
+          </div>	
+        </div>	
+
+      </div>
+
+
+
+			<script type=text/javascript>
+			  $(function() {
+				$(".ajaxbutton").click(function() {
+				//alert("test button pressed");
+				var prid=$(this).attr('name');
+				var elem=$(this).attr('element');
+        var value = $("#selectedItem").val();	
+        $('#value_' + elem).text("working...");	
+					$.ajax({
+								type: "GET",
+								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&value=" + value,
+								contentType: "application/json; charset=utf-8",
+								data: { echoValue: "requestfordata" },
+								success: function(data) {
+									$('#value_' + elem).text(data.value);
+                      if (data.value=="topics"){
+                      var topics=data.topics;
+                      //alert(topics)
+                      fLen = topics.length;
+                      for (i = 0; i < fLen; i++) {
+                        $('#value_' + elem + i.toString()).text(topics[i]);
+                      }	
+                      }
+								},
+								//error: function(jqXHR, textStatus, errorThrown) {
+								//    alert(errorThrown);
+								//}
+							});    			
+				});
+				
+
+			  });
+			</script>
+      <!--  Button end-->
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

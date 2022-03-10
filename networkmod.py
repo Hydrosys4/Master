@@ -80,7 +80,8 @@ def wifilist_ssid(retrynumber=1):
 		# get all cells from the air
 		network = wpa_cli_mod.get_networks("wlan0")
 		for item in network:
-			ssids.append(item["ssid"])
+			if item["ssid"]:
+				ssids.append(item["ssid"])
 		logger.info("Number of scan SSID: %d, Attemps %d",len(ssids),i)
 	return ssids
 
@@ -131,7 +132,7 @@ def connect_savedwifi(thessid):
 	print("connecting to saved wifi network")
 	flushIP("wlan0")
 	isok=False
-	#ifdown("wlan0")
+	ifup("wlan0") # set the wlan0 up as it seems that stopping the hostapd brings the wlan down
 	isok=wpa_cli_mod.enable_ssid("wlan0",thessid)
 	time.sleep(1)
 	return isok
@@ -636,7 +637,7 @@ def connect_AP(firsttime=False):
 			addIP("wlan0")
 		else:
 			logger.warning('No need to set static IP address')
-
+		start_hostapd() # this become necessary in the RaspiOS rel 11, for unknown reasons, even if the hostapd starts without errors the SSID is not boradcastg
 		
 		if (not firsttime)or(IPADDRESS not in currentipaddr):	
 			#restart DNSmask, this should help to acquire the new IP address (needed for the DHCP mode)
@@ -818,6 +819,7 @@ def connect_network_init(internetcheck=False, backtoAP=False):
 	logger.info('After init_network. Synch clock and start mastercallback')		
 	if not selectedplanmod.CheckNTPandAdjustClockandResetSched():
 		selectedplanmod.resetmastercallback()
+	selectedplanmod.HASScompMatrix.HASSIOintegr.check_loop_and_connect()
 	
 	return connected
 

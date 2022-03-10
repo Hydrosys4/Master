@@ -26,7 +26,7 @@ CLIENTSLIST={}
 
 if ISRPI:
 	#HWCONTROLLIST=["pulse/MQTT","stoppulse/MQTT","pinstate/MQTT","hbridge/MQTT","hbridgestatus/MQTT"]
-	HWCONTROLLIST=["pulse/MQTT","stoppulse/MQTT","readinput/MQTT","pinstate/MQTT","hbridge/MQTT"]
+	HWCONTROLLIST=["pulse/MQTT","stoppulse/MQTT","readinput/MQTT","pinstate/MQTT","hbridge/MQTT", "switchoff/MQTT" , "switchon/MQTT"]
 else:
 	HWCONTROLLIST=[]
 
@@ -97,6 +97,12 @@ def execute_task(cmd, message, recdata):
 			
 		elif cmd==HWCONTROLLIST[4]: #hbridge	
 			return ""	
+
+		elif cmd==HWCONTROLLIST[5]:	# pinstate
+			return MQTT_switchoff(cmd, message, recdata)
+
+		elif cmd==HWCONTROLLIST[6]:	# pinstate
+			return MQTT_switchon(cmd, message, recdata)
 
 
 
@@ -284,30 +290,30 @@ def readinput_MQTT(cmd, message, recdata):
 
 
 
-def powerPIN_start(REGID,CMD,address,pulsesecond,ignorepowerpincount=False): # powerpin will work only with same address and same topic/"powerpin number"
+def powerPIN_status(REGID,CMD,address,pulsesecond,pwr_level_increase=1): # powerpin will work only with same address and same topic/"powerpin number"
+	power_pulse_needed=False
+	pulsesecond=toint(pulsesecond,0)
+
 	if REGID!="":
 		PowerPINlevel=statusdataDBmod.read_status_data(PowerPIN_Status,REGID,"level")
 		#start power pin
 		if PowerPINlevel<1: 
 			PowerPINlevel==0
-		if not ignorepowerpincount:
-			statusdataDBmod.write_status_data(PowerPIN_Status,REGID,"level",PowerPINlevel+1)			
+		statusdataDBmod.write_status_data(PowerPIN_Status,REGID,"level",PowerPINlevel+pwr_level_increase)			
 			
 		
 		# complication below is necessary.
 		timeZero=int(time.time())+pulsesecond
 		Lasttimezero=statusdataDBmod.read_status_data(PowerPIN_Status,REGID,"timeZero")
-		if Lasttimezero:
-			if timeZero>Lasttimezero:
-				statusdataDBmod.write_status_data(PowerPIN_Status,REGID,"timeZero",timeZero)
-				MQTT_output(CMD, address)				
-		else:
-			statusdataDBmod.write_status_data(PowerPIN_Status,REGID,"timeZero",timeZero)
+		if not Lasttimezero:
+			Lasttimezero=0
 
-		
-		if PowerPINlevel==0:
-			time.sleep(0.2)			
-	return True	
+		if timeZero>Lasttimezero:
+			statusdataDBmod.write_status_data(PowerPIN_Status,REGID,"timeZero",timeZero)
+			#MQTT_output(CMD, address)	# here send the command		
+			power_pulse_needed=True	
+				
+	return power_pulse_needed	
 
 		
 def powerPIN_stop(CMD_PWR,waittime,address):
@@ -329,19 +335,18 @@ def powerPIN_stop(CMD_PWR,waittime,address):
 
 
 def MQTT_output(CMD_LIST,address):
-
-
 	found=False
 	if address in CLIENTSLIST:
 		clientobj=CLIENTSLIST[address]["clientobj"]
 		for CMD in CMD_LIST:
 			topic=CMD["topic"]
 			payload=CMD["value"]
-			print("Publish: " + "  " + address + "   " + topic + "   "  + str(payload))
+			print("Publish to Tasmota: " + "  " + address + "   " + topic + "   "  + str(payload))
 			clientobj.publish(topic=topic, payload=str(payload), qos=2)
 			time.sleep(0.1)
+		return True, ""
 	
-	return True
+	return False, "Generic Error"
 
 
 def MQTT_output_all_stats():
@@ -399,17 +404,18 @@ def endpulse(PIN_CMD,POWERPIN_CMD,address):
 	REGID=PIN_CMD["ID"]
 	statusdataDBmod.write_status_data(GPIO_data,REGID,"threadID",None)
 	
-	MQTT_output(PIN_CMD["STOP"], address)
+	isok, msg = MQTT_output(PIN_CMD["STOP"], address)
 	
 	endwaittime=0
 	powerPIN_stop(POWERPIN_CMD,endwaittime,address)
 
 	#print "pulse ended", time.ctime() , " PIN=", PINstr , " Logic=", logic , " Level=", level
-	return True
+	return  isok, msg
 
-def create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond):
+def create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond_srt):
 	
 	# this is coming from the strange way the pulse is calculated in tasmota
+	pulsesecond=toint(pulsesecond_srt,0)
 	Durationperiod=0
 	if pulsesecond<12:
 		Durationperiod=pulsesecond*10
@@ -420,23 +426,31 @@ def create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond):
 	PINstr=""
 	if not PINnum==0:
 		PINstr=PIN 	
+
 	# MQTT publish commands	
 	MQTT_CMD={"ID":title+PINstr}
-	CMD={"topic":title+"/PulseTime"+PINstr,"value":str(Durationperiod)}
+
 	CMD_list=[]	
-	CMD_list.append(CMD)
+
 	MQTT_CMD["EXTEND"]=CMD_list	
-	
 	CMD={"topic":title+"/Power"+PINstr,"value":"ON"}
 	CMD_list.append(CMD)		
 	MQTT_CMD["START"]=CMD_list
+
+
+	CMD_list=[]	
+	CMD={"topic":title+"/PulseTime"+PINstr,"value":"OFF"} # disable pulsetime for this topic.
+	CMD_list.append(CMD)
+	CMD={"topic":title+"/Power"+PINstr,"value":"ON"}
+	CMD_list.append(CMD)		
+	MQTT_CMD["ON"]=CMD_list
 
 	CMD={"topic":title+"/Power"+PINstr,"value":"OFF"}	
 	CMD_list=[]
 	CMD_list.append(CMD)		
 	MQTT_CMD["STOP"]=CMD_list
 	
-	
+
 	MQTT_CMD_PWR={"ID":"","START":"","STOP":"","EXTEND":""}
 	POWERPINstr=""	
 	POWERPINnum=toint(POWERPIN,0)
@@ -452,7 +466,6 @@ def create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond):
 		CMD_list=[]	
 		CMD_list.append(CMD)
 		MQTT_CMD_PWR["EXTEND"]=CMD_list	
-		
 		CMD={"topic":title+"/Power"+POWERPINstr,"value":"ON"}
 		CMD_list.append(CMD)		
 		MQTT_CMD_PWR["START"]=CMD_list
@@ -465,19 +478,50 @@ def create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond):
 	return MQTT_CMD, MQTT_CMD_PWR
 
 
+
+def pulse_value(value): #Input the string and output 3 value, valid, str, number
+	isvalid=False
+	value_str=""
+	value_num=0
+	possible_str=["ON", "OFF"]
+	if value in possible_str:
+		isvalid=True
+		value_str=value
+	else: # check if it is an int number
+		try:
+			value_num=int(value)
+			isvalid=True
+			value_str=""
+		except:
+			isvalid=False
+			value_str=""
+			value_num=0
+	return isvalid , value_str, value_num
+
+
+
 def MQTT_pulse(cmd, message, recdata):
 	successflag=0
 	msgarray=message.split(":")
 	messagelen=len(msgarray)	
 	PIN=msgarray[1]
 
-	testpulsetime=msgarray[2] # in seconds
-	pulsesecond=int(testpulsetime)
-	
-	
+	pulsetime_str=msgarray[2] # in seconds
+	isvalid, pulsestr , pulsesecond = pulse_value(pulsetime_str)
+	if not isvalid:
+		msg="Wrong value for pulse" + pulsetime_str
+		logger.error(msg)
+		successflag=0
+		returnmsg(recdata,cmd,msg,successflag)
+		return True	
+
+	print("-------------> pulsetime_str ", pulsetime_str)
+    
 	POWERPIN=""	
 	if messagelen>4:	
-		POWERPIN=msgarray[4]	
+		POWERPIN=msgarray[4]
+		if not toint(POWERPIN,0):
+			POWERPIN=""		
 
 		
 	activationmode=""	
@@ -495,52 +539,134 @@ def MQTT_pulse(cmd, message, recdata):
 
 	if title=="":
 		successflag=0
-		msg="Missing MQTT topic"
+		msg="Missing MQTT topic in setting"
 		returnmsg(recdata,cmd,msg,successflag)
 		return recdata
 		
 
 	MQTT_CMD, MQTT_CMD_PWR = create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond)
 
-	# start pulse activation logic
-
 	REGID=MQTT_CMD["ID"]  # this is made by the string "topic"+"PIN"
-	ignorepowerpincount=False
+	pwr_level_increase=1 # determine how many levels to add to the power pin (power pin level are used to OFF the power when level is Zero or below)
 	# in case another timer is active on this TOPIC ID it means that the PIN is activated 
 	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,REGID,"threadID")
 	if not PINthreadID==None:
-		
 		# pin already active
 		if activationmode=="NOADD": # no action needed
 			successflag=1
 			returnmsg(recdata,cmd,PIN,successflag)
 			return True		
-		
 		PINthreadID.cancel() # cancel thread 
-
-		ignorepowerpincount=True # do not add levels to the powerpin
+		pwr_level_increase=pwr_level_increase-1 # do not add levels to the powerpin, pin is already active and is already counted
 	
-	
-
-	powerPIN_start(MQTT_CMD_PWR["ID"],MQTT_CMD_PWR["START"],address,pulsesecond,ignorepowerpincount)
-
-
 	level=1
 	statusdataDBmod.write_status_data(GPIO_data,REGID,"level",level)
 	logger.info("Set PIN=%s to State=%s", REGID, str(level))
 	print (REGID + " *********************************************** " , level)
+		
+	if pulsetime_str=="ON":
+		pwr_level_increase=pwr_level_increase-1 # do not add levels to the powerpin
 	
-	MQTT_output(MQTT_CMD["START"],address)
-	
-	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [MQTT_CMD, MQTT_CMD_PWR, address])
-	NewPINthreadID.start()
-	statusdataDBmod.write_status_data(GPIO_data,REGID,"threadID",NewPINthreadID)
+	need_power_pulse=powerPIN_status(MQTT_CMD_PWR["ID"],MQTT_CMD_PWR["START"],address,pulsesecond,pwr_level_increase)
+	print("need_power_pulse " , need_power_pulse)
+	if (not pulsetime_str=="ON")and(need_power_pulse): # exclude powerpin functiopn in case of ON
+		isok , msg = MQTT_output(MQTT_CMD_PWR["START"],address)
+		isok , msg = MQTT_output(MQTT_CMD["START"],address)	
+	else:
+		if pulsetime_str=="ON":
+			isok , msg = MQTT_output(MQTT_CMD["ON"],address)	 # try two times # starts the PIN 
+		else:
+			isok , msg = MQTT_output(MQTT_CMD["START"],address)  # try two times # starts the PIN 
+		
+	if not pulsetime_str=="ON": # exclude powerpin functiopn in case of ON
+		NewPINthreadID=threading.Timer(pulsesecond, endpulse, [MQTT_CMD, MQTT_CMD_PWR, address])
+		NewPINthreadID.start()
+		statusdataDBmod.write_status_data(GPIO_data,REGID,"threadID",NewPINthreadID)
 
-
-
-	successflag=1
-	returnmsg(recdata,cmd,PIN,successflag)
+	if isok:
+		successflag=1
+		returnmsg(recdata,cmd,PIN,successflag) 
+	else:
+		successflag=0
+		returnmsg(recdata,cmd,msg,successflag) 
+  
 	return True	
+
+
+
+
+
+def MQTT_switchon(cmd, message, recdata):
+	successflag=0
+	msgarray=message.split(":")
+	messagelen=len(msgarray)	
+	PIN=msgarray[1]
+
+	pulsetime_str=msgarray[2] # in seconds
+	pulsesecond=0    
+
+	POWERPIN=""	
+	if messagelen>4:	
+		POWERPIN=msgarray[4]
+		if not toint(POWERPIN,0):
+			POWERPIN=""		
+
+		
+	activationmode=""	
+	if messagelen>7:	
+		activationmode=msgarray[7]		
+		
+	address=""	# this is the MQTT client ID
+	if messagelen>8:	
+		address=msgarray[8]
+
+	title=""	
+	if messagelen>9:	
+		title=msgarray[9]
+	
+
+	if title=="":
+		successflag=0
+		msg="Missing MQTT topic in setting"
+		returnmsg(recdata,cmd,msg,successflag)
+		return recdata
+		
+
+	MQTT_CMD, MQTT_CMD_PWR = create_pulse_CMD_list(PIN,POWERPIN,title,pulsesecond)
+
+	REGID=MQTT_CMD["ID"]  # this is made by the string "topic"+"PIN"
+	pwr_level_increase=1 # determine how many levels to add to the power pin (power pin level are used to OFF the power when level is Zero or below)
+	# in case another timer is active on this TOPIC ID it means that the PIN is activated 
+	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,REGID,"threadID")
+	if not PINthreadID==None:
+		# pin already active
+		if activationmode=="NOADD": # no action needed
+			successflag=1
+			returnmsg(recdata,cmd,PIN,successflag)
+			return True		
+		PINthreadID.cancel() # cancel thread 
+		pwr_level_increase=pwr_level_increase-1 # do not add levels to the powerpin, pin is already active and is already counted
+	
+	level=1
+	statusdataDBmod.write_status_data(GPIO_data,REGID,"level",level)
+	logger.info("Set PIN=%s to State=%s", REGID, str(level))
+	print (REGID + " *********************************************** " , level)
+		
+
+	if pulsetime_str=="ON":
+		isok , msg = MQTT_output(MQTT_CMD["ON"],address)	 # try two times # starts the PIN 
+
+
+	if isok:
+		successflag=1
+		returnmsg(recdata,cmd,PIN,successflag) 
+	else:
+		successflag=0
+		returnmsg(recdata,cmd,msg,successflag) 
+  
+	return True	
+
+
 
 def MQTT_stoppulse(cmd, message, recdata):   # when ON send MQTT message with the duration in seconds of the activation, and when OFF send zero.
 	print(" Don't stop me now ")
@@ -584,6 +710,55 @@ def MQTT_stoppulse(cmd, message, recdata):   # when ON send MQTT message with th
 		
 	endpulse(MQTT_CMD, MQTT_CMD_PWR,address)	#this also put powerpin off		
 	returnmsg(recdata,cmd,PIN,1)
+	return True	
+
+
+
+def MQTT_switchoff(cmd, message, recdata):   # when ON send MQTT message with the duration in seconds of the activation, and when OFF send zero.
+	print(" Don't stop me now ")
+	
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN=msgarray[1]
+	
+	logic="pos"
+	if messagelen>3:
+		logic=msgarray[3]
+	
+	POWERPIN=""
+	if messagelen>4:	
+		POWERPIN=msgarray[4]
+		
+	
+	address=""	# this is the MQTT client ID
+	if messagelen>7:	
+		address=msgarray[7]
+
+	
+	title=""
+	if messagelen>8:	
+		title=msgarray[8]	
+	
+	if title=="":
+		msg="missing topic in Title field"
+		logger.error("No topic specified, please insert it in the Title field")
+		successflag=0
+		returnmsg(recdata,cmd,msg,successflag)
+		return recdata
+	
+	MQTT_CMD, MQTT_CMD_PWR = create_pulse_CMD_list(PIN,POWERPIN,title,0)
+	
+	REGID=MQTT_CMD["ID"]	
+	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,REGID,"threadID")
+	if not PINthreadID==None:
+		#print "cancel the Thread of PIN=",PIN
+		PINthreadID.cancel()
+		
+	isok, msg = endpulse(MQTT_CMD, MQTT_CMD_PWR,address)	#this also put powerpin off		
+	if isok:
+		returnmsg(recdata,cmd,PIN,1) 
+	else:
+		returnmsg(recdata,cmd,msg,0) 
 	return True	
 
 

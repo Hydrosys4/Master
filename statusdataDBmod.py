@@ -42,6 +42,25 @@ def read_status_data(data,element,variable,permanent=False, storeid=""):
 						
 	return output
 
+
+def read_status_levels(data,element="",from_file=False, storeid=""):
+	output=""
+	if not from_file:
+		output=data
+		if (element)and(element in data):
+			#print " element present"
+			output=data[element]
+
+	else:
+		# check with persistent element
+		if not storeid=="":
+			isok, persistenooutput=readstoredvariable(storeid,element)
+				
+		if isok:
+			output=persistenooutput
+						
+	return output
+
 		
 def write_status_data(data,element,variable,value,permanent=False, storeid=""):
 	if element in data:
@@ -59,6 +78,15 @@ def write_status_data(data,element,variable,value,permanent=False, storeid=""):
 		if not storeid=="":
 			storevariable(storeid,element,variable,value)
 	
+
+def remove_element_status_data(data,element,permanent=False, storeid=""):
+	if element in data:
+		del data[element]
+			
+	# in case of permanent option
+	if permanent:
+		if not storeid=="":
+			remove_stored_element(storeid,element)
 
 
 # ///////////////// --- END STATUS VARIABLES ------
@@ -110,7 +138,32 @@ def storevariable(storeid,element,variable,value):
 	return True	
 
 
-def readstoredvariable(storeid,element,variable):
+
+def remove_stored_element(storeid,element):
+	filedata=[] # list of dictionaries
+	readok=filestoragemod.readfiledata(DATAFILENAME,filedata)
+	# even if readok  is not True, the below procedure creates a new file
+	#search for the storeid and elemet
+
+	elementfound=False
+	for thedict in filedata:
+		if "storeid" in thedict:
+			if thedict["storeid"]==storeid:
+				#search for elemet
+				if element in thedict:
+					elementfound=True
+					del thedict[element]
+					
+				else:
+					print(" no elelemt, nothing to delete ")
+
+	if elementfound:
+		filestoragemod.savefiledata(DATAFILENAME,filedata)
+
+	return True	
+
+
+def readstoredvariable(storeid,element="",variable=""):
 	filedata=[] # list of dictionaries
 	readok=filestoragemod.readfiledata(DATAFILENAME,filedata)
 	# even if readok  is not True, the below procedure creates a new file
@@ -120,11 +173,19 @@ def readstoredvariable(storeid,element,variable):
 	for thedict in filedata:
 		if "storeid" in thedict:
 			if thedict["storeid"]==storeid:
-				#search for elemet
-				if element in thedict:
-					if variable in thedict[element]:
-						value=thedict[element][variable]
+				value=thedict
+				isok=True
+				if element:
+					isok=False
+					#search for elemet
+					if element in thedict:
+						value=thedict[element]
 						isok=True
+						if variable:
+							isok=False
+							if variable in thedict[element]:
+								value=thedict[element][variable]
+								isok=True
 
 	return isok, value	
 

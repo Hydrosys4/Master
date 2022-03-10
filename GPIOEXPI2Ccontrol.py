@@ -43,7 +43,7 @@ if MCPDEVICES:
 
 
 if ISGPIOEXP:
-	HWCONTROLLIST=["pulse/I2CGPIOEXP","stoppulse/I2CGPIOEXP","pinstate/I2CGPIOEXP","hbridge/I2CGPIOEXP"]
+	HWCONTROLLIST=["pulse/I2CGPIOEXP","stoppulse/I2CGPIOEXP","pinstate/I2CGPIOEXP","hbridge/I2CGPIOEXP","switchoff/I2CGPIOEXP", "switchon/I2CGPIOEXP"]
 else:
 	HWCONTROLLIST=[]
 
@@ -86,7 +86,7 @@ def initMCP23017():
 		ISGPIOEXP=True
 
 	if ISGPIOEXP:
-		HWCONTROLLIST=["pulse/I2CGPIOEXP","stoppulse/I2CGPIOEXP","pinstate/I2CGPIOEXP","hbridge/I2CGPIOEXP"]
+		HWCONTROLLIST=["pulse/I2CGPIOEXP","stoppulse/I2CGPIOEXP","pinstate/I2CGPIOEXP","hbridge/I2CGPIOEXP","switchoff/I2CGPIOEXP", "switchon/I2CGPIOEXP"]
 	else:
 		HWCONTROLLIST=[]
 	EXPGPIOPINLIST=["1","2", "3", "4","5","6", "7", "8", "9", "10", "11", "12","13","14", "15", "16"]
@@ -137,7 +137,11 @@ def execute_task(cmd, message, recdata):
 		elif cmd==HWCONTROLLIST[3]: #hbridge	
 			return ""	
 
+		elif cmd==HWCONTROLLIST[4]:	# pinstate
+			return gpio_switchoff(cmd, message, recdata)
 
+		elif cmd==HWCONTROLLIST[5]:	# pinstate
+			return gpio_switchon(cmd, message, recdata)
 
 	else:
 		msg="Command not found"
@@ -222,7 +226,6 @@ def CheckRealHWpin(PIN=""):
 			try:
 				PINint=int(PIN)
 				return True, PINint
-				#print "Real * PIN *"
 			except:
 				return False, 0	
 	return False, 0		
@@ -234,17 +237,24 @@ def GPIO_output(address , PINstr, level ):
 		if address in MCPDEVICES:
 			mcp=MCPDEVICES[address]
 		else:
+			msg= "Address =" +address+ " not available for this Hardware"
+			logger.error(msg)
+			print(msg)
 			return False
 		PIN=PIN-1
 		if level==0:
 			mcp.output(PIN, mcp.LOW)
 		else:
 			mcp.output(PIN, mcp.HIGH)
-	#GPIO_data[PIN]["level"]=level
-	statusdataDBmod.write_status_data(GPIO_data,address+PINstr,"level",level)
-	logger.info("Set PIN=%s to State=%s", PINstr, str(level))
-	#print PINstr , " ***********************************************" , level
-	return True
+		statusdataDBmod.write_status_data(GPIO_data,address+PINstr,"level",level)
+		logger.info("Set PIN=%s to State=%s", PINstr, str(level))
+		return True
+	else:
+		msg= "PIN=" +PINstr+ " not Valid for this Hardware"
+		logger.error(msg)
+		print(msg)
+
+	return False
 
 
 
@@ -294,6 +304,26 @@ def endpulse(address, PINstr,logic,POWERPIN):
 	#print "pulse ended", time.ctime() , " PIN=", PINstr , " Logic=", logic , " Level=", level
 	return True
 
+def pulse_value(value): #Input the string and output 3 value, valid, str, number
+	isvalid=False
+	value_str=""
+	value_num=0
+	possible_str=["ON", "OFF"]
+	if value in possible_str:
+		isvalid=True
+		value_str=value
+	else: # check if it is an int number
+		try:
+			value_num=int(value)
+			isvalid=True
+			value_str=""
+		except:
+			isvalid=False
+			value_str=""
+			value_num=0
+	return isvalid , value_str, value_num
+
+
 
 def gpio_pulse(cmd, message, recdata):
 	successflag=0
@@ -301,8 +331,16 @@ def gpio_pulse(cmd, message, recdata):
 	messagelen=len(msgarray)	
 	PIN=msgarray[1]
 
-	testpulsetime=msgarray[2]
-	pulsesecond=int(testpulsetime)
+	pulsetime_str=msgarray[2]
+
+	isvalid, pulsestr , pulsesecond = pulse_value(pulsetime_str)
+	if not isvalid:
+		msg="Wrong value for pulse" + pulsetime_str
+		logger.error(msg)
+		successflag=0
+		returnmsg(recdata,cmd,msg,successflag)
+		return True	
+
 	logic="pos"
 	if messagelen>3:
 		logic=msgarray[3]
@@ -343,7 +381,8 @@ def gpio_pulse(cmd, message, recdata):
 		PINthreadID.cancel()
 	
 	else:
-		powerPIN_start(address, POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
+		if not pulsetime_str=="ON": # exclude powerpin functiopn in case of ON
+			powerPIN_start(address, POWERPIN,logic,0.2) # it is assumed that the logic (pos,neg) of the powerpin is the same of the pin to pulse, in the future it might be useful to specify the powerpin logic separately
 		GPIO_setup(address, PIN, "out")
 		if logic=="pos":
 			level=1
@@ -356,10 +395,10 @@ def gpio_pulse(cmd, message, recdata):
 			return True	
 
 
-	
-	NewPINthreadID=threading.Timer(pulsesecond, endpulse, [address, PIN , logic , POWERPIN ])
-	NewPINthreadID.start()
-	statusdataDBmod.write_status_data(GPIO_data,address+PIN,"threadID",NewPINthreadID)
+	if not pulsetime_str=="ON": # in case is ON, do not call the callback to end the pulse
+		NewPINthreadID=threading.Timer(pulsesecond, endpulse, [address, PIN , logic , POWERPIN ])
+		NewPINthreadID.start()
+		statusdataDBmod.write_status_data(GPIO_data,address+PIN,"threadID",NewPINthreadID)
 
 	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
 	successflag=1
@@ -393,8 +432,109 @@ def gpio_stoppulse(cmd, message, recdata):
 		successflag=1
 		returnmsg(recdata,cmd,PIN,successflag)
 		return True	
+
+	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,address+PIN,"threadID")
+	if not PINthreadID==None:
+		#print "cancel the Thread of PIN=",PIN
+		PINthreadID.cancel()
+		
+	endpulse(address, PIN,logic,POWERPIN)	#this also put powerpin off		
+
+	returnmsg(recdata,cmd,PIN,1)
+	return True	
+
+
+
+
+def gpio_switchon(cmd, message, recdata):
+	successflag=0
+	msgarray=message.split(":")
+	messagelen=len(msgarray)	
+	PIN=msgarray[1]
+
+	onoffcmd=msgarray[2]
+
+	logic="pos"
+	if messagelen>3:
+		logic=msgarray[3]
 	
+	POWERPIN=""	
+	if messagelen>4:	
+		POWERPIN=msgarray[4]	
 	
+		
+	address=""	# this is the default address of the MCP 23017
+	if messagelen>5:	
+		address=msgarray[5]
+	if address=="":
+		address="0x20"
+			
+
+	activationmode=""
+	if messagelen>7:	
+		activationmode=msgarray[7]
+		
+	if isPinActive(address,PIN,logic):
+		if activationmode=="NOADD": # no action needed
+			print("No Action, pulse activated when PIN already active and activationmode is NOADD")
+			logger.warning("No Action, pulse activated when PIN already active and activationmode is NOADD")
+			successflag=1
+			returnmsg(recdata,cmd,PIN,successflag)
+			return True
+
+	# in case another timer is active on this PIN, cancel it 
+	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,address+PIN,"threadID")
+	if not PINthreadID==None:
+		#print "cancel the Thread of PIN=",PIN
+		PINthreadID.cancel()
+	
+	else:
+		GPIO_setup(address, PIN, "out")
+		if logic=="pos":
+			level=1
+		else:
+			level=0
+		pulseok=GPIO_output(address, PIN, level)
+		if not pulseok:
+			msg="Not able to activate the pulse in GPIO Expansion, Address I2C: " + address + " PIN: "+ PIN
+			returnmsg(recdata,cmd,msg,0)
+			return True	
+
+	#print "pulse started", time.ctime() , " PIN=", PIN , " Logic=", logic 
+	successflag=1
+	returnmsg(recdata,cmd,PIN,successflag)
+	return True	
+
+
+
+
+def gpio_switchoff(cmd, message, recdata):
+	msgarray=message.split(":")
+	messagelen=len(msgarray)
+	PIN=msgarray[1]
+	
+	logic="pos"
+	if messagelen>3:
+		logic=msgarray[3]
+	
+	POWERPIN=""
+	if messagelen>4:	
+		POWERPIN=msgarray[4]
+	
+			
+	address=""	# this is the default address of the MCP 23017
+	if messagelen>5:	
+		address=msgarray[5]
+	if address=="":
+		address="0x20"
+	
+	if not isPinActive(address,PIN,logic):
+		print("No Action, Already OFF")
+		logger.warning("No Action, Already OFF")
+		successflag=1
+		returnmsg(recdata,cmd,PIN,successflag)
+		return True	
+
 	PINthreadID=statusdataDBmod.read_status_data(GPIO_data,address+PIN,"threadID")
 	if not PINthreadID==None:
 		#print "cancel the Thread of PIN=",PIN
