@@ -84,7 +84,6 @@ Trasnslate_units={"C":"°C", "%":"%"  , "Lum":"lm" , "hPa":"hPa"  , "Sec":"s", "
 
 # <discovery_prefix>/<component>/[<node_id>/]<object_id>/config
 Prefix="homeassistant"
-NodeID="Hydrosys4"
 
 
 
@@ -168,10 +167,12 @@ class HASS_entity_config:
             if len(subtopic_list)>1:
                 selcomponent=subtopic_list[1]
 
-            # homeassistant/switch/Hydrosys4/water1/set
+            # homeassistant/switch/Hydrosys4-water1/set
             
-            if len(subtopic_list)>3:
-                elem_name=subtopic_list[3]
+            NodeID=self.datadict.get("Identifier","Hydrosys4")
+            if len(subtopic_list)>2:
+                elem_name=subtopic_list[2].replace(NodeID+"-","")
+
 
                 if selcomponent=="cover":
                     valueint=self.tonumber(value,-1)
@@ -367,14 +368,9 @@ class HASS_entity_config:
         if self.MQTT_client.ClientObj.connected:
 
             if (self.datadict.get("Discovery","No")=="Yes")or(override_flag):
-                entity_list=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE, "input", hardwaremod.HW_INFO_NAME)
+                entity_list=hardwaremod.getItemlist(hardwaremod.HW_INFO_NAME)
                 for entity in entity_list:
                     print ("Send MQTT configuration ", entity)
-                    HASSIOintegr.create_config_entity(entity)
-
-                entity_list=hardwaremod.searchdatalist(hardwaremod.HW_INFO_IOTYPE, "output", hardwaremod.HW_INFO_NAME)
-                for entity in entity_list:
-                    print ("Send MQTT configuration  ", entity)
                     HASSIOintegr.create_config_entity(entity)
                 
                 #data=statusdataDBmod.read_status_levels(HASS_entity_config.config_reg,"device", True, "HASSIO_device_config")
@@ -403,7 +399,9 @@ class HASS_entity_config:
                 if component=="cover":
                     config_payload=self.cover_conf_payload(elem_name,topics)
 
-
+                # Add the device to the payload, the device will group the several entities as sensors and actuators
+                NodeID=self.datadict.get("Identifier","Hydrosys4")
+                config_payload["device"]= {"model": "Hydrosys4","identifiers": NodeID,"via_device": "H4", "name": NodeID, "manufacturer": "AngeloVa"}
                 # here the MQTT part
                 #print("Topic ", topics["config"], " send payload: " , config_payload)
                 self.MQTT_client.publish(topics["config"],json.dumps(config_payload))
@@ -438,8 +436,9 @@ class HASS_entity_config:
 
             selcomponent="cover"
             objectID=elem_name
+            NodeID=self.datadict.get("Identifier","Hydrosys4")
 
-            base_topic=Prefix+"/"+selcomponent+"/"+NodeID+"/"+objectID
+            base_topic=Prefix+"/"+selcomponent+"/"+NodeID+"-"+objectID
             config_topic=base_topic+"/config"
             state_topic=base_topic+"/state"
             cmd_topic=base_topic+"/set"
@@ -608,8 +607,9 @@ class HASS_entity_config:
             return {}
 
         objectID=elem_name
+        NodeID=self.datadict.get("Identifier","Hydrosys4")
 
-        base_topic=Prefix+"/"+selcomponent+"/"+NodeID+"/"+objectID
+        base_topic=Prefix+"/"+selcomponent+"/"+NodeID+"-"+objectID
 
         # manage multiple topics beside the default
         topics={}

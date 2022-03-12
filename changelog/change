@@ -1005,3 +1005,7 @@ This means that after the MQTT discovery configuration has been push to home ass
 
 - Fixed a bug in the Autofertilizedmod, now call the ActuatorControllerMod
 - Fixed a bug in the Autowatering, now call the ActuatorControllerMod
+
+2022-03-12 -> release 340d
+
+- Fixed bug regarding the Home assistant identifier
