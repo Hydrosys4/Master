@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.40e"
+Release="3.40f"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
