@@ -46,7 +46,6 @@ class _DataBase:
 		conn = self.get_db_connection()
 		dictitem = conn.execute('SELECT * FROM "' + self.databasetable + '" WHERE id = ?',(post_id,)).fetchone()
 		conn.close()
-		print(post)
 		return dictitem
 		
 	def get_allrows(self):
@@ -78,40 +77,53 @@ class _DataBase:
 			conn.commit()
 			conn.close()
 
+	def delete_last_Nrows(self,number):			
+		conn = self.get_db_connection()
+		if conn:
+			# example --> delete from tb_news where newsid IN (SELECT newsid from tb_news order by newsid desc limit 10)
+
+			conn.execute('DELETE FROM "' + self.databasetable + '" WHERE id IN (SELECT id FROM "' + self.databasetable + '" ORDER BY id ASC LIMIT "' + str(number) + '")')
+			conn.commit()
+			conn.close()
+
 
 
 class _MessageBox:
 	def __init__(self,databasetable):
+		self.maxitems=50
 		self.database=_DataBase(databasetable)
 		#dictitem={'title':"eccolo", 'content': " bla bla bla bla", 'created':" "}
 		#self.database.add_row(dictitem)
-		self.RemoveExceeding(13)
+		self.RemoveExceeding()
 
-	def RemoveExceeding(self, maxitems):
+	def RemoveExceeding(self):
 		msglist = self.database.get_allrows()
-		index=0
-		for items in reversed(msglist):
-			index=index+1
-			print(items['id'])
-			if index > maxitems:
-				self.DeleteMessage(items['id'])
+		totalnum=len(msglist)
+		toremove= totalnum - self.maxitems
+		if toremove>0:
+			DeleteLastNMessage(toremove)
 
-		
 	def GetMessages(self):
 		return self.database.get_allrows()
 
 	def SaveMessage(self,dictitem):
-		return self.database.add_row(dictitem)		
+		self.database.add_row(dictitem)
+		self.RemoveExceeding()
+		return	
 
 	def DeleteMessage(self,index):
 		return self.database.delete_row(index)	
 
+	def DeleteLastNMessage(self,number):
+		return self.database.delete_last_Nrows(number)	
 
 
 
 # single instantiation
 
 _MessageBoxIst=_MessageBox("posts")
+
+# Interface functions
 
 def GetMessages():
 	return _MessageBoxIst.GetMessages()
@@ -124,3 +136,32 @@ def SaveMessage(dictitem):
 def DeleteMessage(index):
 	return _MessageBoxIst.DeleteMessage(index)
 
+def DeleteLastNMessage(number):
+	return _MessageBoxIst.DeleteLastNMessage(number)
+
+def PrintMessages():
+	messages = _MessageBoxIst.GetMessages()
+	print("number of items ", len(messages))
+	for row in messages:
+		rowstr=""
+		for item in row:
+			rowstr=rowstr+" " +str(item)
+		print (rowstr)
+
+# maintenance Function
+
+
+
+
+if __name__ == '__main__':
+	
+	print(" Add two rows and delete them")
+	PrintMessages()
+	dictitem=[]
+	dictitem.append({'title':"eccolo", 'content': " bla bla bla bla", 'created':" "})
+	dictitem.append({'title':"secondo", 'content': " bla bla bla", 'created':" "})
+	for item in dictitem:
+		SaveMessage(item)
+	PrintMessages()
+	#DeleteLastNMessage(1)
+	#PrintMessages()

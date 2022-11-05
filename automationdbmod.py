@@ -31,7 +31,7 @@ WTdata=[]
 if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering setting file
 	#read from default file
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
-	print("Watering writing default calibration data")
+	
 	filestoragemod.savefiledata(WTDATAFILENAME,WTdata)
 	
 # end read IOdata -----
@@ -129,7 +129,7 @@ def restoredefault():
 	filestoragemod.deletefile(WTDATAFILENAME)
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
 	#print "WT data -----------------------------------> ",  WTdata
-	consitencycheck()
+	consistencycheck()
 	
 	
 def saveWTsetting():

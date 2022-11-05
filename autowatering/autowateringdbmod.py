@@ -2,7 +2,6 @@
 """
 Auto watering UI setting storage utilities
 """
-from __future__ import print_function
 
 import logging
 import os
@@ -53,6 +52,15 @@ if not filestoragemod.readfiledata(WTDATAFILENAME,WTdata): #read watering settin
 def readfromfile():
 	global WTdata
 	filestoragemod.readfiledata(WTDATAFILENAME,WTdata)
+
+# Callback are used to propagate the changes in the configuration to the variables inside the class in the autowateringmod
+# make use of the global variable to store the link to the function in the other module.
+callbacklist={}
+def register_callback(name, callback_func):
+    print("append the callback ----------------------------")
+    global callbacklist
+    callbacklist[name]=callback_func
+
 
 def consistencycheck():
 	
@@ -112,9 +120,17 @@ def consistencycheck():
 					
 	saveWTsetting()
 
-	# extra code for the sensor field which should be consistent with sensor names in HW
+	# make call to update the class instances variables using a callback function
+	if "UpdateBots" in callbacklist:
+		callbacklist["UpdateBots"](elementlist,tabletoadd,tabletoremove)
+	else:
+		print( " no callback found: UpdateBots " )
 
 
+	
+	 
+
+	
 
 def replacewordandsave(oldword,newword):
 	global WTdata
@@ -128,7 +144,7 @@ def restoredefault():
 	filestoragemod.deletefile(WTDATAFILENAME)
 	filestoragemod.readfiledata(DEFWTDATAFILENAME,WTdata)
 	#print "WT data -----------------------------------> ",  WTdata
-	consitencycheck()
+	consistencycheck()
 	
 	
 def saveWTsetting():
@@ -196,17 +212,6 @@ def getrowdata(recordvalue,paramlist,index): #for parameters with array of integ
 
 	return datalist
 
-def gettable(index):
-	paramlist=getparamlist()
-	#print "paramlist" , paramlist
-	elementlist=getelementlist()
-	datalist=[]
-	for row in elementlist:
-		rowdatalist=getrowdata(row,paramlist,index)
-		datalist.append(rowdatalist)
-	#print datalist
-	return datalist
-
 
 def replacerow(element,dicttemp):
 	searchfield="element"
@@ -236,8 +241,16 @@ def searchdata(recordkey,recordvalue,keytosearch):
 		if recordkey in ln:
 			if ln[recordkey]==recordvalue:
 				if keytosearch in ln:
-					return ln[keytosearch]	
+					return ln[keytosearch]
+
 	return ""
+
+def recordmatch(recordkey, recordvalue):
+	for ln in WTdata:
+		value = ln.get(recordkey, None)
+		if value == recordvalue:
+			return True
+	return False
 
 def isdatapresent(recordkey,recordvalue,keytosearch,recordtofind):
 	for ln in WTdata:

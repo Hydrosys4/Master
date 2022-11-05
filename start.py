@@ -3,7 +3,7 @@ from __future__ import print_function
 from builtins import str
 from builtins import range
 
-Release="3.40f"
+Release="3.43d"
 
 #---------------------
 from loggerconfig import LOG_SETTINGS
@@ -49,8 +49,8 @@ import sensordbmod
 import actuatordbmod
 import selectedplanmod
 import wateringdbmod
-import autowateringdbmod
-import autowateringmod
+from autowatering import autowateringdbmod
+from autowatering import autowateringmod
 
 import automationdbmod
 import automationmod
@@ -2203,7 +2203,7 @@ def autowatering():
 	sensorlist= autowateringdbmod.getsensorlist()	
 	#print "sensorlist ",sensorlist
 	
-	modelist=["None", "Full Auto" , "under MIN over MAX" , "Emergency Activation" , "Alert Only"]
+	modelist=["None", "Full Auto" , "under MIN over MAX"]
 	formlist=["workmode", "sensor" , "threshold", "wtstepsec", "maxstepnumber", "pausebetweenwtstepsmin", "allowedperiod" , "maxdaysbetweencycles", "sensorminacceptedvalue", "mailalerttype","samplesminutes" ]
 	alertlist=["infoandwarning", "warningonly","none"]
 
@@ -2236,6 +2236,7 @@ def autowatering():
 			#print "dicttemp ----->",dicttemp 
 			autowateringdbmod.replacerow(element,dicttemp)		
 			flash('Table has been saved')
+			autowateringmod.configupdate(element)
 
 			print("Reset the Cycle:" , element)
 			autowateringmod.cyclereset(element)
@@ -2265,16 +2266,14 @@ def autowatering():
 	
 	cyclestatuslist=[]
 	for element in elementlist:
-		if not (element in autowateringmod.AUTO_data):
-			autowateringmod.cyclereset(element)
 		cyclestatus=[]
-		LOCtime=clockmod.convertUTCtoLOC_datetime(autowateringmod.AUTO_data[element]["cyclestartdate"])
+		LOCtime=clockmod.convertUTCtoLOC_datetime(autowateringmod.getstatus(element,"cyclestartdate"))
 		cyclestatus.append(LOCtime.strftime("%Y-%m-%d %H:%M:%S"))
-		LOCtime=clockmod.convertUTCtoLOC_datetime(autowateringmod.AUTO_data[element]["lastwateringtime"])
+		LOCtime=clockmod.convertUTCtoLOC_datetime(autowateringmod.getstatus(element, "lastwateringtime"))
 		cyclestatus.append(LOCtime.strftime("%Y-%m-%d %H:%M:%S"))		
-		cyclestatus.append(autowateringmod.AUTO_data[element]["cyclestatus"])
-		cyclestatus.append(autowateringmod.AUTO_data[element]["watercounter"])
-		cyclestatus.append(autowateringmod.AUTO_data[element]["alertcounter"])		
+		cyclestatus.append(autowateringmod.getstatus(element,"cyclestatus"))
+		cyclestatus.append(autowateringmod.getstatus(element,"watercounter"))
+		cyclestatus.append(autowateringmod.getstatus(element,"alertcounter"))		
 		#{"cyclestartdate":datetime.utcnow(),"lastwateringtime":datetime.utcnow(),"cyclestatus":"done", "checkcounter":0, "alertcounter":0, "watercounter":0}
 		cyclestatuslist.append(cyclestatus)
 

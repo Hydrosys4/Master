@@ -67,10 +67,10 @@ class HASS_Client:
         isok=HASS_Client.ClientObj.connect() 
         HASS_Client.ClientObj.subscribe(topic, qos=2)
 
-    def publish(self, topic, payload):
+    def publish(self, topic, payload , retained=False):
       if self.is_send_state():
         isok=HASS_Client.ClientObj.connect() 
-        HASS_Client.ClientObj.publish(topic, payload) 
+        HASS_Client.ClientObj.publish(topic, payload , retained=retained) 
 
     def check_loop_and_connect(self):
       if self.is_enabled():

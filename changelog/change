@@ -1013,3 +1013,35 @@ This means that after the MQTT discovery configuration has been push to home ass
 2022-04-06 -> release 340f
 
 - Add preset configuration for the SuperHat v13.x (MCP23018 due to chip shortage)
+
+2022-09-27 -> release 341
+
+- Set retain option to true in the MQTT configuration message to the Home Assistant, attempt to make the configuration not disappear when the home assistant reset. 
+
+2022-09-27 -> release 342
+
+- Remove the autowatering STOP water 
+
+2022-09-27 -> release 343
+
+- rewrite the Autowatering function
+
+2022-09-27 -> release 343a
+
+- continue rewrite the Autowatering function
+- fixed bug with HASS integration
+
+2022-10-02 -> release 343b
+
+- Bug fixing
+
+2022-10-05 -> release 343c
+
+- Fix bug when updating the configuration
+- Add notifications
+- Make code more efficient in case the Workmode is None
+
+
+2022-10-05 -> release 343d
+
+- Modify the Notification function to properly delete messages

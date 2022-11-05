@@ -21,7 +21,7 @@ import actuatordbmod
 import hardwaremod
 import SchedulerMod
 import wateringdbmod
-import autowateringmod
+from autowatering import autowateringmod
 import fertilizerdbmod
 import autofertilizermod
 import advancedmod
@@ -132,13 +132,11 @@ def checksensorcondition(sensornamelist,threshold, MinutesOfAverage, ONOFF=True)
 def startpump(target,activationseconds,ThesholdOFFON,ThesholdONOFF):
 
 	logger.info('WateringPlan Startpump evaluation: %s', target)	
-	#workmode=autowateringmod.checkworkmode(target)
-	#if workmode=="Full Auto":
-	if target in autowateringmod.allowwateringplan:
-		if not autowateringmod.allowwateringplan[target]:
-			logger.info('WateringPlan: %s pump activation blocked by automation', target)
-			pumpit=False
-			return False
+	check=autowateringmod.getstatus(target,"allowwateringplan")
+	if (not check) and (check != None): # None is considered false
+		logger.info('WateringPlan: %s pump activation blocked by automation', target)
+		pumpit=False
+		return False
 	
 	duration=hardwaremod.toint(activationseconds,0)
 	print(target, " ",duration, " " , datetime.now()) 

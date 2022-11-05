@@ -404,7 +404,7 @@ class HASS_entity_config:
                 config_payload["device"]= {"model": "Hydrosys4","identifiers": NodeID,"via_device": "H4", "name": NodeID, "manufacturer": "AngeloVa"}
                 # here the MQTT part
                 #print("Topic ", topics["config"], " send payload: " , config_payload)
-                self.MQTT_client.publish(topics["config"],json.dumps(config_payload))
+                self.MQTT_client.publish(topics["config"],json.dumps(config_payload), True)
 
                 data_to_store={"topics" : topics, "config_payload": config_payload}
                 statusdataDBmod.write_status_data(HASS_entity_config.config_reg,"device", elem_name,data_to_store,permanent=True, storeid="HASSIO_device_config")

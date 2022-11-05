@@ -1,1 +1,1 @@
-{"element": "", "threshold": ["2.0", "4.0"],"workmode": "None","sensor": "","wtstepsec": "100","maxstepnumber": "3","allowedperiod": ["21:00","05:00"],"maxdaysbetweencycles": "10", "pausebetweenwtstepsmin":"45", "mailalerttype":"warningonly" , "sensorminacceptedvalue":"0.5"}
+{"element": "", "threshold": ["50", "70"],"workmode": "None","sensor": "","wtstepsec": "100","maxstepnumber": "3","samplesminutes": "5","allowedperiod": ["00:00","00:00"],"maxdaysbetweencycles": "10", "pausebetweenwtstepsmin":"45", "mailalerttype":"warningonly" , "sensorminacceptedvalue":"1:100"}

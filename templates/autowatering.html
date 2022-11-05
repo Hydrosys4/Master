@@ -94,353 +94,356 @@
 			
 			<div class="well bs-component">
 				
-			<div class="form-group">			
-			<div class="row">
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<legend>Parameters Setting</legend>  
-				</div>	
-			</div>	
-			</div>	
-
-			<div class="form-group">
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Working Mode</label>
-				</div>		
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="{{elem}}_1">
-					{% for name in modelist %}	
-						<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-					{% endfor %}											
-					</select>
-				<div class="small"><b>Full Auto:</b>Disable the watering scheduling and use the autowatering algorithm</div>
-				<div class="small"><b>Under MIN over MAX:</b> Watering schedule set in the WateringPlan is still used, plus activate watering if sensor reading is lower that the MIN threshold and stop scheduled watering if the sensor reading is above MAX threshold</div>
-				<div class="small"><b>Emergency Activation:</b> Activate watering only if sensor reading is lower that the threshold, watering schedule in WateringPlan is still used</div>
-				<div class="small"><b>Alert Only:</b> Send email notification in case the sensor reading is lower than threshold</div>
-
-				</div>
-			</div>
-			</div>	
-
-
-			
-			<div class="form-group">
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Reference Sensors</label>
-				</div>		
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="{{elem}}_2">
-					<option selected="selected" value="">None</option>
-					{% for name in sensorlist %}	
-						<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-					{% endfor %}											
-					</select>
-				</div>
-			</div>
-			</div>	
-				
-			<div class="form-group">					
-			<div class="row">
-
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="form-group">			
+								<div class="row">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<legend><strong>Parameters Setting</strong> </legend>  
+									</div>	
+								</div>	
+								</div>	
 
 
 
-					<table class="table" margin: 20px;>
-					<thead>
-						<tr>
-							<th>Sensor Threshold</th>
-							<th>Minimum</th>
-							<th>Maximum</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-					<tr>
 
-						<td>
-							<label></label>
-						</td>
 
-						 <td>	
-						  
-						  	</div>
-								<input value="{{settingparam[3][0]}}" class="form-control input-sm" name="{{elem}}_3" type="text">
-							</div>
-						  
-						  
-						 </td>	
+
+								<div class="form-group">
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+										<label>Working Mode</label>
+									</div>		
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+										<select class="form-control input-sm dontwantgap" name="{{elem}}_1">
+										{% for name in modelist %}	
+											<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+										{% endfor %}											
+										</select>
+									<div class="small"><b>Full Auto:</b>Disable the watering scheduling and use the autowatering algorithm</div>
+									<div class="small"><b>Under MIN over MAX:</b> Watering schedule set in the WateringPlan is still used, plus activate watering if sensor reading is lower that the MIN threshold and stop scheduled watering if the sensor reading is above MAX threshold</div>
+									</div>
+								</div>
+								</div>	
+
+
 								
-						 <td>				
-						  
-						  	</div>
-								<input value="{{settingparam[3][1]}}" class="form-control input-sm" name="{{elem}}_4" type="text">
-							</div>
-						  
-						  
-						  
-						 </td>	
+								<div class="form-group">
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+										<label>Reference Sensors</label>
+									</div>		
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+										<select class="form-control input-sm dontwantgap" name="{{elem}}_2">
+										<option selected="selected" value="">None</option>
+										{% for name in sensorlist %}	
+											<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+										{% endfor %}											
+										</select>
+									</div>
+								</div>
+								</div>	
+									
+								<div class="form-group">					
+								<div class="row">
 
-						 </td>	
-
-
-						</tr>
-				
-
-						</tbody>
-					</table>
-
-				</div>
-			</div>	
-			</div>	
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Min watering period (seconds):
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[4]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
-				<div class="small">Number of seconds for each watering activation step </div>
-
-				</div>
-			</div>				
-			</div>
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Max number of watering periods:
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_6" type="text">
-				<div class="small">max number of watering periods used in one cycle (one cycle starts from the first watering activation after sensor reading below threshold and finish when the sensor reading is back below threshold, or the max period between cycles is expired)</div>
-
-				</div>
-			</div>				
-			</div>
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Pause between watering (minutes):
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[6]}}" class="form-control input-sm" name="{{elem}}_7" type="text">
-				<div class="small">wait a number of minutes between watering steps to let the hygrometer reading stabilize</div>
-
-				</div>
-			</div>				
-			</div>				
-				
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Interval for Sensor Data evaluation:
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				
-					<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_13" type="text">
-				<div class="small">Number of past minutes in which the sensor values are taken and evaluated (average/min/max) for the automation algorithm. If value Zero, at least one sample will be considered</div>
-
-				</div>
-			</div>				
-			</div>					
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
 
 
+										<table class="table" margin: 20px;>
+										<thead>
+											<tr>
+												<th>Sensor Threshold</th>
+												<th>Minimum</th>
+												<th>Maximum</th>
+											</tr>
+										</thead>
+										<tbody>
+										
+											<tr>
 
-			<div class="form-group">					
-			<div class="row">
+												<td>
+													<label>Sensor Value</label>
+												</td>
 
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+												<td>	
+														<input value="{{settingparam[3][0]}}" class="form-control input-sm" name="{{elem}}_3" type="text">
+												</td>	
+														
+												<td>							  
+														<input value="{{settingparam[3][1]}}" class="form-control input-sm" name="{{elem}}_4" type="text">
+												
+												</td>	
+
+											</tr>
+									
+
+											</tbody>
+										</table>
+
+									</div>
+								</div>	
+								</div>	
+
+								<div class="form-group">		
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Watering duration (seconds):
+									</label>
+
+									
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<input value="{{settingparam[4]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
+									<div class="small">Number of seconds for each watering activation step </div>
+
+									</div>
+								</div>				
+								</div>
 
 
 
-					<table class="table" margin: 20px;>
-					<thead>
-						<tr>
-							<th>Watering time</th>
-							<th>Start</th>
-							<th>End</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-					<tr>
+								<div class="form-group">		
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Pause between watering (minutes):
+									</label>
 
-						<td>
-							<label>Interval</label>
-						</td>
+									
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<input value="{{settingparam[6]}}" class="form-control input-sm" name="{{elem}}_7" type="text">
+									<div class="small">wait a number of minutes between next watering to let the hygrometer reading stabilize, this will define the max water/time the system will provide</div>
 
-						 <td>				
-					<select class="form-control seltimeclass input-sm" name="{{elem}}_8" valueinit="{{settingparam[7][0]}}">
-					</select>	
-						 </td>	
+									</div>
+								</div>				
+								</div>				
+
+			</div><!---- END well   -->
+			<div class="well bs-component">
+
+							<div class="form-group">			
+							<div class="row">
+								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<legend><strong>Optional Parameters</strong></legend>  
+								</div>	
+							</div>	
+							</div>	
+
+
+								<div class="form-group">		
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Average Interval for Sensor Data evaluation:
+									</label>
+
+									
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									
+										<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_13" type="text">
+									<div class="small">Number of past minutes in which the sensor values are taken and evaluated (average/min/max) for the automation algorithm. If value Zero, at least one sample will be considered</div>
+
+									</div>
+								</div>				
+								</div>					
+
+
+
+
+								<div class="form-group">					
+								<div class="row">
+
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+
+
+										<table class="table" margin: 20px;>
+										<thead>
+											<tr>
+												<th>Watering time</th>
+												<th>Start</th>
+												<th>End</th>
+											</tr>
+										</thead>
+										<tbody>
+										
+										<tr>
+
+											<td>
+												<label>Interval</label>
+											</td>
+
+											<td>				
+										<select class="form-control seltimeclass input-sm" name="{{elem}}_8" valueinit="{{settingparam[7][0]}}">
+										</select>	
+											</td>	
+													
+											<td>				
+										<select class="form-control seltimeclass input-sm" name="{{elem}}_9" valueinit="{{settingparam[7][1]}}">
+										</select>	
+											</td>	
+
+
+											</tr>
+									
+
+											</tbody>
+										</table>
+
+									</div>
+								</div>	
+								</div>	
+									
+									
+								<div class="form-group">		
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Max period between cycles (day):
+									</label>
+
+									
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<input value="{{settingparam[8]}}" class="form-control input-sm" name="{{elem}}_10" type="text">
+									<div class="small">if the number of days from last watering activation exceed this value, send warning mail. If in full Auto mode it activates the watering</div>
+
+									</div>
+								</div>				
+								</div>
+
+
+								<div class="form-group">		
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Valid reading Range ( min : max ):
+									</label>
+
+									
+									</div>
+									
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+									<input value="{{settingparam[9]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
+									<div class="small">Ouside the range the sensor reading is not considered valid , format Min : Max e.g: 1:100  </div>
+									</div>				
+									
+
+								</div>				
+								</div>				
+
+
+
+								<div class="form-group">		
+									<div class="row">
+										<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+										<label>Alarm set for Number of watering below threshold:
+										</label>
+						
+										
+										</div>
+										<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+										<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_6" type="text">
+										<div class="small">Used to provide alerts and notification. If after a number of watering times defined in this parameter is still under threshold it will issue a warning</div>
+						
+										</div>
+									</div>				
+									</div>
+
+								<div class="form-group">		
+								<div class="row">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+									<label>Alert preferences:
+									</label>
+
+									
+									</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">	 			
+									<select class="form-control input-sm" name="{{elem}}_12">
+										{% for item in alertlist %}
+										<option {% if item==settingparam[10] %}selected="selected"{% endif %} >{{item}}</option>
+										{% endfor %}
+									</select>
+									<div class="small">send by email the info plus warning or the warning only </div>
+
+									</div>
+								</div>				
+								</div>	
+							
+				</div><!---- END well   -->
+				<div class="well bs-component">
+					<!---- Status section -->
+
+								<div class="form-group">			
+								<div class="row">
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<legend><strong>System Status</strong></legend>  
+									</div>	
+								</div>	
+								</div>	
+
+								<div class="form-group">					
+								<div class="row">
+
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+
+
+										<table class="table" margin: 20px;>
+										<thead>
+											<tr>
+												<th>Cycle Start</th>
+												<th>Last Watering</th>
+												<th>Status</th>
+												<th>Watering Counter</th>
+												<th>Warning</th>
+											</tr>
+										</thead>
+										<tbody>
+										
+										<tr>
+
+											<td>
+												<div>{{ cyclestatuslist[loop.index0][0] }}</div>
+											</td>
+
+											<td>				
+												<div>{{ cyclestatuslist[loop.index0][1] }}</div>
+											</td>	
+													
+											<td>				
+												<div>{{ cyclestatuslist[loop.index0][2] }}</div>
+											</td>	
+
+											<td>				
+												<div>{{ cyclestatuslist[loop.index0][3] }}</div>
+											</td>	
+
+											<td>				
+												<div>{{ cyclestatuslist[loop.index0][4] }}</div>
+											</td>	
+
+											</tr>
+									
+
+											</tbody>
+										</table>
+
+									</div>
+								</div>	
+
+								<!---- Reset Button -->
 								
-						 <td>				
-					<select class="form-control seltimeclass input-sm" name="{{elem}}_9" valueinit="{{settingparam[7][1]}}">
-					</select>	
-						 </td>	
-
-
-						</tr>
-				
-
-						</tbody>
-					</table>
-
-				</div>
-			</div>	
-			</div>	
-				
-				
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Max period between cycles (day):
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[8]}}" class="form-control input-sm" name="{{elem}}_10" type="text">
-				<div class="small">if the number of days from last watering activation exceed this value, send warning mail. If in full Auto mode it activates the watering for one step period</div>
-
-				</div>
-			</div>				
-			</div>
-
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Valid reading Range ( min : max ):
-				</label>
-
-				
-				</div>
-				
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[9]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
-				<div class="small">Ouside the range the sensor reading is not considered valid , format Min : Max e.g: 0:100  </div>
-				</div>				
-				
-
-			</div>				
-			</div>				
-
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Alert preferences:
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">	 			
-				  <select class="form-control input-sm" name="{{elem}}_12">
-					{% for item in alertlist %}
-					<option {% if item==settingparam[10] %}selected="selected"{% endif %} >{{item}}</option>
-					{% endfor %}
-				  </select>
-				<div class="small">send by email the info plus warning or the warning only </div>
-
-				</div>
-			</div>				
-			</div>	
-		
-			
-			
-<!---- Status section -->
-
-			<div class="form-group">			
-			<div class="row">
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<legend>System Current Status</legend>  
-				</div>	
-			</div>	
-			</div>	
-
-			<div class="form-group">					
-			<div class="row">
-
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-
-
-					<table class="table" margin: 20px;>
-					<thead>
-						<tr>
-							<th>Cycle Start</th>
-							<th>Last Watering</th>
-							<th>Status</th>
-							<th>Watering Counter</th>
-							<th>Warning</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-					<tr>
-
-						<td>
-							<div>{{ cyclestatuslist[loop.index0][0] }}</div>
-						</td>
-
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][1] }}</div>
-						 </td>	
+								<div class="row">
 								
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][2] }}</div>
-						 </td>	
-
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][3] }}</div>
-						 </td>	
-
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][4] }}</div>
-						 </td>	
-
-						</tr>
-				
-
-						</tbody>
-					</table>
-
-				</div>
-			</div>	
-
-			<!---- Reset Button -->
-			
-			<div class="row">
-			
-				<div class=" col-xs-3">				
-					<button id="resetbtn" name="reset" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-default btn-md btn-block btn-warp dontwantgap">Reset Cycle
-					</button>
-				</div>			
-			</div>	
-			
-			</div>			
+									<div class=" col-xs-3">				
+										<button id="resetbtn" name="reset" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-default btn-md btn-block btn-warp dontwantgap">Reset Cycle
+										</button>
+									</div>			
+								</div>	
+								
+								</div>			
 			
 			
-			</div>
+			</div><!---- END well   -->
 
 			</div>
 
