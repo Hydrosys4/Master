@@ -156,7 +156,9 @@ if __name__ == '__main__':
 	#changesavesetting("password",password)
 	#print getaddress()
 	#print getpassword()
-	
+	#print getserver()
+	#print getport()
+
 	message="hello"
 	storemessage(message)
 	getstoredmessage()

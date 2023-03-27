@@ -43,7 +43,7 @@ def send_email(user, pwd, recipient, subject, body):
     message = """\From: %s\nTo: %s\nSubject: %s\n\n%s
     """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server = smtplib.SMTP(emaildbmod.getserver(), emaildbmod.getport())
         server.ehlo()
         server.starttls()
         server.login(gmail_user, gmail_pwd)

@@ -57,6 +57,19 @@ def getpassword():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 
+def getserver():
+	recordkey="name"
+	recordvalue="email"
+	keytosearch="server"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	return dataitem
+
+def getport():
+	recordkey="name"
+	recordvalue="email"
+	keytosearch="port"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	return dataitem
 
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
@@ -92,10 +105,16 @@ if __name__ == '__main__':
 	# comment
 	address="hello@mail.com"
 	password="haha"
+	server="smtp.gmail.com"
+	port="587"
 	changesavesetting("address",address)
 	changesavesetting("password",password)
+	changesavesetting("server",server)
+	changesavesetting("port",port)
 	print(getaddress())
 	print(getpassword())
+	print(getserver())
+	print(getport())
 
 
 
