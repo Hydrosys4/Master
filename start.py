@@ -1416,9 +1416,13 @@ def systemmailsetting():
 			print("saving email credentials")
 			address=request.form['address']
 			password=request.form['password']
+			server=request.form['server']
+			port=request.form['port']
 			isok1=emaildbmod.changesavesetting('address',address)
 			isok2=emaildbmod.changesavesetting('password',password)
-			if isok1 and isok2:
+			isok3=emaildbmod.changesavesetting('server',server)
+			isok4=emaildbmod.changesavesetting('port',port)
+			if isok1 and isok2 and isok3 and isok4 :
 				flash('Email credentials Saved')   
 				return redirect(url_for('show_Calibration'))
 		elif reqtype=="cancel":
@@ -1426,7 +1430,9 @@ def systemmailsetting():
 	
 	password=emaildbmod.getpassword()
 	address=emaildbmod.getaddress()
-	return render_template('systemmailsetting.html', address=address, password=password)	
+	server=emaildbmod.getserver()
+	port=emaildbmod.getport()
+	return render_template('systemmailsetting.html', address=address, password=password, server=server, port=port)
 
 
 @application.route('/HC12setting/', methods=['GET', 'POST'])

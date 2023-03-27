@@ -23,7 +23,19 @@
 				
               <form class="form-horizontal" action="{{ url_for('systemmailsetting') }}" method="post">
                 <fieldset>
-                  <legend>System Mail Credentials</legend>
+                  <legend>System Mail Credentials (SMTP)</legend>
+                  <div class="form-group">
+                    <label for="inputServer" class="col-lg-3 control-label">Server address</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="inputServer" placeholder={% if server=="" %}"mail server"{% else %}"{{server}}"{% endif %} name="server" value="{{server}}">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="inputPort" class="col-lg-3 control-label">Server port</label>
+                    <div class="col-lg-9">
+                      <input type="text" class="form-control" id="inputPort" placeholder={% if port=="" %}"mail port"{% else %}"{{port}}"{% endif %} name="port" value="{{port}}">
+                    </div>
+                  </div>
                   <div class="form-group">
                     <label for="inputEmail" class="col-lg-3 control-label">Mail address</label>
                     <div class="col-lg-9">
