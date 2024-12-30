@@ -13,6 +13,7 @@ import automationdbmod
 import sensordbmod
 import actuatordbmod
 import autofertilizermod
+import messageboxmod
 import statusdataDBmod
 import math
 import threading
@@ -189,7 +190,12 @@ def automationexecute(refsensor,element):
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<2:
 						if (mailtype!="none"):
-							emailmod.sendallmail("alert", textmessage)							
+							emailmod.sendallmail("alert", textmessage)
+
+						# Create notification message
+						dictitem={'title': "Automation Message (Critical)", 'content': textmessage, 'color': "red" }
+						messageboxmod.SaveMessage(dictitem)
+
 						logger.error(textmessage)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 
@@ -202,7 +208,12 @@ def automationexecute(refsensor,element):
 					alertcounter=statusdataDBmod.read_status_data(AUTO_data,element,"alertcounter")
 					if alertcounter<2:
 						if (mailtype!="none"):
-							emailmod.sendallmail("alert", textmessage)							
+							emailmod.sendallmail("alert", textmessage)
+
+						# Create notification message
+						dictitem={'title': "Automation Message (Critical)", 'content': textmessage, 'color': "red" }
+						messageboxmod.SaveMessage(dictitem)
+
 						logger.error(textmessage)
 						statusdataDBmod.write_status_data(AUTO_data,element,"alertcounter",alertcounter+1)
 
@@ -211,31 +222,37 @@ def automationexecute(refsensor,element):
 
 def CheckActivateNotify(element,waitingtime,value,mailtype,sensor,sensorvalue):
 	global AUTO_data
-	# check if time between watering events is larger that the waiting time (minutes)
+	# check if time between watering events is larger than the waiting time (minutes)
 	lastactiontime=statusdataDBmod.read_status_data(AUTO_data,element,"lastactiontime")
 	print(' Previous action: ' , lastactiontime , ' Now: ', datetime.utcnow())
 	timedifference=sensordbmod.timediffinminutes(lastactiontime,datetime.utcnow())
 	print('Time interval between actions', timedifference ,'. threshold', waitingtime)
-	logger.info('Time interval between Actions %d threshold %d', timedifference,waitingtime)		
+	logger.info('Time interval between Actions %d threshold %d', timedifference,waitingtime)
+
 	if timedifference>=waitingtime: # sufficient time between actions
 		print(" Sufficient waiting time")
-		logger.info('Sufficient waiting time')	
-		# action					
+		logger.info('Sufficient waiting time')
+		# action
 		print("Implement Actuator Value ", value)
-		logger.info('Procedure to start actuator %s, for value = %s', element, value)		
+		logger.info('Procedure to start actuator %s, for value = %s', element, value)
 		msg , isok=activateactuator(element, value)
-			
+
+		textmessage="INFO: " + sensor + " value " + str(sensorvalue) + ", activating:" + element + " with Value " + str(value)
+
 		# invia mail, considered as info, not as alert
-		if (mailtype!="warningonly")and(mailtype!="none"):
-			textmessage="INFO: " + sensor + " value " + str(sensorvalue) + ", activating:" + element + " with Value " + str(value)
+		if ( mailtype!="warningonly" ) and ( mailtype!="none" ):
 			emailmod.sendallmail("alert", textmessage)
+
+		# Create notification message
+		dictitem={'title': "Automation Message (Info)", 'content': textmessage, 'color': "primary" }
+		messageboxmod.SaveMessage(dictitem)
+
 		if isok:
 			statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
 			statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
 
 	else:
-		logger.info('Need to wait more time')		
-		
+		logger.info('Need to wait more time')
 
 
 def activateactuator(target, value):  # return true in case the state change: activation is >0 or a different position from prevoius position.

@@ -4,58 +4,31 @@
   {% if session.logged_in %}
 
 
-
-
-
   <div class="container-fluid">
   {% if videolist|length > 0 %}
 
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
-						<h4 id="header">Video Streaming (experimental)</h4>
-					</div>
-				</div>
-            </div>
-          </div>
-        </div>
-         
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>Video</h3>
+	</div>
 
-
-<!--<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" />-->
-
-
-<!--<iframe frameborder="0" scrolling="yes" width="100%" height="100%"
-   id="videoimg" src="/static/waiting.jpg">
-</iframe>-->
-
+	<div class="card card-body bg-light">
+ 
 <!-- Image and Video -->
-	<div style="width: 100%; overflow: auto;">
-	<img class="img-responsive" id="videoimg" src="/static/waiting.jpg" isok="false" />    
+
+	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-center">
+		<img class="img-fluid" id="videoimg" src="/static/cameratest/testimage1.jpg" isok="false" />    
 	</div>
 
-
-
-	<div class="hidden">
-	<img class="img-responsive" src="/static/loading-animation.gif"/>    
+	<div class="d-none">
+		<img class="img-fluid" src="/static/loading-animation.gif"/>    
 	</div>
-
-
 
 <!-- Setup button -->
-
-		<!--  boo -->
-  
- 
-
 			
-<div class="well bs-component">
 		{% if servolist|length > 0 %}
 			
 		<!--  Servo table   -->
-			<table class="table" margin: 20px;>
+			<table class="table table-light">
 				<thead>
 					<tr>
 						<th class="col-xs-5"></th>
@@ -72,7 +45,7 @@
 			<tr>
 
 				<td>
-				  <select class="form-control input-sm dontwantgap" id="selsettingservo">
+				  <select class="form-select input-sm dontwantgap" id="selsettingservo">
 					{% for servoitem in servolist %}
 					<option>{{servoitem}}</option>
 					{% endfor %}
@@ -162,13 +135,14 @@
 		<!--  end servo part   -->
 			
 		<!--  video camera table   -->
-			<table class="table" margin: 20px;>
+		<div class="table-responsive">
+			<table class="table table-light">
 			<thead>
 				<tr>
-					<th>Device</th>
-					<th>WidthxHeight</th>
-					<th>FPS</th>
-					<th>CTRL</th>
+					<th scope="col">Device</th>
+					<th scope="col">WidthxHeight</th>
+					<th scope="col">FPS</th>
+					<th scope="col">CTRL</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -179,27 +153,26 @@
 			{% for item in videolist %}	
 			<tr>
 
-				<td>
-					<label>{{ item }}</label>
-				</td>
+				<th class="video-label" scope="row">{{ item }}</th>
 
 
 				  <td>
 		  					  				
-				  <select class="form-control input-sm dontwantgap" id="selsettingres_{{ item }}">
+				  <select class="form-select" id="selsettingres_{{ item }}">
 					<option>320x240</option>
 					<option>640x480</option>
-					<option>1024x768</option>
+					<option>800x600</option>
+					<option selected="selected">1024x768</option>
 					<option>1280x720</option>
+					<option>1440x900</option>
 					<option>1920x1080</option>
-					<option>1920x1440</option>
-					<option>2592×1944</option>
+					<option>3840x2160</option>
 				  </select>
 				  </td>	
 				  		
 							
 				<td>		
-				  <select class="form-control input-sm dontwantgap" id="selsettingfps_{{ item }}">
+				  <select class="form-select" id="selsettingfps_{{ item }}">
 					<option>1</option>
 					<option selected="selected">5</option>
 					<option>10</option>
@@ -211,9 +184,9 @@
 				  </select>
 				 </td>	 	
 							
-				<td>
+				<td class="video-button">
 					<!-- start/stop button-->										
-					<button id="button-{{item}}" class="thebutton btn-sm btn btn-primary" type="button" name="start" element="{{item}}">Start</button>
+					<button id="button-{{item}}" class="thebutton btn-sm btn btn-success" type="button" name="start" element="{{item}}"><i class="fa-solid fa-play"></i> Start</button>
 				</td>
 
 
@@ -224,10 +197,12 @@
 
 
 
-        </tbody>
-			</table>
-	
-	<table class="table" margin: 20px;>
+		        </tbody>
+		</table>
+	</div>
+
+	<div class="table-responsive">	
+	<table class="table table-light">
 		<tbody>
 		<tr>
 			<td>
@@ -246,9 +221,9 @@
 								var togglevalue=$(this).prop('checked');
 					
 								if (togglevalue==true) {
-									$("#videoimg").addClass("img-responsive");										
+									$("#videoimg").addClass("img-fluid");										
 								} else {
-									$("#videoimg").removeClass("img-responsive");	
+									$("#videoimg").removeClass("img-fluid");	
 								}
 							})
 						  })
@@ -259,7 +234,7 @@
 		</tr>
 		</tbody>
 	</table>
-
+	</div>
 
 
 
@@ -293,10 +268,13 @@
 								success: function(data) {
 									if (data.answer == "login") {document.location.href="/";}
 									$('#actuatorstatus').text(data.answer);
-									$('button[name=stop]').text('Start');
-									$('button[name=stop]').removeClass('btn-danger');
-									$('button[name=stop]').addClass('btn-primary');
-									$('button[name=stop]').attr("name", "start"); // this should b the last of the commands series																	
+
+									// setup start button
+									$('#'+butid).removeClass('btn-danger');
+									$('#'+butid).addClass('btn-primary');
+									$('#'+butid).attr("name", "start");
+									$('#'+butid).html('<i class="fa-solid fa-play"></i> Start');
+
 									if (prid != "stop") {
 										var d = new Date();
 										var rotate = 'rotate(' + {{rotdeg}} + 'deg)';
@@ -316,16 +294,14 @@
 																											
 											var isok=$("#videoimg").attr("isok");																																					
 											 if ((attempts<1) || (isok=="true")) {
-												  console.log(isok);	
 												  clearInterval(checkExist);
-												  // move on and do what has to be done												  
-													$('#'+butid).text('Stop');										
+												  // switch to stop button			
 													$('#'+butid).attr("name", "stop");
 													$('#'+butid).removeClass('btn-primary');
-													$('#'+butid).addClass('btn-danger');												  
+													$('#'+butid).addClass('btn-danger');
+													$('#'+butid).html('<i class="fa-solid fa-stop"></i> Stop');								  
 												  
-											   };
-											 console.log(attempts);											 
+											   };											 
 											 attempts=attempts-1;
 											$("#videoimg").attr("isok", "true");
 											$("#videoimg").attr("src", linksrc +"?"+d.getTime());
@@ -395,7 +371,7 @@
         
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
   
   {% endif %}
 

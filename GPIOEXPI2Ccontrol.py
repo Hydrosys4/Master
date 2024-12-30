@@ -230,14 +230,13 @@ def CheckRealHWpin(PIN=""):
 				return False, 0	
 	return False, 0		
 
-
 def GPIO_output(address , PINstr, level ):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)
 	if isRealPIN:
 		if address in MCPDEVICES:
 			mcp=MCPDEVICES[address]
 		else:
-			msg= "Address =" +address+ " not available for this Hardware"
+			msg= "Address =" + address + " not available for this Hardware"
 			logger.error(msg)
 			print(msg)
 			return False
@@ -246,18 +245,16 @@ def GPIO_output(address , PINstr, level ):
 			mcp.output(PIN, mcp.LOW)
 		else:
 			mcp.output(PIN, mcp.HIGH)
-		statusdataDBmod.write_status_data(GPIO_data,address+PINstr,"level",level)
+		statusdataDBmod.write_status_data(GPIO_data, address + PINstr, "level", level)
 		logger.info("Set PIN=%s to State=%s", PINstr, str(level))
 		return True
 	else:
-		msg= "PIN=" +PINstr+ " not Valid for this Hardware"
-		logger.error(msg)
-		print(msg)
+		if PINstr != "N/A":
+			msg= "PIN=" + PINstr + " not Valid for this Hardware (" + address + ")"
+			logger.error(msg)
+			print(msg)
 
 	return False
-
-
-
 
 def GPIO_setup(address, PINstr, state, pull_up_down=""):
 	isRealPIN,PIN=CheckRealHWpin(PINstr)

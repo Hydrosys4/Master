@@ -26,12 +26,10 @@ DATAFILENAME="emailcred.txt"
 # if file does not exist create file
 data=[]
 if not filestoragemod.readfiledata(DATAFILENAME,data): #read  setting file
-	filedata=[{'name':'email', 'address':'','password':'' }]
-	filestoragemod.savefiledata(DATAFILENAME,filedata)
+	restoredefault()
 	
 def savedata(filedata):
 	filestoragemod.savefiledata(DATAFILENAME,filedata)
-
 
 def getelementlist():
 	recordkey=hardwaremod.HW_FUNC_USEDFOR
@@ -40,8 +38,6 @@ def getelementlist():
 	datalist=hardwaremod.searchdatalist(recordkey,recordvalue,keytosearch)
 	#print "elementlist= ",datalist
 	return datalist
-
-
 
 def getaddress():
 	recordkey="name"
@@ -57,6 +53,25 @@ def getpassword():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 
+def getserver():
+	recordkey="name"
+	recordvalue="email"
+	keytosearch="server"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	# set default
+	if dataitem == "":
+		dataitem = "smtp.gmail.com"
+	return dataitem
+
+def getport():
+	recordkey="name"
+	recordvalue="email"
+	keytosearch="port"
+	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
+	# set default
+	if dataitem == "":
+		dataitem = "587"
+	return dataitem
 
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
@@ -68,7 +83,7 @@ def changesavesetting(FTparameter,FTvalue):
 	
 def restoredefault():
 	filestoragemod.deletefile(DATAFILENAME)
-	filedata=[{'name':'email', 'address':'','password':'' }]
+	filedata=[{'name':'email', 'address':'','password':'', 'server': 'smtp.gmail.com', 'port': '587'}]
 	filestoragemod.savefiledata(DATAFILENAME,filedata)
 
 def get_path():
@@ -92,10 +107,13 @@ if __name__ == '__main__':
 	# comment
 	address="hello@mail.com"
 	password="haha"
-	changesavesetting("address",address)
-	changesavesetting("password",password)
-	print(getaddress())
-	print(getpassword())
-
-
-
+	server="smtp.gmail.com"
+	port="587"
+	#changesavesetting("address",address)
+	#changesavesetting("password",password)
+	#changesavesetting("server",server)
+	#changesavesetting("port",port)
+	#print(getaddress())
+	#print(getpassword())
+	print(getserver())
+	print(getport())

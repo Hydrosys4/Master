@@ -1,93 +1,102 @@
 {% extends "layout.html" %}
-{% set active_page = "message" %}
+{% set active_page = "messagebox" %}
 {% block body %}
   {% if session.logged_in %}
+  
+<div class="container">
 
-   
-<div class="container-fluid">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+                <h3>Notifications</h3>
+        </div>
 
    	{% if posts|length > 0 %}
 
 	<form novalidate="true" action="{{ url_for('messagebox') }}" id="messagebox" method="post" > 
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 form-group pb-4 text-end">
+			 <button type="button" class="btn-sm btn btn-warning" data-bs-toggle="modal" data-bs-target="#DeleteAllMessagesModal"><i class="fa-solid fa-trash"></i> Delete All Messages</button>
+		</div>
+			
+		<!-- Modal HTML -->
+		<div id="DeleteAllMessagesModal" class="modal fade" aria-labelledby="ModalLabelUpload" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 id="ModalLabelUpload" class="modal-title fs-5">Confirmation</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<p>Proceed to delete all messages?!</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+	                    <button name="DeleteAllMessages" type="submit" class="thebutton btn btn-primary">Proceed</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
+		{% for panelinfo in posts|reverse  %}
 
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 pb-4">
+            {% if panelinfo.color %} 
+            <div class="card card-{{panelinfo.color}}">
+            {% else %} 
+            <div class="card card-green"> 
+			{% endif %}
+				<div class="card-header">
 
-				{% for panelinfo in posts|reverse  %}
+					<div class="row">
+						<!-- Title-->
+						<div class="col-lg-6 col-xs-6 text-left big">{{panelinfo.title}}</div>
+					</div>	
+					
+					<!-- data list here -->
+					<hr></hr>
 
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="panel panel-green">
-                        <div class="panel-heading ">
-								<div class="row dontwantgap">
+					<div class="row">
+						<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-left">
+							{{panelinfo.content}}:
+						</div>
+					</div>
+            	</div>
 
-									<!-- Title-->
+				<div class="card-footer ">
+                    <span class="float-start " >{{panelinfo.created}}</span>
+                    <span class="float-end"><button class="thebutton btn" type="submit" name="{{panelinfo.id}}"><i class="fa fa-close" style="font-size:18px;color:red"></i> Delete</button></span>
+                    <div class="clearfix"></div>
+				</div>
 
-									<div class="col-lg-6 col-xs-6 text-left dontwantgapright dontwantgapleft big">{{panelinfo.title}}
-									</div>
+			</div>
+		</div>
 
-									
-								</div>	
-								
-									<!-- data list here -->
-								<hr class="dontwantgaptop"></hr>
-
-								<div class="row dontwantgap">
-
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 text-left dontwantgap">{{panelinfo.content}}:
-									</div>
-
-								</div>
-								
-
-									
-									
-
-                        </div>
-                        <div class="panel-footer ">
-							
-                                <span class="pull-left " >{{panelinfo.created}}</span>
-                                <span class="pull-right"><button class="thebutton btn dontwantgap" type="submit" name="{{panelinfo.id}}"><i class="fa fa-close" style="font-size:18px;color:red"></i> Delete</button></span>
-
-
-                           
-                                <div class="clearfix"></div>
-                              
-                        </div>
-
-                    </div>
-                </div>
-
-                {% endfor %}
-                <input value="" id="actionbtn" name="actionbtn" type="hidden">
+        {% endfor %}
+        <input value="" id="actionbtn" name="actionbtn" type="hidden">
 
 	</form> 
 
-
-
 	{% else %}
-	   <h3>No Messages</h3>   
+
+	<h3>No Messages</h3>   
 	
 	{% endif %}
 	
 	
 	
-			<script type="text/javascript" charset="utf-8">
-                
-			$(function() {
-					$(".thebutton").click(function() {
-						var selvalue=$(this).attr('name');
-						//alert(selvalue);
-						$('#actionbtn').attr("value", selvalue);
-					});  
-				});  
-			</script>		
+	<script type="text/javascript" charset="utf-8">
+		$(function() {
+			$(".thebutton").click(function() {
+				var selvalue=$(this).attr('name');
+				//alert(selvalue);
+				$('#actionbtn').attr("value", selvalue);
+			});  
+		});  
+	</script>		
 		
  </div>
 
   {% else %}
 
-		<h1>Please log in</h1>
-
-
+		<h1>Please login</h1>
   
   {% endif %}
 		

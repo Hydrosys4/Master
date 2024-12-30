@@ -3,24 +3,9 @@
 {% block body %}
   {% if session.logged_in %}
 
-	
-	<!-- Jqplot -->
-	<link rel=stylesheet type=text/css  href="{{ url_for('static', filename='jqueryjqplot/css/jquery.jqplot.css') }}">
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jquery.jqplot.min.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.dateAxisRenderer.min.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.canvasTextRenderer.min.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.canvasAxisTickRenderer.min.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.cursor.min.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.barRenderer.min.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.categoryAxisRenderer.min.js') }}"></script>
-	<!-- New jqplot plugin -->
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.trendline.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.enhancedLegendRenderer.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.pointLabels.js') }}"></script>
-	<script type=text/javascript src="{{url_for('static', filename='jqueryjqplot/js/jqplot.highlighter.js') }}"></script>
-
-
-  
+	<script type=text/javascript src="{{url_for('static', filename='chartjs/chartjs-4.4.7/chart.umd.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='chartjs/chartjs-adapter-date-fns.bundle.min.js') }}"></script>
+	<script type=text/javascript src="{{url_for('static', filename='chartjs/chartjs-plugin-annotation.min.js') }}"></script>
   <div class="container-fluid">
 		<script type="text/javascript">
 
@@ -30,896 +15,437 @@
 
 			
 		</script>
-		
-		<script type="text/javascript">	
 
-			var sensorchartdata={{sensordata|safe}};
-			var actuatorchartdata={{actuatordata|safe}};
-			var datatype="{{actiontype}}";
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function() {
+				console.log("Start building charts...");
 
-			var sensorlist={{usedsensorlist|safe}};			
-			var actuatorlist={{usedactuatorlist|safe}};	
-			
-			var shapes=["diamond", "circle", "square", "x", "plus", "dash", "filledDiamond", "filledCircle", "filledSquare"];
+				// setup dataset colors
+				const labels = [];
 
-			var fLen, i, seriedict;
-			var sensorseries=[];
-			fLen = sensorlist.length;
-			for (i = 0; i < fLen; i++) {
-				seriedict={"label": sensorlist[i], "showLine":true, "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 4 }};
-				sensorseries.push(seriedict);		
-			} 
-		
-			var fLen, i, seriedict;
-			var actuatorseries=[];
-			fLen = actuatorlist.length;
-			for (i = 0; i < fLen; i++) {
-				seriedict={"label": actuatorlist[i], "showLine":false, "yaxis" : 'y2axis', "markerOptions" : { "style": shapes[i % shapes.length] , "size": 12  }};
-				actuatorseries.push(seriedict);		
-			} 
+				{% for l in usedsensorlist %}
+					labels.push("{{ l|safe }}");				
+				{% endfor %}
 
+				{% for l in usedactuatorlist %}
+					labels.push("{{ l|safe }}");
+				{% endfor %}
 
-//combochartdata
+				const backgroundColors = [
+					'rgba(54, 162, 235, 0.5)',	// blue
+					'rgba(255, 99, 132, 0.5)',	// red
+					'rgba(255, 159, 64, 0.5)',	// orange
+					'rgba(255, 205, 86, 0.5)',	// yellow
+					'rgba(75, 192, 192, 0.5)',	// green
+					'rgba(153, 102, 255, 0.5)',	// purple
+					'rgba(201, 203, 207, 0.5)',	// grey
+					'rgba(102, 226, 255, 0.5)',	// turquoise
+					'rgba(255, 102, 217, 0.5)',	// pink
+					'rgba(157, 255, 102, 0.5)'	// limegreen	
+				];
 
-var combochartseries = actuatorseries.concat(sensorseries); 
-var combochartdata = actuatorchartdata.concat(sensorchartdata); 
+				const borderColors = [
+				    'rgba(54, 162, 235)',
+				    'rgba(255, 99, 132)',
+				    'rgba(255, 159, 64)',
+				    'rgba(255, 205, 86)',
+				    'rgba(75, 192, 192)',
+				    'rgba(153, 102, 255)',
+				    'rgba(201, 203, 207)',
+				    'rgba(102, 226, 255)',
+				    'rgba(255, 102, 217)',
+				    'rgba(157, 255, 102)'
+				];
 
-
-		$(document).ready(function(){
-		// label text with same color of the series		
-			$.jqplot.postDrawHooks.push(function() {
-				var swatches = $('table.jqplot-table-legend tr td.jqplot-table-legend-swatch');
-				var labels = $('table.jqplot-table-legend tr td.jqplot-table-legend-label');
-				labels.each(function(index) {
-					//turn the label's text color to the swatch's color
-					var color = $(swatches[index]).find("div div").css('background-color');
-					$(this).css('color',color );
-					$(this).css('font-weight',"bold" );
-				});
-			});
-
-
-		// COMMON VARIABLES
-		
-		
-		
-
-		var	gridvar=                 
-                {
-                    drawGridLines: true,        // wether to draw lines across the grid or not.
-                    gridLineColor: '#e2e2e2',   // Color of the grid lines.
-                    backgroundColor: "#eee",
-                    borderColor: 'white',     // CSS color spec for border around grid.
-                    borderWidth: 2.0,           // pixel width of border around grid.
-                    shadow: false,               // draw a shadow for grid.
-                    drawBorder: true,
-					gridLineWidth: 1	//width of the grid lines.
-					//background	//css spec for the background color.
-					//borderWidth	width of the border in pixels.            
-                  
-                    
-                };
-
-		var	seriesDefaultsvar=
-					{
-						shadow: false,
-						markerRenderer: $.jqplot.MarkerRenderer,
-						markerOptions: {
-							show: true,
-							style: 'circle',
-							size: 4,
-							shadow: false,
-						}
+				function getColorForDataset(label) {
+					const labelIndex = labels.indexOf(label);
+					return {
+						backgroundColor: backgroundColors[labelIndex] || backgroundColors[colors.length - 1],
+						borderColor: borderColors[labelIndex] || borderColors[borderColors.length - 1]
 					};
+				}
 
+				// setup sensor and actuator chart data
+				const combdata = [];
+				const actuatordata = [];
 
-		var	highlightervar= {
-				show: true,
-				sizeAdjust: 7.5,
-				tooltipLocation:"n",
-				formatString:'<table style="font-size:14px" class="jqplot-highlighter"><tr><td>%s</td></tr><tr><td>Value:%s</td></tr><tr></tr></table>'
-			  };
+				{% for d in chartjssensordata %}
 
-
-		// END VARIABLES
-
-
-
-	// COMBO new graph 	 
-
-		  $.jqplot._noToImageButton = true;
-		 	  
-		  var options = {
-			
-			//title: "COMBO chart",
-			
-			grid:gridvar,             
-
-			gridPadding: {top:110, left:30, right:30, bottom:70},
-
-			
-		   legend:{
-			   renderer: $.jqplot.EnhancedLegendRenderer,
-			   show:true,
-			   location: 'n', 
-				placement: 'outside',
-				   rendererOptions: {
-					   numberRows: 4,
-						// set to true to replot when toggling series on/off
-						// set to an options object to pass in replot options.
-						seriesToggle: 'normal',
-						seriesToggleReplot: {resetAxes: true}
-					}
-						
-				
-			},
-			
-			series: combochartseries,
-			seriesDefaults:seriesDefaultsvar,
-			
-			highlighter: highlightervar,
-			
-			cursor: {
-				show: false
-			  },
-			axes:{
-				
-					xaxis:{
-						renderer:$.jqplot.DateAxisRenderer,
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer
-							// above is necessary to make the text rotate effect
-						},
-						tickOptions:{
-							fontSize:'8pt',
-							angle:-60,
-							formatString:'%b %#d, %H:%M'
-						}
-					},
-					
-					yaxis:{
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'8pt',
-								angle:0
-							}
-					},
-					
-					
-					y2axis:{
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'8pt',
-								angle:0
-							},
-							
-							
-							
-							
-					pointLabels:{
-								show: false
-							}
-					}  
-			  
-			  
-			}
-		  };
-		  
-		  if ((combochartdata.length) > 0) {
-		  var plot3 = $.jqplot('chart3', combochartdata,  options);
-   
-		 //responsive part
-		  $(window).bind('resize', function(event, ui) {
-			  // pass in resetAxes: true option to get rid of old ticks and axis properties
-			  // which should be recomputed based on new plot size.
-			  plot3.replot( { resetAxes: true } );
-		  });
-		}
-
-
-
-
-// COMBO graph END
-
-
-
-
-
-
-
-
-		// SENSOR graph 
-		  $.jqplot._noToImageButton = true;
-		 
-		  var datachart=[
-		  [["2017-02-05 11:25:21", 66], ["2017-02-05 12:25:21", 12], ["2017-02-05 13:25:21",14]],
-		  [["2017-02-05 11:25:21", 16], ["2017-02-05 12:25:21", 46], ["2017-02-05 13:25:21",34]],
-		  [["2017-02-05 11:35:21", 7], ["2017-02-05 12:35:21", 22], ["2017-02-05 13:35:21", 37], ["2017-02-05 14:35:21", 95]],
-		  [["2017-02-05 11:35:21", 8], ["2017-02-05 12:35:21", 23], ["2017-02-05 13:35:21", 36], ["2017-02-05 14:35:21", 92]],
-		  [["2017-02-05 11:35:21", 9], ["2017-02-05 12:35:21", 27], ["2017-02-05 13:35:21", 38], ["2017-02-05 14:35:21", 91]]
-		  ];
-		  
-		  var options = {
-			
-			grid:gridvar,             
-
-			
-			
-			gridPadding: {top:90, left:35, right:15, bottom:70},
-
-			
-		   legend:{
-			   renderer: $.jqplot.EnhancedLegendRenderer,
-			   show:true,
-			   location: 'n', 
-				placement: 'outside',
-				   rendererOptions: {
-					   numberRows: 4,
-						// set to true to replot when toggling series on/off
-						// set to an options object to pass in replot options.
-						seriesToggle: 'normal',
-						seriesToggleReplot: {resetAxes: true}
-					}
-						
-				
-			},
-			
-			series: sensorseries,
-			seriesDefaults:seriesDefaultsvar,
-			
-			highlighter: highlightervar,
-			
-			cursor: {
-				show: false
-			  },
-			axes:{
-				
-					xaxis:{
-						renderer:$.jqplot.DateAxisRenderer,
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer
-							// above is necessary to make the text rotate effect
-						},
-						tickOptions:{
-							fontSize:'7pt',
-							angle:-60,
-							formatString:'%b %#d, %H:%M'
-						}
-					},
-					
-					yaxis:{
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'7pt',
-								angle:0,
-								formatString:'%.2f' //this provides the format of the yaxis and also the value inside the highlighter
-							}
-					},
-					
-					
-					y2axis:{
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'7pt',
-								angle:0
-							},
-							
-							
-							
-							
-					pointLabels:{
-								show: false
-							}
-					}  
-			  
-			  
-			}
-		  };
-		  
-		  
-		if (sensorchartdata.length > 0) {
-		  var plot1 = $.jqplot('chart1', sensorchartdata,  options);
-   
-		 //responsive part
-		  $(window).bind('resize', function(event, ui) {
-			  // pass in resetAxes: true option to get rid of old ticks and axis properties
-			  // which should be recomputed based on new plot size.
-			  plot1.replot( { resetAxes: true } );
-		  });
-		}
-
-
-		// SENSOR graph END
-
-
-
-	// ACTUATOR new graph 	 
-		  $.jqplot._noToImageButton = true;
-		 
-		  var l1 = [["2017-02-05 11:25:21", 66], ["2017-02-05 12:25:21", 12], ["2017-02-05 13:25:21",14]];
-		  var l2 = [["2017-02-05 11:25:21", 16], ["2017-02-05 12:25:21", 46], ["2017-02-05 13:25:21",34]];
-		  var l3 = [["2017-02-05 11:35:21", 7], ["2017-02-05 12:35:21", 22], ["2017-02-05 13:35:21", 37], ["2017-02-05 14:35:21", 95]];
-		  
-		  var options = {
-			
-			grid:gridvar,  
-			gridPadding: {top:90, left:20, right:30, bottom:70},
-
-			
-		   legend:{
-			   renderer: $.jqplot.EnhancedLegendRenderer,
-			   show:true,
-			   location: 'n', 
-				placement: 'outside',
-				   rendererOptions: {
-					   numberRows: 3,
-						// set to true to replot when toggling series on/off
-						// set to an options object to pass in replot options.
-						seriesToggle: 'normal',
-						seriesToggleReplot: {resetAxes: true}
-					}
-						
-				
-			},
-			
-			series: actuatorseries,
-			seriesDefaults:seriesDefaultsvar,
-			
-			highlighter: highlightervar,
-
-			cursor: {
-				show: false
-			  },
-			axes:{
-				
-					xaxis:{
-						renderer:$.jqplot.DateAxisRenderer,
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer
-							// above is necessary to make the text rotate effect
-						},
-						//ticks: [["2017-02-05 11:35:21", "Feb 5 11:35"], ["2017-02-05 12:35:21", "Feb 5 11:35"], 
-						//["2017-02-05 13:35:21", 37], ["2017-02-05 14:35:21", 95]],
-						//numberTicks: 2,		
-						tickOptions:{
-							fontSize:'8pt',
-							angle:-60,
-							formatString:'%b %#d, %H:%M',
-							markSize: 12,
-							size: 12
-						},
-						//min: null,
-						//max: null,
-						//numberTicks: 6,  
-
-					},
-					
-					yaxis:{
-						renderer:$.jqplot.LinearAxisRenderer,
-						pad: 1.1,
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'8pt',
-								angle:0
-							}
-					},
-					 
-			  
-			  
-			}
-		  };
-		  
-		if (actuatorchartdata.length > 0) {
-		  var plot2 = $.jqplot('chart2', actuatorchartdata,  options);
-		 //responsive part
-		  $(window).bind('resize', function(event, ui) {
-			  // pass in resetAxes: true option to get rid of old ticks and axis properties
-			  // which should be recomputed based on new plot size.
-			  plot2.replot( { resetAxes: true } );
-		  });
-		}
-		 
-		});
-
-// ACTUATOR graph END
-
-
-//COMBO CHART for HYGROMETERS
-//combochartdata
-
-
-	//var sensorchartdata={{sensordata|safe}};
-	//var actuatorchartdata={{actuatordata|safe}};
-	//var datatype="{{actiontype}}";
-
-	//var sensorlist={{usedsensorlist|safe}};			
-	//var actuatorlist={{usedactuatorlist|safe}};	
-	
-	//var shapes=["diamond", "circle", "square", "x", "plus", "dash", "filledDiamond", "filledCircle", "filledSquare"];
-
-	var hygrosensornumlist={{hygrosensornumlist}};
-	var hygroactuatornumlist={{hygroactuatornumlist}};
-	var hygrosensornumlistwithout={{hygrosensornumlistwithout}};
-	var actuatornumlistwithout={{actuatornumlistwithout}};
-	var hygrosensornumlistwithoutactive={{hygrosensornumlistwithoutactive}}
-	//var seriesColors= [ "#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"]
-	
-	//var seriesColors= [ "#e6194B", "#3cb44b", "#ffe119", "#4363d8", "#f58231", "#911eb4", "#42d4f4", "#f032e6", "#bfef45", "#469990", "#e6beff", "#9A6324", "#fffac8", "#800000", "#aaffc3", "#808000", "#ffd8b1", "#000075", "#a9a9a9", "#000000"]
-	
-	var seriesColors= [ "#2d89ef", "#2b5797", "#ffc40d", "#e3a21a", "#da532c", "#ee1111", "#b91d47", "#99b433", "#00a300", "#1e7145", "#ff0097", "#9f00a7", "#7e3878", "#603cba", "#1d1d1d", "#00aba9", "#000000"]
-
-	
-	var fLen, i, seriedict;
-	var sensorseriesh=[];
-	var sensorchartdatah=[];
-	fLen = hygrosensornumlist.length;
-	for (i = 0; i < fLen; i++) {
-
-			seriedict={"label": sensorlist[hygrosensornumlist[i]], "color":seriesColors[i % seriesColors.length] , "showLine":true, "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 4 }};
-			sensorseriesh.push(seriedict);
-			sensorchartdatah.push(sensorchartdata[hygrosensornumlist[i]]);
-
-	} 
-	var continu_i=fLen
-	fLen = hygrosensornumlistwithout.length;
-	for (i = 0; i < fLen; i++) {
-
-			seriedict={"label": sensorlist[hygrosensornumlistwithout[i]], "color":seriesColors[(continu_i+i) % seriesColors.length] , "showLine":true, "linePattern" : 'dashed', "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 1 }};
-			sensorseriesh.push(seriedict);
-			sensorchartdatah.push(sensorchartdata[hygrosensornumlistwithout[i]]);
-
-	} 
-	var continu_i=continu_i+fLen // keep incremnting the number to avoid same colors	
-	fLen = hygrosensornumlistwithoutactive.length;
-	for (i = 0; i < fLen; i++) {
-
-			seriedict={"label": sensorlist[hygrosensornumlistwithoutactive[i]], "color":seriesColors[(continu_i+i) % seriesColors.length] , "showLine":true, "linePattern" : 'solid', "yaxis" : 'yaxis', "markerOptions" : { "style": "filledCircle", "size": 1 }};
-			sensorseriesh.push(seriedict);
-			sensorchartdatah.push(sensorchartdata[hygrosensornumlistwithoutactive[i]]);
-
-	} 	
-	var continu_i=continu_i+fLen // keep incremnting the number to avoid same colors
-	
-
-	var fLen, i, seriedict;
-	var actuatorseriesh=[];
-	var actuatorchartdatah=[];
-	fLen = hygroactuatornumlist.length;
-	for (i = 0; i < fLen; i++) {
-			seriedict={"label": actuatorlist[hygroactuatornumlist[i]], "color":seriesColors[i % seriesColors.length] , "showLine":false, "yaxis" : 'y2axis', "markerOptions" : { "style": shapes[i % shapes.length] , "size": 12  }};
-			actuatorseriesh.push(seriedict);
-			actuatorchartdatah.push(actuatorchartdata[hygroactuatornumlist[i]]);	
-	} 
-	
-	// actuators without , smaller size
-	fLen = actuatornumlistwithout.length;
-	for (i = 0; i < fLen; i++) {
-			seriedict={"label": actuatorlist[actuatornumlistwithout[i]], "color":seriesColors[(continu_i+i) % seriesColors.length] , "showLine":false, "yaxis" : 'y2axis', "markerOptions" : { "style": shapes[(continu_i+i) % shapes.length] , "size": 8  }};
-			actuatorseriesh.push(seriedict);
-			actuatorchartdatah.push(actuatorchartdata[actuatornumlistwithout[i]]);
-	} 
-
-
-	var combochartseriesh = actuatorseriesh.concat(sensorseriesh); 
-	var combochartdatah = actuatorchartdatah.concat(sensorchartdatah); 
-
-
-		$(document).ready(function(){
-		// label text with same color of the series		
-			$.jqplot.postDrawHooks.push(function() {
-				var swatches = $('table.jqplot-table-legend tr td.jqplot-table-legend-swatch');
-				var labels = $('table.jqplot-table-legend tr td.jqplot-table-legend-label');
-				labels.each(function(index) {
-					//turn the label's text color to the swatch's color
-					var color = $(swatches[index]).find("div div").css('background-color');
-					$(this).css('color',color );
-					$(this).css('font-weight',"bold" );
-				});
-			});
-
-
-		// COMMON VARIABLES
-		
-		
-		
-
-		var	gridvar=                 
-                {
-                    drawGridLines: true,        // wether to draw lines across the grid or not.
-                    gridLineColor: '#e2e2e2',   // Color of the grid lines.
-                    backgroundColor: "#eee",
-                    borderColor: 'white',     // CSS color spec for border around grid.
-                    borderWidth: 2.0,           // pixel width of border around grid.
-                    shadow: false,               // draw a shadow for grid.
-                    drawBorder: true,
-					gridLineWidth: 1	//width of the grid lines.
-					//background	//css spec for the background color.
-					//borderWidth	width of the border in pixels.            
-                  
-                    
-                };
-
-		var	seriesDefaultsvar=
+				combdata.push(
 					{
-						shadow: false,
-						markerRenderer: $.jqplot.MarkerRenderer,
-						markerOptions: {
-							show: true,
-							style: 'circle',
-							size: 4,
-							shadow: false,
-						}
-					};
-
-
-		var	highlightervar= {
-				show: true,
-				sizeAdjust: 7.5,
-				tooltipLocation:"n",
-				formatString:'<table class="jqplot-highlighter"><tr><td>%s</td></tr><tr><td>Value:%s</td></tr><tr></tr></table>'
-			  };
-
-
-
-		// END VARIABLES
-
-
-
-// COMBO new graph 	 
-
-		  $.jqplot._noToImageButton = true;
-		 	  
-		  var options = {
-			
-			//title: "COMBO chart",
-			
-			grid:gridvar,             
-
-			gridPadding: {top:110, left:30, right:30, bottom:70},
-
-			
-		   legend:{
-			   renderer: $.jqplot.EnhancedLegendRenderer,
-			   show:true,
-			   location: 'n', 
-				placement: 'outside',
-				   rendererOptions: {
-					   numberRows: 4,
-						// set to true to replot when toggling series on/off
-						// set to an options object to pass in replot options.
-						seriesToggle: 'normal',
-						seriesToggleReplot: {resetAxes: true}
+						label: "{{ d.label|safe }}",
+						data: {{ d.data|safe }},
+						fill: false,
+						tension: 0.1,
+						showLine: true,
+						pointRadius: 5,
+						borderDash: [],
+						...getColorForDataset("{{ d.label|safe }}")
 					}
-						
-				
-			},
-			
-			series: combochartseriesh,
-			seriesDefaults:seriesDefaultsvar,
-			
-			highlighter: highlightervar,
-			
-			cursor: {
-				show: false
-			  },
-			axes:{
-				
-					xaxis:{
-						renderer:$.jqplot.DateAxisRenderer,
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer
-							// above is necessary to make the text rotate effect
+				);
+
+				{% endfor %}
+
+				console.log("Sensor data ok (" + combdata.length + ")");
+
+				// Clone the actual sensor data to use in auto watering chart
+				// Object gets modified by chartjs
+                                const sensordatahygro = structuredClone(combdata);
+
+				console.log("Sensor data clone ok");
+
+				{% for d in chartjsactuatordata %}
+
+				dataset = {
+					label: "{{ d.label|safe }}",
+					data: {{ d.data|safe }},
+					fill: false,
+					pointStyle: 'rectRot',
+					pointRadius: 10,
+					pointHoverRadius: 15,
+					showLine: false,
+					borderDash: [],
+					...getColorForDataset("{{ d.label|safe }}")
+				};	
+				combdata.push(dataset);
+				actuatordata.push(dataset);
+
+				{% endfor %}
+
+				console.log("Actuator data ok (" + actuatordata.length + ")");
+
+				// default options
+				var config = {
+					type: 'line',
+					data: { datasets: [{}] },
+					options: {
+						parsing: false,
+						plugins: {
+						  decimation: {
+						    enabled: true,
+						    algorithm: 'lttb' // LTTB (Largest Triangle Three Buckets) Algorithmus
+						  },
+						  annotation: {
+						    annotations: {}
+						  }
 						},
-						tickOptions:{
-							fontSize:'8pt',
-							angle:-60,
-							formatString:'%b %#d, %H:%M'
-						}
-					},
-					
-					yaxis:{
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'8pt',
-								angle:0
-							}
-					},
-					
-					
-					y2axis:{
-						rendererOptions:{
-							tickRenderer:$.jqplot.CanvasAxisTickRenderer},
-							tickOptions:{
-								fontSize:'8pt',
-								angle:0
+						maintainAspectRatio: false,
+					  elements: {
+					    point: {
+					      radius: 0,
+					      hoverRadius: 5,
+					      hitRadius: 10
+					    }
+					  },
+					  scales: {
+						x: {
+							type: 'time',
+							time: {
+							  unit: 'hour',
+							  stepSize: 1,
+							  displayFormats: {
+							    hour: 'HH:mm'
+							  }
 							},
-							
-							
-							
-							
-					pointLabels:{
-								show: false
+							ticks: {
+							  source: 'auto',
+							  autoSkip: true,
+							  maxRotation: 0,
+							  major: {
+							    enabled: true
+							  }
 							}
-					}  
-			  
-			  
-			}
-		  };
-		  
-		  if ((combochartdatah.length) > 0) {
-		  var plot4 = $.jqplot('chart4', combochartdatah,  options);
-   
-		 //responsive part
-		  $(window).bind('resize', function(event, ui) {
-			  // pass in resetAxes: true option to get rid of old ticks and axis properties
-			  // which should be recomputed based on new plot size.
-			  plot4.replot( { resetAxes: true } );
-		  });
-		}
-
-
-		}); // end of the ready function
-
-// COMBO graph for HYGROMETER END
-
-
-</script>
-
-
-
-<script type="text/javascript">
-// download data to file txt	
-	
-$(function() {
-
-			$(".downloadbutton").click(function() {
-				var selvalue=$(this).attr('name');
-				$('#postsensor').attr("value", selvalue);
-
-
-
-				var sensorchartdata={{sensordata|safe}};
-				var actuatorchartdata={{actuatordata|safe}};
-				var datatype="{{actiontype}}";
-
-				var sensorlist={{usedsensorlist|safe}};			
-				var actuatorlist={{usedactuatorlist|safe}};	
-
-
-			  // Create text document — only saves 1st link in text doc
-
-			  var datatext="";
-
-					for (var i = 0; i < sensorchartdata.length; i++) {
-					  datatext=datatext+sensorlist[i]+'\n';							
-							
-							for (var j = 0; j < sensorchartdata[i].length; j++) {
-								// Store links in variable
-								datatext=datatext+sensorchartdata[i][j]+'\n'
+						},					  	
+					    y: {
+					      beginAtZero: false
+					    }
 					  }
-					  datatext=datatext+'\n'					  
 					}
-			  var textDoc = document.createElement('a');			  
-			  textDoc.href = 'data:attachment/text,' + datatext;
-			  textDoc.target = '_blank';
-			  textDoc.download = 'SensorData.txt';
-			  textDoc.click();
-			});  
+				};
 
-  });
+				//Setup auto watering control chart
+				var hygrosensornumlist={{hygrosensornumlist}};
+				var hygroactuatornumlist={{hygroactuatornumlist}};
+				var hygrosensornumlistwithout={{hygrosensornumlistwithout}};
+				var actuatornumlistwithout={{actuatornumlistwithout}};
+				var hygrosensornumlistwithoutactive={{hygrosensornumlistwithoutactive}};
 
+				var fLen, i;
+				const combdatahygro=[];
+				const actuatordatahygro=structuredClone(actuatordata);
 
+				fLen = hygrosensornumlist.length;
+				for (i = 0; i < fLen; i++) {
+					combdatahygro.push(sensordatahygro[hygrosensornumlist[i]]);
+				}
 
+				fLen = hygrosensornumlistwithout.length;
+				for (i = 0; i < fLen; i++) {
+					combdatahygro.push(sensordatahygro[hygrosensornumlistwithout[i]]);
+				}
 
+				fLen = hygrosensornumlistwithoutactive.length;
+				for (i = 0; i < fLen; i++) {
+					combdatahygro.push(sensordatahygro[hygrosensornumlistwithoutactive[i]]);
+				}
 
-		
+				fLen = hygroactuatornumlist.length;
+				for (i = 0; i < fLen; i++) {
+					combdatahygro.push(actuatordatahygro[hygroactuatornumlist[i]]);
+				}
+
+				fLen = actuatornumlistwithout.length;
+				for (i = 0; i < fLen; i++) {
+					combdatahygro.push(actuatordatahygro[actuatornumlistwithout[i]]);
+				}
+
+				// Modify dataset to show auto watering chart with dashed lines
+				for (const d in combdatahygro) {
+					combdatahygro[d]["borderDash"] = [5, 5];
+				}
+
+				annotation = { 
+					line1: {
+						type: 'line',
+						yMin: 30,
+						yMax: 30,
+						borderColor: 'rgb(255, 99, 132)',
+						borderWidth: 2,
+					}
+				};
+
+				console.log("Autowatering data ok");
+
+				// create sensor & actuator chart
+				if (combdata.length > 0) {
+					let ctx = document.getElementById('chartjs1');
+					let config_chart = structuredClone(config);
+					config_chart.data.datasets = combdata;
+					new Chart(ctx, config_chart);
+				}
+
+				// create actuator chart
+				if (actuatordata.length > 0) {
+					let ctx = document.getElementById('chartjs2');
+					let config_chart = structuredClone(config);
+					config_chart.data.datasets = actuatordata;
+					new Chart(ctx, config_chart);
+				}
+
+				// create auto watering chart
+				if (combdatahygro.length > 0) {
+					let ctx = document.getElementById('chartjs3');
+					let config_chart = structuredClone(config);
+					config_chart.data.datasets = combdatahygro;
+					//config_chart.options.plugins.annotation.annotations = annotation; // experimental threshold lines
+					new Chart(ctx, config_chart);					
+				}
+
+				console.log("Charts done!");
+
+				$(".downloadbutton").click(function() {
+					var selvalue=$(this).attr('name');
+					$('#postsensor').attr("value", selvalue);
+
+					// export sensor and actuator data as JSON format
+					var datatext=JSON.stringify(combdata);
+
+				  var textDoc = document.createElement('a');			  
+				  textDoc.href = 'data:attachment/text,' + datatext;
+				  textDoc.target = '_blank';
+				  textDoc.download = 'SensorData.txt';
+				  textDoc.click();
+
+				});
+			});
 		</script>
-		<!-- The contents of myscript.js will be loaded inside the script tag -->
 
-		<div class="page-header">
-
-					  <h4>Data Trend</h4>
-       
-       </div>
-       
-       
-       
-		
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Data Trend</h3>
+		</div>
+       	
 		<form novalidate="true" action="{{ url_for('show_sensordata') }}" id="menuForm" method="post" name="theForm">
-	
 			<div class="page-header">
-
 				<input value={{actiontype}} id="actionbtn" name="actionbtn" type="hidden">
-				
-							<div class="row">
-								<div class="col-xs-12">
+				<div class="row">
+					<div class="col-xs-12 pb-2">
+			
+					{% for period in periodlist %}
+						{% if period == "Custom" %}
+						<div class="form-check" style="display:none">
+						{% else %}
+						<div class="form-check">
+						{% endif %}
+							<input class="form-check-input" onclick="this.form.submit()" type="radio" name="period" id="radio{{period}}" value="{{period}}" {% if period == periodtype %}checked{% endif %}>
+							<label class="form-check-label" for="radio{{period}}">
+								{{period}}
+							</label>
+						</div>
+					{% endfor %}
 
-								<div class="form-group">
-									<label></label>									
-							    {% for period in periodlist %}									
-									<label class="radio-inline">
-										<input onclick="this.form.submit()" type="radio" name="period" id="radio{{period}}" value="{{period}}" {% if period == periodtype %}checked{% endif %}>{{period}}
-									</label>
-								{% endfor %}
-								
-								</div>
-								</div>
+					</div>
+				</div>
 
-							</div>
-					<div class="row">		
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 ">
-							<div class="form-group smallgap">
-								<div class='input-group date datetimepicker'>
-									<input id="startdate" name="startdate" type='text' class="setclock form-control" value="{{startdatestr}}" >
-									<span class="input-group-addon">
-										<span class="glyphicon glyphicon-calendar"></span>
+				<!-- Select custom dates -->
+				<div class="row">		
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
+						<div class="row pb-2 smallgap">
+							<div class="input-group date" id="datepicker">
+								<input id="startdate" name="startdate" type='text' class="form-control" value="{{startdatestr}}">
+								<span class="input-group-append">
+									<span class="input-group-text bg-light d-block">
+										<i class="fa fa-calendar"></i>
 									</span>
-								</div>
+								</span>
 							</div>
-						</div>	
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-6 ">
-							<div class="form-group smallgap">
-								<div class='input-group date datetimepicker'>
-									<input id="enddate" name="enddate" type='text' class="setclock form-control" value="{{enddatestr}}" >
-									<span class="input-group-addon">
-										<span class="glyphicon glyphicon-calendar"></span>
-									</span>
-								</div>
-							</div>
-						</div>	
-						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 ">	
-							<div class="form-group smallgap">
-							<button id="setPeriod" class="clockbutton btn btn-default"  type="button" name="setPeriod" element="setHWClock">Selected Dates</button>
-							</div>	
-						</div>	
-					</div>					
-					<script type="text/javascript">
-						$(function () {
-							$('.datetimepicker').datetimepicker({
-								locale: 'en-gb',
-								useCurrent:false,
-								format: 'DD/MM/YYYY'
+						</div>
+					</div>
 
-							});
-							
-							$(function() {
-								$("#setPeriod").click(function() {
-									//var selvalue=$(this).attr('name');
-									//alert("Custom");
-									//var idref=$(this).attr('idref');
-									$('#radioCustom').prop('checked',true);
-									document.theForm.submit();
-								});  
-							}); 
-							
-							
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">
+						<div class="row pb-2 smallgap">
+							<div class="input-group date" id="datepicker">
+								<input id="enddate" name="enddate" type='text' class="form-control" value="{{enddatestr}}">
+								<span class="input-group-append">
+									<span class="input-group-text bg-light d-block">
+										<i class="fa fa-calendar"></i>
+									</span>
+								</span>
+							</div>
+						</div>
+					</div>	
+					<div class="col-lg-2 col-md-2 col-sm-2 col-xs-3">	
+						<div class="row pb-2 smallgap">
+							<button id="setPeriod" class="btn btn-primary" type="button" name="setPeriod">Selected Dates</button>
+						</div>
+					</div>	
+				</div>					
+				<script type="text/javascript">
+					$(function () {
+						startdate = document.getElementById('startdate')
+						const datepicker1 = new Datepicker(startdate, {
+							// Datepicker options
+							format: 'dd/mm/yyyy',
+							todayHighlight: true,
+						}); 
+
+						enddate = document.getElementById('enddate')
+						const datepicker2 = new Datepicker(enddate, {
+							// Datepicker options
+							format: 'dd/mm/yyyy',
+							todayHighlight: true,
 						});
-					</script>					
+					});
+
+					$(function() {
+						$("#setPeriod").click(function() {
+							$('#radioCustom').prop('checked',true);
+							document.theForm.submit();
+						});  
+					}); 						
+				</script>
 			</div>
 
+			<div class="card card-body bg-light mt-4 mb-4">
+			        {% if (usedsensorlist|length + usedactuatorlist|length)>0 %}
 
+			        <div class="row">
+			        	<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Sensor & Actuator Chart</div>
+			        </div>
 
+			        <div class="container-fluid" style="min-height:450px;">
+			        	<canvas id="chartjs1"></canvas>
+			        </div>
 
-			<div class="well bs-component">
-							<!-- graph here-->
-							{% if (usedsensorlist|length)>0 %}
-							<div  class="row">
-								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Sensor Chart</div>
-							</div>
-							
-							<div  class="row">
-								<div id="chart1" style="height:450px; width:100%;"></div>
-							</div>
-							
-							{% else %}
+			        {% else %}
 
-							<div class="row">
-									<div style="height:100px"><h4>Sensor data not available</h4></div>
-							</div>
+			        <div class="row">
+			        	<div style="height:100px"><h4>Combined data empty</h4></div>
+			        </div>
 
-							{% endif %}
-
-
-                </div>
-
-			<div class="well bs-component">					
-							
-							{% if (usedsensorlist|length+usedactuatorlist|length)>0 %}
-							<div  class="row">
-								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Combined Chart</div>
-							</div>						
-							<div  class="row">
-								<div id="chart3" style="height:450px; width:100%;"></div>
-							</div>
-
-							{% else %}
-
-							<div class="row">
-								<div class="col-xs-12">
-									<div style="height:100px"><h4>Data not available</h4></div>
-								
-								</div>
-							</div>
-
-							{% endif %}
-
-
-
-
+			        {% endif %}
 
 			</div>
 
+			<div class="card card-body bg-light mb-4">
+				{% if (usedactuatorlist|length)>0 %}
 
-			<div class="well bs-component">
+				<div  class="row">
+					<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Actuator Chart</div>
+				</div>						
 
-							<!-- graph here-->
+				<div class="container-fluid" style="min-height:450px;">
+					<canvas id="chartjs2"></canvas>
+				</div>
 
-							{% if (usedactuatorlist|length)>0 %}	
-							<div  class="row">
-								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Actuator Chart</div>
-							</div>						
-							<div  class="row">
-								<div id="chart2" style="height:100%; width:100%;"></div>
-							</div>
-							{% else %}
+				{% else %}
 
-							<div class="row">
-									<div style="height:100px"><h4>Actuator data not available</h4></div>
-							</div>
+				<div class="row">
+					<div style="height:100px"><h4>Actuator data empty</h4></div>
+				</div>
 
-							{% endif %}		
-							
-			</div>
+				{% endif %}		
 
-			<div class="well bs-component">
+			</div>			
 
-							<!-- graph here-->
+			<div class="card card-body bg-light mb-4">
+				{% if (hygrosensornumlist|length + hygroactuatornumlist|length + hygrosensornumlistwithout|length + hygrosensornumlistwithoutactive|length + actuatornumlistwithout|length)>0 %}
 
-							{% if (hygrosensornumlist|length + hygroactuatornumlist|length + hygrosensornumlistwithout|length + hygrosensornumlistwithoutactive|length + actuatornumlistwithout|length)>0 %}	
-							<div  class="row">
-								<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Auto water Control Chart</div>
-							</div>						
-							<div  class="row">
-								<div id="chart4" style="height:450px; width:100%;"></div>
-							</div>
-							{% else %}
+				<div  class="row">
+					<div style="font-size:20px;font-weight: bold;opacity: 0.5;">Auto Watering Control Chart</div>
+				</div>	
 
-							<div class="row">
-									<div style="height:100px"><h4>Hygrometer data not available</h4></div>
-							</div>
+				<div class="container-fluid" style="min-height:450px;">
+					<canvas id="chartjs3"></canvas>
+				</div>
+					
+				{% else %}
 
-							{% endif %}		
+				<div class="row">
+						<div style="height:100px"><h4>Auto watering data empty</h4></div>
+				</div>
+
+				{% endif %}		
 							
 			</div>
 			
-			<!-- Download data button here-->
-			<button class="downloadbutton btn-sm btn btn-default" type="button" name="downloaddata">DownloadSensorData</button>
-
-
-
-			<div class="page-header">
-
-						<h4>Delete Data Record</h4>
-
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Options</h3>
 			</div>
+
+			<!-- Download data button -->
 			<div class="row">							
-					<div class="col-xs-12">
-					<button class="thebutton btn btn-default" idref="actionbtn"  type="submit" name="delete">Delete all data</button>
-					</div>
-					
-
+				<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+					<button class="downloadbutton btn btn-secondary defaultbutton w-100" type="button" name="downloaddata"><i class="fa-solid fa-download"></i> Download Sensor Data</button>
+				</div>
 			</div>
 
+			<!-- Delete all data button -->
+			<div class="row">							
+					<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+						<button type="button" class="btn btn-warning defaultbutton w-100" data-bs-toggle="modal" data-bs-target="#DeleteAllDataModal"><i class="fa-solid fa-trash"></i> Delete All Sensor Data</button>
+					</div>
+			</div>
 
-				
+		    <!-- Modal HTML -->
+		    <div id="DeleteAllDataModal" class="modal fade" aria-hidden="true" aria-labelledby="ModalLabel">
+		        <div class="modal-dialog">
+		            <div class="modal-content">
+		                <div class="modal-header">
+		                	<h1 id="ModalLabel" class="modal-title fs-5">Confirmation</h1>
+		                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+		                </div>
+		                <div class="modal-body">
+		                    <p>Proceed to delete all sensor data?!</p>
+		                </div>
+		                <div class="modal-footer">
+		                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+		                    <button name="delete" type="submit" idref="actionbtn" class="thebutton btn btn-primary">Proceed</button>
+		                </div>
+		            </div>
+		        </div>
+		    </div>	
+
 		</form>	
-		
 		
 		<script type="text/javascript">
 			
@@ -929,45 +455,26 @@ $(function() {
 						//alert(selvalue);
 						var idref=$(this).attr('idref');
 						$('#' + idref).attr("value", selvalue);
-					});  
-				}); 
-				
-		
-				
-		
-		</script>  
+					});
+				});
+		</script>
 
-	<form novalidate="true" action="{{ url_for('DATAsetup') }}" id="DATAsetup" method="post" >
- 			<div class="page-header">
-
-						<h4>Setting</h4>
-
-			</div>
- 
+		<form novalidate="true" action="{{ url_for('DATAsetup') }}" id="DATAsetup" method="post" > 
 			<div class="row">
-				<div class="col-xs-4">
-				
-					<!-- advanced setting button -->
-			
-					<button name="buttonsub" value="show" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
-						Advanced Setting
-					<span class="glyphicon glyphicon-cog"></span>
+				<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+					<button name="buttonsub" value="show" type="submit" class="thebutton btn btn-primary defaultbutton w-100">
+					<i class="fas fa-cog"></i> Filter Data
 					</button>
-		
 				</div>
 			</div>
-
 		</form> 
 		
-		
-		
-  </div>
-  {% else %}
+  	</div>
 
-		<h1>Please log in</h1>
+  	{% else %}
+
+		<h1>Please login</h1>
   
-  {% endif %}
-  <ul class=entries>
+  	{% endif %}
 
-  </ul>
 {% endblock %}

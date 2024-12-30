@@ -1,6 +1,0 @@
-use the following command to download the installation file:
-
-wget https://github.com/Hydrosys4/Master/blob/master/bash/install_hydrosys4.sh
-
-sudo chmod u+x install_hydrosys4.sh
-sudo ./install_hydrosys4.sh

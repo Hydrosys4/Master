@@ -3,16 +3,13 @@
 {% block body %}
   {% if session.logged_in %}
   
-   
-    <div class="container-fluid">
+<div class="row top-buffer"></div>
+
+<div class="container-fluid">
 							
 <!-- bootstrap-editable -->	
-
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap3-editable/css/bootstrap-editable.css') }}">
-<script src="{{url_for('static', filename='bootstrap3-editable/js/bootstrap-editable.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='x-editable/css/bootstrap-editable.css') }}">
    
-
-
 <!-- this webpage is made to change one field at time, this is done by making tablehead a list with only the selected field-->
 
 
@@ -83,74 +80,62 @@
 															</table>
 														</div>
 														<!-- /.table-responsive -->
-							
-							
-							
-														
-	<button class="btn btn-success btn-default" type="submit" name="buttonsub" value="confirm">Confirm and Save</button>
 
-	<button class="btn btn-default" type="submit" name="buttonsub" value="reload">Reload Table</button>
+	<button class="btn btn-secondary defaultbutton" type="submit" name="buttonsub" value="cancel"><i class="fa-solid fa-circle-left"></i> Back</button>
 
-	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Cancel</button>							
-	
+	<button class="btn btn-success btn-success defaultbutton" type="submit" name="buttonsub" value="confirm"><i class="fa-solid fa-floppy-disk"></i> Confirm and Save</button>
+
+	<button class="btn btn-warning defaultbutton" type="submit" name="buttonsub" value="reload"><i class="fa-solid fa-rotate"></i> Reload Table</button>
+
+	<!-- bootstrap-editable -->
+	<script src="{{url_for('static', filename='x-editable/js/bootstrap-editable.min.js') }}"></script>
+
 	<!-- bootstrap-editable -->	
 		<script type="text/javascript">	
 			//turn to inline mode
 			$.fn.editable.defaults.mode = 'popup';
-						
-			
+
 			$(document).ready(function() {
 
-			$('.editable').editable();
-						
-						
-			var headlist={{tablehead|safe}};			
-			var fieldlist={{fields|safe}};
-			for (i = 0; i < headlist.length; i++) {
-						var thesource=[];				
-						for (j = 0; j < fieldlist[headlist[i]].length; j++) {  
-							thesource.push({
-									value:fieldlist[headlist[i]][j],
-									text: fieldlist[headlist[i]][j]
-								});
-							}				
-				
-				
-						$('.editable-select-'+headlist[i]).editable({ 
-							source: thesource
-						});
-				} 						
+				$('.editable').editable();
+							
+				var headlist={{tablehead|safe}};			
+				var fieldlist={{fields|safe}};
+				for (i = 0; i < headlist.length; i++) {
+							var thesource=[];				
+							for (j = 0; j < fieldlist[headlist[i]].length; j++) {  
+								thesource.push({
+										value:fieldlist[headlist[i]][j],
+										text: fieldlist[headlist[i]][j]
+									});
+								}				
+					
+							$('.editable-select-'+headlist[i]).editable({ 
+								source: thesource
+							});
+					} 						
 
-			// it is required to update the field Pk in the select.
-			$('.editable').on('save', function(e, params) {
-				//alert('Saved value: ' + params.newValue);
-				var fieldname=$(this).attr('data-name');
-				//$(this).attr('data-pk', params.newValue);
-				if (fieldname == "name") {
-					//alert("updating pk");
-					$(this).editable('option', 'pk', params.newValue);
-				}
-			});
+				// it is required to update the field Pk in the select.
+				$('.editable').on('save', function(e, params) {
+					//alert('Saved value: ' + params.newValue);
+					var fieldname=$(this).attr('data-name');
+					//$(this).attr('data-pk', params.newValue);
+					if (fieldname == "name") {
+						//alert("updating pk");
+						$(this).editable('option', 'pk', params.newValue);
+					}
+				});
 
 			});
-						
-			
+	
 		</script>
 								
-								
-
-
-
-											
-														
-									
 </form>
   
    </div> 
   {% else %}
 
-		<h1>Please log in</h1>
-
+		<h1>Please login</h1>
   
   {% endif %}
   <ul class=entries>

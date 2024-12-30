@@ -5,43 +5,48 @@
  
 	{% if (elementlist|length)>0 %}
 
+<div class="container">
+
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+                <h3>Watering Plan</h3>
+        </div>
 
 
-		<!---- Schema buttons moved here   -->
-		<form novalidate="true" action="{{ url_for('wateringplan') }}" method="post" >	 
-			<div class="well-sm bs-component" style="background:rgb(212, 221, 211)">
+	<!---- Schema buttons moved here   -->
+	<form novalidate="true" action="{{ url_for('wateringplan') }}" method="post" >	 
+		<div class="card card-body bg-light" style="background:rgb(212, 221, 211)">
 			<div class="row">
-			<div class=" col-xs-3">				
-				<button name="advconfig" type="submit" idref="actionbtn" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
-					Schema Setup
-				<span class="glyphicon glyphicon-cog"></span>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">				
+					<button name="advconfig" type="submit" idref="actionbtn" class="thebutton btn btn-danger btn-sm btn-block w-100">
+						<i class="fas fa-cog"></i> Schema Setup
+					</button>
+				</div>			
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+					<button name="changename" type="submit" idref="actionbtn" class="thebutton btn btn-danger btn-sm btn-block w-100">
+						<i class="fa-solid fa-text-slash"></i> Schema Name
+					</button>
+				</div>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+					<button name="sensorselect" type="submit" idref="actionbtn" class="thebutton btn btn-danger btn-sm btn-block w-100">
+					<i class="fa-solid fa-asterisk"></i> Select Sensors
 				</button>
-			</div>			
-			<div class=" col-xs-3">
-				<button name="changename" type="submit" idref="actionbtn" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
-					Schema Name
-				</button>
+				</div>
 			</div>
-			<div class=" col-xs-3">
-				<button name="sensorselect" type="submit" idref="actionbtn" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">
-					Select Sensors
-				</button>
-			</div>
+		</div>
+		<div class="row top-buffer">
+		</div>
 
-			</div>
-			</div>
-			<div class="row top-buffer">
-			</div>
+		<input value="none" id="actionbtn" name="actionbtn" type="hidden" />
+	</form>
 
-			<input value="none" id="actionbtn" name="actionbtn" type="hidden" />
-		</form>
-		<!---- Schema buttons moved here   -->
-
-			<ul class="nav nav-pills">
-				{% for name in elementlist %}
-					<li {% if name == selectedelement %} class="active"{% endif%}><a href="#{{ name }}" data-toggle="tab" style="font-size:1.2em;">{{ name }}</a></li>
-				{% endfor %}
-			</ul>
+	<!---- Schema buttons moved here   -->
+	<ul class="nav nav-pills">
+		{% for name in elementlist %}
+		<li class="nav-item nav-primary">
+			<a class="nav-link {% if name == selectedelement %} active {% endif%}" href="#{{ name }}" data-bs-toggle="pill">{{ name }}</a>
+		</li>
+		{% endfor %}
+	</ul>
 
 
         <div class="tab-content">
@@ -52,7 +57,7 @@
 
          <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
 			 
-			 <!---- start panel  -->
+		<!---- start panel  -->
 		<form novalidate="true" action="{{ url_for('wateringplan') }}" method="post" >			 
 
 			 
@@ -60,32 +65,31 @@
 			 		 
 			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
 			 
-			 <div class="panel panel-primary">
-			  <div class="panel-heading">
+			 <div class="card card-primary">
+			  <div class="card-header">
 				  <div class="row">
-					    <div class=" col-xs-9">
+					    <div class=" col-9">
 							<span style="font-size:1.2em;">{{ elem }}</span>
 						</div>
-						<div class=" col-xs-3">				
-							<button name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
-							<span class="glyphicon glyphicon-saved"></span>
+						<div class=" col-3 text-end">				
+							<button name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn-sm btn btn-danger btn-md btn-block dontwantgap w-100"><i class="fa-solid fa-floppy-disk"></i> Save
 							</button>
 						</div>
 					</div>
 			  </div>
-			  <div class="panel-body dontwantgapleft dontwantgapright">
+			  <div class="card-body">
 
 				
 				<!---- panel  body -->
-				<table class="table table-condensed">
+				<table class="table table-condensed table-light table-sm hydrotable">
 				<thead>
 				  <tr>
-					<th class="col-xs-2">Month</th>
-					<th class="col-xs-2">Schema</th>
-					<th class="col-xs-1">+++</th>
-					<th class="col-xs-5">__Multiplier__</th>
-					<th class="col-xs-1">+++</th>
-					<th class="col-xs-1">delay (Sec)</th>
+					<th class="col-lg-2 col-md-2 col-sm-2 col-xs-2">Month</th>
+					<th class="col-lg-3 col-md-3 col-sm-3 col-xs-3">Schema</th>
+					<th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">+++</th>
+					<th class="col-lg-4 col-md-4 col-sm-4 col-xs-4">__Multiplier__</th>
+					<th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">+++</th>
+					<th class="col-lg-1 col-md-1 col-sm-1 col-xs-1">delay (Sec)</th>
 				  </tr>
 				</thead>
 				<tbody>
@@ -107,7 +111,7 @@
 
 									<div class="form-group">
 										
-										<select class="form-control input-sm dontwantgap" name="{{elem}}_{{col_i.index0}}_0">
+										<select class="form-select" name="{{elem}}_{{col_i.index0}}_0">
 										{% for schema in schemaementlist %}	
 											{% set option_i = loop %}
 											<option {% if (table1[row_i.index0][col_i.index0]==(option_i.index0+1)) %}selected="selected"{% endif %} value="{{schema}}">{{schema}}</option>
@@ -124,8 +128,8 @@
 							
 							
 							<td>
-								<button name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
-								<span class="glyphicon glyphicon-minus"></span>
+								<button name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block w-100">
+								<i class="fa-solid fa-minus"></i>
 								</button>
 						
 							</td>
@@ -144,8 +148,8 @@
 							
 							</td>
 							<td>
-								<button name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
-								<span class="glyphicon glyphicon-plus"></span>
+								<button name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block w-100">
+								<i class="fa-solid fa-plus"></i>
 								</button>
 							
 							
@@ -154,7 +158,7 @@
 							<td>
 										<!--Delay column (table2)-->
 
-								<input value="{% if (table2|length)>0 %}{{ table2[row_i.index0][col_i.index0]}}{% endif %}" name="{{elem}}_{{col_i.index0}}_1" class="form-control dontwantgap input-sm" />
+								<input type="number" min="0" step="1" value="{% if (table2|length)>0 %}{{ table2[row_i.index0][col_i.index0]}}{% endif %}" name="{{elem}}_{{col_i.index0}}_1" class="form-control" />
 
 							</td>
 
@@ -165,18 +169,20 @@
 			
 
 				
-				<!-- -- end panel content --->
-				{% endfor %}				
+					<!-- -- end panel content --->
+					{% endfor %}				
 			  </tbody>
 			</table>			  
-			  </div>		  
-			  <div class="panel-footer">
-				  <div class="row">
+			  </div>
 
-						<div class=" col-xs-3">				
-							<button name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
-							<span class="glyphicon glyphicon-saved"></span>
-							</button>
+			  <div class="card-footer">
+				  <div class="row">
+					    <div class="col-6">
+							<span  style="font-size:1.2em;">{{ elem }}</span>
+						</div>
+
+						<div class="col-6 text-end">				
+							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp"><i class="fa-solid fa-floppy-disk"></i> Save</button>
 						</div>
 					</div>
 			   </div>
@@ -195,7 +201,7 @@
          
         </div>
         
-
+</div>
 
 
 
@@ -278,7 +284,7 @@
 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

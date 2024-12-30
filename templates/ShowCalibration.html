@@ -3,18 +3,10 @@
 {% block body %}
   {% if session.logged_in %}
   
-  
-  
-  
-  <div class="container-fluid">
-	  
-	  
-
-	  
+<div class="container">
+ 
 		<script type=text/javascript>
 
-			
-			
 			$(document).ready(function()
 			{
 				$(".seltimeclass").each(function() {
@@ -41,18 +33,11 @@
 				});	
 			});
 			
-			
-			
-			
-			
-			</script>
-
-
-    
+		</script>
+ 
    <!-- new Table for sensor data using ajax -->
    
    		<script type=text/javascript>
-
 
 			  (function worker() {
 
@@ -89,16 +74,13 @@
 
 		<form novalidate="true" action="{{ url_for('show_realtimedata') }}" id="PHform" method="post" >
 
-			<div class="page-header">
-					  <h3>Sensor data </h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Sensor data </h3>
 			</div>
-
-			
-			
 			
 			<!--  result  -->
-	<div class="well bs-component dontwantgap">
-		<table class="table" margin: 20px;>
+	<div class="card card-body bg-light">
+		<table class="table table-striped">
         <thead>
             <tr>
                 <th>Sensor</th>
@@ -120,7 +102,7 @@
 					<td>{{ unitdict[item] }}</td>
 					
 					<td>
-						<button class="sensorbutton btn-sm btn btn-default" type="submit" name="{{item}}">Read</button>
+						<button class="sensorbutton btn-sm btn btn-success" type="submit" name="{{item}}">Read</button>
 					</td>
 
 			 </tr>	
@@ -157,14 +139,14 @@
 		<!-- Pulse Actuators test -->
   
   		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
-			<div class="page-header">
-					  <h3>Actuators Test</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Actuators Test</h3>   
 			</div>
 			
-			<div class="well bs-component dontwantgap">
+			<div class="card card-body bg-light">
 			
-						<!--  Actuator table   -->
-			<table class="table" margin: 20px;>
+			<!--  Actuator table   -->
+			<table class="table table-striped table-sm">
 			<thead>
 				<tr>
 					<th>Name</th>
@@ -200,7 +182,7 @@
 
 				  <td>
 		  					  				
-				  <select class="form-control input-sm" id="selseconds_{{ item }}">
+				  <select class="form-select" id="selseconds_{{ item }}">
 					<option>1</option>
 					<option>3</option>
 					<option>10</option>
@@ -228,8 +210,8 @@
 
         </tbody>
     </table>
-			<div class="row">
-				<div class="col-xs-4">
+			<div class="row pb-2">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
 					<label>Status:</label>
 				</div>
 				<div class="col-xs-8">
@@ -238,79 +220,77 @@
 			</div>	
 
 			</div>
-			 <script type=text/javascript>
-			  $(function() {
-				var pGress={};	
-				var pCnt = {};
-				var sec = {};				  
-				$(".thebutton").click(function() {
+
+			<script type=text/javascript>
+				$(function() {
+					var pGress = {};	
+					var pCnt = {};
+					var sec = {};
+
+					$(".thebutton").click(function() {
+						// send ajax interrupt to flask to initiate the actuator test
+						var prid=$(this).attr('name');
+						var elem=$(this).attr('element');
+						var value = $("#selseconds_" + elem).val();	
 				
-				// send ajax interrupt to flask to initiate the actuator test
-				
-					var prid=$(this).attr('name');
-					var elem=$(this).attr('element');
-					var value = $("#selseconds_" + elem).val();	
-			
-					$.ajax({
-								type: "GET",
-								url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&element=" + elem,
-								contentType: "application/json; charset=utf-8",
-								data: { echoValue: "requestfordata" },
-								success: function(data) {
-									$('#actuatorstatus').text(data.answer);
-									$('#' + elem + "progress").removeClass("progress-bar-warning").addClass("progress-bar-default")
-									var answer=data.answer;
-									if (answer.includes("Started")) {
-									// Answer from server succesfull started pulse
-									// increment status bar bootstrap
-									clearInterval(pGress[elem]);
-									$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
-									$('#' + elem + "progress").text('0')
-									pCnt[elem] = 0;
-									sec[elem] = 0;
-								
-									pGress[elem] = setInterval(function() {
-											//var pVal = parseInt($('#' + elem + "progress").attr('aria-valuenow'));
-											sec[elem]=sec[elem]+1;
-											var maxsec = parseInt( $("#selseconds_" + elem).val());
-											pCnt[elem] = (pCnt[elem] + 100.0/maxsec);
-											if (pCnt[elem] > 100) {
-												clearInterval(pGress[elem]);
-												$('#actuatorstatus').text("Done");							
-											} else {
-												$('#' + elem + "progress").css('width', pCnt[elem]+'%').attr('aria-valuenow', pCnt[elem]);
-												$('#' + elem + "progress").text(sec[elem] + 's')
-											}
-										},1000);									
-									} else {
-									if (!answer.includes("Already ON")) {
+						$.ajax({
+							type: "GET",
+							url: $SCRIPT_ROOT + "/doit/?name=" + prid + "&name=" + value + "&element=" + elem,
+							contentType: "application/json; charset=utf-8",
+							data: { echoValue: "requestfordata" }
+						}).done(function(data) {
+							$('#actuatorstatus').text(data.answer);
+							$('#' + elem + "progress").removeClass("progress-bar-warning").addClass("progress-bar-default")
+							var answer=data.answer;
+							if (answer.includes("Started")) {
+								// Answer from server succesfull started pulse
+								// increment status bar bootstrap
+								clearInterval(pGress[elem]);
+								$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
+								$('#' + elem + "progress").text('0')
+								pCnt[elem] = 0;
+								sec[elem] = 0;
+							
+								pGress[elem] = setInterval(function() {
+										sec[elem]=sec[elem]+1;
+										var maxsec = parseInt( $("#selseconds_" + elem).val());
+										pCnt[elem] = (pCnt[elem] + 100.0/maxsec);
+										if (pCnt[elem] > 100) {
+											clearInterval(pGress[elem]);
+											$('#actuatorstatus').text("Done");							
+										} else {
+											$('#' + elem + "progress").css('width', pCnt[elem]+'%').attr('aria-valuenow', pCnt[elem]);
+											$('#' + elem + "progress").text(sec[elem] + 's');
+										}
+								},1000);									
+							} else {
+								if (!answer.includes("Already ON")) {
 									clearInterval(pGress[elem]);
 									if (!answer.includes("Stopped")) {
-									$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
-									$('#' + elem + "progress").text('0')
+										$('#' + elem + "progress" ).css('width', '0%').attr('aria-valuenow', 0);
+										$('#' + elem + "progress").text('0');
 									} 					
-									} 
-									}	
-
-									
-								},
-								//error: function(jqXHR, textStatus, errorThrown) {
-								//    alert(errorThrown); $("#thebutton").attr('name')
-								//}
-							});    
-				  
-							if (prid=="pulse") {		
+								} 
+							}			
+						})
+						.fail(function(jqXHR, errorMsg) {
+							if ( console && console.log ) {
+								$('#actuatorstatus').text(errorMsg);
+							}
+						})
+						.always(function() {
+							updateNotifyBadge();
+						})
+					  
+						if (prid=="pulse") {		
 							$('#actuatorstatus').text("waiting ...");
 							$('#' + elem + "progress").addClass("progress-bar-warning")
 							$('#' + elem + "progress").css('width','100%').attr('aria-valuenow', 100);					
-							$('#' + elem + "progress").text('wait')
-							}
-					
+							$('#' + elem + "progress").text('wait');
+						}
+						
+					});
 				});
-			  });
-			   
-			  
-			  
 			</script>
 			
 			
@@ -324,23 +304,22 @@
 <!-- Sensors inputs calibration -->
  		{% if sensorlist|length > 0 %}		 
 
-			<div class="page-header">
-					  <h3>Sensor input Calibration</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Sensor input Calibration</h3>   
 			</div>
 
 			
 		<!-- Button for input calibration -->
 		
-			<div class="row">
+			<div class="row pb-2">
 
 				<div class="col-xs-12">
 				
 					
 					<a href="{{ url_for('setinputcalibration') }}">
-					<button id="setinputcalibrationbtn" name="buttonsub" value="setinputcalibration"  class="btn btn-success btn-sm btn-warp">
-						Sensor Calibration
-					<span class="glyphicon glyphicon-cog"></span>
-					</button>
+						<button id="setinputcalibrationbtn" name="buttonsub" value="setinputcalibration"  class="btn btn-success btn-sm btn-warp">
+							<i class="fas fa-cog"></i> Sensor Calibration
+						</button>
 					</a>
 				</div>
 			</div>			
@@ -351,90 +330,77 @@
 			
 <!-- devices Addressed listing (Onewire, I2C etc) -->
 
-			<div class="page-header">
-					  <h3>Show Devices Addresses</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Show Devices Addresses</h3>   
 			</div>
-		
-			
-		<!-- Button for device addresses show-->
-		
-			<div class="row">
-
-				<div class="col-xs-12">
-				
-					
+			<div class="row pb-2">
+				<div class="col-xs-12">					
 					<a href="{{ url_for('showdeviceaddresseslist') }}">
-					<button id="showdeviceaddresseslistbtn" name="buttonsub" value="showdeviceaddresseslistbtn" class="btn btn-success btn-sm btn-warp">
-						Show Addresses
-					<span class="glyphicon glyphicon-cog"></span>
-					</button>
+						<button id="showdeviceaddresseslistbtn" name="buttonsub" value="showdeviceaddresseslistbtn" class="btn btn-success btn-sm btn-warp">
+							<i class="fas fa-cog"></i> Show Addresses
+						</button>
 					</a>
 				</div>
 			</div>			
 
 	
 
-<!-- HS12 setting              -->
+<!-- HS12 setting -->
 	{% if HC12ok %}	
-		<div class="page-header">
-					<h3>Show Devices Addresses</h3>   
-		</div>
-	
-				
-		<!-- Button for HC12 setting-->
-		
-		<div class="row">
-
-			<div class="col-xs-12">
-		
-				<a href="{{ url_for('HC12setting') }}">
-				<button id="HC12settingbtn" name="buttonsub" value="HC12settingbtn" class="btn btn-success btn-sm btn-warp">
-					HC-12 Wireless Setting
-				<span class="glyphicon glyphicon-cog"></span>
-				</button>
-				</a>
-
-
-			</div>
-		</div>			
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Show HC12 Devices Addresses</h3>   
+			</div>		
+			<div class="row pb-2">
+				<div class="col-xs-12">
+					<a href="{{ url_for('HC12setting') }}">
+						<button id="HC12settingbtn" name="buttonsub" value="HC12settingbtn" class="btn btn-success btn-sm btn-warp">
+							<i class="fas fa-cog"></i> HC-12 Wireless Settings
+						</button>
+					</a>
+				</div>
+			</div>			
 	{% endif %}
 
 
-<!-- HASSIO setting              -->
+<!-- HASSIO setting -->
 
-<div class="page-header">
-			<h3>Show Devices Addresses</h3>   
-</div>
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Home Assistant</h3>   
+			</div>
+			<div class="row pb-2">
+				<div class="col-xs-12">
+					<a href="{{ url_for('HASSIOsetting') }}">
+						<button id="HASSIOsettingbtn" name="buttonsub" value="HASSIOsettingbtn" class="btn btn-success btn-sm btn-warp">
+							<i class="fas fa-cog"></i> Home Assistant Integration
+						</button>
+					</a>
+				</div>
+			</div>			
 
-		
-<!-- Button for HOme Assistant setting-->
+<!-- Weather API setting -->
 
-<div class="row">
-
-	<div class="col-xs-12">
-
-		<a href="{{ url_for('HASSIOsetting') }}">
-		<button id="HASSIOsettingbtn" name="buttonsub" value="HASSIOsettingbtn" class="btn btn-success btn-sm btn-warp">
-			Home Assistant Integration
-		<span class="glyphicon glyphicon-cog"></span>
-		</button>
-		</a>
-
-
-	</div>
-</div>			
-
-
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Weather API</h3>   
+			</div>
+			<div class="row pb-2">
+				<div class="col-xs-12">
+					<a href="{{ url_for('weatherAPI') }}">
+						<button id="WeatherAPIbtn" name="buttonsub" value="WeatherAPIbtn" class="btn btn-success btn-sm btn-warp">
+							<i class="fas fa-cog"></i> Weather API
+						</button>
+					</a>
+				</div>
+			</div>	
 
 <!-- MQTT devices Addressed listing (MQTT topic, IP, status) -->
  		{% if MQTTclientexist %}		 
-			<div class="page-header">
-					  <h3>Show MQTT Devices </h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Show MQTT Devices</h3>   
 			</div>
 		
 		<!-- Button for device addresses show-->
 		
-			<div class="row">
+			<div class="row pb-2">
 
 				<div class="col-xs-12">
 				
@@ -442,7 +408,7 @@
 					<a href="{{ url_for('showmqttdevicelist') }}">
 					<button id="showmqttdevicelistbtn" name="buttonsub" value="showmqttdevicelistbtn" type="submit" class="btn btn-success btn-sm btn-warp">
 						Show MQTT clients
-					<span class="glyphicon glyphicon-cog"></span>
+					<span class="fas fa-cog"></span>
 					</button>
 					</a>
 				</div>
@@ -456,11 +422,11 @@
 <!-- Hbridge Actuators test -->
   
 		<form novalidate="true" action="{{ url_for('sethbridge') }}" id="sethbridge" method="post" >
-			<div class="page-header">
-					  <h3>Hbridge Actuators Test</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Hbridge Actuators Test</h3>   
 			</div>
 			
-			<div class="well bs-component smallgap">
+			<div class="card card-body bg-light">
 				
 						
 		{% if hbridgelist|length > 0 %}		
@@ -498,7 +464,7 @@
 
 				  <td>
 		  					  				
-				  <select class="form-control input-sm" id="selsteps_{{ item }}">
+				  <select class="form-select input-sm" id="selsteps_{{ item }}">
 					<option>1</option>
 					<option>3</option>
 					<option>10</option>
@@ -509,15 +475,15 @@
 				  </td>	
 				  		
 				<td>
-					<button class="hbridgebutton btn-sm btn btn-default btn-block" type="button" name="hbridge" element="{{item}}" direction="BACKWARD">
-					<span class="glyphicon glyphicon-minus-sign"></span>
+					<button class="hbridgebutton btn-sm btn btn-secondary btn-block" type="button" name="hbridge" element="{{item}}" direction="BACKWARD">
+					<span class="fa-solid fa-minus"></span>
 					</button>
 
 
 				</td>							
 				<td>
-					<button class="hbridgebutton btn-sm btn btn-default btn-block" type="button" name="hbridge" element="{{item}}" direction="FORWARD">
-					</span><span class="glyphicon glyphicon-plus-sign"></span>
+					<button class="hbridgebutton btn-sm btn btn-secondary btn-block" type="button" name="hbridge" element="{{item}}" direction="FORWARD">
+					</span><span class="fa-solid fa-plus"></span>
 					</button>
 				</td>
 
@@ -537,7 +503,7 @@
         </tbody>
     </table>
 	
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
@@ -550,7 +516,7 @@
 			
 		<!-- Button for Hbridge reset page -->
 		
-			<div class="row">
+			<div class="row pb-2">
 
 				<div class="col-xs-12">
 				
@@ -565,7 +531,7 @@
 				</div>			
 		
 		{% else %}
-				<div class="row">
+				<div class="row pb-2">
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 					<legend>No hbridge motor set</legend>  
 					</div>	
@@ -576,7 +542,7 @@
 		
 
 		</div> 
-		<!-- end wells -->
+		<!-- end cards -->
 		
 			 <script type=text/javascript>
 			  $(function() {
@@ -627,11 +593,11 @@
 		<!-- Stepper Actuators test -->
   
 		<form novalidate="true" action="{{ url_for('setstepper') }}" id="setstepper" method="post" >
-			<div class="page-header">
-					  <h3>Stepper Actuators Test</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">			
+				<h3>Stepper Actuators Test</h3>   
 			</div>
 			
-			<div class="well bs-component smallgap">
+			<div class="card card-body bg-light">
 			
 						<!--  Actuator table   -->
 						
@@ -644,8 +610,8 @@
 					
 					<th align="left">Name</th>
 					<th align="center">Steps</th>
-					<th align="center"><span class="glyphicon glyphicon-arrow-left"></span></th>
-					<th align="center"><span class="glyphicon glyphicon-arrow-right"></span></th>
+					<th align="center"><span class="fa-solid fa-arrow-left"></span></th>
+					<th align="center"><span class="fa-solid fa-arrow-right"></span></th>
 					<th align="center">Pos</th>
 					
 					
@@ -666,7 +632,7 @@
 
 				  <td>
 		  					  				
-				  <select class="form-control input-sm" id="selsteps_{{ item }}">
+				  <select class="form-select" id="selsteps_{{ item }}">
 					<option>1</option>
 					<option>2</option>
 					<option>3</option>
@@ -682,15 +648,15 @@
 				  </td>	
 				  		
 				<td>
-					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="BACKWARD">
-					<span class="glyphicon glyphicon-minus-sign"></span>
+					<button class="stepperbutton btn-sm btn btn-secondary btn-block" type="button" name="stepper" element="{{item}}" direction="BACKWARD">
+					<span class="fa-solid fa-minus"></span>
 					</button>
 
 
 				</td>							
 				<td>
-					<button class="stepperbutton btn-sm btn btn-default btn-block" type="button" name="stepper" element="{{item}}" direction="FORWARD">
-					<span class="glyphicon glyphicon-plus-sign"></span>	
+					<button class="stepperbutton btn-sm btn btn-secondary btn-block" type="button" name="stepper" element="{{item}}" direction="FORWARD">
+					<span class="fa-solid fa-plus"></span>	
 					</button>
 				</td>
 
@@ -706,7 +672,7 @@
         </tbody>
     </table>
 	
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
@@ -719,7 +685,7 @@
 			
 		<!-- Button for stepper reset page -->
 		
-			<div class="row">
+			<div class="row pb-2">
 
 				<div class="col-xs-12">
 				
@@ -727,14 +693,14 @@
 			
 					<button id="setsteppebtn" name="buttonsub" value="setstepper" type="submit" class="btn btn-success btn-sm btn-warp">
 						Stepper Position Reset
-					<span class="glyphicon glyphicon-cog"></span>
+					<span class="fas fa-cog"></span>
 					</button>
 		
 				</div>
 				</div>			
 		
 		{% else %}
-				<div class="row">
+				<div class="row pb-2">
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 					<legend>No Stepper motor set</legend>  
 					</div>	
@@ -745,7 +711,7 @@
 		
 
 		</div> 
-		<!-- end wells -->
+		<!-- end cards -->
 		
 			 <script type=text/javascript>
 			  $(function() {
@@ -796,21 +762,21 @@
 		<!-- Servo Actuators test -->
   
   		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="menuForm" class="jotform-form" method="post" >
-			<div class="page-header">
-					  <h3>Servo Actuators Test</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Servo Actuators Test</h3>   
 			</div>
 			
-			<div class="well bs-component dontwantgap">
+			<div class="card card-body bg-light">
 			
 			{% if servolist|length > 0 %}	
 						<!--  Actuator table   -->
-			<table class="table" margin: 20px;>
+			<table class="table table-condensed table-light table-sm">
 			<thead>
 				<tr>
 					<th>Name</th>
 					<th>Step</th>
-					<th><span class="glyphicon glyphicon-arrow-left"></th>
-					<th><span class="glyphicon glyphicon-arrow-right"></th>
+					<th><span class="fa-solid fa-arrow-left"></th>
+					<th><span class="fa-solid fa-arrow-right"></th>
 					<th>Status</th>
 				</tr>
 			</thead>
@@ -830,7 +796,7 @@
 
 				  <td>
 		  					  				
-				  <select class="form-control input-sm" id="selsteps_{{ item }}">
+				  <select class="form-select input-sm" id="selsteps_{{ item }}">
 					<option>5</option>
 					<option>10</option>
 					<option>15</option>
@@ -841,11 +807,11 @@
 				  		
 							
 				<td>
-					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" direction="FORWARD"><span class="glyphicon glyphicon-arrow-left"></button>
+					<button class="servobutton btn-sm btn btn-secondary btn-block" type="button" name="servo2" element="{{item}}" direction="FORWARD"><span class="glyphicon glyphicon-arrow-left"></button>
 				</td>
 
 				<td>
-					<button class="servobutton btn-sm btn btn-default btn-block" type="button" name="servo2" element="{{item}}" direction="BACKWARD"><span class="glyphicon glyphicon-arrow-right"></button>
+					<button class="servobutton btn-sm btn btn-secondary btn-block" type="button" name="servo2" element="{{item}}" direction="BACKWARD"><span class="glyphicon glyphicon-arrow-right"></button>
 
 
 				</td>
@@ -861,7 +827,7 @@
         </tbody>
     </table>
 	
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
@@ -871,7 +837,7 @@
 			</div>	
 
 		{% else %}
-				<div class="row">
+				<div class="row pb-2">
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 					<legend>No Servo motor set</legend>  
 					</div>	
@@ -924,311 +890,194 @@
   
 		<!-- Photocam test -->
 		
-		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="abcd" method="post" >
+		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="abcd" method="post">
 
-
-			<div class="page-header">
-					  <h3>WebCam Setting</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">	
+				<h3>WebCam Setting</h3>   
 			</div>
 
 			
-			<div class="well bs-component well-sm ">
+			<div class="card card-body bg-light">
 			
-			{% if camerasettinglist|length > 0 %}
+	{% if camerasettinglist|length > 0 %}
 
 			<div class="form-group">	
 
-			
-			<!--  list of cameras  -->
+				<!--  list of cameras  -->
 
-			
-
-
-			
-			
-			
-
-			{% for dict_item in camerasettinglist %}	
-				{% set item = dict_item['camname'] %}
-				{% set resolution = dict_item['resolution'] %}
-				{% set position = dict_item['position'] %}
-				{% set servo = dict_item['servo'] %}
-				{% set active = dict_item['active'] %}
-				{% set vflip = dict_item['vflip'] %}
-				
-			<!--  title of camera  -->
-
-			<div class="form-group">			
-			<div class="row">
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<legend>Camera: {{item}}</legend>  
+				{% for dict_item in camerasettinglist %}	
+					{% set item = dict_item['camname'] %}
+					{% set resolution = dict_item['resolution'] %}
+					{% set position = dict_item['position'] %}
+					{% set servo = dict_item['servo'] %}
+					{% set active = dict_item['active'] %}
+					{% set vflip = dict_item['vflip'] %}
+					
+				<!--  title of camera  -->
+	
+				<div class="row pb-2">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<legend>Camera: {{item}}</legend>  
+					</div>	
 				</div>	
-			</div>	
-			</div>	
 				
-				
-				
-			<table class="table" margin: 10px;>
-
-			<tbody>				
-				
-				<!-- 
-					<th>Device</th>
-					<th>Resol</th>
-					<th>Position%</th>
-					<th>Servo</th>
-					<th>Active</th>
-					<th>CTRL</th>			
-			    -->
-			<tr>
-
-				<td>
-					<label>Resol</label>
-				</td>
-
-
-				  <td>
-		  					  				
-				  <select class="form-control input-sm dontwantgap" id="selsettingres_{{ item }}">
-					<option {% if resolution=="320x240" %} selected="selected"{% endif %}>320x240</option>
-					<option {% if resolution=="640x480" %} selected="selected"{% endif %}>640x480</option>
-					<option {% if resolution=="1024x768" %} selected="selected"{% endif %}>1024x768</option>
-					<option {% if resolution=="1920x1080" %} selected="selected"{% endif %}>1920x1080</option>
-					<option {% if resolution=="1920x1440" %} selected="selected"{% endif %}>1920x1440</option>
-					<option {% if resolution=="2592x1944" %} selected="selected"{% endif %}>2592x1944</option>
-					<option {% if resolution=="3280x2464" %} selected="selected"{% endif %}>3280x2464</option>					
-				  </select>
-				  
-				  </td>	
-			</tr>
-			<tr>				
-				<td>
-					<label>Position%</label>
-				</td>
-				<td>		
-				  
-				  <input value="{{position}}" class="form-control input-sm dontwantgap" id="selsettingpos_{{ item }}" name="position" type="text">
-					<div class="small">Multiple positions separated by comma (,) Values from 0 to 100</div>
-				 </td>	 	
-
-			</tr>
-			<tr>
-				<td>
-					<label>Servo</label>
-				</td>
-
-				<td>		
-				  <select class="form-control input-sm dontwantgap" id="selsettingservo_{{ item }}">
-					{% for servoitem in servolist %}
-					<option {% if servoitem==servo %} selected="selected"{% endif %}>{{servoitem}}</option>
-					{% endfor %}
-				  </select>
-				 </td>	 
-			</tr>
-			<tr>
-
-				<td>
-					<label>Activate Daily Photo</label>
-				</td>
-				<td>
-
-					{% if active=="True" %}
-					<input id="toggle-event_{{ item }}" checked="checked" type="checkbox">
-					<input value="True" id="selsettingactive_{{ item }}" type="hidden">					
-					{% else %}						
-					<input id="toggle-event_{{ item }}" type="checkbox">
-					<input value="False" id="selsettingactive_{{ item }}" type="hidden">	
-					{% endif %}
-
-
-					<script>
-					  $(function() {
-						$('#toggle-event_{{ item }}').change(function() {
-							var togglevalue=$(this).prop('checked');
-				
-							if (togglevalue==true) {
-								$("#selsettingactive_{{ item }}").val("True");										
-							} else {
-								$("#selsettingactive_{{ item }}").val("False");	
-							}
-						})
-					  })
-					</script>
-							
-
-				</td>
-			</tr>
-			
-			<tr>
-
-				<td>
-					<label>vFlip</label>
-				</td>
-				<td>
-
-				  <select class="form-control input-sm dontwantgap" id="selsettingvflip_{{ item }}">
-					<option {% if vflip=="pos" %} selected="selected"{% endif %}>pos</option>
-					<option {% if vflip=="neg" %} selected="selected"{% endif %}>neg</option>			
-				  </select>
-							
-
-				</td>
-			</tr>
-			
-			
-			
-			
-			<tr>
-				<td>
-					<label>Test</label>
-				</td>
-				<td>
-					<!-- Test button-->										
-					<button class="startphoto btn-sm btn btn-default" type="button" name="photo" video="{{item}}">Test</button>
-
-				</td>
-
-			</tr>
-
-			
-			
-
-					
-
-
-				</tbody>
-			</table>
-	{% endfor %}		
-	<!--  end table 1 -->	
-
-	<div class="form-group">			
-	<div class="row">
-		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-		<legend>Common:</legend>  
-		</div>	
-	</div>	
-	</div>	
-
-
-	<table class="table" margin: 10px;>
-		<tbody>
-
-		<tr>
-			<td>
-	
-			
-
-
-				<!-- old 
-
-
-					<select class="form-control seltimeclass"  id="SelTime1" name="name" valueinit="{{photosetting[0]}}">
-					</select>		
-				-->
-				<!-- new -->
-
-						<div class="input-group clockpicker" data-autoclose="true">
-							<input readonly="readonly" type="text" class="form-control" id="SelTime1" value="{{photosetting[0]}}">
-							<span class="input-group-addon">
-								<span class="glyphicon glyphicon-time"></span>
-							</span>
-							<script type="text/javascript">
-							$('.clockpicker').clockpicker({ placement: 'top'});
-							</script>								
-						</div>
-
-				<!-- new -->
-			</td>
-			<td>				
-
-					<button id="savesettingphoto" class="btn-sm btn btn-default" type="button" name="photo">Save All Config</button>
-
-	
-
-		
-			</td>
-		</tr>
-
-						
-		<tr>
-			<td>
-						<label>Adapt to the screen
-						<input id="toggle-event" checked="checked" type="checkbox">
-						</label>
-						<script>
-						  $(function() {
-							$('#toggle-event').change(function() {
-								var togglevalue=$(this).prop('checked');
-					
-								if (togglevalue==true) {
-									$("#imgtest").addClass("img-responsive");										
-								} else {
-									$("#imgtest").removeClass("img-responsive");	
-								}
-							})
-						  })
-						</script>
-						
-
-			</td>
-			
-			
-			
-			
-			
-			
-			
-		</tr>
-		<tr>
-			<td>
-				   
-				   <!--  progress bar bootstrap-->
-		
-					<div class="progress">
-					  <div id="photoprogressbar1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
-					  </div>
+				<div class="row mb-3">
+	 				<label for="selsettingres_{{ item }}" class="col-sm-2 col-form-label">Resolution</label>
+					<div class="col-sm-10">
+						<select class="form-select" id="selsettingres_{{ item }}">
+						    <option {% if resolution=="320x240" %} selected="selected"{% endif %}>320x240</option>
+						    <option {% if resolution=="640x480" %} selected="selected"{% endif %}>640x480</option>
+						    <option {% if resolution=="1024x768" %} selected="selected"{% endif %}>1024x768</option>
+						    <option {% if resolution=="1920x1080" %} selected="selected"{% endif %}>1920x1080</option>
+						    <option {% if resolution=="1920x1440" %} selected="selected"{% endif %}>1920x1440</option>
+						    <option {% if resolution=="2592x1944" %} selected="selected"{% endif %}>2592x1944</option>
+						    <option {% if resolution=="3280x2464" %} selected="selected"{% endif %}>3280x2464</option>
+						</select>				
 					</div>
-
-				<!-- progress-->
-			
-			</td>			
-			<td>
-				   <!-- status-->
-
-					<label>Status:</label>
-
-					<label id="phototeststatus" for="input_3">Status</label>
-			
-			</td>
-
-
-		</tr>
-		</tbody>
-	</table>
-	<!--  end table -->	
-						
-
-				<div style="width: 100%; overflow: auto;">		
-				<img id="imgtest" class="img-responsive" src="{{ url_for('static', filename='cameratest/testimage1.jpg')}}" />
 				</div>
 
-			</div>					
+                <div class="row mb-3">
+			<label for="selsettingpos_{{ item }}" class="col-sm-2 col-form-label">Position</label>
+			<div class="col-sm-10">
+				<input value="{{position}}" class="form-control" id="selsettingpos_{{ item }}" name="position" type="text">
+				<div class="small">
+					Multiple positions separated by comma (,) Values from 0 to 100
+				</div>
+			</div>
+                </div>
+
+            <div class="row mb-3">
+                <label for="selsettingservo_{{ item }}" class="col-sm-2 col-form-label">Servo</label>
+                <div class="col-sm-10"> 
+					<select class="form-select" id="selsettingservo_{{ item }}">
+                    {% for servoitem in servolist %}
+                    	<option {% if servoitem==servo %} selected="selected"{% endif %}>{{servoitem}}</option>
+                    {% endfor %}
+					</select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="selsettingactive_{{ item }}" class="col-sm-2 col-form-label">Activate Daily Photo</label>
+                <div class="col-sm-10">
+                    {% if active=="True" %}
+                    <input class="form-check-input align-middle" id="toggle-event_{{ item }}" checked="checked" type="checkbox">
+                    <input value="True" id="selsettingactive_{{ item }}" type="hidden">
+                    {% else %}                                              
+                    <input class="form-check-input align-middle" id="toggle-event_{{ item }}" type="checkbox">
+                    <input value="False" id="selsettingactive_{{ item }}" type="hidden">
+                    {% endif %}
+
+
+                    <script>
+                      $(function() {
+                            $('#toggle-event_{{ item }}').change(function() {
+                                    var togglevalue=$(this).prop('checked');
+
+                                    if (togglevalue==true) {
+                                            $("#selsettingactive_{{ item }}").val("True");                                                 $
+                                    } else {
+                                            $("#selsettingactive_{{ item }}").val("False");
+                                    }
+                            })
+                      })
+                    </script>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <label for="selsettingvflip_{{ item }}" class="col-sm-2 col-form-label">vFlip</label>
+				<div class="col-sm-10">
+					<select class="form-select" id="selsettingvflip_{{ item }}">
+						<option {% if vflip=="pos" %} selected="selected"{% endif %}>pos</option>
+						<option {% if vflip=="neg" %} selected="selected"{% endif %}>neg</option>
+					</select>
+				</div>
+			</div>
+
+            <div class="row mb-3">
+                <label for="TestPhoto" class="col-sm-2 col-form-label">Test photo</label>
+                <div class="col-sm-10">
+					<button id="TestPhoto" class="startphoto btn-sm btn btn-secondary" type="button" name="photo" video="{{item}}"><i class="fa-solid fa-camera"></i> Test</button>
+                </div>
+            </div>
+
+	{% endfor %}		
+
+			<div class="form-group">			
+				<div class="row pb-2">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<legend>Common:</legend>  
+					</div>	
+				</div>	
+			</div>	
+
+
+			<div class="row mb-3">
+				<label for="SelTime1" class="col-sm-2 col-form-label">Daily Photo Time</label>
+				<div class="col-sm-2">
+					<div class="input-group clockpicker pull-center" data-placement="left" data-align="top" data-autoclose="true">
+						<input readonly="readonly" type="text" class="form-control" id="SelTime1" value="{{photosetting[0]}}">
+		                                <span class="input-group-addon">
+		                                	<span class="fa fa-clock-o"></span>
+		                                </span>
+		                                <script type="text/javascript">
+		                                	$('.clockpicker').clockpicker({ placement: 'top', 'default': 'now'});
+		                                </script>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<button id="savesettingphoto" class="btn btn-secondary" type="button" name="photo"><i class="fa-solid fa-floppy-disk"></i> Save config</button>
+				</div>
+			</div>
+
+			<div class="row mb-3">
+				<label for="toggle-event" class="col-sm-2 col-form-label">Adapt to screen</label>
+		                <div class="col-sm-10">
+					<input id="toggle-event" checked="checked" type="checkbox" class="form-check-input align-middle">
+				</div>
+
+				<script>
+		            $(function() {
+		                $('#toggle-event').change(function() {
+							var togglevalue=$(this).prop('checked');
+
+		                    if (togglevalue==true) {
+								$("#imgtest").addClass("img-responsive");                                              
+		                    } else {
+								$("#imgtest").removeClass("img-responsive");
+		                    }
+		                })
+					})
+				</script>
+			</div>
+
+			<div class="row mb-3">				   
+				<!--  progress bar bootstrap-->
+				<div class="progress">
+					<div id="photoprogressbar1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+					 </div>
+				</div>
+				
+				<!-- status-->
+				<label>Status:</label>
+				<label id="phototeststatus" for="input_3">Status</label>
+					
+				<div style="width: 100%; overflow: auto;">		
+					<img id="imgtest" class="img-responsive" src="{{ url_for('static', filename='cameratest/testimage1.jpg')}}" />
+				</div>
+			</div>
+		</div>			
+	</form>
 	<!--  end form group  -->
 	{% else %}
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<legend>No Camera detected</legend>  
 				</div>	
 			</div>
 
-	{% endif %}
-	
-	
-
-	</div> 
-	<!-- end wells -->
-
-
+	{% endif %}	
 
 
 			<script type=text/javascript>
@@ -1323,45 +1172,37 @@
 
 
 			</script>
-
-		</form>
   
 		<!-- mail test and setting -->
 		
 		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="mailset" method="post" >
 
-			<div class="page-header">
-				<h3>Mail Setting</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Mail Setting</h3>
 			</div>
 
 			{% for mailsetting in mailsettinglist %}
 			
 			
-			<div class="well bs-component ">
-				
-			<div class="form-group">			
-			<div class="row">
+			<div class="card card-body bg-light mb-2">
+							
+			<div class="row pb-2">
 				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<legend>eMail item: {{mailsetting[0]}}</legend>  
 				</div>	
 			</div>	
-			</div>	
-				
-				
-			<div class="form-group">					
-			<div class="row">
+								
+			<div class="row pb-2">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label id="label_30" for="input_3">Daily mail time:</label>
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control seltimeclass"  id="SelTime_{{mailsetting[0]}}" name="name" valueinit="{{mailsetting[1]}}">
+					<select class="form-select seltimeclass"  id="SelTime_{{mailsetting[0]}}" name="name" valueinit="{{mailsetting[1]}}">
 					</select>		
 				</div>
 			</div>	
-			</div>	
-			
-			<div class="form-group">		
-			<div class="row">
+					
+			<div class="row pb-2">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 				<label>Email address to send report:
 				</label>
@@ -1374,10 +1215,8 @@
 
 				</div>
 			</div>				
-			</div>	
-						
-			<div class="form-group">			
-			<div class="row">
+								
+			<div class="row pb-2">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label>Mail title:</label>
 				</div>
@@ -1385,23 +1224,19 @@
 					<input value="{{mailsetting[3]}}" class="form-control" id="title_{{mailsetting[0]}}" name="title" type="text">
 
 				</div>
-			</div>	
-			</div>	
+			</div>
 						
-			<div class="form-group">
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label>Mail type:</label>
 				</div>
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
 					<input value="{{mailsetting[4]}}" class="form-control" disabled>
 				</div>
-			</div>	
-			</div>	
+			</div>
 			
-			{% if (mailsetting[4]=="mail+info+link") %}
-			<div class="form-group">			
-			<div class="row">
+			{% if (mailsetting[4]=="mail+info+link") %}		
+			<div class="row pb-2">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label>Custom URL:</label>
 				</div>
@@ -1409,23 +1244,22 @@
 					<input value="{{mailsetting[5]}}" class="form-control" id="url_{{mailsetting[0]}}" name="url" type="text">
 
 				</div>
-			</div>	
-			</div>				
+			</div>		
 			{% endif %}
 			
 			<!-- Mail testing buttons -->
-			<div class="row">
-				<div class="col-xs-4">
-					<button id="test_{{mailsetting[0]}}" class="testmailbutton btn-sm btn btn-default" type="button" name="mail" element="{{mailsetting[0]}}">Send Test Mail</button>
+			<div class="row pb-2">
+				<div class="col-xs-4 pb-2">
+					<button id="test_{{mailsetting[0]}}" class="testmailbutton btn-sm btn btn-secondary" type="button" name="mail" element="{{mailsetting[0]}}"><i class="fa-solid fa-envelope-open-text"></i> Send Test Mail</button>
 								
 				</div>
 				
-				<div class="col-xs-4">
-					<button id="save_{{mailsetting[0]}}" class="savemailbutton btn-sm btn btn-default"  type="button" name="mail" element="{{mailsetting[0]}}">Save Config</button>
+				<div class="col-xs-4 pb-2">
+					<button id="save_{{mailsetting[0]}}" class="savemailbutton btn-sm btn btn-secondary"  type="button" name="mail" element="{{mailsetting[0]}}"><i class="fa-solid fa-floppy-disk"></i> Save Config</button>
 
 				</div>
 			</div>	
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
@@ -1436,12 +1270,6 @@
 			
 			</div>
 			{% endfor %}
-
-
-
-
-
-			
 
 			<script type=text/javascript>
 			  $(function() {
@@ -1488,173 +1316,137 @@
 
 		</form> 
   
-		
 		<form novalidate="true" action="{{ url_for('systemmailsetting') }}" id="sysmail" method="post" >
 			<!--<div class="page-header">
 					  <h3>Sensor Measure</h3>   
 			</div> -->
-			<div class="row">
+			<div class="row pb-2">
 				<div class="col-xs-4">
-				
 					<!-- advanced mail setting button -->
-			
 					<button id="advconfigbtn" name="button" value="show" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
-						Email Setting
-					<span class="glyphicon glyphicon-cog"></span>
+						<i class="fas fa-cog"></i> Email Settings
 					</button>
-		
 				</div>
 			</div>
 		</form>  
 		
-		
-		
-		
 		<!-- Clock test and setting -->
-		
 		<form novalidate="true" action="{{ url_for('show_Calibration') }}" id="mailset" method="post" >
 
-			<div class="page-header">
-				<h3>Clock Setting</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Clock Setting</h3>
 			</div>
-
-
 			
-			<div class="well bs-component ">
+			<div class="card card-body bg-light">
 			
-				<div class="row">
+				<div class="row pb-2">
 					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 					<legend>Clock and local timezone</legend>  
 					</div>	
-				</div>	
-				
-				
-			<div class="form-group">			
+				</div>		
 
-				<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Select Country:</label>
-				</div>
-		
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="selectpicker settimezone" data-live-search="true">
-					{% for country in countries %}
+				<div class="row pb-2">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Select Country:</label>
+					</div>
 
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<select class="form-select settimezone">
+						{% for country in countries %}
+							<optgroup label={{country.name}}>
+							{% for zone in country["timezones"] %}
+								<option data-tokens="{{country.name}}" {% if (zone==timezone) %}selected="selected"{% endif %} >{{zone}}</option>
+							{% endfor %}
+					  		</optgroup>
+						{% endfor %}
+						</select>
+					</div>
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<button id="settimezone" class="timezonebutton btn btn-secondary"  type="button" name="timezone" element="settimezone">SaveTimeZone</button>
+					</div>
+				</div>		
 
-					  <optgroup label={{country.name}}>
-									{% for zone in country["timezones"] %}
-										<option data-tokens="{{country.name}}" {% if (zone==timezone) %}selected="selected"{% endif %} >{{zone}}</option>
-									{% endfor %}
-					  </optgroup>
-
-					{% endfor %}
-
-					</select>
-
-
-					<button id="settimezone" class="timezonebutton btn btn-default"  type="button" name="timezone" element="settimezone">SaveTimeZone</button>
-				</div>
-				</div>			
-			</div>				
-			
-				
-	
-				
-				
-
-
-						
-			<div class="form-group">			
-
-				<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Read System Time:</label>
-				</div>
+				<div class="row pb-2">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Read System Time:</label>
+					</div>
 					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-						<button id="readsystemdate" class="clockbutton btn btn-default" type="button" name="clock" element="system">Readsystemclock</button>
+						<button id="readsystemdate" class="clockbutton btn btn-secondary" type="button" name="clock" element="system">Readsystemclock</button>
 		
 
 						<label id="clockvalue_system" for="input_3"></label>
 					</div>
-				</div>	
-			</div>	
-
-			<div class="form-group">	
-
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Read Network Time:</label>
 				</div>
 
-			
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<button id="readnetworkclock" class="clockbutton btn btn-default"  type="button" name="clock" element="network">Readnetworkclock</button>
+				<div class="row pb-2">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+						<label>Read Network Time:</label>
+					</div>
 
-					<label id="clockvalue_network" for="input_3"></label>
-				</div>
-			</div>	
+				
+					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+						<button id="readnetworkclock" class="clockbutton btn btn-secondary"  type="button" name="clock" element="network">Readnetworkclock</button>
 
-			</div>				
+						<label id="clockvalue_network" for="input_3"></label>
+					</div>
+				</div>		
 
-			<div class="form-group">	
-			
-				<div class="row">
+				<div class="row pb-2">
 					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 						<label>Set system time:</label>
 					</div>
-					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 							<div class="form-group">
-								<div class='input-group date datetimepicker'>
-									<input readonly="readonly" name="setclock" type='text' class="setclock form-control" value="{{initdatetime}}" >
+								<div class='input-group pb-2'>
+									<input name="setclock" type='text' class="setclock form-control" value="{{initdatetime}}" >
 									<span class="input-group-addon">
-										<span class="glyphicon glyphicon-calendar"></span>
+										<span class="fa-solid fa-calendar-days"></span>
 									</span>
 								</div>
 							</div>
 						
-							<button id="setHWClock" class="clockbutton btn btn-default"  type="button" name="clock" element="setHWClock">SetClock</button>
-							<div class="small">Set the clock will work only when NOT connected to internet, if connected the NTP protocol will update the time</div>
-							<div class="small"></div>
+							<button id="setHWClock" class="clockbutton btn btn-secondary"  type="button" name="clock" element="setHWClock">SetClock</button>					
 					
-					
-					</div>					
-					<script type="text/javascript">
-						$(function () {
-							$('.datetimepicker').datetimepicker({
-								locale: 'en-gb',
-								//useCurrent:false
-								ignoreReadonly: true,
-							});
-						});
-					</script>
+					</div>
+					<div class="row pt-2">
+						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12"></div>
+						<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+							<div class="alert alert-warning small d-flex align-items-center" role="alert">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+									<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+								</svg>
+								<div>
+									Set the clock will work only when NOT connected to internet,<br>
+									if connected the NTP protocol will update the time
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>			
+			
+				<div class="row pb-2">
+					<div class="col-xs-4">
+						<label>Status:</label>
+					</div>
+					<div class="col-xs-8">
+						<label id="clockteststatus" for="input_3">Status</label>
+					</div>
+				</div>	
+				
+				<div class="row">			
+					<div class="alert alert-info small d-flex align-items-center" role="alert">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-circle-fill flex-shrink-0 me-2" viewBox="0 0 16 16">
+							<path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+						</svg>
+						<div>
+							Raspberry PI hardware does not include an hardware clock with battery. If the system is not connected to internet the clock will require to be set every time the system is powered on unless an external hardware clock is used.<br>
+							If system is connected to the internet the NTP protocol will keep the raspberry time updated.
+						</div>
+					</div>
 				</div>
-			</div>				
-			
 
-			
+			</div> <!-- end card -->
 
-			
-			
-
-
-
-
-			<div class="row">
-				<div class="col-xs-4">
-					<label>Status:</label>
-				</div>
-				<div class="col-xs-8">
-					<label id="clockteststatus" for="input_3">Status</label>
-				</div>
-			</div>	
-			
-			<div class="small">NOTE: Raspberry PI hardware does not include an hardware clock with battery. If the system is not connected to internet
-			the clock will require to be set every time the system is powered on unless an external hardware clock is used. If system is connected to the internet the NTP protocol will keep the 
-			raspberry time updated.</div>
-			<div class="small"></div>
-			
-			
-			</div> <!-- end well -->
 			<script type=text/javascript> <!-- timezone -->
 			  $(function() {
 				$(".timezonebutton").click(function() {
@@ -1718,91 +1510,51 @@
 		<!-- Change Hardware component naming -->
   		<form  action="{{ url_for('show_Calibration') }}" id="menuForm32" class="jotform-form" method="post" >
 
-			<div class="page-header">
-					  <h3>Change the Hardware component naming for easier reference</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">			
+				<h3>Change the Hardware component naming for easier reference</h3>   
 			</div>
 
-			<div class="row">
-				<div class="col-xs-4">
-					<label for="input_3">Change Hardware naming</label>
-				</div>
+			<div class="row pb-2">
 				<div class="col-xs-8">
-					<button id="naming" class="btn-sm btn btn-default" name="buttonsub" value="editnames" type="submit">Edit Names</button>
-
-					
+					<button id="naming" class="btn btn-secondary" name="buttonsub" value="editnames" type="submit">Edit Names</button>
 				</div>
 			</div>	
-
-
-				 
-				<!-- Modal HTML -->
-				<div id="myModal" class="modal fade">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h4 class="modal-title">Confirmation</h4>
-							</div>
-							<div class="modal-body">
-								<p>Are you sure to restore the default setting?</p>
-								<p class="text-warning"><small>All the current setting will be lost, wifi connection will be removed</small></p>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-								<button id="deletbtn" name="buttonsub" value="delete" type="submit" class="btn btn-primary">Restore Default</button>
-							</div>
-						</div>
-					</div>
-				</div>
-
-
-
-		</form>
-		
-		
+			
+		</form>		
 		
 		
   
 		<!-- Configuration management -->
 		 <form  action="{{ url_for('show_Calibration') }}" id="menuFormupload" enctype="multipart/form-data" method="post" >
 
-			<div class="page-header">
-					  <h3>System Configuration Upload</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>System Configuration Upload</h3>   
 			</div>
 
-	<!-- New filestyle plugin -->
-	<script type=text/javascript src="{{url_for('static', filename='filestyle123/bootstrap-filestyle.min.js') }}"></script>
+			<div class="row pb-2">
+				<div class="form-group">
+				    <input type="file" class="form-control-file" name="file" id="file">
 
-			<div class="row">
-				<div class="col-xs-4">
-					<label for="input_3">Upload Configuration</label>
-				</div>
-				<div class="col-xs-8">
-					<input class="filestyle" type="file" name="file">  
-					<!-- <input class="btn-sm btn btn-default" type = "submit" value="uploadfile" name="buttonsub">  -->
-				<!-- Button HTML (to Trigger Modal) -->
-					<a href="#myModal2" role="button" class="btn-sm btn btn-default" data-toggle="modal">Upload and Apply</a>					
-				
-					
-				</div>
+					<!-- Button HTML (to Trigger Modal) -->
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#UploadModal2">Upload and Apply</button>
+				</div>			
 			</div>	
 			
-			
-				 
+
 				<!-- Modal HTML -->
-				<div id="myModal2" class="modal fade">
+				<div id="UploadModal2" class="modal fade" aria-labelledby="ModalLabelUpload" aria-hidden="true">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h4 class="modal-title">Confirmation</h4>
+								<h1 id="ModalLabelUpload" class="modal-title fs-5">Confirmation</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 							</div>
 							<div class="modal-body">
 								<p>Are you sure to replace the current setting?</p>
 								<p class="text-warning"><small>All the current setting will be lost</small></p>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 								<button id="uploadbtn" name="buttonsub" value="uploadfile" type="submit" class="btn btn-primary">Apply uploaded Config</button>
 							</div>
 						</div>
@@ -1815,40 +1567,19 @@
 			
 		</form>
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
   		<form  action="{{ url_for('show_Calibration') }}" id="menuForm3" class="jotform-form" method="post" >
 
-			<div class="page-header">
-					  <h3>System Configuration Download</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>System Configuration Download</h3>   
 			</div>
 
 
 
-			<div class="row">
-				<div class="col-xs-4">
-					<label for="input_3">Download Configuration</label>
-				</div>
+			<div class="row pb-2">
 				<div class="col-xs-8">
-
-				<!-- Button HTML -->
-				
-							<!--  file 1 -->
-					<div class="row">
+					<div class="row pb-2">
 						<div class="col-xs-6">
-							<button class="downloadbutton btn-sm btn btn-default"  type="button" name="configzip">DownloadConfigFiles</button>
+							<button class="downloadbutton btn btn-secondary"  type="button" name="configzip">Download Config Files</button>
 						</div>
 						<div class="col-xs-6">
 							<a id="downloadlinkconfigzip0" href="" ></a>
@@ -1859,12 +1590,12 @@
 				</div>
 			</div>	
 
-			<div class="row">
-				<div class="col-xs-4">
+			<div class="row pb-2">
+				<div class="col-2">
 					<label>Status:</label>
 				</div>
-				<div class="col-xs-4">
-					<label id="downloadstatus" for="input_3">Status</label>
+				<div class="col-4">
+					<label id="downloadstatus" for="input_3"></label>
 				</div>
 			</div>	
 
@@ -1926,67 +1657,60 @@
 			</script>
 
 
-			<div class="page-header">
-					  <h3>System Configuration Reset</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>System Configuration Reset</h3>
 			</div>
 
 
 
-			<div class="row">
-				<div class="col-xs-4">
-					<label for="input_3">Restore factory default</label>
-				</div>
+			<div class="row pb-2">
 				<div class="col-xs-8">
-					<!--<button id="deletbtn" class="btn-sm btn btn-default" name="buttonsub" value="delete" type="submit">Default</button>
-					-->
-
-				<!-- Button HTML (to Trigger Modal) -->
-				<a href="#myModal" role="button" class="btn-sm btn btn-default" data-toggle="modal">Restore default</a>					
-					
-					
+					<!-- Button HTML (to Trigger Modal) -->
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ModalRestore">Restore default</button>
 				</div>
 			</div>	
 
 
 				 
 				<!-- Modal HTML -->
-				<div id="myModal" class="modal fade">
+				<div id="ModalRestore" class="modal fade" aria-hidden="true" aria-labelledby="ModalLabelRestore">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h4 class="modal-title">Confirmation</h4>
+								<h1 id="ModalLabelRestore" class="modal-title">Confirmation</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 							</div>
 							<div class="modal-body">
 								<p>Are you sure to restore the default setting?</p>
 								<p class="text-warning"><small>All the current setting will be lost, wifi connection will be removed</small></p>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 								<button id="deletbtn" name="buttonsub" value="delete" type="submit" class="btn btn-primary">Restore Default</button>
 							</div>
 						</div>
 					</div>
 				</div>
 
-
-
-
-
-
-
-
-
-
-
 		</form>
 
-
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Show About Page</h3>   
+		</div>
+		<div class="row pb-2">
+			<div class="col-xs-12">
+				<a href="{{ url_for('show_about') }}">
+					<button id="Aboutbtn" name="buttonsub" value="Aboutbtn" class="btn btn-success">
+					About
+					</button>
+				</a>
+			</div>
+		</div>	
  
    </div> 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

@@ -3,37 +3,27 @@
 {% block body %}
   {% if session.logged_in %}
 
-  <div class="container-fluid">
+<div class="container-fluid">
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>About page</h3>
+	</div>
 
-
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
-						<h4 id="header">About page</h4>
-					</div>
-				</div>
-            </div>
-          </div>
-        </div>
-         
-		<div class="row">
-			<div class="col-xs-8">
-				<h5 id="header">Release {{Release}}</h5>
-			</div>
+	<div class="row">
+		<div class="col-xs-8">
+			<h5>Release {{Release}}</h5>
 		</div>
-				
+	</div>			
 				
          <p><a href="https://hydrosysblog.wordpress.com/configuration/">Software info</a></p>
          <p><a href="https://hydrosysblog.wordpress.com/hardware/">Hardware info</a></p>
          <p><a href="https://hydrosys4.wixsite.com/hydrosys4forum">Forum</a></p>         
-        </div>
+
+</div>
         
         
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
   
   {% endif %}
   <ul class=entries>

@@ -1,183 +1,255 @@
-{% extends "layout.html" %} <!-- Layout2 uses bootstrap 5 ***-->
+{% extends "layout.html" %}
 {% block body %}
   {% if session.logged_in %}
-    <link rel="stylesheet" href="{{url_for('static', filename='jsonform/deps/opt/bootstrap.css') }}" />
-    <script type=text/javascript src="{{url_for('static', filename='jsonform/deps/underscore.js') }}"></script>
-    <script type=text/javascript src="{{url_for('static', filename='jsonform/lib/jsonform.js') }}"></script>
-    <script type=text/javascript src="{{url_for('static', filename='jsonform/deps/opt/jsv.js') }}"></script>
 
-  <div class="container-fluid">
+<div class="container">
 
+  <div class="pb-2 mt-4 mb-2 border-bottom">
+    <h3>Home Assistant Integration</h3>
+  </div>
 
+  <div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <div class="card card-body bg-light">
+        <form class="form-vertical" action="{{ url_for('HASSIOsetting') }}" method=post>
 
-
-
-            <div class="row">
-              <div class="col-md-5">
-                <div class="well bs-component">
-                <form class="form-vertical" action="{{ url_for('HASSIOsetting') }}" method=post>
-                </div>
-              </div>
+          <div class="row pb-2 jsonform-error-Workmode">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Workmode">Integration Working Mode</label>
             </div>
- 
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <select name="Workmode" id="jsonform-1-elt-Workmode" class="form-select dontwantgap">
+                <option value="Status+Commands">Status+Commands</option>
+                <option value="Status">Status</option>
+                <option selected="" value="Disabled">Disabled</option>
+              </select>
+              <div class="small">Enable to send Home Assistant the Status, or send status and recieve commands</div>
+              <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
-            <script type="text/javascript">
-                var jsonschemarx = JSON.parse('{{ jsonschema | tojson | safe}}');
-                $('form').jsonForm(jsonschemarx);
-            </script>
- 
+          <div class="row pb-2 jsonform-error-Identifier jsonform-required">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Identifier">Device Identifier</label>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <input type="text" class="form-control" name="Identifier" value="Hydrosys4" id="jsonform-1-elt-Identifier" aria-label="Device Identifier" maxlength="15" required="required">
+             <div class="small">Any string, Used to identify this device with Home Assistant</div>
+             <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
+          <div class="row pb-2 jsonform-error-Host">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Host">IP Address</label>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <input type="text" class="form-control" name="Host" value="" id="jsonform-1-elt-Host" aria-label="IP Address">
+             <div class="small">IP address of Home Assistant</div>
+             <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
+          <div class="row pb-2 jsonform-error-Port">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Port">Port</label>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <input type="number" class="form-control" name="Port" value="1883" id="jsonform-1-elt-Port" aria-label="Port">
+             <div class="small">Port used in Home Assistant MQTT</div>
+             <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
+          <div class="row pb-2 jsonform-error-Username">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Username">User Name</label>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <input type="text" class="form-control" name="Username" value="admin" id="jsonform-1-elt-Username" aria-label="User Name">
+              <div class="small">Username of the user in Home Assistant</div>
+             <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
-         <!--  Button to query the hassio using Ajax (not using jsonform)-->
-         <div class="row">
-          <div class="col-md-5">
-            <div class="well bs-component">
-                  <table class="table" margin: 20px;>
-                    <thead>
-                      <tr>
-                        <th>Query</th>
-                        <th>Result</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    
-                    <tr>
-                      <td>                           
-                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="sendupdateconfig">Send Configuration to Home Assistant</button>
-                      </td>
-                      <td>
-                          <label id="value_sendupdateconfig" for="input_3"></label>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>                           
-                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="removeconfig">Remove All Hydrosys Configurations from Home Assistant</button>
-                      </td>
-                      <td>
-                          <label id="value_removeconfig" for="input_3"></label>
-                      </td>
-                    </tr>
-                      </tbody>
-                  </table>
-            </div>	
-          </div>	
-        </div>	
+          <div class="row pb-2 jsonform-error-Password">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Password">Password</label>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <input type="password" class="form-control" name="Password" value="" id="jsonform-1-elt-Password" aria-label="Password">
+             <div class="small">Password of the user in Home Assistant</div>
+             <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
+          <div class="row pb-2 jsonform-error-Discovery">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+              <label for="jsonform-1-elt-Discovery">Enable Discovery Mode</label>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+              <select name="Discovery" id="jsonform-1-elt-Discovery" class="form-select dontwantgap">
+                <option selected="" value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+             <div class="small">If enabled, the entities of this system will be auto-discoverable on Home Assistant</div>
+             <div class="small help-block jsonform-errortext" style="display:none;"></div>
+            </div>
+          </div>
 
-         <!--  Button to query the topics relevant to items -->
-         <div class="row">
-          <div class="col-md-5">
-            <div class="well bs-component">
-                  <table class="table" margin: 20px;>
-                    <thead>
-                      <tr>
-                        <th>Item</th>
-                        <th>Action</th>
-                        <th>Result</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    
-                    <tr>
-                      <td>
-                      <select class="form-control input-sm" id="selectedItem">
-                        {% for item in itemlist %}
-                        <option value="{{item}}" >{{item}}</option>
-                        {% endfor %}
-                      </select>
-                    </td>
-                      <td>                           
-                          <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="query_topics">Query</button>
-                      </td>
-                      <td>
-                          <label id="value_query_topics" for="input_3"></label>
-                    </tr>
-                      </tbody>
-                  </table>
-
-
-
-
-                  <table class="table" margin: 20px;>
-                    <thead>
-                      <tr>
-                        <th>Item</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    
-                    <tr>
-                      <td>
-                          <label id="value_query_topics0" for="input_3"></label>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                          <label id="value_query_topics1" for="input_3"></label>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                          <label id="value_query_topics2" for="input_3"></label>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                          <label id="value_query_topics3" for="input_3"></label>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                          <label id="value_query_topics4" for="input_3"></label>
-                      </td>
-                    </tr>
-                      </tbody>
-                  </table>
-            </div>	
-          </div>	
-        </div>	
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+            <button type="submit" class="thebutton btn btn-success btn-sm btn-block defaultbutton mb-2"><i class="fa-solid fa-floppy-disk"></i> Confirm &amp; Apply</button>
+          </div>
 
       </div>
+    </div>
+  </div>
+
+  <!--  Button to query the hassio using Ajax (not using jsonform)-->
+  <div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <div class="card card-body bg-light">
+            <table class="table table-condensed table-light table-sm">
+              <thead>
+                <tr>
+                  <th class="col-lg-6 col-md-6 col-sm-6 col-xs-12">Query</th>
+                  <th class="col-lg-6 col-md-6 col-sm-6 col-xs-12">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+              
+              <tr>
+                <td>                           
+                    <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="sendupdateconfig">Send Configuration to Home Assistant</button>
+                </td>
+                <td>
+                    <label id="value_sendupdateconfig" for="input_3"></label>
+                </td>
+              </tr>
+              <tr>
+                <td>                           
+                    <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="removeconfig">Remove All Hydrosys Configurations from Home Assistant</button>
+                </td>
+                <td>
+                    <label id="value_removeconfig" for="input_3"></label>
+                </td>
+              </tr>
+                </tbody>
+            </table>
+      </div>	
+    </div>	
+  </div>	
 
 
+  <!--  Button to query the topics relevant to items -->
+  <div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+      <div class="card card-body bg-light">
+        <table class="table table-condensed table-light table-sm">
+          <thead>
+            <tr>
+              <th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Item</th>
+              <th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Action</th>
+              <th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+          
+          <tr>
+            <td>
+            <select class="form-select" id="selectedItem">
+              {% for item in itemlist %}
+              <option value="{{item}}" >{{item}}</option>
+              {% endfor %}
+            </select>
+          </td>
+            <td>                           
+                <button id="readsystemdate" class="ajaxbutton btn btn-sm btn-success" type="button" name="HASSIO" element="query_topics">Query</button>
+            </td>
+            <td>
+                <label id="value_query_topics" for="input_3"></label>
+          </tr>
+            </tbody>
+        </table>
 
-			<script type=text/javascript>
-			  $(function() {
-				$(".ajaxbutton").click(function() {
-				//alert("test button pressed");
-				var prid=$(this).attr('name');
-				var elem=$(this).attr('element');
-        var value = $("#selectedItem").val();	
-        $('#value_' + elem).text("working...");	
-					$.ajax({
-								type: "GET",
-								url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&value=" + value,
-								contentType: "application/json; charset=utf-8",
-								data: { echoValue: "requestfordata" },
-								success: function(data) {
-									$('#value_' + elem).text(data.value);
-                      if (data.value=="topics"){
-                      var topics=data.topics;
-                      //alert(topics)
-                      fLen = topics.length;
-                      for (i = 0; i < fLen; i++) {
-                        $('#value_' + elem + i.toString()).text(topics[i]);
-                      }	
-                      }
-								},
-								//error: function(jqXHR, textStatus, errorThrown) {
-								//    alert(errorThrown);
-								//}
-							});    			
-				});
-				
+        <table class="table table-condensed table-light table-sm">
+          <thead>
+            <tr>
+              <th>Item</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                  <label id="value_query_topics0" for="input_3"></label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                  <label id="value_query_topics1" for="input_3"></label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                  <label id="value_query_topics2" for="input_3"></label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                  <label id="value_query_topics3" for="input_3"></label>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                  <label id="value_query_topics4" for="input_3"></label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>	
+    </div>	
+  </div>	
 
-			  });
-			</script>
-      <!--  Button end-->
+</div>
 
+
+	<script type=text/javascript>
+	  $(function() {
+  		$(".ajaxbutton").click(function() {
+  		//alert("test button pressed");
+  		var prid=$(this).attr('name');
+  		var elem=$(this).attr('element');
+      var value = $("#selectedItem").val();	
+      $('#value_' + elem).text("working...");	
+  			$.ajax({
+  						type: "GET",
+  						url: $SCRIPT_ROOT + "/doit/?name=" + prid  + "&element=" + elem + "&value=" + value,
+  						contentType: "application/json; charset=utf-8",
+  						data: { echoValue: "requestfordata" },
+  						success: function(data) {
+  							$('#value_' + elem).text(data.value);
+                    if (data.value=="topics"){
+                    var topics=data.topics;
+                    //alert(topics)
+                    fLen = topics.length;
+                    for (i = 0; i < fLen; i++) {
+                      $('#value_' + elem + i.toString()).text(topics[i]);
+                    }	
+                    }
+  						},
+  						//error: function(jqXHR, textStatus, errorThrown) {
+  						//    alert(errorThrown);
+  						//}
+  					});    			
+  		});
+
+	  });
+	</script>
+  <!--  Button end-->
+
+  {% else %}
+
+    <h1>Please login</h1>
   
   {% endif %}
   <ul class=entries>

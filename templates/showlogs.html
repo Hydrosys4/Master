@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+
+<div class="container">
+
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>Logs</h3>
+	</div>
+	
+	<div id="scrollable-element" style="overflow-y: auto; height: 768px;">
+		<pre id="output"></pre>
+
+		<div class="spinner-border" role="status">
+			<span class="visually-hidden"><pre>Loading...</pre></span>
+		</div>
+	</div>
+
+  <script type="text/javascript">
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+  </script>
+
+	<script type="text/javascript">
+		function getservertime() {
+			var servertime = "01/01/1970 00:00"
+
+			$.ajax({
+				type: "GET",
+				url: $SCRIPT_ROOT + "/doit/?name=clock&element=system&datetime=0",
+				contentType: "application/json; charset=utf-8",
+				async: false,
+				data: { echoValue: "requestfordata" }
+
+			})
+			.done(function(data) {
+				servertime = data.value;
+			})
+			.fail(function() {
+				console.log("get servertime failed");
+			});
+
+			return servertime
+		}
+
+		function streamlog() {
+			if( localStorage.logstream ){
+				lastreq = localStorage.logstream;
+			} else {
+				lastreq = 0;
+			}
+
+			$.ajax({
+				type: "GET",
+				url: $SCRIPT_ROOT + "/logstream",
+				contentType: "text/plain; charset=utf-8",
+				data: { lasttime: lastreq }
+
+			})
+			.done(function(data) {
+				$('.spinner-border').hide();
+				var output = document.getElementById('output');
+				if (data.length > 0) {
+					if (lastreq === 0) {
+						console.log("new");
+						output.textContent = data;
+					} else {
+						console.log("append");
+						output.append(document.createTextNode(data));
+					}
+					localStorage.logstream = getservertime();
+				}
+			})
+			.fail(function() {
+				$('.spinner-border').show();
+				console.log("Failed to stream log!")
+			});
+		}
+		localStorage.clear();
+		streamlog();
+		setInterval(streamlog, 5000);
+
+		const scrollableElement = document.getElementById('scrollable-element');
+		scrollableElement.scrollTo(0, scrollableElement.scrollHeight);
+	</script>
+
+</div>
+
+  
+  {% endif %}
+  <ul class=entries>
+
+  </ul>
+{% endblock %}

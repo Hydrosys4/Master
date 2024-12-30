@@ -14,7 +14,7 @@ logger = logging.getLogger("hydrosys4."+__name__)
 
 # ///////////////// -- GLOBAL VARIABLES AND INIZIALIZATION --- //////////////////////////////////////////
 
-DATEFORMAT="%d/%m/%Y %H:%M"
+DATEFORMAT="%d/%m/%Y %H:%M:%S"
 timezone=clockdbmod.gettimezone()
 os.environ['TZ'] = timezone
 time.tzset()

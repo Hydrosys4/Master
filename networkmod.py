@@ -509,7 +509,7 @@ def checkGWsubnet(interface): #-------------------
 			logger.warning("STATIC ip address will not be set")
 			message="Warning: Last wifi connection, subnet not matching gateway ip = "+ ipaddr +" static ip =" + IPADDRESS +". Change the static IP address to match the Wifi GW subnet e.g " + newstaticIP
 			networkdbmod.storemessage(message)
-			dictitem={'title': "System Message (Alert)", 'content': message }
+			dictitem={'title': "System Message (Alert)", 'content': message, 'color': "purple" }
 			messageboxmod.SaveMessage(dictitem)
 			return False , ipaddr
 		else:

@@ -4,212 +4,158 @@
   {% if session.logged_in %}
   
 
-	<!--  photoswipe -->
-		<!-- Core CSS file -->
-		<link rel="stylesheet" href="{{ url_for('static', filename='photoswipe/dist/photoswipe.css') }}"> 
+  <!--  photoswipe -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='PhotoSwipe-5.4.4/photoswipe.css') }}"> 
 
-		<!-- Skin CSS file (styling of UI - buttons, caption, etc.)
-			 In the folder of skin CSS file there are also:
-			 - .png and .svg icons sprite, 
-			 - preloader.gif (for browsers that do not support CSS animations) -->
-		<link rel="stylesheet" href="{{ url_for('static', filename='photoswipe/dist/default-skin/default-skin.css') }}"> 
-
-		<!-- Core JS file -->
-		<script src="{{url_for('static', filename='photoswipe/dist/photoswipe.min.js') }}"></script> 
-
-		<!-- UI JS file -->
-		<script src="{{url_for('static', filename='photoswipe/dist/photoswipe-ui-default.js') }}"></script> 
-
-
-  
-  
   <div class="container-fluid">
-	      <div class="page-header">
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>Image Gallery</h3>
+	</div>        
 
-					  <h3>Image Gallery</h3>
+	<script type="module">
+		// Include Lightbox 
+		import PhotoSwipeLightbox from '{{ url_for('static', filename='PhotoSwipe-5.4.4/photoswipe-lightbox.esm.js') }}';
 
-			 </div>        
+		const lightbox = new PhotoSwipeLightbox({
+			// may select multiple "galleries"
+			gallery: '#gallery-hydrosys',
+
+			// Elements within gallery (slides)
+			children: 'a',
+
+			wheelToZoom: true,
+
+			loop: false,
+
+			bgClickAction: 'close',
+
+			imageClickAction: 'next',
+
+			//padding: { top: 0, bottom: 0, left: 0, right: 0 }
+
+			paddingFn: (viewportSize) => {
+				return {
+					left: viewportSize.x < 400 ? 0 : 50,
+
+					right: viewportSize.x < 400 ? 0 : 50,
+
+					top: viewportSize.y < 900 ? 0 : 100,
+
+					bottom: viewportSize.y < 900 ? 0 : 100,
+				};
+			},
+
+			// setup PhotoSwipe Core dynamic import
+			pswpModule: () => import('{{ url_for('static', filename='PhotoSwipe-5.4.4/photoswipe.esm.js') }}'),
+
+		});
+
+		lightbox.init();
+	</script>
+
 	<form novalidate="true" action="{{ url_for('imageshow') }}" id="menuForm" method="post" > 
 		<!-- BUTTONS -->
-		<div class="col-xs-12">
 		<div class="row">
-		{% for month in monthlist  %}	
+			<div class="col-12">
+			{% for month in monthlist  %}	
 
-		<button class="thebutton btn-sm btn btn-{% if month==selectedmothname %}primary{% else %}default{% endif %}" type="submit" name="{{month}}">{{month}}</button>
+				<button class="thebutton me-2 mt-2 btn-sm btn btn-{% if month==selectedmonthname %}primary{% else %}secondary{% endif %}" type="submit" name="{{month}}">{{month}}</button>
 
-		{% endfor %}
-		</div>
-		</div>
-		<input value="{{selectedmothname}}" id="actionbtn" name="actionbtn" type="hidden">
-		
-		
-
-
-	<div class="row top-buffer"> 
-	</div>
-
-		
-										
-		<div class="row top-buffer"> <!-- separation of 10px in row -->
-
-		{% for pt in filenamelist  %}	
-		<div class="col-lg-2 col-md-3 col-sm-4 col-xs-6">		
-		<div class="thumbnail" title="{{ titlelist[loop.index0] }}" href="{{ url_for('static', filename=pt)}}" index="{{loop.index0}}">
-			<img  width="200" alt="{{ titlelist[loop.index0] }}"  src="{{ url_for('static', filename=thumbfilenamelist[loop.index0])}}" >
-		</div>
-		</div>  
-		{% endfor %}
-		</div>
-                  
-
-
-            
-			
-			
-			
-
-
-		<!-- Root element of PhotoSwipe. Must have class pswp. -->
-		<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
-
-			<!-- Background of PhotoSwipe. 
-				 It's a separate element as animating opacity is faster than rgba(). -->
-			<div class="pswp__bg"></div>
-
-			<!-- Slides wrapper with overflow:hidden. -->
-			<div class="pswp__scroll-wrap">
-
-				<!-- Container that holds slides. 
-					PhotoSwipe keeps only 3 of them in the DOM to save memory.
-					Don't modify these 3 pswp__item elements, data is added later on. -->
-				<div class="pswp__container">
-					<div class="pswp__item"></div>
-					<div class="pswp__item"></div>
-					<div class="pswp__item"></div>
-				</div>
-
-				<!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
-				<div class="pswp__ui pswp__ui--hidden">
-
-					<div class="pswp__top-bar">
-
-						<!--  Controls are self-explanatory. Order can be changed. -->
-
-						<div class="pswp__counter"></div>
-
-						<button type="button" class="pswp__button pswp__button--close" title="Close (Esc)"></button>
-
-						<button type="button" class="pswp__button pswp__button--share" title="Share"></button>
-
-						<button type="button" class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-
-						<button type="button" class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-
-						<!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
-						<!-- element will get class pswp__preloader--active when preloader is running -->
-						<div class="pswp__preloader">
-							<div class="pswp__preloader__icn">
-							  <div class="pswp__preloader__cut">
-								<div class="pswp__preloader__donut"></div>
-							  </div>
-							</div>
-						</div>
-					</div>
-					
-					<div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-						<div class="pswp__share-tooltip"></div> 
-					</div>
-					
-					<button type="button" class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
-					</button>
-
-					<button type="button" class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
-					</button>
-
-					<div class="pswp__caption">
-						<div class="pswp__caption__center"></div>
-					</div>
-
-				</div>
-
+			{% endfor %}
+				<button class="thebutton me-2 mt-2 btn-sm btn btn-{% if selectedmonthname == "all" %}primary{% else %}secondary{% endif %}" type="submit" name="all">all</button>
 			</div>
+		</div>
+		<input value="{{selectedmonthname}}" id="actionbtn" name="actionbtn" type="hidden">
 
+		<div class="row top-buffer"></div>
+		
+		<div class="pswp-gallery pswp-gallery--single-column" id="gallery-hydrosys">
+		{% for pt in filenamelist  %}
+				<a href="{{ url_for('static', filename=pt)}}" target="_blank" data-pswp-width="1920" data-pswp-height="1080">
+					<img alt="{{ titlelist[loop.index0] }}" src="{{ url_for('static', filename=thumbfilenamelist[loop.index0])}}"/>
+				</a>
+		{% endfor %}
 		</div>
 
-
-		<div class="page-header">
-					<h4>Delete All Images</h4>
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Actions</h3>
 		</div>
+
 		<div class="row">							
-				<div class="col-xs-12">
-				<button class="thebutton btn btn-sm btn-default" type="submit" name="DeleteAll">DeleteAll</button>
-				</div>
+			<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+				<button type="button" class="btn btn-success defaultbutton w-100" data-bs-toggle="modal" data-bs-target="#CreateImageModal"><i class="fa-solid fa-camera"></i> Create Image</button>
+			</div>
 		</div>
 
-		
-		
+		<div class="row">
+			<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+				<button type="button" class="btn btn-danger defaultbutton w-100" data-bs-toggle="modal" data-bs-target="#DeleteAllModal"><i class="fa-solid fa-trash"></i> Delete All</button>
+			</div>
+		</div>
+
+		<!-- Modal HTML -->
+		<div id="CreateImageModal" class="modal fade" aria-labelledby="ModalLabelCreateImg" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 id="ModalLabelCreateImg" class="modal-title fs-5">Confirmation</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<p>Proceed to create image?!</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button name="CreateImage" type="submit" class="createimage btn btn-primary">Proceed</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal HTML -->
+		<div id="DeleteAllModal" class="modal fade" aria-labelledby="ModalLabelDeleteImg" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 id="ModalLabelDeleteImg" class="modal-title fs-5">Confirmation</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+					<div class="modal-body">
+						<p>Proceed to delete ALL images?!</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button name="DeleteAll" type="submit" class="thebutton btn btn-primary">Proceed</button>
+					</div>
+				</div>
+			</div>
+		</div>  		
+
 	</form> 
 
 
-		<script type="text/javascript" charset="utf-8">
-                
-			$(function() {
-					$(".thebutton").click(function() {
-						var selvalue=$(this).attr('name');
-						//alert(selvalue);
-						$('#actionbtn').attr("value", selvalue);
-					});  
-				});  
-        </script>		
+	<script type="text/javascript" charset="utf-8"> 
+		$(function() {
+			$(".thebutton").click(function() {
+				var selvalue=$(this).attr('name');
+				//alert(selvalue);
+				$('#actionbtn').attr("value", selvalue);
+			});  
+		});
+
+		$(function() {
+			$(".createimage").click(function() {
+				var selvalue=$(this).attr('name');
+				//alert(selvalue);
+				$('#actionbtn').attr("value", selvalue);
+			});  
+		});  
+    </script>		
 		
-		<script type="text/javascript" charset="utf-8">		
-		
-            var pswpElement = document.querySelectorAll('.pswp')[0];
-
-			// build items array for photoswipe
-
-			var filenamelist={{filenamelist|safe}};
-			var wlist={{wlist|safe}};
-			var hlist={{hlist|safe}};
-			var titlelist={{titlelist|safe}};
-			var items=[];
-			for (var i = 0; i < filenamelist.length; i++) {
-			subitem={};
-			subitem["src"]="/static/" + filenamelist[i];
-			subitem["w"]=parseInt(wlist[i])
-			subitem["h"]=parseInt(hlist[i])
-			subitem["title"]=titlelist[i]			
-            items[i] = subitem;
-			};
-
-			// Initializes and opens PhotoSwipe
-               
-            // start the popup when thumb is clicked
-               
-           		$(function() {
-					$(".thumbnail").click(function() {
-						var selvalue=$(this).attr('index');
-						// define options (if needed)
-						var options = {
-								// optionName: 'option value'
-								// for example:
-								index: parseInt(selvalue), // start at first slide
-								clickToCloseNonZoomable: false,
-								shareButtons: [
-											{id:'download', label:'Download image', url:'{{raw_image_url}}', download:true}
-												],
-							};
-						var gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
-						gallery.init();
-
-					});  
-				});  
-        </script>
-  
   </div>
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

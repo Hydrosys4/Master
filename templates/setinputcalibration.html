@@ -2,27 +2,35 @@
 {% set active_page = "showcalibration" %}
 {% block body %}
   {% if session.logged_in %}
-  <div class="container-fluid">
-	  
+
+ <div class="container">	  
 	  
 		<!-- hbridge Actuators test -->
-  
   		<form novalidate="true" action="{{ url_for('setinputcalibration') }}" id="menuForm" method="post" >
-			<div class="page-header">
-					  <h3>Input Calibration</h3>   
-			</div>
-			
-			<div class="well bs-component smallgap">
+                        <div class="pb-2 mt-4 mb-2 border-bottom">
+                                <h3>Sensor Input Calibration</h3>
+                        </div>
+		
+			<div class="card card-body bg-light">
 				
-			<div class="small"><b>MIN and MAX:</b> in case a sensor input ranges from a min voltage to a max voltage (within 0-5v) setting the MIN=min sensor value and MAX=max sensor value will normalize the reading in the range between 0 and 1.</div>
-			<div class="small"><b>SCALE:</b> it is a multiplier to the sensor reading, it is applied after the MIN, MAX normalization.</div>
-			<div class="small"><b>OFFSET:</b> this is an offset applied after scaling.</div>
-			<div class="small"><b>DIRECTION:</b> setting it to "inv" reverses the sensor reading curve.</div>
-			<p></p>
-			<p></p>
+				<div class="row col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="alert alert-info small d-flex align-items-center" role="alert">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-info-circle-fill flex-shrink-0 me-2" viewBox="0 0 16 16">
+							<path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+						</svg>
+						<div>
+							<div class="small"><b>MIN and MAX:</b> in case a sensor input ranges from a min voltage to a max voltage (within 0-5v) setting the MIN=min sensor value and MAX=max sensor value will normalize the reading in the range between 0 and 1.</div>
+							<div class="small"><b>SUBTRACT:</b> it is a subtraction to the sensor reading, it is applied after the MIN, MAX normalization.</div>
+							<div class="small"><b>SCALE:</b> it is a multiplier to the sensor reading, it is applied after the SUBTRACT normalization.</div>
+							<div class="small"><b>DIVIDE:</b> it is a division to the sensor reading, it is applied after the SCALE normalization.</div>
+							<div class="small"><b>OFFSET:</b> this is an offset applied after all normalizations.</div>
+							<div class="small"><b>DIRECTION:</b> setting it to "inv" reverses the sensor reading curve.</div>
+						</div>
+					</div>
+				</div>
 			
 						<!--  Actuator table   -->
-			<table class="table" margin: 20px;>
+			<table class="table table-condensed table-light table-sm hydrotable">
 			<thead>
 				<tr>
 					<th>Input</th>
@@ -53,7 +61,7 @@
 
 				  {% else %}
 				  
-						<select class="form-control input-sm dontwantgap" id="{{ item }}_{{ parameter }}" name="{{ parameter }}">
+						<select class="form-select dontwantgap" id="{{ item }}_{{ parameter }}" name="{{ parameter }}">
 						{% for name in selectvalues %}	
 							<option {% if name==sensorstatuslist[count][parameter] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 						{% endfor %}											
@@ -75,7 +83,7 @@
     </table>
 	
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
 					<label>Status:</label>
 				</div>
 				<div class="col-xs-8">
@@ -83,8 +91,11 @@
 				</div>
 			</div>	
 
-
-	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Back</button>
+			<div class="row">
+				<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+					<button class="btn btn-secondary defaultbutton w-100" type="submit" name="buttonsub" value="cancel"><i class="fa-solid fa-circle-left"></i> Back</button>
+				</div>
+			</div>
 
 		</div>
 			 <script type=text/javascript>
@@ -140,7 +151,7 @@
    </div> 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

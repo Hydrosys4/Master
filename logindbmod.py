@@ -11,6 +11,7 @@ import sys
 import string
 from datetime import datetime,date,timedelta
 import time
+import hashlib
 import filestoragemod
 import hardwaremod
 
@@ -26,21 +27,19 @@ DATAFILENAME="logincred.txt"
 # if file does not exist create file
 data=[]
 if not filestoragemod.readfiledata(DATAFILENAME,data): #read  setting file
-	filedata=[{'name':'login', 'username':'admin','password':'default' }]
-	filestoragemod.savefiledata(DATAFILENAME,filedata)
-
-
+	restoredefault()
 	
 def restoredefault():
 	filestoragemod.deletefile(DATAFILENAME)
-	filedata=[{'name':'login', 'username':'admin','password':'default' }]
+	m = hashlib.sha256()
+	m.update(b"default")
+	hashedpw = m.hexdigest()
+	filedata=[{'name':'login', 'username':'admin', 'password':hashedpw }]
+	#iledata=[{'name':'login', 'username':'admin','password':'default' }]
 	filestoragemod.savefiledata(DATAFILENAME,filedata)
-
-
 	
 def savedata(filedata):
 	filestoragemod.savefiledata(DATAFILENAME,filedata)
-
 
 def getusername():
 	recordkey="name"
@@ -56,7 +55,6 @@ def getpassword():
 	dataitem=filestoragemod.searchdata(DATAFILENAME,recordkey,recordvalue,keytosearch)
 	return dataitem
 
-
 def changesavesetting(FTparameter,FTvalue):
 	searchfield="name"
 	searchvalue="login"
@@ -64,8 +62,6 @@ def changesavesetting(FTparameter,FTvalue):
 	if not isok:
 		print("problem saving parameter")
 	return isok
-	
-	
 
 def get_path():
     '''Get the path to this script no matter how it's run.'''
@@ -82,7 +78,6 @@ def get_path():
     return dir_path
 	
 #--end --------////////////////////////////////////////////////////////////////////////////////////		
-	
 	
 if __name__ == '__main__':
 	# comment

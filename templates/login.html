@@ -1,103 +1,101 @@
 {% extends "layout.html" %}
-{% set active_page = "" %}
+{% set active_page = "login" %}
 {% block body %}
 
+<div class="container">
+
+  <div class="pb-2 mt-4 mb-2 border-bottom">
+    <h3>Hydrosys4</h3>
+  </div>
+
   {% if error %}
-  			
-  <div class="alert alert-danger alert-dismissable">
-	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			   <strong>Error:</strong> {{ error }}
-	</div>  
+
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+    <div class="alert alert-danger alert-dismissable" role="alert">
+      <button type="button" class="btn-close align-top" data-bs-dismiss="alert" aria-label="Close"></button>
+    		   <strong>Error:</strong> {{ error }}
+    </div>
+  </div>
 
   {% endif %}
 
   {% if message %}
-  			
-  <div class="alert alert-warning alert-dismissable">
-	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			   <strong>NOTICE:</strong> {{ message }}
-	</div>  
+
+  <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+    <div class="alert alert-warning alert-dismissable" role="alert">
+      <button type="button" class="btn-close align-top" data-bs-dismiss="alert" aria-label="Close"></button>
+    		   <strong>NOTICE:</strong> {{ message }}
+    </div>
+  </div>
 
   {% endif %}
-  
-  
-  <div class="container-fluid">
 
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="page-header">
-              <h3 id="forms">Hydrosys4</h3>
-            </div>
+  <div class="card card-body bg-light">
+
+    <form class="form-horizontal" action="{{ url_for('login') }}" method=post>
+      <fieldset>
+        <legend>Login</legend>
+        <div class="row mb-3">
+          <label for="inputUsername" class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2 col-form-label">Username</label>
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <input type="text" class="form-control" id="inputUsername" placeholder="Username" name="username" required>
+          </div>
+        </div>
+        
+{% if not change %}
+
+        <div class="row mb-3">
+          <label for="inputPassword" class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2 col-form-label">Password</label>
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password" required>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="well bs-component">
-              <form class="form-horizontal" action="{{ url_for('login') }}" method=post>
-                <fieldset>
-                  <legend>LOG IN</legend>
-                  <div class="form-group">
-                    <label for="inputEmail" class="col-lg-2 control-label">Username</label>
-                    <div class="col-lg-10">
-                      <input type="text" class="form-control" id="inputusername" placeholder="Username" name=username>
-                    </div>
-                  </div>
-                  
-                  {% if not change %}
-                  <div class="form-group">
-                    <label for="inputPassword" class="col-lg-2 control-label">Password</label>
-                    <div class="col-lg-10">
-                      <input type="password" class="form-control" id="inputPassword" placeholder="Password" name=password>
-                      
-                    </div>
-                  </div>
-				  {% else %}
-                  <div class="form-group">
-                    <label for="inputPassword" class="col-lg-2 control-label">Old Password</label>
-                    <div class="col-lg-10">
-                      <input type="password" class="form-control" id="inputPassword" placeholder="Old Password" name=password>
-                      
-                    </div>
-                  </div>
-                  <div class="form-group">
-                    <label for="inputPassword" class="col-lg-2 control-label">New Password</label>
-                    <div class="col-lg-10">
-                      <input type="password" class="form-control" id="inputPassword" placeholder="New Password" name=newpassword>
-                      
-                    </div>
-                  </div>
-				  
-				  {% endif %}
+{% else %}
 
-
-                  
-                  <div class="form-group">
-                    <div class="col-lg-10">
-                      <!--<button type="reset" class="btn btn-default">Cancel</button> -->
-                      
-                      {% if not change %}
-                      <button name="button" type="submit" class="btn btn-primary" value="login">Login</button>
-					  {% endif %}                      
-                      {% if not change %}
-						<button name="button" type="submit" class="btn btn-primary" value="change">Change Password</button>
-                      {% else %}
-						<button name="button" type="submit" class="btn btn-primary" value="save">Save</button>
-					  {% endif %}
-					  <button name="button" type="submit" class="btn btn-default" value="cancel">Cancel</button>
-                      
-                    </div>
-                  
-                  
-                  
-                  
-                </fieldset>
-              </form>
-            </div>
-          </div>
- 
+        <div class="row mb-3">
+          <label for="inputPassword" class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2 col-form-label">Old Password</label>
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <input type="password" class="form-control" id="inputPassword" placeholder="Old Password" name="password" required>
         </div>
-      </div>
- <!-- end form --> 
- </div>  
+
+        </div>
+        <div class="row mb-3">
+          <label for="inputPassword" class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2 col-form-label">New Password</label>
+          <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
+            <input minlength="8" type="password" class="form-control" id="inputPassword" placeholder="New Password" name="newpassword" required>
+          </div>
+        </div>
+
+{% endif %}
+
+        <div class="row mt-2">
+            
+{% if not change %}
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+			<button name="button" type="submit" class="btn btn-success defaultbutton w-100" value="login"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+		</div>
+{% endif %}                      
+
+{% if not change %}
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2 text-end">
+			<button name="button" type="submit" class="btn btn-warning defaultbutton w-100" value="change"><i class="fa-solid fa-wrench"></i> Change Password</button>
+		</div>
+{% else %}
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+			<button name="button" type="submit" class="btn btn-success defaultbutton w-100" value="save"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+		</div>
+
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2 text-end">
+			<a href="{{ url_for('login') }}"><input name="buttonsub" type="button" class="btn btn-secondary defaultbutton w-100" formnovalidate="formnovalidate" value="Back"></a>
+		</div>            
+{% endif %}
+            
+	</div>
+
+      </fieldset>
+    </form>
+  </div> 
+</div>
+
 {% endblock %}

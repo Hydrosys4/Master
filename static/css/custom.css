@@ -1,0 +1,453 @@
+.hydrotable input {
+    min-width: 56px;
+}
+
+.container {
+    max-width: 960px;
+}
+
+.progress {
+    --bs-progress-bar-bg: #009dea;
+}
+
+.badge-notification {
+    font-size: 0.7rem;
+    margin-top: -0.5rem;
+    margin-left: -0.3em;
+    position: absolute;
+    padding: 0.3em;
+}
+
+.defaultbutton{
+    min-width: 150px;
+}
+
+.dontwantgapright {
+    margin-right: 0 !important;
+   padding-right: 0 !important;
+}
+
+.dontwantgapleft {
+    margin-left: 0 !important;
+   padding-left: 0 !important;
+}
+
+
+.dontwantgaptop {
+    margin-top: 0 !important;
+   padding-top: 0 !important;
+}
+
+.dontwantgapbottom {
+    margin-bottom: 0 !important;
+   padding-bottom: 0 !important;
+}
+
+
+.dontwantgap {
+    margin: 0 !important;
+   padding: 0 !important;
+}
+
+.smallgap {
+    margin: 1px !important;
+   padding: 2px !important;
+}
+
+.smallgapright {
+    margin-right: 1px !important;
+   padding-right: 2px !important;
+}
+
+.smallgapleft {
+    margin-left: 1px !important;
+   padding-left: 2px !important;
+}
+
+.min20px {
+    min-width: 20px;
+} 
+
+.min40px {
+    min-width: 40px;
+} 
+
+.min60pix {
+    min-width: 60px;
+} 
+
+.progress-bar {
+  -webkit-transition: width 0.4s ease !important;
+          transition: width 0.4s ease !important;
+}
+
+.top-buffer { 
+	margin-top:20px !important; 
+}
+
+.btn-warp {
+    white-space: normal !important;
+}
+
+/* START OF Change the Navbar Colors/Font/Size */
+/* Adjust Menu (red) text color, (Garamond) font-family, (1.5em) font-size  */
+.navbar {
+    position: sticky;
+    top: 0;
+    overflow: hidden;
+    z-index: 9;
+}
+
+.navbar .nav > li > a, .navbar .nav > li > a,
+.navbar .nav > li.current-menu-item > a, 
+.navbar .nav > li.current-menu-ancestor > a {                       
+font-family:    Arial;
+font-size:      1.2em;
+}
+
+/* Cards and nav pills */
+.nav-pills .nav-item {
+    border-radius: 10px 10px 0 0;
+}
+
+.nav-olive {
+    background-color: #7BB39B;
+}
+
+.nav-olive .nav-link.active {
+    background-color: #3D9970;
+}
+
+.nav-yellow {
+    background-color: #ffcb81;
+}
+
+.nav-yellow .nav-link {
+    color: #939393;
+}
+
+.nav-yellow .nav-link.active {
+    background-color: #f0ad4e;
+}
+
+.nav-purple {
+    background-color: #928fc8;
+}
+
+.nav-purple .nav-link.active {
+    background-color: #605ca8;
+}
+
+.nav-red {
+    background-color: #fd7773;
+}
+
+.nav-red .nav-link.active {
+    background-color: #d9534f;
+}
+
+.nav-primary {
+    background-color: #46a4db;
+}
+
+.nav-primary .nav-link.active {
+    background-color: #0073b7;
+}
+
+.nav-pills .nav-item .nav-link {
+    color: #fff;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.nav-pills .nav-item .nav-link:first-child {
+    border-radius: var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius) 0 0;
+}
+
+.tab-content .card {
+    border-radius: 0 10px 0 0;
+}
+
+.tab-content .card-header:first-child {
+    border-radius: 0 var(--bs-card-inner-border-radius) 0 0;
+}
+
+/* home page panels styles */
+
+.huge {
+    font-size: 24px;
+}
+
+.verybig {
+    font-size: 22px;
+}
+
+.big {
+    font-size: 18px;
+}
+
+.small {
+    font-size: 14px;
+}
+
+.verysmall {
+    font-size: 12px;
+}
+
+
+.card-green {
+    border-color: #5cb85c;
+}
+
+.card-green .card-header {
+    border-color: #5cb85c;
+    color: #fff;
+    background-color: #5cb85c;
+}
+
+.card-green a {
+    color: #5cb85c;
+}
+
+.card-green a:hover {
+    color: #3d8b3d;
+}
+
+.card-red {
+    border-color: #d9534f;
+}
+
+.card-red .card-header {
+    border-color: #d9534f;
+    color: #fff;
+    background-color: #d9534f;
+}
+
+.card-red a {
+    color: #d9534f;
+}
+
+.card-red a:hover {
+    color: #b52b27;
+}
+
+.card-yellow {
+    border-color: #f0ad4e;
+}
+
+.card-yellow .card-header {
+    border-color: #f0ad4e;
+    color: #fff;
+    background-color: #f0ad4e;
+}
+
+.card-yellow a {
+    color: #f0ad4e;
+}
+
+.card-yellow a:hover {
+    color: #df8a13;
+}
+
+.card-aqua {
+    border-color: #00c0ef;
+}
+
+.card-aqua .card-header {
+    border-color: #00c0ef;
+    color: #fff;
+    background-color: #00c0ef;
+}
+
+.card-aqua a {
+    color: #00c0ef;
+}
+
+.card-aqua a:hover {
+    color: #df8a13;
+}
+
+.card-blue,
+.card-primary {
+    border-color: #0073b7;
+}
+
+.card-blue .card-header,
+.card-primary .card-header {
+    border-color: #0073b7;
+    color: #fff;
+    background-color: #0073b7;
+}
+
+.card-blue a,
+.card-primary a {
+    color: #0073b7;
+}
+
+.card-blue a:hover,
+.card-primary a:hover {
+    color: #0e5986;
+}
+
+.card-teal {
+    border-color: #39CCCC;
+}
+
+.card-teal .card-header {
+    border-color: #39CCCC;
+    color: #fff;
+    background-color: #39CCCC;
+}
+
+.card-teal a {
+    color: #39CCCC;
+}
+
+.card-teal a:hover {
+    color: #328484;
+}
+
+.card-olive {
+    border-color: #3D9970;
+}
+
+.card-olive .card-header {
+    border-color: #3D9970;
+    color: #fff;
+    background-color: #3D9970;
+}
+
+.card-olive a {
+    color: #3D9970;
+}
+
+.card-olive a:hover {
+    color: #2E6C51;
+}
+
+.card-lime {
+    border-color: #01FF70;
+}
+
+.card-lime .card-header {
+    border-color: #01FF70;
+    color: #fff;
+    background-color: #01FF70;
+}
+
+.card-lime a {
+    color: #01FF70;
+}
+
+.card-lime a:hover {
+    color: #df8a13;
+}
+
+.card-orange {
+    border-color: #FF851B;
+}
+
+.card-orange .card-header {
+    border-color: #FF851B;
+    color: #fff;
+    background-color: #FF851B;
+}
+
+.card-orange a {
+    color: #FF851B;
+}
+
+.card-orange a:hover {
+    color: #df8a13;
+}
+
+.card-purple {
+    border-color: #605ca8;
+}
+
+.card-purple .card-header {
+    border-color: #605ca8;
+    color: #fff;
+    background-color: #605ca8;
+}
+
+.card-purple a {
+    color: #605ca8;
+}
+
+.card-purple a:hover {
+    color: #df8a13;
+}
+
+
+.card-maroon {
+    border-color: #D81B60;
+}
+
+.card-maroon .card-header {
+    border-color: #D81B60;
+    color: #fff;
+    background-color: #D81B60;
+}
+
+.card-maroon a {
+    color: #D81B60;
+}
+
+.card-maroon a:hover {
+    color: #df8a13;
+}
+
+.card-gray {
+    border-color: #d2d6de;
+}
+
+.card-gray .card-header {
+    border-color: #d2d6de;
+    color: #000;
+    background-color: #d2d6de;
+}
+
+.card-gray a {
+    color: #d2d6de;
+}
+
+.card-gray a:hover {
+    color: #df8a13;
+}
+
+.video-label, .video-button {
+    vertical-align: middle;
+}
+
+/* Data style */
+
+.form-check {
+    float: left;
+    padding-right: 10px;
+}
+
+/* Show Calibration */
+
+.clockpicker-popover {
+    position: absolute;
+}
+
+/* Image Galery */
+
+.pswp img {
+    max-width: none;
+    object-fit: contain;
+}
+
+.pswp__img {
+    cursor: pointer !important;
+}
+
+.pswp-gallery a {
+    text-decoration: none;
+}
+
+.pswp-gallery img {
+    padding-bottom: 5px;
+}
+

@@ -27,6 +27,7 @@ import cameradbmod
 import struct
 import imghdr
 import copy
+import messageboxmod
 import statusdataDBmod
 
 
@@ -43,7 +44,7 @@ global DEFHWDATAFILENAME
 DEFHWDATAFILENAME="default/defhwdata.txt"
 
 logger = logging.getLogger("hydrosys4."+__name__)
-print("logger name ", __name__)
+modlogger = logging.getLogger("actuator")
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
 #important this data is used almost everywhere
@@ -59,24 +60,26 @@ HW_INFO_MEASURE="measure"  # info group , mandatory, measurement type of info pa
 
 # HW_CTRL group includes info hardware to speak with HWcontrol module
 HW_CTRL_CMD="controllercmd" # HW control group , mandatory, command sent to the HWControl section to specify the function to select -> HW
-HW_CTRL_PIN="pin" # HW control  group ,optional, specify the PIN board for the HWControl if needed -> gpiopin
-HW_CTRL_PIN2="pin2" # HW control  group ,optional, specify the PIN board for the HWControl if needed -> gpiopin (new item in rel 1.08)
-HW_CTRL_ADCCH="ADCchannel" # HW control  group , optional, specify the arg1 board for the HWControl if needed -> "ADCchannel"
-HW_CTRL_PWRPIN="powerpin"  # HW control  group , optional, specify PIN that is set ON before starting tasks relevant to ADC convert, Actuator pulse, then is set OFF when the task is finished -> "ADCpowerpin"
-HW_CTRL_LOGIC="logic"  # HW control  group , optional, in case the relay works in negative logic
-#"settingaction", # HW control  group , use the controllercmd instead -> to be removed
-HW_CTRL_ADDR="address" # HW control  group , optional, specify this info for the HWControl if needed -> mailaddress, I2C address
-HW_CTRL_TITLE="title" # HW control  group , optional, specify this info for the HWControl if needed (mail title) -> "mailtitle"
+HW_CTRL_PIN="pin" # HW control group,optional, specify the PIN board for the HWControl if needed -> gpiopin
+HW_CTRL_PIN2="pin2" # HW control group,optional, specify the PIN board for the HWControl if needed -> gpiopin (new item in rel 1.08)
+HW_CTRL_ADCCH="ADCchannel" # HW control group, optional, specify the arg1 board for the HWControl if needed -> "ADCchannel"
+HW_CTRL_PWRPIN="powerpin"  # HW control group, optional, specify PIN that is set ON before starting tasks relevant to ADC convert, Actuator pulse, then is set OFF when the task is finished -> "ADCpowerpin"
+HW_CTRL_LOGIC="logic"  # HW control group, optional, in case the relay works in negative logic
+#"settingaction", # HW control group, use the controllercmd instead -> to be removed
+HW_CTRL_ADDR="address" # HW control group, optional, specify this info for the HWControl if needed -> mailaddress, I2C address
+HW_CTRL_TITLE="title" # HW control group, optional, specify this info for the HWControl if needed (mail title) -> "mailtitle"
 
 #servo/stepper/sensors
-HW_CTRL_FREQ="frequency" # HW control  group , optional, working frequency of the servo
-HW_CTRL_MIN="min"  # HW control  group , optional, minimum of the duty cycle, for sensor this is the min corresponding to zero
-HW_CTRL_MAX="max"  # HW control  group , optional, maximum of the duty cycle, for sensor this is the max corresponding to scale
+HW_CTRL_FREQ="frequency" # HW control group , optional, working frequency of the servo
+HW_CTRL_MIN="min"  # HW control group, optional, minimum of the duty cycle, for sensor this is the min corresponding to zero
+HW_CTRL_MAX="max"  # HW control group, optional, maximum of the duty cycle, for sensor this is the max corresponding to scale
 
-HW_CTRL_SCALE="scale"  # HW control  group , optional, for sensor this is the scale (new item in rel 1.08)
-HW_CTRL_OFFSET="offset"  # HW control  group , optional, for sensor not clear how to use TBD (new item in rel 1.08)
-HW_CTRL_DIR="direction"  # HW control  group , optional, invert the data min/max (new item in rel 1.08)
+HW_CTRL_SCALE="scale"  # HW control group, optional, for sensor this is the scale (new item in rel 1.08)
+HW_CTRL_OFFSET="offset"  # HW control group, optional, for sensor not clear how to use TBD (new item in rel 1.08)
+HW_CTRL_DIR="direction"  # HW control group, optional, invert the data min/max (new item in rel 1.08)
 
+HW_CTRL_DIVIDE="divide" # HW control group, optional, divide the data after scaling
+HW_CTRL_SUBTRACT="subtract" # HW control group, optional, subtract from data prior scaling
 
 HW_FUNC_USEDFOR="usefor" # function group , optional, description of main usage of the item and the actions associated with the plan "selectedplanmod"
 HW_FUNC_SCHEDTYPE="schedulingtype" # function group , optional, between "oneshot" and "periodic" 
@@ -112,6 +115,8 @@ HWdataKEYWORDS[HW_CTRL_SCALE]=[]
 HWdataKEYWORDS[HW_CTRL_OFFSET]=[]
 HWdataKEYWORDS[HW_CTRL_DIR]=["dir","inv"]
 
+HWdataKEYWORDS[HW_CTRL_DIVIDE]=[]
+HWdataKEYWORDS[HW_CTRL_SUBTRACT]=[]
 
 # ///////////////// -- Hawrware data structure Setting --  ///////////////////////////////
 
@@ -300,24 +305,42 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 				elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
 					return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
 				else:
+					message = "Device '" + target + "' not found. cmd: " + cmd
+					dictitem={'title': "Hardware Message (Error)", 'content': message, 'color': "red" }
+					messageboxmod.SaveMessage(dictitem)
+
+					modlogger.error(message)
+
 					successflag=0
 					recdata.append(cmd)
 					recdata.append("Device not found")
 					recdata.append(successflag)
 					return True
 			else:
+				message = "Device '" + target + "' blocked. cmd: " + cmd
+				dictitem={'title': "Hardware Message (Warning)", 'content': message, 'color': "yellow" }
+				messageboxmod.SaveMessage(dictitem)
+
+				modlogger.warning(message)
+
 				successflag=0
 				recdata.append(cmd)
 				recdata.append("blocked")
 				recdata.append(successflag)
 				return True
 		else:
+			message = "Device '" + target + "' disabled. cmd: " + cmd
+			dictitem={'title': "Hardware Message (Info)", 'content': message, 'color': "primary" }
+			messageboxmod.SaveMessage(dictitem)
+
+			modlogger.info(message)
+
 			successflag=0
 			recdata.append(cmd)
 			recdata.append("Disabled")
 			recdata.append(successflag)
 			return True
-			
+
 	else:
 		if cmd in HWcontrol.HWCONTROLLIST:
 			return HWcontrol.sendcommand(cmd,sendstring,recdata)
@@ -328,26 +351,25 @@ def sendcommand(cmd,sendstring,recdata,target="", priority=0):
 		elif cmd in GPIOEXPI2Ccontrol.HWCONTROLLIST:
 			return GPIOEXPI2Ccontrol.sendcommand(cmd,sendstring,recdata)
 
-def normalizesensordata(reading_str,sensorname):
-	scaledefault=1
-	offsetdefault=0
-	Thereading=reading_str
-	#print " Sensor " , sensorname  , "reading ",Thereading
-	#print " Sensor value post elaboration"
-	
+def normalizesensordata(reading_str,sensorname):	
 	# get the normalization data
 	Minimum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MIN)) # if not found searchdata return ""
 	Maximum=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_MAX))
 	Direction=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_DIR)) # can be two values "inv" , "dir"
 	Scale=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_SCALE))
 	Offset=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_OFFSET))					
+	Divide=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_DIVIDE))					
+	Subtract=str(searchdata(HW_INFO_NAME,sensorname,HW_CTRL_SUBTRACT))					
 	
-	# transform all valuse in numbers
+	# transform all values to numbers
 	Minvalue=tonumber(Minimum, 0)
 	Maxvalue=tonumber(Maximum, 0)
-	Scalevalue=tonumber(Scale, scaledefault)
-	Offsetvalue=tonumber(Offset, offsetdefault)					
-	readingvalue=tonumber(Thereading, 0)
+	Scalevalue=tonumber(Scale, 1)
+	Offsetvalue=tonumber(Offset, 0)
+	Dividevalue=tonumber(Divide, 1)
+	Subtractvalue=tonumber(Subtract, 0)
+	readingvalue=tonumber(reading_str, 0)
+
 	if abs(Minvalue-Maxvalue)>0.01: # in case values are zero or not consistent, stops here
 		if Direction!="inv":
 			den=Maxvalue-Minvalue
@@ -355,13 +377,26 @@ def normalizesensordata(reading_str,sensorname):
 		else:
 			den=Maxvalue-Minvalue
 			readingvalue=1-old_div((readingvalue-Minvalue),den)
+
+	# apply subtraction
+	if Subtractvalue>0:
+		readingvalue=readingvalue-Subtractvalue
+
+	# apply scale
 	if Scalevalue>0:
-		readingvalue=readingvalue*Scalevalue		
+		readingvalue=readingvalue*Scalevalue
+
+	# apply division
+	if Dividevalue != 1:
+		readingvalue=readingvalue/Dividevalue
+
+	# apply offset
 	readingvalue=readingvalue+Offsetvalue
-	
+
 	# transform to string and adjust the format
-	Thereading=str('%.2f' % readingvalue)
-	return Thereading
+	reading_str=str('%.2f' % readingvalue)
+
+	return reading_str
 
 def getsensordata(sensorname,attemptnumber): #needed
 	# this procedure was initially built to communicate using the serial interface with a module in charge of HW control (e.g. Arduino)
@@ -399,26 +434,36 @@ def getsensordata(sensorname,attemptnumber): #needed
 				if recdata[2]>0: # this is the flag that indicates if the measurement is correct
 					#print " Sensor " , sensorname  , "reading ",recdata[1]	
 					isok=True
-									
+
 					Thereading=normalizesensordata(recdata[1],sensorname)  # output is a string
 
-					print(" Sensor " , sensorname  , "Normalized reading ",Thereading)												
+					print(" Sensor " , sensorname  , "Normalized reading ",Thereading)
 					logger.info("Sensor %s reading: %s", sensorname,Thereading)
 					if len(recdata)>3:
 						statusmessage=recdata[3]
 				else:
-					print("Problem with sensor reading ", sensorname)
-					logger.error("Problem with sensor reading: %s", sensorname)
+					message = "Problem with sensor reading " + sensorname
+					dictitem={'title': "Sensor Message (Warning)", 'content': message, 'color': "yellow" }
+					messageboxmod.SaveMessage(dictitem)
+					print(message)
+					logger.error(message)
 					statusmessage=recdata[1]
 			else:
-				print("Problem with response consistency ", sensorname , " cmd " , cmd)
-				logger.error("Problem with response consistency : %s", sensorname)
+				message = "Problem with response consistency " + sensorname + " cmd " + cmd
+				dictitem={'title': "Sensor Message (Warning)", 'content': message, 'color': "yellow" }
+				messageboxmod.SaveMessage(dictitem)
+				print(message)
+				logger.error(message)
 		else:
-			print("no answer from Hardware control module", sensorname)
-			logger.error("no answer from Hardware control module: %s", sensorname)
+			message = "no answer from Hardware control module" + sensorname
+			dictitem={'title': "Sensor Message (Warning)", 'content': message, 'color': "yellow" }
+			messageboxmod.SaveMessage(dictitem)
+			print(message)
+			logger.error(message)
 	else:
 		print("sensor name not found in list of sensors ", sensorname)
 		logger.error("sensor name not found in list of sensors : %s", sensorname)
+
 	return isok, Thereading, statusmessage
 
 def makepulse(target,duration,addtime=True, priority=0): # pulse in seconds , addtime=True extend the pulse time with new time , addtime=False let the current pulse finish , 
@@ -1972,7 +2017,6 @@ def HWpresetlist(apprunningpath):
 
 
 def removephotodataperiod(removebeforedays, maxphototoremove=20):
-
 	todaydate=datetime.now()
 	num = removebeforedays
 	tdelta=timedelta(days=num)
@@ -1981,7 +2025,7 @@ def removephotodataperiod(removebeforedays, maxphototoremove=20):
 	num = pastdays
 	tdelta=timedelta(days=num)
 	startdate=enddate-tdelta
-	print(" stratdate " ,startdate)
+	print(" startdate " ,startdate)
 	print(" enddate ", enddate)
 	
 	photodata=photolist(get_path())
@@ -2003,17 +2047,12 @@ def removephotodataperiod(removebeforedays, maxphototoremove=20):
 		else:
 			print("datetime format incorrect")
 	thumbconsistency(get_path())
-
-			
-	
-
 	
 def videodevlist():
 	return photomod.videodevlist()
 	
 def  thumbconsistency(apprunningpath):
 	return photomod.thumbconsistency(apprunningpath)
-			
 
 def shotit(video,istest,resolution,positionvalue,vdirection):
 	shottaken=False
@@ -2056,7 +2095,7 @@ def takephoto(Activateanyway=False):
 			positionlist=position.split(",")
 			if (positionlist)and(servo!="none"):
 				for positionvalue in positionlist:
-				# move servo
+					# move servo first
 					servoangle(servo,positionvalue,2)
 					isok , ret_data=shotit(video,False,resolution,positionvalue,vdirection)
 

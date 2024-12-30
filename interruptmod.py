@@ -11,6 +11,7 @@ import subprocess
 import emailmod
 import interruptdbmod
 import sensordbmod
+import messageboxmod
 import actuatordbmod
 import autofertilizermod
 import statusdataDBmod
@@ -250,20 +251,18 @@ def cycleresetall():
 def interruptcheck(refsensor,mode, PIN):
 	#logger.info('Starting Interrupt Evaluation, Sensor: %s' , refsensor)
 	# iterate among the actuators
-	elementlist= interruptdbmod.getelementlist()	
+	elementlist= interruptdbmod.getelementlist()
 	#print elementlist
-	for element in elementlist: 
+	for element in elementlist:
 		sensor=interruptdbmod.searchdata("element",element,"sensor")
 		#print sensor
 		if sensor==refsensor:
-			sensormode=interruptdbmod.searchdata("element",element,"sensor_mode")		
+			sensormode=interruptdbmod.searchdata("element",element,"sensor_mode")
 			#print "mode ", mode , "sensormode ", 	sensormode
 			if (mode in sensormode) or ("both" in sensormode):
 				interruptexecute(refsensor,element)
-				
-	
-	return	
-		
+
+	return
 
 def ReadInterruptFrequency(PIN):
 	sensorinterruptcount=statusdataDBmod.read_status_data(SENSOR_data,PIN,"InterruptCount")	
@@ -280,8 +279,7 @@ def ReadInterruptFrequency(PIN):
 	return Frequency
 
 def interruptexecute(refsensor,element):
-	
-	sensor=refsensor		
+	sensor=refsensor
 	#logger.info('interrupt Pairing OK ---> Actuator: %s , Sensor: %s', element, sensor)
 
 	workmode=checkworkmode(element)
@@ -309,39 +307,36 @@ def interruptexecute(refsensor,element):
 	# evaluate variables for operational period check
 	starttime = datetime.strptime(interruptdbmod.searchdata("element",element,"allowedperiod")[0], '%H:%M').time()
 	endtime = datetime.strptime(interruptdbmod.searchdata("element",element,"allowedperiod")[1], '%H:%M').time()
-		
-	
+
 	# get other parameters
 	seonsormode=interruptdbmod.searchdata("element",element,"sensor_mode")
 
-	triggermode=interruptdbmod.searchdata("element",element,"trigger_mode")	
-	
+	triggermode=interruptdbmod.searchdata("element",element,"trigger_mode")
+
 	preemptiontime=hardwaremod.toint(interruptdbmod.searchdata("element",element,"preemptive_period"),0)
-	
-	
+
 	mailtype=interruptdbmod.searchdata("element",element,"mailalerttype")
-	
+
 	actionmodeafterfirst=interruptdbmod.searchdata("element",element,"actionmode_afterfirst")
-		
+
 	# time check
 
-	
+
 	# ------------------------ interrupt alghoritm
-	
+
 	if workmode=="Pre-emptive Blocking":
 		# check if inside the allowed time period
 		#print "Pre-emptive Blocking Mode"
-		#logger.info('Pre-emptive Blocking mode --> %s', element) 
+		#logger.info('Pre-emptive Blocking mode --> %s', element)
 		timeok=isNowInTimePeriod(starttime, endtime, datetime.now().time()) # don't use UTC here!
 		#print "inside allowed time ", timeok , " starttime ", starttime , " endtime ", endtime
 		if timeok:
 
 			CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodeafterfirst,mailtype,interrupt_triggernumber,interrupt_validinterval,triggermode)
-				
 		else:
 			logger.info('out of allowed operational time')
 
-	# implment Critical alert message in case the sensor value is one interval more than Max_threshold
+	# TODO: implement critical alert message in case the sensor value is one interval more than Max_threshold
 
 	return
 
@@ -433,22 +428,22 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 	global AUTO_data
 	# check if in blocking state
 	lasteventtime=statusdataDBmod.read_status_data(AUTO_data,element,"lasteventtime")
-	blockingstate=statusdataDBmod.read_status_data(AUTO_data,element,"blockingstate")	
+	blockingstate=statusdataDBmod.read_status_data(AUTO_data,element,"blockingstate")
 	#print ' Previous event: ' , lasteventtime , ' Now: ', datetime.utcnow()
 	#timedifference=sensordbmod.timediffinminutes(lasteventtime,datetime.utcnow())
 	#print 'Time interval between actions', timedifference ,'. threshold', preemptiontime
-	#logger.info('Time interval between Actions %d threshold %d', timedifference,preemptiontime)	
-	
+	#logger.info('Time interval between Actions %d threshold %d', timedifference,preemptiontime)
+
 	# count the interrupt that are fast enough to stay in the valid interrupt period
-	
+
 	#print "autodata" ,AUTO_data[element]
 	lastinterrupttime=statusdataDBmod.read_status_data(AUTO_data,element,"lastinterrupttime")
 	nowtime=datetime.utcnow()
-	
+
 	# ------------  Frequency
-	if triggermode=="Frequency":  # triggermode=="Frequency":	
+	if triggermode=="Frequency":  # triggermode=="Frequency":
 		NOWTIMELIST.append(nowtime)
-		validinterruptcount=statusdataDBmod.read_status_data(AUTO_data,element,"validinterruptcount")	
+		validinterruptcount=statusdataDBmod.read_status_data(AUTO_data,element,"validinterruptcount")
 
 		diffseconds=(nowtime-NOWTIMELIST[0]).total_seconds()
 
@@ -459,85 +454,79 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 				validinterruptcount=validinterruptcount-1
 				diffseconds=(nowtime-NOWTIMELIST.pop(0)).total_seconds()
 		validinterruptcount=len(NOWTIMELIST)
-		
-		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",validinterruptcount)	
-		
-	
+
+		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",validinterruptcount)
+
 	#-------------Counter
 
-	else: # triggermode=="Counter":	
-	
-		#print ' Previous interrupt: ' , lastinterrupttime , ' Now: ', nowtime	
+	else: # triggermode=="Counter":
+
+		#print ' Previous interrupt: ' , lastinterrupttime , ' Now: ', nowtime
 		diffseconds=(nowtime-lastinterrupttime).total_seconds()
 
-	
+		statusdataDBmod.write_status_data(AUTO_data,element,"lastinterrupttime",nowtime)
+		validinterruptcount=statusdataDBmod.read_status_data(AUTO_data,element,"validinterruptcount")
 
-		statusdataDBmod.write_status_data(AUTO_data,element,"lastinterrupttime",nowtime)	
-		validinterruptcount=statusdataDBmod.read_status_data(AUTO_data,element,"validinterruptcount")	
-
-		
 		if diffseconds<=interrupt_validinterval: #valid interval between interrupt, increase counter
 			validinterruptcount=validinterruptcount+1
 
 		else: # time between interrupt too long, restart counter
-			# save on database 
+			# save on database
 			#x = threading.Thread(target=savedata, args=(sensor,validinterruptcount))
-			#x.start()			
+			#x.start()
 			#reset counter and events
 			validinterruptcount=1
-		
-		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",validinterruptcount)	
-			
 
-	#print(" validinterruptcount --------------------->", validinterruptcount) 	
+		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",validinterruptcount)
 
-	#print "********" ,validinterruptcount , "******"	
+	#print(" validinterruptcount --------------------->", validinterruptcount)
+
+	#print "********" ,validinterruptcount , "******"
 	if validinterruptcount>=interrupt_triggernumber:
 		# set the validinterruptcount to zero
 		statusdataDBmod.write_status_data(AUTO_data,element,"validinterruptcount",0)
-		
+
 		if not blockingstate: # outside the preemption period , first activation
 			#print " outside the preemption period "
-			#logger.info('outside the preemption period')	
+			#logger.info('outside the preemption period')
 			# before action, evaluate if trigger number is reached
-	
-					
+
+
 			print("Implement Actuator Value ", value)
-			logger.info('Procedure to start actuator %s, for value = %s', element, value)		
+			logger.info('Procedure to start actuator %s, for value = %s', element, value)
 			msg , isok=activateactuator(element, value)
-			
+
 			if isok:
 				statusdataDBmod.write_status_data(AUTO_data,element,"lasteventtime",datetime.utcnow())
 				statusdataDBmod.write_status_data(AUTO_data,element,"lastactiontime",datetime.utcnow())
 				statusdataDBmod.write_status_data(AUTO_data,element,"actionvalue",value)
-							
-				
+
+			textmessage ="ALERT: " + sensor + " event , activating:" + element + " with Value " + str(value)
+
 			# invia mail, considered as info, not as alert
 			if mailtype!="none":
 				if mailtype!="warningonly":
-					textmessage="INFO: " + sensor + " event , activating:" + element + " with Value " + str(value)
 					#send mail using thread to avoid blocking
 					x = threading.Thread(target=emailmod.sendallmail, args=("alert", textmessage))
-					x.start()	
-					#emailmod.sendallmail("alert", textmessage)
+					x.start()
 
-			
-		
 			# start the blocking state
 			print("Start blocking state")
 			startblockingstate(element,preemptiontime)
-			
-			
 
+			# Send notification
+			dictitem={'title': "Interrupt Message (Alert)", 'content': textmessage, 'color': "red" }
+			messageboxmod.SaveMessage(dictitem)
+			logger.info("Save Interrupt notification %s/%s", element, sensor)
 
 		else:
-			# inside blocking state, when the event is activated 
+			# inside blocking state, when the event is activated
 			#print " inside the preemption period, starting followup actions: " , actionmodeafterfirst
 			#logger.info('inside the preemption period, check followup actions %s :', actionmodeafterfirst)
-			
+
 			if actionmodeafterfirst=="None":
 				return
-				
+
 			# Extend blocking state
 			if actionmodeafterfirst=="Extend blocking state" or actionmodeafterfirst=="Extend and Follow-up": # extend only the pre-emption blocking period, no action
 				print("Extend blocking state")
@@ -547,21 +536,25 @@ def CheckActivateNotify(element,sensor,preemptiontime,actuatoroutput,actionmodea
 			if actionmodeafterfirst=="Remove blocking state" or actionmodeafterfirst=="Remove and Follow-up": # remove the pre-emption blocking period, no action
 				print("Remove blocking state")
 				endblocking(element)
-			
-			# section below is the follow-up	
+
+			# section below is the follow-up
 			isok=CheckandFollowup(element)
 			# invia mail, considered as info, not as alert
 			if isok:
+				textmessage="INFO: " + sensor + " event , activating:" + element + " with Value " + str(value)
+
 				if mailtype!="none":
 					if mailtype!="warningonly":
-						textmessage="INFO: " + sensor + " event , activating:" + element + " with Value " + str(value)
 						x = threading.Thread(target=emailmod.sendallmail, args=("alert", textmessage))
 						x.start()
-						#emailmod.sendallmail("alert", textmessage)			
-			
-							
+
+				# Send notification
+				dictitem={'title': "Interrupt Message (Info)", 'content': textmessage, 'color': "primary" }
+				messageboxmod.SaveMessage(dictitem)
+				logger.info("Save Interrupt notification %s/%s", element, sensor)
+
 	return isok
-		
+
 def CheckandFollowup(element):
 	global AUTO_data
 	actionmodeafterfirst=interruptdbmod.searchdata("element",element,"actionmode_afterfirst")
@@ -590,7 +583,7 @@ def CheckandFollowup(element):
 def startblockingstate(element,periodsecond,saveend=True):
 	#logger.warning("StartBOLCKINGSTATE Started ---> Period %d", periodsecond)
 	global BLOCKING_data
-	sensor=interruptdbmod.searchdata("element",element,"sensor")	
+	sensor=interruptdbmod.searchdata("element",element,"sensor")
 	#save data
 	print("first save in database")
 	if saveend:
@@ -672,35 +665,32 @@ def checkstopcondition(element):
 	#print "actionafter " , actionmodeafterfirst
 	sensor=interruptdbmod.searchdata("element",element,"sensor")
 
-
-	
 	if actionmodeafterfirst=="Extend blocking state" or actionmodeafterfirst=="Extend and Follow-up": # extend the pre-emption blocking period
-		seonsormode=interruptdbmod.searchdata("element",element,"sensor_mode")
+		sensormode=interruptdbmod.searchdata("element",element,"sensor_mode")
 		#print "SENSORMODE" , seonsormode
 		recordkey=hardwaremod.HW_INFO_NAME
-		recordvalue=sensor	
+		recordvalue=sensor
 		keytosearch=hardwaremod.HW_CTRL_PIN
 		PIN=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
-		reading=hardwaremod.readinputpin(PIN)		
+		reading=hardwaremod.readinputpin(PIN)
 
-		if seonsormode=="First Edge + Level":	
+		if sensormode=="First Edge + Level":
 			keytosearch=hardwaremod.HW_CTRL_LOGIC
-			logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)			
+			logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
 			# pin high according to the set logic
 			#print "logic:", logic , " reading:"  ,reading
 			if (logic=="pos" and reading=="1")or(logic=="neg" and reading=="0"):
 				return False
 
-		elif seonsormode=="Second Edge + Level (inv)":
+		elif sensormode=="Second Edge + Level (inv)":
 			keytosearch=hardwaremod.HW_CTRL_LOGIC
-			logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)			
+			logic=hardwaremod.searchdata(recordkey,recordvalue,keytosearch)
 			#pin LOW according to the set logic
 			#print "logic:", logic , " reading:"  ,reading
 			if (logic=="pos" and reading=="0")or(logic=="neg" and reading=="1"):
 				return False
 
-
-	return True		
+	return True
 
 def saveblockingdiff(sensor): # this function minimize the writing over the database, keep them at 1 sec distance and provides a visual pleasant graph :) 
 	global BLOCKING_data

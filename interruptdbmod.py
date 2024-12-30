@@ -177,6 +177,20 @@ def gethygrosensorfromactuator(actuatorname):
 	
 	
 	
+def getparamlist():
+	recordkey="name"
+	recordvalue="listparam"
+	datalist=[]
+	for ln in WTdata:
+		if recordkey in ln:
+			if ln[recordkey]==recordvalue:
+				ind=0
+				for rw in ln:
+					if rw!=recordkey:
+						ind=ind+1
+						datalist.append(ln[str(ind)])	
+					
+	return datalist
 
 def getrowdata(recordvalue,paramlist,index): #for parameters with array of integers
 	recordkey="element"

@@ -2,23 +2,23 @@
 {% set active_page = "showcalibration" %}
 {% block body %}
   {% if session.logged_in %}
-  <div class="container-fluid">
+
+<div class="container">
 	  
 	  
-		<!-- hbridge Actuators test -->
-  
+		<!-- hbridge Actuators test -->  
   		<form novalidate="true" action="{{ url_for('sethbridge') }}" id="menuForm" method="post" >
-			<div class="page-header">
+			<div class="pb-2 mt-4 mb-2 border-bottom">
 					  <h3>hbridge Actuators Test</h3>   
 			</div>
 			
-			<div class="well bs-component smallgap">
+			<div class="card card-body bg-light">
 			
 			
 
 			
 			
-			<table class="table" margin: 20px;>
+			<table class="table table-condensed table-light table-sm">
 			<thead>
 				<tr>
 					<th>hbridge</th>
@@ -57,7 +57,7 @@
 				  		
 							
 				<td>
-					<button class="hbridgebutton btn-sm btn btn-default btn-block" type="button" name="sethbridge" element="{{item}}">Set</button>
+					<button class="hbridgebutton btn-sm btn btn-secondary btn-block" type="button" name="sethbridge" element="{{item}}">Set</button>
 				</td>
 
 
@@ -127,7 +127,7 @@
    </div> 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

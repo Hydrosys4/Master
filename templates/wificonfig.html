@@ -2,8 +2,7 @@
 {% block body %}
 
 
-
-  <div class="container-fluid">
+<div class="container">
 
         <div class="row">
           <div class="col-lg-12">
@@ -17,30 +16,41 @@
 
         <div class="row">
           <div class="col-lg-6">
-            <div class="well bs-component">
-              <form class="form-horizontal" action="{{ url_for('wificonfig') }}" method=post>
+            <div class="card card-body bg-light">
+              <form class="form-horizontal" action="{{ url_for('wificonfig') }}" method="post">
                 <fieldset>
                   <legend>{{ssid}}</legend>
                   <div class="form-group">
                     <label for="inputPassword" class="col-lg-2 control-label">Password</label>
                     <div class="col-lg-10">
-                      <input type="password" class="form-control" id="inputPassword2" placeholder="Password" autocomplete="off" name=password>
+                      <input type="password" class="form-control" id="inputPassword2" placeholder="Password" autocomplete="off" name="password">
                       
                     </div>
                   </div>
   
                   <div class="form-group">
                     <div class="col-lg-10 col-lg-offset-2">
-                      <!--<button name="buttonsub" type="submit" class="btn btn-primary" value="Save">Save</button>-->
-
-					<a href="#SaveModal" role="button" class="btn btn-primary" data-toggle="modal">Save</a>		
                       
-                      <!--<button name="buttonsub" type="submit" class="btn btn-primary" value="Forget">Forget</button>-->
+                      <input type="hidden" class="form-control" id="inputPassword" value="{{ssid}}" name="ssid">
 
-					<a href="#ForgetModal" role="button" class="btn btn-primary" data-toggle="modal">Forget</a>                      
-                      
-                      <button name="buttonsub" type="submit" class="btn btn-default" value="Cancel">Cancel</button>
-                      <input type="hidden" class="form-control" id="inputPassword" value="{{ssid}}" name=ssid>
+			<div class="row pb-2">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+					<button type="button" class="btn btn-success defaultbutton w-100" data-bs-toggle="modal" data-bs-target="#SaveModal"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+				</div>
+			</div>
+
+			<div class="row pb-2">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+					<button type="button" class="btn btn-warning defaultbutton w-100" data-bs-toggle="modal" data-bs-target="#ForgetModal"><i class="fa-solid fa-backward"></i> Forget</button>
+				</div>
+			</div>
+
+			<div class="row pb-2">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-2">
+					<button name="buttonsub" type="button" class="btn btn-secondary defaultbutton w-100"><i class="fa-solid fa-circle-left"></i> Back</button>
+				</div>
+			</div>	
+
                     </div>
                     <!--<div class="col-lg-10 col-lg-offset-2"> After the Save button is pressed the system wil try to connect to the new wifi network in 10 seconds, you current connection will drop
                     -->
@@ -51,12 +61,12 @@
                 
                 
                 <!-- Modal HTML -->
-				<div id="SaveModal" class="modal fade">
+				<div id="SaveModal" class="modal fade" aria-labelledby="ModalLabelSave">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h4 class="modal-title">Confirmation</h4>
+								<h1 id="ModalLabelSave" class="modal-title fs-5">Confirmation</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 							</div>
 							<div class="modal-body">
 								<p>If you proceed, the system will disconnect from the current connection in 10 seconds and try to connect to the saved wifi netork</p>
@@ -64,7 +74,7 @@
 								<p class="text-warning"><small>If you are not sure to proceed please read the setup guide</small></p>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 								<button name="buttonsub" type="submit" class="thebutton btn btn-primary" value="Save">Proceed</button>
 							</div>
 						</div>
@@ -72,12 +82,12 @@
 				</div>
                 
                  <!-- Modal HTML -->
-				<div id="ForgetModal" class="modal fade">
+				<div id="ForgetModal" class="modal fade" aria-labelledby="ModalLabelForget">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h4 class="modal-title">Confirmation</h4>
+								<h1 id="ModalLabelForget" class="modal-title fs-5">Confirmation</h1>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 							</div>
 							<div class="modal-body">
 								<p>If you proceed, the system will disconnect from the current connection in 10 seconds and restore the Wifi Access point mode</p>
@@ -85,7 +95,7 @@
 								<p class="text-warning"><small>If you are not sure to proceed please read the setup guide</small></p>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 								<button name="buttonsub" type="submit" class="thebutton btn btn-primary" value="Forget">Proceed</button>
 							</div>
 						</div>
@@ -104,13 +114,7 @@
                 
                 
               </form>
-              
-              
-
-              
-              
-              
-              
+                                    
               
               
             </div>

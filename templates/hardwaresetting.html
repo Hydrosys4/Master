@@ -4,188 +4,115 @@
   {% if session.logged_in %}
   
    
-    <div class="container-fluid">
-		
-		
-		
-      
-        
+<div class="container-fluid">
   
-<!-- select and load preset HW config -->
-
-
-     <div class="page-header">
-						<h4 id="header">Select and Load preset HW config</h4>
-
+	<!-- select and load preset HW config -->
+    <div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>Select and Load preset HW config</h3>
 	</div>
 
-  
-
-<form novalidate="true" action="{{ url_for('hardwaresetting') }}" method="post" >
-  
-    
-  
-	<div class="form-group">
-		
-		<select class="form-control input-sm dontwantgap" name="HWfilelist">
-		{% for name in presetfilenamelist %}	
-			{% set option_i = loop %}
-			<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name.filename}}">{{name.title}}</option>
-		{% endfor %}											
-		</select>
-		
-	</div>	
-														
-	<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="applyHWpreset">Apply Selected Hardware Setting</button>
-	<div class="small">All the customization and naming will be lost</div>		
-	<div class="small">Switching from some HW config to another might disable I2C or SPI functions affecting the Analog and Sensor reading. In such case restart the system.</div>											
-												
-</form>
-<!-- END END select and load preset HW config -->
-
-
-
-
-
-  
-<!-- second section table with the content of hwsetting -->
-<form novalidate="true" action="{{ url_for('hardwaresetting') }}" method="post" >
-  
-
-            <div class="page-header">
-
-						<h4 id="header">Hardware Configuration</h4>
-
-            </div>
-
-    
-
-								
-														
-<!-- bootstrap-table -->	
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-table/src/bootstrap-table.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-table/src/examples.css') }}">
-    <script src="{{url_for('static', filename='bootstrap-table/src/bootstrap-table.js') }}"></script>    
-    <script src="{{url_for('static', filename='bootstrap-table/src/extensions/export/bootstrap-table-export.js') }}"></script> 
-    <script src="{{url_for('static', filename='bootstrap-table/src/extensions/export/tableExport.js') }}"></script>
+	<form novalidate="true" action="{{ url_for('hardwaresetting') }}" method="post" >
+		<div class="row pb-2 pb-2 col-lg-4 col-md-4 col-sm-4 col-xs-12">
+			<div class="alert alert-warning small d-flex align-items-center" role="alert">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+					<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+				</svg>
+				<div>
+					All the customization and naming will be lost<br>   
+					Switching from some HW config to another might disable I2C or SPI functions,<br>
+					affecting the Analog and Sensor reading. In such case restart the system.
+				</div>
+			</div>			
+			<select class="form-select" name="HWfilelist">
+			{% for name in presetfilenamelist %}	
+				{% set option_i = loop %}
+				<option {% if option_i.index0==0 %}selected="selected"{% endif %} value="{{name.filename}}">{{name.title}}</option>
+			{% endfor %}											
+			</select>
 			
-														
-<div id="toolbar">
-		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="edit">Edit Table</button>
-														
-</div>
-    <table class="table table-striped table-sm"
+		</div>	
+															
+		<button class="btn-sm btn btn-warning" type="submit" name="buttonsub" value="applyHWpreset">Apply Selected Hardware Setting</button>								
+	</form>
+  
+	<!-- second section table with the content of hwsetting -->
+	<form novalidate="true" action="{{ url_for('hardwaresetting') }}" method="post" >
+	    <div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Hardware Configuration</h3>
+	    </div>
+
+		<!-- bootstrap-table -->
+		<link rel="stylesheet" href="/static/bootstrap-table-1.23.5/bootstrap-table.min.css">
+															
+		<div id="toolbar">
+			<button class="btn btn-primary defaultbutton" type="submit" name="buttonsub" value="edit"><i class="fa-solid fa-brush"></i> Edit Table</button>
+		</div>
+
+	    <table class="table table-striped table-sm"
 		   id="table"
 		   data-toggle="table"
-           data-toolbar="#toolbar"
-           data-search="true"
-           data-show-refresh="true"
-           data-show-columns="true"
-           data-show-export="true"
-           data-icon-size="sm" >
+	           data-toolbar="#toolbar"
+	           data-search="true"
+	           data-show-refresh="false"
+	           data-show-columns="true"
+	           data-show-export="false"
+	           data-icon-size="sm" >
+	    </table>
 
-    </table>
+		<script src="/static/bootstrap-table-1.23.5/bootstrap-table.min.js"></script>
 
+		<script>
+			var titlelist={{tablehead|safe}};
 
-<script>
-	
-// opertation functions to be put before the table declaration
-window.actionEvents = {
-    'click .like': function (e, value, row, index) {
-            $table.bootstrapTable('insertRow', {
-                index: row.id,
-                row: row
-            });
-        alert('You click edit icon, row: ' + JSON.stringify(row));
-        console.log(value, row, index);
+			var thecolumns = []; // create an empty array
 
-    },
-    'click .edit': function (e, value, row, index) {
-        alert('You click edit icon, row: ' + JSON.stringify(row));
-        console.log(value, row, index);
-    },
-    'click .remove': function (e, value, row, index) {
-            $table.bootstrapTable('remove', {
-                field: 'id',
-                values: [row.id]
-            });
-    }
-};
+			for (index = titlelist.length - 1; index >= 0; --index) {
+				thecolumns.push({
+					title: titlelist[index],
+					field: titlelist[index]
+				});		
+			}
 
-// opertation functions
-function actionFormatter(value, row, index) {
-    return [
-        '<a class="like" href="javascript:void(0)" title="Like">',
-        '<i class="glyphicon glyphicon-heart"></i>',
-        '</a>',
-        '<a class="edit ml10" href="javascript:void(0)" title="Edit">',
-        '<i class="glyphicon glyphicon-edit"></i>',
-        '</a>',
-        '<a class="remove ml10" href="javascript:void(0)" title="Remove">',
-        '<i class="glyphicon glyphicon-remove"></i>',
-        '</a>'
-    ].join('');
-}
+			var thedata=({{ hwdata|safe }});
 
-    var $table = $('#table'),
-        $remove = $('#remove'),
-        selections = [];
-        
-    var titlelist={{tablehead|safe}};
-    var thecolumns = []; // create an empty array
+		        $('#table').bootstrapTable({
+		            columns: thecolumns,
+		               data: thedata
+		        });
+		</script>
+	</form>
 
 
-	for (index = titlelist.length - 1; index >= 0; --index) {
-		thecolumns.push({
-			title: titlelist[index],
-			field: titlelist[index]
-		});		
-	}
-	var thedata=({{ hwdata|safe }});
-
-
-        $('#table').bootstrapTable({
-            columns: thecolumns,
-               data: thedata
-        });
-
-
-
-</script>
-
-
-
-
-
-
-
-
-
-</form>
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Logs</h3>
+		</div>
+		<div class="row">   
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
+				<a href="{{ url_for('showlogs') }}">
+					<button class="downloadbutton btn-sm btn btn-secondary">Show Actuator log</button>
+				</a>
+			</div>
+		</div>
 																																											
-
 		<!-- Download file -->
 		<form novalidate="true" action="{{ url_for('hardwaresetting') }}" id="dwform" class="jotform-form" method="post" >
 
-			<div class="page-header">
-					  <h4>Download file (debugging only)</h4>   
-			</div>
 			<!--  file 1 -->
 			<div class="row">
-				<div class="col-xs-6">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlog">Current Log file</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
+					<button class="downloadbutton btn-sm btn btn-secondary"  type="button" name="downloadlog">Current Log file</button>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
 					<a id="downloadlinkdownloadlog0" href="" ></a>
 				</div>
-			</div>	
+			</div>
+
 			<!--  file 1b -->
 			<div class="row">
-				<div class="col-xs-6">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadprevlog">Previous Log files</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
+					<button class="downloadbutton btn-sm btn btn-secondary"  type="button" name="downloadprevlog">Previous Log files</button>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
 					<a id="downloadlinkdownloadprevlog0" href="" ></a>
 					<p></p>
 					<a id="downloadlinkdownloadprevlog1" href="" ></a>
@@ -200,10 +127,10 @@ function actionFormatter(value, row, index) {
 			<!--  file 1c -->
 			{% if debugmode %}
 			<div class="row">
-				<div class="col-xs-6">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadlogSCHED">Scheduler Logs</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
+					<button class="downloadbutton btn-sm btn btn-secondary"  type="button" name="downloadlogSCHED">Scheduler Logs</button>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
 					<a id="downloadlinkdownloadlogSCHED0" href="" ></a>
 				</div>
 			</div>	
@@ -211,10 +138,10 @@ function actionFormatter(value, row, index) {
 
 			<!--  file 2 -->
 			<div class="row">
-				<div class="col-xs-6">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadHW">Hardware Config</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
+					<button class="downloadbutton btn-sm btn btn-secondary"  type="button" name="downloadHW">Hardware Config</button>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
 					<a id="downloadlinkdownloadHW0" href="" ></a>
 				</div>
 			</div>		
@@ -222,24 +149,24 @@ function actionFormatter(value, row, index) {
 			<!--  file 3 -->
 			{% if debugmode %}
 			<div class="row">
-				<div class="col-xs-6">
-					<button class="downloadbutton btn-sm btn btn-default"  type="button" name="downloadsyslog">SysLog file</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
+					<button class="downloadbutton btn-sm btn btn-secondary"  type="button" name="downloadsyslog">SysLog file</button>
 				</div>
-				<div class="col-xs-6">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 pb-2">
 					<a id="downloadlinkdownloadsyslog0" href="" ></a>
 				</div>
 			</div>	
 			{% endif %}
 
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label>Status:</label>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label id="downloadstatus" for="input_3">Status</label>
 				</div>
 			</div>	
-
+		</form>
 			<script type=text/javascript>
 			  $(function() {
 				$(".downloadbutton").click(function() {
@@ -305,54 +232,54 @@ function actionFormatter(value, row, index) {
 			</div>
 			<!--  button 1 -->
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label >Testing</label>
 				</div>
-				<div class="col-xs-4">
-					<button class="testingbutton btn-sm btn btn-default"  type="button" name="testing1">Automation Hat testing</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button class="testingbutton btn-sm btn btn-secondary"  type="button" name="testing1">Automation Hat testing</button>
 				</div>
 
 			</div>	
 			<!--  button 2 -->
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label >Testing</label>
 				</div>
-				<div class="col-xs-4">
-					<button class="testingbutton btn-sm btn btn-default"  type="button" name="testing2">Irrigation Hat testing</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button class="testingbutton btn-sm btn btn-secondary"  type="button" name="testing2">Irrigation Hat testing</button>
 				</div>
 
 			</div>	
 
 			<!--  button 3 -->
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label >Testing</label>
 				</div>
-				<div class="col-xs-4">
-					<button class="testingbutton btn-sm btn btn-default"  type="button" name="testing3">Super Hat testing</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button class="testingbutton btn-sm btn btn-secondary"  type="button" name="testing3">Super Hat testing</button>
 				</div>
 
 			</div>	
 
 			<!--  button 4 -->
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label >Testing</label>
 				</div>
-				<div class="col-xs-4">
-					<button class="testingbutton btn-sm btn btn-default"  type="button" name="testing">Generic testing</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button class="testingbutton btn-sm btn btn-secondary"  type="button" name="testing">Generic testing</button>
 				</div>
 
 			</div>
 
 			<!--  button 4 -->
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label >Testing</label>
 				</div>
-				<div class="col-xs-4">
-					<a href="{{ url_for('embedpage', url="192.168.1.179") }}">Test Embed Page</a>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<a href="{{ url_for('embedpage', url='192.168.1.179') }}">Test Embed Page</a>
 
 				</div>
 
@@ -361,15 +288,15 @@ function actionFormatter(value, row, index) {
 
 
 			<div class="row">
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label>Status:</label>
 				</div>
-				<div class="col-xs-4">
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label id="testingstatus" for="input_3">Status</label>
 				</div>
 			</div>	
 		  {% endif %}
-
+		</form>
 			<script type=text/javascript>
 			  $(function() {
 				$(".testingbutton").click(function() {
@@ -401,83 +328,54 @@ function actionFormatter(value, row, index) {
 			  });
 			</script>
 
-	
-
-
-
 		<!-- section with refresh button -->
 		<form novalidate="true" action="{{ url_for('hardwaresetting') }}" method="post" >
 			<!-- Refresh hardware setting            -->
-			<div class="page-header">
-				<h4>Refresh Hardware Setting</h4>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>Refresh Hardware Setting</h3>   
 			</div>
-
-
-			<!-- RPi reset button-->
-
 			<div class="row">
-
-				<div class="col-xs-4">
-					<button class="btn-sm btn btn-success" type="submit" name="buttonsub" value="refresh">Refresh</button>
+				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+					<button class="btn-sm btn btn-success" type="submit" name="buttonsub" value="refresh">
+						<i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
 				</div>
 			</div>				
 
 		</form>
-
-
-
-
 			
-			<!-- RPi reset button            -->
-			<div class="page-header">
-				<h4>Don't Click the button below</h4>   
-			</div>
+		<!-- RPi reset button -->
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Don't Click the button below</h3>   
+		</div>
+		<div class="row">
+			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
-
-			<!-- RPi reset button-->
-
-			<div class="row">
-
-			<div class="col-xs-12">
-
-			<a href="{{ url_for('dontclick') }}">
-			<button id="dontclickbtn" name="buttonsub" value="dontclickbtn" class="btn btn-danger btn-sm btn-warp">
-				Don't click me
-			<span class="glyphicon glyphicon-cog"></span>
-			</button>
-			</a>
-
+				<a href="{{ url_for('dontclick') }}">
+				<button id="dontclickbtn" name="buttonsub" value="dontclickbtn" class="btn-sm btn btn-danger">
+					<i class="fa-solid fa-hand"></i> Don't click me</button>
+				</a>
 
 			</div>
-			</div>			
+		</div>			
 
-
-
-
-			<div class="page-header">
-					  <h4>Running Status</h4>   
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Running Status</h3>   
+		</div>
+		<div class="row">
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+				<label>DebugStatus:</label>
 			</div>
-			<!--  debugstatus -->
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+				<label id="testingstatus" for="input_3">{{debugmode}}</label>
+			</div>
+		</div>	
 
-			<div class="row">
-				<div class="col-xs-4">
-					<label>DebugStatus:</label>
-				</div>
-				<div class="col-xs-4">
-					<label id="testingstatus" for="input_3">{{debugmode}}</label>
-				</div>
-			</div>	
-
-
- 
    </div> 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}
-  <ul class=entries>
 
-  </ul>
 {% endblock %}

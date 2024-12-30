@@ -3,8 +3,8 @@ LOG_SETTINGS = {
     'disable_existing_loggers': False,
     'formatters': {
         'detailed': {
-            'format': '%(asctime)s | %(process)d | %(levelname)s | %(filename)s | %(lineno)d | %(funcName)s | %(message)s',
-            'datefmt': '%Y-%m-%d %H:%M:%S'            
+            'format': '%(asctime)s |  %(levelname)s | %(filename)s | %(funcName)s | %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
         'simple': {
             'format': '%(asctime)-2s %(name)28s - %(levelname)-10s %(message)s',
@@ -16,7 +16,7 @@ LOG_SETTINGS = {
             'level':'DEBUG',
             'class':'logging.StreamHandler',
             'formatter': 'simple'
-        },       
+        },
         'access_file_handler':{
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'level': 'DEBUG',
@@ -27,7 +27,17 @@ LOG_SETTINGS = {
             'when': 'midnight',
             'interval': 1,
             'delay': True
-        }, 
+        },
+        'actuator':{
+            'class': 'logging.handlers.RotatingFileHandler',
+            'level': 'DEBUG',
+            'formatter': 'detailed',
+            'filename': 'logfiles/actuator.log',
+            'backupCount': 3,
+            'encoding': 'utf8',
+            'maxBytes': 1048576,
+            'delay': True            
+        },
         'exception_file_handler':{
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'level': 'ERROR',
@@ -39,10 +49,16 @@ LOG_SETTINGS = {
             'interval': 1,
             'delay': True
         }
+
     },
     'loggers': {
         'hydrosys4': {
             'handlers':['access_file_handler'],
+            'propagate': False,
+            'level':'DEBUG'
+        },
+        'actuator': {
+            'handlers':['actuator'],
             'propagate': False,
             'level':'DEBUG'
         },

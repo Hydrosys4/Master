@@ -3,77 +3,65 @@
 {% block body %}
   {% if session.logged_in %}
   
-  <div class="container-fluid">
-		<script type=text/javascript>
+<div class="container-fluid">
+	<script type=text/javascript>
+		(function worker() {
+			var elem="{{selectedsensor}}";
+			$.ajax({
+				type: "GET",
+				url: $SCRIPT_ROOT + "/echo/?element=" + elem ,
+				contentType: "application/json; charset=utf-8",
+				data: { echoValue: "requestfordata" },
+				success: function(s) {
+					var data = eval(s); // this will convert your json string to a javascript object
+					for (var key in data) {
+						//alert(key+': '+data[key]["reading"]); // this will show each key with it's value
+						$('#' +key+"_reading").text(data[key]["reading"]);
+						$('#' +key+"_statusmsg").text(data[key]["statusmsg"]);
+					}
+				},								
+				complete: function() {
+					// Schedule the next request when the current one's complete
+					setTimeout(worker, 1500);
+				}
 
-
-			  (function worker() {
-				var elem="{{selectedsensor}}";
-				$.ajax({
-							type: "GET",
-							url: $SCRIPT_ROOT + "/echo/?element=" + elem ,
-							contentType: "application/json; charset=utf-8",
-							data: { echoValue: "requestfordata" },
-							success: function(s) {
-								var data = eval(s); // this will convert your json string to a javascript object
-								for (var key in data) {
-									//alert(key+': '+data[key]["reading"]); // this will show each key with it's value
-									$('#' +key+"_reading").text(data[key]["reading"]);
-									$('#' +key+"_statusmsg").text(data[key]["statusmsg"]);
-						
-								}
-							},								
-							complete: function() {
-							  // Schedule the next request when the current one's complete
-							  setTimeout(worker, 1500);
-							}
-
-
-							//error: function(jqXHR, textStatus, errorThrown) {
-							//    alert(errorThrown);
-							//}
-						});
-			  
-			  })();
-
-	
-	
-	
-									
-			$(function() {
-				$( '#thisprbar' ).css('width', '0%').attr('aria-valuenow', 0);
-
+				//error: function(jqXHR, textStatus, errorThrown) {
+				//    alert(errorThrown);
+				//}
 			});
+	  
+		  })();	
+									
+		$(function() {
+			$( '#thisprbar' ).css('width', '0%').attr('aria-valuenow', 0);
 
-			var pGress = setInterval(function() {
-							var pVal = parseInt($('#thisprbar').attr('aria-valuenow'));
-							var pCnt = !isNaN(pVal) ? (pVal + 100) : 0;
+		});
+
+		var pGress = setInterval(function() {
+			var pVal = parseInt($('#thisprbar').attr('aria-valuenow'));
+			var pCnt = !isNaN(pVal) ? (pVal + 100) : 0;
 							
-							if (pCnt > 100) {
-									//clearInterval(pGress);
-									$('#thisprbar').css('width', '0%').attr('aria-valuenow', "0"); 
-									pCnt = 0;
-							} else {
-									$('#thisprbar').css('width', pCnt+'%').attr('aria-valuenow', pCnt); 
-							}
-							//alert(pCnt)
-					},1500);
-			
-			
-			
-			 
-			</script>
+			if (pCnt > 100) {
+				//clearInterval(pGress);
+				$('#thisprbar').css('width', '0%').attr('aria-valuenow', "0"); 
+				pCnt = 0;
+			} else {
+				$('#thisprbar').css('width', pCnt+'%').attr('aria-valuenow', pCnt); 
+			}
+			//alert(pCnt)
+		},1500);
+		 
+	</script>
 
-		<form novalidate="true" action="{{ url_for('show_Calibration') }}"  id="realtimesensor" method="post" >
+	<form novalidate="true" action="{{ url_for('show_Calibration') }}"  id="realtimesensor" method="post" >
 
-
-			<div class="page-header">
-					  <h3>Real time data: {{selectedsensor}} </h3>   
-			</div>
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Real time data: {{selectedsensor}}</h3>
+		</div>
 			
-			<!--  result  -->
-	<div class="well bs-component">
-				<table class="table" margin: 20px;>
+		<!--  result  -->
+		<div class="card card-body bg-light mb-2">
+			<table class="table table-light">
 				<thead>
 					<tr>
 						<th>Sensor</th>
@@ -82,52 +70,39 @@
 					</tr>
 				</thead>
 				<tbody>
-
-					
-					 <tr>			
-							<td >{{ selectedsensor }}</td>
-
-							<td id="{{ selectedsensor }}_reading"></td>
-							
-												
-							<td>{{ unitdict[selectedsensor] }}</td>
-							
-					 </tr>	
-					
-
-				
+					<tr>			
+						<td >{{ selectedsensor }}</td>
+						<td id="{{ selectedsensor }}_reading"></td>		
+						<td>{{ unitdict[selectedsensor] }}</td>						
+					</tr>
 				</tbody>
 			</table>
- 
-
 
 			<div class="row">
-			<!--  progress bar bootstrap-->
-			<div class="col-xs-6">			
-			<div class="progress">
+				<!--  progress bar bootstrap-->
+				<div class="col-xs-6">			
+					<div class="progress">
+						<div id="thisprbar" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+			 		</div>
+				</div>
+			</div>
 
-			  <div id="thisprbar" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-			  </div>
-			</div>
-			</div>
-			</div>
-			<!--   Status -->
-			 <div class="row">
+			<!-- Status -->
+			<div class="row">
 				<div class="col-xs-4">
 					<label>Status:</label>
 				</div>
 				<div class="col-xs-8">
 					<label class="form-label-left" id="{{ selectedsensor }}_statusmsg" for="input_3"></label>
 				</div>
-			</div>	
-		
-	 <button class="btn btn-success btn-default" type="submit" name="buttonsub" value="confirm">Back</button>
-	  </div>
-	  
-	  
+			</div>		
+		</div>
 
-	  
-		</form>	
+		<div class="d-grid gap-2 col-6 mx-auto">
+			<button class="btn btn-secondary" type="submit" name="buttonsub" value="confirm"><i class="fa-solid fa-circle-left"></i> Back</button>
+		</div>
+
+	</form>	
 
   </div>
   {% endif %}

@@ -4,10 +4,13 @@
   {% if session.logged_in %}
  
  
+<div class="container">
 
-		<script type=text/javascript>
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>Automation Setting</h3>
+	</div>
 
-			
+	<script type=text/javascript>		
 			
 			$(document).ready(function()
 			{
@@ -40,452 +43,364 @@
 			</script>
 
 
-{% if (sensorlist|length)>0 %}
+	{% if (sensorlist|length)>0 %}
 
 			<ul class="nav nav-pills">
 				{% for settingparam in watersettinglist %}
-					<li {% if settingparam[0] == selectedelement %} class="active"{% endif%}><a href="#{{ settingparam[0] }}" data-toggle="tab" style="font-size:1.2em;">{{ settingparam[0] }}</a></li>
+				<li class="nav-item nav-purple">
+					<a class="nav-link {% if settingparam[0] == selectedelement %} active {% endif%}" href="#{{ settingparam[0] }}" data-bs-toggle="pill">{{ settingparam[0] }}</a>
+        </li>
 				{% endfor %}
 			</ul>
 
-
-        <div class="tab-content">
+  <div class="tab-content">
 			
 		{% for settingparam in watersettinglist %}
 		{% set row_i = loop %}	
 		{% set elem = settingparam[0] %}
-         <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
+	  <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
 			 
-			 <!---- start panel  -->
-			 
-		<form novalidate="true" action="{{ url_for('automation') }}" method="post" >
-			 
-			 <input id="autotags" name="element" value="{{elem}}" type="hidden" />
-			 		 
-			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
-			 
-			 <div class="panel panel-primary">
-			  <div class="panel-heading">
-				  <div class="row">
-					    <div class=" col-xs-9">
-							<span style="font-size:1.2em;">{{ elem }}</span>
-						</div>
-
-						<div class=" col-xs-3">				
-							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
-							<span class="glyphicon glyphicon-saved"></span>
-							</button>
-						</div>
-					</div>
-			  </div>
-			  <div class="panel-body">
-
-				
-				<!---- panel  body -->
-
-
-
-			<div class="page-header">
-				<h3>Automation Setting</h3>   
-			</div>
-
-
-			
-			
-			<div class="well bs-component">
-				
-			<div class="form-group">			
-			<div class="row">
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<legend>Parameters Setting</legend>  
-				</div>	
-			</div>	
-			</div>	
-
-			<div class="form-group">
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Working Mode</label>
-				</div>		
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="{{elem}}_1">
-					{% for name in modelist %}	
-						<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-					{% endfor %}											
-					</select>
-				<div class="small">Full Auto: Activate full automation</div>
-				<div class="small">Emergency Activation: not implemented</div>
-				<div class="small">Alert Only: not implemented</div>
-
-				</div>
-			</div>
-			</div>	
-
-
-			
-			<div class="form-group">
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-					<label>Reference Sensors</label>
-				</div>		
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="{{elem}}_2">
-					<option selected="selected" value="">None</option>
-					{% for name in sensorlist %}	
-						<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}({{timetriggerlist[loop.index0]}}min)</option>
-					{% endfor %}											
-					</select>
-				</div>
-			</div>
-			</div>	
-				
-			<div class="form-group">					
-			<div class="row">
-
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-
-
-					<table class="table" margin: 20px;>
-					<thead>
-						<tr>
-							<th>Range</th>
-							<th>BEGIN</th>
-							<th>END</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-					<tr>
-
-						<td>
-							<label>Sensor Values</label>
-						</td>
-
-						 <td>	
-						  
-							<input value="{{settingparam[3][0]}}" class="form-control input-sm" name="{{elem}}_3_1" type="text">
-						  
-						 </td>	
-								
-						 <td>				
-
-							<input value="{{settingparam[3][1]}}" class="form-control input-sm" name="{{elem}}_3_2" type="text">
-						 </td>	
-
-
-
-
-						</tr>
-				
-				
-									<tr>
-
-						<td>
-							<label>Actuator Values</label>
-						</td>
-
-						 <td>	
-
-						  
-						  	<input value="{{settingparam[4][0]}}" class="form-control input-sm" name="{{elem}}_4_1" type="text">
-						  
-						 </td>	
-								
-						 <td>				
-
-						  
-						 	<input value="{{settingparam[4][1]}}" class="form-control input-sm" name="{{elem}}_4_2" type="text">
-						  
-						  
-						 </td>	
-
-
-
-
-
-						</tr>
-
-
-						</tbody>
-					</table>
-						<div class="small">If actuator is pulse type, the unit is in seconds </div>
-						<div class="small">If actuator is Servo type, the unit is in position percentage </div>
-						<div class="small">If actuator is Stepper type, the unit is the number of steps </div>
-				
-
-				</div>
-			</div>	
-			</div>	
-
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Number of Steps:
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[5]}}" class="form-control input-sm" name="{{elem}}_5" type="text">
-				<div class="small">Number of actuator steps between BEGIN and END </div>
-
-				</div>
-			</div>				
-			</div>
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Pause between activation:
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				<input value="{{settingparam[6]}}" class="form-control input-sm" name="{{elem}}_6" type="text">
-				<div class="small">Actuator wait a number of minutes between activations</div>
-
-				</div>
-			</div>				
-			</div>				
-				
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Interval for Sensor Data evaluation:
-				</label>
-
-				
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-				
-					<input value="{{settingparam[7]}}" class="form-control input-sm" name="{{elem}}_7" type="text">
-				<div class="small">Number of past minutes in which the sensor values are taken and evaluated (average/min/max) for the automation algorithm. If value Zero, at least one sample will be considered</div>
-
-				</div>
-			</div>				
-			</div>					
-
-			<div class="form-group">
-				<div class="row">
-					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-						<label>Activation delay (seconds)</label>
-					</div>		
-					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					
-						<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
-						<div class="small">This parameter delays the activation of the actuator of a number of seconds from the sensor reading </div>
-						<div class="small">NOTE: this is not accounted in the operational time below, this delay may cause the actuator to activate outside the operational time</div>
-					</div>
-
-				</div>
-			</div>
-
-
-
-
-
-			<div class="form-group">					
-			<div class="row">
-
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-
-
-					<table class="table" margin: 20px;>
-					<thead>
-						<tr>
-							<th>Operational time</th>
-							<th>Start</th>
-							<th>End</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-					<tr>
-
-						<td>
-							<label>Interval</label>
-						</td>
-
-						 <td>				
-					<select class="form-control seltimeclass input-sm" name="{{elem}}_8_1" valueinit="{{settingparam[8][0]}}">
-					</select>	
-						 </td>	
-								
-						 <td>				
-					<select class="form-control seltimeclass input-sm" name="{{elem}}_8_2" valueinit="{{settingparam[8][1]}}">
-					</select>	
-						 </td>	
-
-
-						</tr>
-				
-
-						</tbody>
-					</table>
-					<div class="small">Time period when the automation is active. Set start and end to 00:00 for full day operation</div>
-				</div>
-			</div>	
-			</div>	
-				
-	
-
-
-			<div class="form-group">		
-			<div class="row">
-				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-				<label>Alert preferences:</label>
-				</div>
-				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">	 			
-				  <select class="form-control input-sm dontwantgap" name="{{elem}}_9">
-					{% for name in alertlist %}	
-					<option {% if name==settingparam[9] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-					{% endfor %}
-				  </select>
-				<div class="small">send by email the info plus warning or the warning only </div>
-
-				</div>
-			</div>				
-			</div>	
-		
-			<div class="form-group">
-				<div class="row">
-					<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-						<label>Math operation on samples</label>
-					</div>		
-					<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-						<select class="form-control input-sm dontwantgap" name="{{elem}}_10">
-						{% for name in operationlist %}	
-							<option {% if name==settingparam[10] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-						{% endfor %}											
-						</select>
-					<div class="small">Operation between the samples to calculate the sensor value</div>
-
-
-					</div>
-				</div>
-			</div>	
-			
-<!---- Status section -->
-
-			<div class="form-group">			
-			<div class="row">
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<legend>System Current Status</legend>  
-				</div>	
-			</div>	
-			</div>	
-
-			<div class="form-group">					
-			<div class="row">
-
-				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-
-
-
-					<table class="table" margin: 20px;>
-					<thead>
-						<tr>
-							<th>Last Activation</th>
-							<th>Status</th>
-							<th>Actuator Value</th>
-							<th>Warning</th>
-						</tr>
-					</thead>
-					<tbody>
-					
-					<tr>
-
-						<td>
-							<div>{{ cyclestatuslist[loop.index0][0] }}</div>
-						</td>
-
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][1] }}</div>
-						 </td>	
-								
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][2] }}</div>
-						 </td>	
-
-						 <td>				
-							<div>{{ cyclestatuslist[loop.index0][3] }}</div>
-						 </td>	
-
-						</tr>
-				
-
-						</tbody>
-					</table>
-
-				</div>
-			</div>	
-
-			<!---- Reset Button -->
-			
-			<div class="row">
-			
-				<div class=" col-xs-3">				
-					<button id="resetbtn" name="reset" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-default btn-md btn-block btn-warp dontwantgap">Reset Cycle
-					</button>
-				</div>			
-			</div>	
-			
-			</div>			
-			
-			
-			</div>
-
-			</div>
-
-
-				<!---- END panel  body -->
-		  		  
-			  <div class="panel-footer">
-				  <div class="row">
-					    <div class=" col-xs-6">
-							<span style="font-size:1.2em;">{{ elem }}</span>
-						</div>
-						<div class=" col-xs-3">				
-
-						</div>
-						<div class=" col-xs-3">				
-							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
-							<span class="glyphicon glyphicon-saved"></span>
-							</button>
-						</div>
-					</div>
-			   </div>
-			
-			
-			</div>
-         
-		</form>
-         
-         </div>
-         {% endfor %}
-          
-         
-         
-   
-
-{% else %}
-
-							<div class="row">
-								<div class="col-xs-12">
-									<div style="height:100px"><h4> Sensor not available</h4></div>
-								
-								</div>
+			<!---- start panel  -->	 
+			<form novalidate="true" action="{{ url_for('automation') }}" method="post" >
+				 
+				<input id="autotags" name="element" value="{{elem}}" type="hidden" />
+				 		 
+				<input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
+				 
+				<div class="card card-purple">
+					<div class="card-header">
+						<div class="row pb-2">
+							<div class="col-9">
+								<span style="font-size:1.2em;">{{ elem }}</span>
 							</div>
 
+							<div class="col-3">				
+								<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn-sm btn btn-danger btn-md btn-block dontwantgap w-100"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+							</div>
+						</div>
+					</div>
 
-{% endif %}
+					<!---- panel body -->			
+					<div class="card card-body bg-light">
+			
+						<div class="row pb-2">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<legend>Parameters Setting</legend>  
+							</div>	
+						</div>	
+
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Working Mode</label>
+							</div>		
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<select class="form-select dontwantgap" name="{{elem}}_1">
+								{% for name in modelist %}	
+									<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+								{% endfor %}											
+								</select>
+							<div class="small">Full Auto: Activate full automation</div>
+							<div class="small">Emergency Activation: not implemented</div>
+							<div class="small">Alert Only: not implemented</div>
+
+							</div>
+						</div>	
 
 
-		<script type="text/javascript">
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Reference Sensors</label>
+							</div>		
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<select class="form-select dontwantgap" name="{{elem}}_2">
+								<option selected="selected" value="">None</option>
+								{% for name in sensorlist %}	
+									<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}({{timetriggerlist[loop.index0]}}min)</option>
+								{% endfor %}											
+								</select>
+							</div>
+						</div>	
+					
+						<div class="row pb-2">
+
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+								<table class="table table-condensed table-light table-sm">
+								<thead>
+									<tr>
+										<th class="col-lg-4 col-md-4 col-sm-4 col-xs-12">Range</th>
+										<th class="col-lg-4 col-md-4 col-sm-4 col-xs-12">BEGIN</th>
+										<th class="col-lg-4 col-md-4 col-sm-4 col-xs-12">END</th>
+									</tr>
+								</thead>
+								<tbody>
+								
+									<tr>
+
+										<td>
+											<label>Sensor Values</label>
+										</td>
+
+										<td>	
+											<input value="{{settingparam[3][0]}}" class="form-control input-sm" name="{{elem}}_3_1" type="text">
+										</td>	
+											
+										<td>				
+											<input value="{{settingparam[3][1]}}" class="form-control input-sm" name="{{elem}}_3_2" type="text">
+									 	</td>	
+
+									</tr>
+
+									<tr>
+
+										<td>
+											<label>Actuator Values</label>
+										</td>
+
+										<td>							  
+										  <input value="{{settingparam[4][0]}}" class="form-control input-sm" name="{{elem}}_4_1" type="text">
+										</td>	
+											
+										<td>
+									 		<input value="{{settingparam[4][1]}}" class="form-control input-sm" name="{{elem}}_4_2" type="text">
+										</td>	
+
+									</tr>
+
+
+								</tbody>
+								</table>
+								<div class="row pb-2">
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12"></div>
+									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+										<div class="small">If actuator is pulse type, the unit is in seconds </div>
+										<div class="small">If actuator is Servo type, the unit is in position percentage </div>
+										<div class="small">If actuator is Stepper type, the unit is the number of steps </div>
+									</div>
+								</div>
+							</div>
+						</div>	
+
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+							<label>Number of Steps:
+							</label>
+
+							
+							</div>
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+							<input value="{{settingparam[5]}}" class="form-control" name="{{elem}}_5" type="text">
+							<div class="small">Number of actuator steps between BEGIN and END </div>
+
+							</div>
+						</div>
+
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+							<label>Pause between activation:
+							</label>
+
+							
+							</div>
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+							<input value="{{settingparam[6]}}" class="form-control" name="{{elem}}_6" type="text">
+							<div class="small">Actuator wait a number of minutes between activations</div>
+
+							</div>
+						</div>				
+							
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+							<label>Interval for Sensor Data evaluation:
+							</label>
+
+							
+							</div>
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+							
+								<input value="{{settingparam[7]}}" class="form-control" name="{{elem}}_7" type="text">
+							<div class="small">Number of past minutes in which the sensor values are taken and evaluated (average/min/max) for the automation algorithm. If value Zero, at least one sample will be considered</div>
+
+							</div>
+						</div>					
+
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Activation delay (seconds)</label>
+							</div>		
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+							
+								<input value="{{settingparam[11]}}" class="form-control input-sm" name="{{elem}}_11" type="text">
+								<div class="small">This parameter delays the activation of the actuator of a number of seconds from the sensor reading </div>
+								<div class="small">NOTE: this is not accounted in the operational time below, this delay may cause the actuator to activate outside the operational time</div>
+							</div>
+						</div>
+
+
+						<div class="row pb-2">
+
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+								<table class="table table-condensed table-light table-sm">
+								<thead>
+									<tr>
+										<th class="col-lg-4 col-md-4 col-sm-4 col-xs-12">Operational time</th>
+										<th class="col-lg-4 col-md-4 col-sm-4 col-xs-12">Start</th>
+										<th class="col-lg-4 col-md-4 col-sm-4 col-xs-12">End</th>
+									</tr>
+								</thead>
+								<tbody>
+								
+								<tr>
+
+									<td>
+										<label>Interval</label>
+									</td>
+
+									 <td>				
+								<select class="form-select seltimeclass" name="{{elem}}_8_1" valueinit="{{settingparam[8][0]}}">
+								</select>	
+									 </td>	
+											
+									 <td>				
+								<select class="form-select seltimeclass" name="{{elem}}_8_2" valueinit="{{settingparam[8][1]}}">
+								</select>	
+									 </td>	
+
+
+									</tr>
+							
+
+									</tbody>
+								</table>
+								<div class="small">Time period when the automation is active. Set start and end to 00:00 for full day operation</div>
+							</div>
+						</div>	
+							
+
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Alert preferences:</label>
+							</div>
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">	 			
+							  <select class="form-select dontwantgap" name="{{elem}}_9">
+								{% for name in alertlist %}	
+								<option {% if name==settingparam[9] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+								{% endfor %}
+							  </select>
+							<div class="small">send by email the info plus warning or the warning only </div>
+
+							</div>
+						</div>				
+					
+						<div class="row pb-2">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<label>Math operation on samples</label>
+							</div>		
+							<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<select class="form-select dontwantgap" name="{{elem}}_10">
+								{% for name in operationlist %}	
+									<option {% if name==settingparam[10] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+								{% endfor %}											
+								</select>
+								<div class="small">Operation between the samples to calculate the sensor value</div>
+
+							</div>
+						</div>
+						
+						<!---- Status section -->
+						<div class="row pb-2">
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<legend>System Current Status</legend>  
+							</div>	
+						</div>	
+
+						<div class="row pb-2">
+
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+								<table class="table table-condensed table-light table-sm">
+								<thead>
+									<tr>
+										<th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Last Activation</th>
+										<th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Status</th>
+										<th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Actuator Value</th>
+										<th class="col-lg-3 col-md-3 col-sm-3 col-xs-12">Warning</th>
+									</tr>
+								</thead>
+								<tbody>
+								
+								<tr>
+
+									<td>
+										<div>{{ cyclestatuslist[loop.index0][0] }}</div>
+									</td>
+
+									 <td>				
+										<div>{{ cyclestatuslist[loop.index0][1] }}</div>
+									 </td>	
+											
+									 <td>				
+										<div>{{ cyclestatuslist[loop.index0][2] }}</div>
+									 </td>	
+
+									 <td>				
+										<div>{{ cyclestatuslist[loop.index0][3] }}</div>
+									 </td>	
+
+									</tr>
+							
+
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+
+						<!---- Reset Button -->
+						<div class="row pb-2">
+							<div class=" col-xs-3">				
+								<button id="resetbtn" name="reset" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-secondary btn-md btn-block dontwantgap"><i class="fa-solid fa-rotate-right"></i> Reset Cycle
+								</button>
+							</div>			
+						</div>	
+				
+					</div> <!-- end card body -->	
+							
+					<div class="card-footer">
+						<div class="row pb-2">
+							<div class=" col-6">
+								<span style="font-size:1.2em;">{{ elem }}</span>
+							</div>
+							<div class=" col-6 text-end">				
+								<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+							</div>
+						</div>
+					</div>
+				
+				</div> <!-- end card -->
+         
+			</form>
+         
+		</div> <!-- end tab-pane -->
+
+         {% endfor %}
+          
+	</div> <!-- end tab-content -->         
+
+
+	{% else %}
+
+	<div class="row pb-2">
+		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div style="height:100px"><h4> Sensor not available</h4></div>				
+		</div>
+	</div>
+
+
+	{% endif %}
+
+	<script type="text/javascript">
 			$(document).ready(function(){
 				var imgtext='<img src="/static/dropv3 xs.jpg" style="height:30px;width:22px"/>';
 				$(".drop").each(function() {  // fill the element with waterdropo images
@@ -500,7 +415,7 @@
 				});	
 
 				
-				$('.qtybutton').click(function(){ // quantity button pressed, add or remove water drop image
+				$('.qtyutton').click(function(){ // quantity button pressed, add or remove water drop image
 					var idbut=$(this).attr('id');
 					var idimg=idbut.split("_")[0];
 					var action=idbut.split("_")[1];
@@ -542,18 +457,15 @@
 					});  
 				}); 
 		
-		</script>  
+	</script>
 
 
-
-
-
-
+</div> <!--- end container -->
 
 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}
@@ -561,3 +473,4 @@
 
 
 {% endblock %}
+

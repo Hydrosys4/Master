@@ -563,6 +563,11 @@ server {
         proxy_buffering off;
     }
 
+    location /static/download/configdownload/logincred.txt {
+        return 302 https://$server_name$request_uri;
+    }
+
+
     location /favicon.ico {
         alias /home/pi/env/autonom/static/favicon.ico;
     }

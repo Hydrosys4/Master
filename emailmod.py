@@ -43,7 +43,7 @@ def send_email(user, pwd, recipient, subject, body):
     message = """\From: %s\nTo: %s\nSubject: %s\n\n%s
     """ % (FROM, ", ".join(TO), SUBJECT, TEXT)
     try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server = smtplib.SMTP(emaildbmod.getserver(), emaildbmod.getport())
         server.ehlo()
         server.starttls()
         server.login(gmail_user, gmail_pwd)
@@ -52,7 +52,6 @@ def send_email(user, pwd, recipient, subject, body):
         print('successfully sent the mail')
     except:
         print("failed to send mail")
-
 
 def create_htmlopen():
 
@@ -74,37 +73,33 @@ def create_htmlclose():
 	return html
 
 def create_htmlintro(intromessage):
-	
 	html = """\
 		<h3> """ + intromessage + """</h3>
- 	   
+
 	"""
 	return html
 
 def create_htmlbody(bodytextlist):
 	# the input should be a list
 	html = """\
-	<p></p>   
+	<p></p>
 		"""
 	for textrow in bodytextlist:
 		html = html + """\
 			<p> """ + textrow + """</p>
-		   
+
 		"""
 	return html
 
-
 def create_htmladdresses(descriptionlist, addresslist, port):
-	
 	html = """\
 
 	<h3>Below the links for System connection:</h3>
 	<p></p>
-	
+
 	"""
-	
+
 	for inde in range(len(addresslist)):
-	
 		addressport=addresslist[inde]+":"+port
 
 		html = html + """\
@@ -115,10 +110,7 @@ def create_htmladdresses(descriptionlist, addresslist, port):
 		"""
 	return html
 
-
 def create_htmlmatrix(matrixinfo):
-
-
 	htmlopen = """<table style="width:100%!important" cellpadding="2" cellspacing="1">"""
 
 
@@ -139,9 +131,8 @@ def create_htmlmatrix(matrixinfo):
 	html=htmlopen+htmlheader+htmltable+htmlclose
 
 	return html
- 
-def send_email_html(user, pwd, recipient, subject, html, showpicture):
 
+def send_email_html(user, pwd, recipient, subject, html, showpicture):
 	# me == my email address
 	# you == recipient's email address
 	gmail_user = user
@@ -164,14 +155,13 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 	# Record the MIME t
 	part1 = MIMEText(html, 'html')
 	msg.attach(part1)
-	
+
 	if showpicture:
 		#retrieve last picture ------------------------------------
 		global MYPATH
-			
-						
+
 		photolist=hardwaremod.photolist(MYPATH,3)
-		imgfiles=[]	
+		imgfiles=[]
 		if photolist:
 			referencestr=photolist[0][0].split(",")[0]
 			for items in photolist:
@@ -180,7 +170,6 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 					folderpath=os.path.join(folderpath, items[0])
 					imgfiles.append(folderpath)
 
-	
 		for filename in imgfiles:
 			# Open the files in binary mode.  Let the MIMEImage class automatically
 			# guess the specific image type.
@@ -207,10 +196,7 @@ def send_email_html(user, pwd, recipient, subject, html, showpicture):
 		print("failed to send mail")
 		return False
 
-
-
 def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
-	
 	# mailtype option
 	# "report"
 	# "alert"
@@ -231,8 +217,7 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 		showtable=False
 		showpicture=False
 		showlink=True
-	
-	
+
 	currentdate=datetime.datetime.now().strftime("%y-%m-%d,%H:%M")
 	# got credentials here !
 	user=emaildbmod.getaddress()
@@ -240,23 +225,23 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 	recipient=address
 
 	# check IP address
-	iplocal=networkmod.get_local_ip()	
+	iplocal=networkmod.get_local_ip()
 	ipext=networkmod.EXTERNALIPADDR
 	if ipext=="":
 		logger.info('Stored external IP address is empty, try to get it from network')
 		ipext=networkmod.get_external_ip()
-		
-	print("Try to send mail")	
+
+	print("Try to send mail")
 	# subject of the mail
 	subject=starttitle +" " + title + "  " + currentdate
 	htmlbody=create_htmlopen()
 	htmlbody=htmlbody+create_htmlintro(intromessage)+create_htmlbody(bodytextlist)
-	
+
 	if showlink:
 		if ipext=="":
 			print("No external IP address available")
-			logger.error('Unable to get external IP address')		
-		else:		
+			logger.error('Unable to get external IP address')
+		else:
 			port=str(networkmod.PUBLICPORT)
 			if cmd=="mail+info+link":
 				addresslist=[]
@@ -266,14 +251,12 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 				addresslist.append(ipext)
 				descriptionlist.append("Link for Remote Access")
 				customURL=networkmod.getCUSTOMURL()
-				if not customURL=="":	
-					addresslist.append(customURL)		
+				if not customURL=="":
+					addresslist.append(customURL)
 					descriptionlist.append("your Link")
 				print("Mail url list ",addresslist)
 				htmlbody=htmlbody+create_htmladdresses(descriptionlist,addresslist, port)
 
-				
-			
 	if showtable:
 		# table with information
 		matrixinfo=sensordbmod.sensorsysinfomatrix()
@@ -286,45 +269,36 @@ def send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist=[]):
 		global IPEXTERNALSENT
 		IPEXTERNALSENT=ipext
 	return issent
-	
-
 
 def sendallmail(mailtype,intromessage,bodytextlist=[],localmessage=True):
-	
 	# archive the message in messagebox
 	if mailtype=="alert":
 		if localmessage:
-			dictitem={'title': "System Message (Alert)", 'content': intromessage }
+			dictitem={'title': "System Message (Alert)", 'content': intromessage, 'color': "olive" }
 			messageboxmod.SaveMessage(dictitem)
 	usedfor="mailcontrol"
 	hwnamelist=hardwaremod.searchdatalist(hardwaremod.HW_FUNC_USEDFOR,usedfor,hardwaremod.HW_INFO_NAME)
 	for hwname in hwnamelist:
 		sendmail(hwname,mailtype,intromessage,bodytextlist)
-		
-def sendmail(hwname,mailtype,intromessage,bodytextlist=[]):
-	address=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_ADDR)
-	
-	if not address=="":
+
+def sendmail(hwname, mailtype, intromessage, bodytextlist=[]):
+	address=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME, hwname, hardwaremod.HW_CTRL_ADDR)
+
+	if not address == "":
 		print("mail recipient ", address)
-		title=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_TITLE)
-		print("mail title " , title)
-		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME,hwname,hardwaremod.HW_CTRL_CMD)
-		print("mail type " , cmd)
-		issent=send_email_main(address,title,cmd,mailtype,intromessage,bodytextlist)
+		title=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME, hwname, hardwaremod.HW_CTRL_TITLE)
+		print("mail title ", title)
+		cmd=hardwaremod.searchdata(hardwaremod.HW_INFO_NAME, hwname, hardwaremod.HW_CTRL_CMD)
+		print("mail type ", cmd)
+		issent=send_email_main(address, title, cmd, mailtype, intromessage, bodytextlist)
 		return issent
 	else:
-		print("No address specified")
-		logger.warning('No address specified')
+		print("No address specified for ", str(hwname))
+		logger.warning('No address specified for %s', str(hwname))
 		return False
 
-
-
-
 if __name__ == '__main__':
-	
 	"""
 	prova email
 	"""
-
-	
 

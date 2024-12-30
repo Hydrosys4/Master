@@ -16,7 +16,7 @@ HYDROSYSTEM SW LEVEL:
 4c) remove all files in database /logfiles/
 4d) remove all files in database /static/downlaod/
 remove all pictures -> go to 'images' and push deleteall or go to static/hydropicture/
-5) bash, ensure the latest bash file is install_hydreosys4.sh
+5) bash, ensure the latest bash file is install_hydrosys4.sh
 
 
 START THE PROGRAM IN UBUNTU:

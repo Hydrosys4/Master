@@ -2,211 +2,185 @@
 {% set active_page = "HardwareSetting"  %} <!-- if left "" the menu will not be shown in the page -->
 {% block body %}
   {% if session.logged_in %}
-  
-   
-    <div class="container-fluid">
+
+<div class="container-fluid">
 							
 <!-- bootstrap-editable -->	
 
-<link rel="stylesheet" href="{{ url_for('static', filename='bootstrap3-editable/css/bootstrap-editable.css') }}">
-<script src="{{url_for('static', filename='bootstrap3-editable/js/bootstrap-editable.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='x-editable/css/bootstrap-editable.css') }}">
 		
-<!-- Warning -->
-    <div class="container-fluid">
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-
-						<h4 id="header">WARNING: don't modify the data on this page unless you know what you are doing. This page is for very expert only.</h4>
-
-            </div>
-          </div>
-        </div>
-        
-        
-        
-
-
-
-		<div class="row">
-          <div class="col-xs-12">
-            <div class="page-header">
-				<div class="row">
-					<div class="col-xs-8">
-						<h4 id="header">Hardwaresetting Configuration options</h4>
-					</div>
+<div class="container-fluid">
+	<div class="row">
+		<div class="pb-2 mt-4 mb-2 border-bottom col-lg-4 col-md-4 col-sm-4 col-xs-4">
+			<div class="alert alert-warning small d-flex align-items-center" role="alert">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" viewBox="0 0 16 16" role="img" aria-label="Warning:">
+					<path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+				</svg>  
+				<div>
+					<strong>WARNING:</strong> Don't modify the data on this page unless you know what you are doing. This page is for very expert only
 				</div>
-            </div>
-          </div>
+		        </div>
+		</div>
+	</div>
+
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+            <h3>Hardwaresetting Configuration options</h3>
         </div>
+      </div>
+    </div>
+
   
-<!-- first section add record -->
-<form novalidate="true" action="{{ url_for('hardwaresettingedit') }}" id="menuForm" method="post" >
-  
-    
-  
-													<div class="table-responsive">
-															<table class="table table-striped">
-																<thead>
-																	<tr>
-																		<th><h6>AddRow</h6></th>	
-																		{% for th in tablehead %}
-																		<th><h6>{{ th }}</h6></th>																			
-																		{% endfor %}
-																	</tr>
-																</thead>
-																<tbody>
-																	<tr>
-																		<td>
-<button class="thebutton btn-sm btn btn-default" type="submit" name="buttonsub" value="addrow">Add</button>
+	<!-- first section add record -->
+	<form novalidate="true" action="{{ url_for('hardwaresettingedit') }}" id="menuForm" method="post" >
+	    
+		<div class="table-responsive">
+				<table class="table table-striped" data-bs-toggle="table">
+					<thead>
+						<tr>
+							<th><h6>AddRow</h6></th>	
+							{% for th in tablehead %}
+							<th><h6>{{ th }}</h6></th>																			
+							{% endfor %}
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<button class="thebutton btn-sm btn btn-success" type="submit" name="buttonsub" value="addrow">Add</button>
+							</td>
 
-																		</td>
-																		{% for th in tablehead %}
+							{% for th in tablehead %}
 
-																			<td>
-																			<div class="form-group">	
-																			{% if fields[th]|length<1 %}
-<a class="editable" href="#" id={{ th }} data-type="text" data-pk="addrow" data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}">{{additionalrow[th]}}</a>
+								<td>
+								<div class="form-group">	
+								{% if fields[th]|length<1 %}
+	<a class="editable" href="#" id={{ th }} data-type="text" data-pk="addrow" data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}">{{additionalrow[th]}}</a>
 
-																			{% else %}		
+								{% else %}		
 
-<a class="editable-select-{{ th }}" href="#" id={{ th }} data-type="select" data-pk="addrow" data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}"  data-Value={{additionalrow[th]}}></a>
+	<a class="editable-select-{{ th }}" href="#" id={{ th }} data-type="select" data-pk="addrow" data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}"  data-Value={{additionalrow[th]}}></a>
 
-																			  {% endif %}
-																			  </div>																							
-																						
-																						
-																			</td>
-																			
-																		{% endfor %}
-
-																	</tr>
-																</tbody>
-															</table>
-															<!-- /.table-responsive -->		
-														</div>
-														
-
-							
-<!-- edit entyre table -->	
-							
-													<div class="table-responsive">
-															<table id="tablemain" class="table table-striped">
-																<thead>
-																	<tr>
-																		<th><h6>Delete</h6></th>	
-																		{% for th in tablehead %}
-																		<th><h6>{{ th }}</h6></th>																			
-																		{% endfor %}
-																	</tr>
-																</thead>
-																<tbody>
-																	{% for rowdict in hwdata %}
-
-																	<tr>
-	<td>										
-		<!--<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="delete_{{rowdict[tablehead[0]]}}">Del</button>
-		-->
-		<button class="btn-sm btn btn-default" type="submit" name="buttonsub" value="delete_{{rowdict['name']}}">Del</button>
-		
-
-
-	</td>
-																		
-																		{% for th in tablehead %}
-
-
-																		<td>
-																			<div class="form-group">	
-																			{% if fields[th]|length<1 %}
-<a class="editable" href="#" id={{ th }} data-type="text" data-pk={{ rowdict["name"] }} data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}">{{ rowdict[th] }}</a>
-
-																			{% else %}		
-																			
-<a class="editable-select-{{ th }}" href="#" id={{ th }} data-type="select" data-pk={{ rowdict["name"] }} data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}" data-Value={{ rowdict[th] }}></a>
-																					
-																			{% endif %}
-																			</div>																							
-																						
-																						
-																		</td>
-																			
-																		{% endfor %}
-
-																	</tr>
-																	{% endfor %}
-
-																</tbody>
-															</table>
-														</div>
-														<!-- /.table-responsive -->
-							
-							
-							
-														
-	<button class="btn btn-success btn-default" type="submit" name="buttonsub" value="confirm">Confirm and Save</button>
-
-	<button class="btn btn-default" type="submit" name="buttonsub" value="reload">Reload Table</button>
-
-	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Cancel</button>							
-	
-	<!-- bootstrap-editable -->	
-		<script type="text/javascript">	
-			//turn to inline mode
-			$.fn.editable.defaults.mode = 'popup';
-						
-			
-			$(document).ready(function() {
-
-						$('.editable').editable();
-						
-						
-			var headlist={{tablehead|safe}};			
-			var fieldlist={{fields|safe}};
-			for (i = 0; i < headlist.length; i++) {
-						var thesource=[];				
-						for (j = 0; j < fieldlist[headlist[i]].length; j++) {  
-							thesource.push({
-									value:fieldlist[headlist[i]][j],
-									text: fieldlist[headlist[i]][j]
-								});
-							}				
-				
-				
-						$('.editable-select-'+headlist[i]).editable({ 
-							source: thesource
-						});
-				} 						
-
-			// it is required to update the field Pk in the select.
-			$('.editable').on('save', function(e, params) {
-				//alert('Saved value: ' + params.newValue);
-				var fieldname=$(this).attr('data-name');
-				//$(this).attr('data-pk', params.newValue);
-				if (fieldname == "name") {
-					//alert("updating pk");
-					$(this).editable('option', 'pk', params.newValue);
-				}
-			});
-
-			});
-						
-			
-		</script>
-								
-								
-
-
-
+								  {% endif %}
+								  </div>																							
 											
-														
+											
+								</td>
+								
+							{% endfor %}
+
+						</tr>
+					</tbody>
+				</table>
+				<!-- /.table-responsive -->		
+			</div>
+
+		<!-- edit entire table -->				
+		<div class="table-responsive">
+			<table id="tablemain" class="table table-striped">
+				<thead>
+					<tr>
+						<th><h6>Delete</h6></th>	
+						{% for th in tablehead %}
+						<th><h6>{{ th }}</h6></th>																			
+						{% endfor %}
+					</tr>
+				</thead>
+				<tbody>
+					{% for rowdict in hwdata %}
+
+					<tr>
+						<td>
+							<button class="btn-sm btn btn-warning" type="submit" name="buttonsub" value="delete_{{rowdict['name']}}">Del</button>
+						</td>
+																		
+						{% for th in tablehead %}
+
+						<td>
+							<div class="form-group">	
+							{% if fields[th]|length<1 %}
+	<a class="editable" href="#" id={{ th }} data-type="text" data-pk={{ rowdict["name"] }} data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}">{{ rowdict[th] }}</a>
+
+							{% else %}		
+							
+	<a class="editable-select-{{ th }}" href="#" id={{ th }} data-type="select" data-pk={{ rowdict["name"] }} data-url="/HWsettingEditAjax/" data-title="Enter {{ th }}" data-name="{{ th }}" data-Value={{ rowdict[th] }}></a>
 									
-</form>
+							{% endif %}
+							</div>																							
+										
+										
+						</td>
+																			
+						{% endfor %}
+
+					</tr>
+					
+					{% endfor %}
+
+				</tbody>
+			</table>
+		</div>
+		<!-- /.table-responsive -->			
+		<button class="btn btn-secondary" type="submit" name="buttonsub" value="cancel"><i class="fa-solid fa-circle-left"></i> Back</button>
+															
+		<button class="btn btn-success btn-success" type="submit" name="buttonsub" value="confirm"><i class="fa-solid fa-floppy-disk"></i> Confirm and Save</button>
+
+		<button class="btn btn-secondary" type="submit" name="buttonsub" value="reload"><i class="fa-solid fa-rotate"></i> Reload Table</button>
+		
+		<!-- bootstrap-editable -->
+		<script src="{{url_for('static', filename='x-editable/js/bootstrap-editable.min.js') }}"></script>
+		
+		<script type="text/javascript">	
+				//turn to inline mode
+				$.fn.editable.defaults.mode = 'popup';
+							
+				
+				$(document).ready(function() {
+
+							$('.editable').editable();
+							
+							
+				var headlist={{tablehead|safe}};			
+				var fieldlist={{fields|safe}};
+				for (i = 0; i < headlist.length; i++) {
+							var thesource=[];				
+							for (j = 0; j < fieldlist[headlist[i]].length; j++) {  
+								thesource.push({
+										value:fieldlist[headlist[i]][j],
+										text: fieldlist[headlist[i]][j]
+									});
+								}				
+					
+					
+							$('.editable-select-'+headlist[i]).editable({ 
+								source: thesource
+							});
+					} 						
+
+				// it is required to update the field Pk in the select.
+				$('.editable').on('save', function(e, params) {
+					//alert('Saved value: ' + params.newValue);
+					var fieldname=$(this).attr('data-name');
+					//$(this).attr('data-pk', params.newValue);
+					if (fieldname == "name") {
+						//alert("updating pk");
+						$(this).editable('option', 'pk', params.newValue);
+					}
+				});
+
+				});
+							
+				
+		</script>														
+										
+	</form>
   
-   </div> 
+</div> 
+
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}
@@ -214,4 +188,5 @@
 
   </ul>
 {% endblock %}
+
 

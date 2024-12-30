@@ -2,23 +2,24 @@
 {% set active_page = "showcalibration" %}
 {% block body %}
   {% if session.logged_in %}
-  <div class="container-fluid">
+
+<div class="container">
 	  
 	  
 		
   
   		<form novalidate="true" action="{{ url_for('showmqttdevicelist') }}" id="menuForm" method="post" >
-			<div class="page-header">
-					  <h3>MQTT device info</h3>   
+			<div class="pb-2 mt-4 mb-2 border-bottom">
+				<h3>MQTT device info</h3>   
 			</div>
 
 
 			
-			<div class="well bs-component smallgap">
+			<div class="card card-body bg-light">
 
 			
 
-			<table class="table" margin: 20px;>
+			<table class="table table-condensed table-light table-sm">
 			<thead>
 				<tr>
 					<th>Name</th>
@@ -60,7 +61,7 @@
 
 
 
-	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Cancel</button>
+	<button class="btn btn-secondary" type="submit" name="buttonsub" value="cancel">Cancel</button>
 
 		</div>
 
@@ -113,7 +114,7 @@
    
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

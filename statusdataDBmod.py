@@ -14,34 +14,38 @@ DATAFILENAME="statusdata.txt"
 def read_status_data(data,element,variable,permanent=False, storeid=""):
 	output=""
 	if element in data:
-		#print " element present"
 		elementdata=data[element]
+
 		if variable in elementdata:
 			output=elementdata[variable]
+			#logger.debug("Element found. Set output for %s/%s to %s", str(element), str(variable), str(output))
 
 	else:
 		print(" element NOT present")
 		# element not present in the data use the default
 		data[element]=data["default"].copy()
 		elementdata=data[element]
-		#print data
+
 		if variable in elementdata:
 			output=elementdata[variable]
+			#logger.debug("Element not found. Set output for %s/%s to %s", str(element), str(variable), str(output))
 
 	# check with persistent element
 	isok=False
 	if permanent:
-		if not storeid=="":
-			isok, persistenooutput=readstoredvariable(storeid,element,variable)
-			
-	if isok:
-		if not (persistenooutput==output):
-			print("status variable output mismatch between current value and stored value")
-			logger.error('status variable output mismatch between current value =%s and stored value =%s', str(output) , str(persistenooutput))
-			output=persistenooutput
-						
-	return output
+		if not storeid == "":
+			isok, persistentoutput=readstoredvariable(storeid, element, variable)
 
+	if isok:
+		if not (persistentoutput == output):
+			print("status",str(element),"variable",str(variable),
+				"output mismatch between current value",str(output),
+				"and stored value",str(persistentoutput))
+			#logger.warning("status '%s' variable '%s' output mismatch between current value '%s' and stored value '%s'",
+			#	str(element), str(variable), str(output) , str(persistentoutput))
+			output=persistentoutput
+
+	return output
 
 def read_status_levels(data,element="",from_file=False, storeid=""):
 	output=""
@@ -55,13 +59,13 @@ def read_status_levels(data,element="",from_file=False, storeid=""):
 		# check with persistent element
 		if not storeid=="":
 			isok, persistenooutput=readstoredvariable(storeid,element)
-				
+
 		if isok:
 			output=persistenooutput
-						
+
 	return output
 
-		
+
 def write_status_data(data,element,variable,value,permanent=False, storeid=""):
 	if element in data:
 		data[element][variable]=value
@@ -70,9 +74,11 @@ def write_status_data(data,element,variable,value,permanent=False, storeid=""):
 			data[element]=data["default"].copy()
 			data[element][variable]=value
 		else:
-			logger.error('ERROR: There is no default data for element %s ', element )
+			print("ERROR: There is no default data for element", element,"/",variable)
+			#logger.error('ERROR: There is no default data for element %s/%s', element, variable)
+
 			return
-			
+
 	# in case of permanent option
 	if permanent:
 		if not storeid=="":

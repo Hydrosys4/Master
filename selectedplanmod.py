@@ -56,12 +56,12 @@ SETMASTERBUSY=False
 # ///////////////// --- END GLOBAL VARIABLES ------
 
 logger = logging.getLogger("hydrosys4."+__name__)
+modlogger = logging.getLogger("actuator")
 
-	
-#--start the scheduler call-back part--------////////////////////////////////////////////////////////////////////////////////////	
+#--start the scheduler call-back part--------////////////////////////////////////////////////////////////////////////////////////
 
 def activateandregister(target,activationseconds): # function to activate the actuators
-	print(target, " ",activationseconds, " " , datetime.now()) 
+	print(target, " ",activationseconds, " " , datetime.now())
 	logger.info('Activate for Value = %s', activationseconds)
 	# start pulse
 	#msg,pulseok=hardwaremod.makepulse(target,duration)
@@ -71,13 +71,14 @@ def activateandregister(target,activationseconds): # function to activate the ac
 
 def pulsenutrient(target,activationseconds): #scheduled doser activity for fertilizer
 	duration=hardwaremod.toint(activationseconds,0)
-	if autofertilizermod.isschedulermode(target):
+	workmode = autofertilizermod.getworkmode(target)
+	if workmode == "ScheduledTime":
 		autofertilizermod.activatedoser(target, duration)
-	else:
-		logger.info('Book the %s activation', target)		
+	elif workmode == "BeforeWatering":
+		logger.info('Book the %s activation', target)
 		autofertilizermod.setActivationDurationDate(target,True,duration,datetime.now())
-	return True
 
+	return True
 
 def dictionarydataforactuator(actuatorname,data1,data2, description):
 	listdict=[]
@@ -85,7 +86,7 @@ def dictionarydataforactuator(actuatorname,data1,data2, description):
 	dicttemp["date"]=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 	dicttemp["actuator"]=actuatorname
 	dicttemp["data1"]= data1
-	dicttemp["data2"]= data2	
+	dicttemp["data2"]= data2
 	dicttemp["info"]= description
 	listdict.append(dicttemp)
 	return listdict
@@ -131,15 +132,15 @@ def checksensorcondition(sensornamelist,threshold, MinutesOfAverage, ONOFF=True)
 		
 def startpump(target,activationseconds,ThesholdOFFON,ThesholdONOFF):
 
-	logger.info('WateringPlan Startpump evaluation: %s', target)	
+	logger.info('WateringPlan Startpump evaluation: %s', target)
 	check=autowateringmod.getstatus(target,"allowwateringplan")
 	if (not check) and (check != None): # None is considered false
 		logger.info('WateringPlan: %s pump activation blocked by automation', target)
 		pumpit=False
 		return False
-	
+
 	duration=hardwaremod.toint(activationseconds,0)
-	print(target, " ",duration, " " , datetime.now()) 
+	print(target, " ",duration, " " , datetime.now())
 
 	print("waterpump check")
 	logger.info('execute water pump check %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -147,34 +148,33 @@ def startpump(target,activationseconds,ThesholdOFFON,ThesholdONOFF):
 	# evaluate parameters
 	MinutesOfAverage=hardwaremod.toint(wateringplansensordbmod.getselduration(),120) #minutes in which the average data is calculated from sensor sampling
 
-	tsensornamelist, hsensornamelist=wateringplansensordbmod.getactivesensor()		
-	
+	tsensornamelist, hsensornamelist=wateringplansensordbmod.getactivesensor()
+
 	valid1, passed1 = checksensorcondition(tsensornamelist,ThesholdOFFON, MinutesOfAverage, False)
 	valid2, passed2 = checksensorcondition(hsensornamelist,ThesholdONOFF, MinutesOfAverage, True)
-	
+
 	# apply AND or OR condition
 	condition=wateringplansensordbmod.getselcondition()  # "AND" , "OR"
-	
-	pumpit=True	
-	
-	
+
+	pumpit=True
+
 	if valid1 and valid2:
 		if condition=="AND":
 			pumpit=passed1 and passed2
 		elif condition=="OR":
-			pumpit=passed1 or passed2			
-			
+			pumpit=passed1 or passed2
+
 	else:
 		if valid1:
 			pumpit=passed1
 		if valid2:
 			pumpit=passed2
-		
+
 	print('valid1= ' , valid1 , 'valid2= ' , valid2)
 	print('passed1= ' , passed1 , 'passed2= ' , passed2)
 	print('pumpit= ' , pumpit, 'condition= ' , condition)
 	logger.info('Condition for activation =%s ', pumpit)
-				
+
 	# weather Forecast
 	sensorname=weatherAPImod.DefaultCounterName()
 	sensorlist=sensordbmod.gettablelist()
@@ -196,22 +196,20 @@ def startpump(target,activationseconds,ThesholdOFFON,ThesholdONOFF):
 			duration=int(duration*RainMultipier/100)
 	else:
 		logger.warning('Weather Sensor not found, no multpilier applied ')
-		
 
-	if pumpit:	
+
+	if pumpit:
 		# activation of the doser before the pump
-		doseron=autofertilizermod.checkactivate(target,duration)	
+		doseron=autofertilizermod.checkactivate(target,duration)		
+		modlogger.info('Waterpump %s activated for %d sec (fertilize: %r)', target, duration, doseron)
 		# watering
-		#hardwaremod.makepulse(target,duration)
 		activateandregister(target,duration)
-		# salva su database
-		#logger.info('Switch Pump %s ON, optional time for sec = %s', target, duration)
-		#print 'Pump ON, optional time for sec =', duration
-		#actuatordbmod.insertdataintable(target,duration)
-		
+	else:
+		modlogger.warning('Waterpump %s activation skipped (sensor1 %r %s sensor2 %r)', target, passed1, condition, passed2)
+
 	return True
 
-	
+
 def periodicdatarequest(sensorname):
 	print("Read sensors request: ", sensorname , " " , datetime.now())
 	logger.info('Read sensor data: %s - %s', sensorname, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -254,29 +252,28 @@ def CheckNTPandAdjustClockandResetSched(timediffsec=60):
 		print("not able to get network time")
 		logger.warning('Not able to get network time')
 	return False
-	
-	
-	
+
 def heartbeat():
 	print("start heartbeat check", " " , datetime.now())
 	logger.info('Start heartbeat routine %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	# check wifi connection
-	connectedssid=networkmod.connectedssid()
-	connected=False
-	if len(connectedssid)==0:
+	connectedssid = networkmod.connectedssid()
+	connected = False
+	if len(connectedssid) == 0:
 
-		if not networkmod.WIFIENDIS=="Disabled":
+		if not networkmod.WIFIENDIS == "Disabled":
 			logger.warning('Heartbeat check , no network connected -------------- try to connect')
-			print('Heartbeat check , no network connected -------------- try to connect')			
-			connected=networkmod.connect_network()
+			print('Heartbeat check , no network connected -------------- try to connect')
+			connected = networkmod.connect_network()
 		else:
 			logger.info('Heartbeat check , wifi disabled')
+			connected = True
 	else:
 		logger.info('Heartbeat check , Connected Wifi Network: %s ', connectedssid[0])
-		if connectedssid[0]==networkmod.localwifisystem:
+		if connectedssid[0] == networkmod.localwifisystem:
 			logger.info('Heartbeat check , Configured as wifi access point, check if possible to connect to wifi network')
-			connected=networkmod.connect_network()
-			networkmod.DHCP_COUNTER=0
+			connected = networkmod.connect_network()
+			networkmod.DHCP_COUNTER = 0
 		else: # Connected to wifi network
 			reachgoogle=networkmod.check_internet_connection(1)
 
@@ -284,128 +281,126 @@ def heartbeat():
 				logger.warning('Heartbeat check wifi SSID ok, but test ping not able to reach Google')
 				print('Heartbeat check , no IP connection')
 				#connected=networkmod.connect_network() # use this in case you require the system to try connect wifi again in case no internet is reached
-				#logger.warning('Heartbeat check , DHCP reset counter %s' , str(networkmod.DHCP_COUNTER))			
+				#logger.warning('Heartbeat check , DHCP reset counter %s' , str(networkmod.DHCP_COUNTER))
 				# DHCP reset
-				#if (networkmod.DHCP_COUNTER % 16)==0: # try to reset every 16x15min =4 hours 
+				#if (networkmod.DHCP_COUNTER % 16)==0: # try to reset every 16x15min =4 hours
 					# try to reset DHCP
 					#logger.warning('Heartbeat check , reset DHCP')
 					#print 'Heartbeat check , reset DHCP'
 					#networkmod.resetDHCP()
-					
-				#networkmod.DHCP_COUNTER=networkmod.DHCP_COUNTER+1		
-				
-				goON, GWipaddr=networkmod.checkGWsubnet("wlan0")
-				if GWipaddr=="":
+
+				#networkmod.DHCP_COUNTER=networkmod.DHCP_COUNTER+1
+
+				goON, GWipaddr = networkmod.checkGWsubnet("wlan0")
+				if GWipaddr == "":
 					logger.info('Gateway IP address NOT found, back to AP mode')
 					# back to AP mode! kind of risky business
 					networkmod.connect_AP()
-					
+
 				else:
 					logger.info('Gateway IP address found %s', GWipaddr)
-					
-		
-				connected=False
+
+				connected = False
 			else:
 				logger.info('Heartbeat check , wifi connection OK')
 				print('Heartbeat check , wifi connection OK')
 				#networkmod.DHCP_COUNTER=0
-				connected=True			
+				connected = True
 
 	if connected:
-		# Check if remote IP address is changed compared to previous communication and in such case resend the mail	
-		ipext=networkmod.get_external_ip()
+		# Check if remote IP address is changed compared to previous communication and in such case resend the mail
+		ipext = networkmod.get_external_ip()
 		logger.info('Heartbeat check , Check IP address change -%s- and previously sent -%s-', ipext , emailmod.IPEXTERNALSENT)
-		if (ipext!=""):
-			if (emailmod.IPEXTERNALSENT!=""):
-				if ipext!=emailmod.IPEXTERNALSENT:
+		if (ipext != ""):
+			if (emailmod.IPEXTERNALSENT != ""):
+				if ipext != emailmod.IPEXTERNALSENT:
 					print("Heartbeat check, IP address change detected. Send email with updated IP address")
 					logger.info('Heartbeat check, IP address change detected. Send email with updated IP address')
 					emailmod.sendallmail("alert","System detected IP address change, below the updated links")
 				else:
-					logger.info('Heartbeat check, IP address unchanged')	
+					logger.info('Heartbeat check, IP address unchanged')
 			else:
 				# first mail has not been sent succesfully of IPEXTERNALSENT was not available by the time
 				print("System has been reconnected")
 				logger.info("System has been reconnected, IPEXTERNALSENT was empty")
-				emailmod.sendallmail("alert","System has been reconnected", localmessage=False)							
+				emailmod.sendallmail("alert","System has been reconnected", localmessage=False)
 
 	else:
 		print("not able to establish an internet connection")
-		logger.warning("not able to establish an internet connection")		
-	
-	# check clock with NTP and reset master scheduler in case of clock change	
+		logger.warning("not able to establish an internet connection")
+
+	# check clock with NTP and reset master scheduler in case of clock change
 	if CheckNTPandAdjustClockandResetSched():
 		return True
 
 	# check MQTT connection is UP
 	HASScompMatrix.HASSIOintegr.check_loop_and_connect()
-	
-	
-	#check the static IP address
-	currentipaddr=networkmod.get_local_ip_raw()
-	logger.info('Target IP address= %s. Current access point IP addresses= %s', networkmod.IPADDRESS,currentipaddr)		
-	if networkmod.IPADDRESS not in currentipaddr:
-		#set IP address
-		logger.warning('Local Static IP address not in the list, Set Target IP address')
-		networkmod.addIP("wlan0")
-	else:
-		logger.info('Local Statip IP address OK')
-	
-	
+
+	if not networkmod.WIFIENDIS == "Disabled":
+		#check the static IP address
+		currentipaddr = networkmod.get_local_ip_raw()
+		logger.info('Target IP address= %s. Current access point IP addresses= %s', networkmod.IPADDRESS,currentipaddr)
+		if networkmod.IPADDRESS not in currentipaddr:
+			#set IP address
+			logger.warning('Local Static IP address not in the list, Set Target IP address')
+			networkmod.addIP("wlan0")
+		else:
+			logger.info('Local Statip IP address OK')
+
 	# check master job has a next run"
 	isok, datenextrun = SchedulerMod.get_next_run_time("master")
 	if isok:
-		datenow=datetime.utcnow()
+		datenow = datetime.utcnow()
 		datenextrun = datenextrun.replace(tzinfo=None)
 		print("Master Scheduler Next run " , datenextrun , " Now (UTC) ", datenow)
-		if datenextrun>datenow:
+		if datenextrun > datenow:
 			print("Masterschedule next RUN confirmed")
 			logger.info('Heartbeat check , Master Scheduler OK')
 		else:
 			isok=False
-			
+
 	if not isok:
 		print("No next run for master scheduler")
 		logger.warning('Heartbeat check , Master Scheduler Interrupted')
 		#emailmod.sendallmail("alert","Master Scheduler has been interrupted, try to restart scheduler")
 		resetmastercallback()
 		return True
-	
+
 	# check if there have been errors in Syslog
 	if DEBUGMODE:
 		logger.info('Heartbeat check , check errors in Syslog file')
-		Errortextlist=debuggingmod.searchsyslogkeyword("error")
+		Errortextlist = debuggingmod.searchsyslogkeyword("error")
 		if Errortextlist:
 			print("found error in syslog")
-			logger.warning("ERROR: found error in syslog -------------------------")	
+			logger.warning("ERROR: found error in syslog -------------------------")
 			#send notification mail 
-			if debuggingmod.SENTERRORTEXT!=Errortextlist[0]:
+			if debuggingmod.SENTERRORTEXT != Errortextlist[0]:
 				emailmod.sendallmail("alert","Error found in Syslog",Errortextlist)
-				debuggingmod.SENTERRORTEXT=Errortextlist[0]
+				debuggingmod.SENTERRORTEXT = Errortextlist[0]
 		else:
 			print("No error found in syslog")
-			logger.info('Heartbeat check , SYSLOG ok')		
-			
+			logger.info('Heartbeat check , SYSLOG ok')
+
 	# check if there have been errors in Schedulerlog
 	if DEBUGMODE:
 		logger.info('Heartbeat check , check errors in Sched log file')
-		filename="logfiles/apscheduler_hydrosystem.log"
-		MYPATH=hardwaremod.get_path()
-		filenameandpath=os.path.join(MYPATH, filename)
-		Errortextlist=debuggingmod.searchLOGkeyword(filenameandpath,"error")
+		filename = "logfiles/apscheduler_hydrosystem.log"
+		MYPATH = hardwaremod.get_path()
+		filenameandpath = os.path.join(MYPATH, filename)
+		Errortextlist = debuggingmod.searchLOGkeyword(filenameandpath,"error")
 		if Errortextlist:
 			print("found error in LOG ",filename)
-			logger.warning("ERROR: found error in LOG , %s -------------------------",filename)	
-			#send notification mail 
-			if debuggingmod.SENTERRORTEXT!=Errortextlist[0]:
+			logger.warning("ERROR: found error in LOG , %s -------------------------",filename)
+			#send notification mail
+			if debuggingmod.SENTERRORTEXT != Errortextlist[0]:
 				emailmod.sendallmail("alert","Error found in LOG",Errortextlist)
-				debuggingmod.SENTERRORTEXT=Errortextlist[0]
+				debuggingmod.SENTERRORTEXT = Errortextlist[0]
 		else:
 			print("No error found in LOG", filename)
-			logger.info('Heartbeat check , LOG ok')					
-				
+			logger.info('Heartbeat check , LOG ok')
+
 	return True
-	
+
 def sendmail(target):
 	logger.info('send Mail %s', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 	# save action in database
@@ -758,13 +753,13 @@ def mastercallback(fromscheduledtime=False):
 				argument.append(fertilizerpulsesecond)
 				if (fertilizerpulsesecond)>0: #check if the duration in second is >0
 					setschedulercallback(calltype,timelist,argument,callback,dosername)
-					
+
 	logger.info('Start other scheduler activities - finish')
 	return True
-	
+
 def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 	# jobname is used as unique identifier of the job
-	iserror=False	
+	iserror=False
 	callback=schedulercallback[callbackname]
 	if calltype=="periodic":
 		theintervalminutes=timelist[1]
@@ -773,12 +768,12 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 		if (theintervalminutes+theintervalhours==0): # the time interval is too short, no action
 			iserror=True
 			logger.warning('The scheduler interval for the input %s is Zero, no log record of this input will be taken',jobname)
-			return iserror			
+			return iserror
 		try:
 			print("add job ", jobname)
-			
+
 			thedateloc=datetime.now()+timedelta(seconds=startdelaysec)
-			
+
 			mastertimelist=hardwaremod.separatetimestringint(MASTERSCHEDULERTIME)
 			date1=datetime.now()+timedelta(days=1)
 			date2=date1.replace(hour=mastertimelist[0], minute=mastertimelist[1], second=mastertimelist[2])
@@ -806,18 +801,18 @@ def setschedulercallback(calltype,timelist,argument,callbackname,jobname):
 		thedateloc=todaydate+timedelta(hours=timelist[0],minutes=timelist[1],seconds=timelist[2])
 		#convert to UTC time
 		thedate=clockmod.convertLOCtoUTC_datetime(thedateloc)
-		
+
 		if len(argument)>0:
 			print("date ", thedate , " callbackname " , callbackname , " Element ", argument[0])
 		else:
-			print("date ", thedate , " callbackname " , callbackname) 
+			print("date ", thedate , " callbackname " , callbackname)
 		try:
 			#print argument
 			job = SchedulerMod.sched.add_job(callback, 'date', run_date=thedate, args=argument, misfire_grace_time=120, name=jobname)
 		except ValueError as e:
 			iserror=True
 			print('Error: ', e)
-	
+
 	return iserror
 
 
@@ -827,7 +822,7 @@ def start_scheduler():
 	return True
 
 def stop_scheduler():
-	SchedulerMod.stop_scheduler()		
+	SchedulerMod.stop_scheduler()
 	return True
 
 
@@ -839,28 +834,18 @@ def readselectedmaininfo(maininfo):
 
 
 def removeallscheduledjobs():
-	SchedulerMod.removealljobs()		
+	SchedulerMod.removealljobs()
 	return True
-	
-#--end --------////////////////////////////////////////////////////////////////////////////////////		
 
-	
+#--end --------////////////////////////////////////////////////////////////////////////////////////
+
 if __name__ == '__main__':
-	
-
-	
 	#SchedulerMod.start_scheduler()
 	#setmastercallback()
 	#SchedulerMod.print_job()
 	#time.sleep(9999)
 	#print("close")
 	#SchedulerMod.stop_scheduler()
-	
+
 	REGandDBmod.register_input_value("RPItemperature","12")
-	
-
-
-
-
-
 

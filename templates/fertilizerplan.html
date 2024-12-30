@@ -39,15 +39,20 @@
 			
 			</script>
 
-<div class="container-fluid dontwantgap">
+<div class="container">
  
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+                <h3>Fertilizer Plan</h3>
+        </div>
 
 
-		<ul class="nav nav-pills">
-			{% for name in elementlist %}
-				<li {% if name == selectedelement %} class="active"{% endif%}><a href="#{{ name }}" data-toggle="tab"  style="font-size:1.4em;">{{ name }}</a></li>
-			{% endfor %}
-		</ul>
+	<ul class="nav nav-pills">
+		{% for name in elementlist %}
+		<li class="nav-item nav-olive">
+			<a class="nav-link {% if name == selectedelement %} active {% endif%}" href="#{{ name }}" data-bs-toggle="pill">{{ name }}</a>
+		</li>
+		{% endfor %}
+	</ul>
 			
 
 
@@ -63,7 +68,7 @@
 		
 		
 		
-         <div class="tab-pane {% if elem == selectedelement %}active{% endif%}" id="{{ elem }}">
+         <div class="tab-pane {% if elem == selectedelement %} show active {% endif%}" id="{{ elem }}">
 			 
 			 <!---- start panel  -->
 			 
@@ -73,32 +78,30 @@
 			 		 
 			 <input value="none" id="actionbtn{{elem}}" name="actionbtn" type="hidden" />
 			 
-			 <div class="panel panel-primary">
-			  <div class="panel-heading">
+			 <div class="card card-olive">
+			  <div class="card-header">
 				  <div class="row">
-					    <div class=" col-xs-9">
+					    <div class="col-9">
 							<span style="font-size:1.2em;">{{ elem }}</span>
 						</div>
 
-						<div class=" col-xs-3">				
-							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
-							<span class="glyphicon glyphicon-saved"></span>
-							</button>
+						<div class="col-3 text-end">				
+							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn-sm btn btn-danger btn-md btn-block dontwantgap w-100"><i class="fa-solid fa-floppy-disk"></i> Save</button>
 						</div>
 					</div>
 			  </div>
-			  <div class="panel-body">
+			  <div class="card-body">
 
 				
 				<!---- panel  body -->
-				<table class="table table-condensed">
+				<table class="table table-condensed table-light table-sm">
 				<thead>
 				  <tr>
 					<th class="col-xs-2">month</th>
 					<th class="col-xs-1">seconds</th>
-					<th class="col-xs-1">++++</th>
+					<th class="col-xs-1">ease</th>
 					<th class="col-xs-7">Times per month</th>
-					<th class="col-xs-1">++++</th>
+					<th class="col-xs-1">boost</th>
 				  </tr>
 				</thead>
 				<tbody>
@@ -125,7 +128,7 @@
 									<option>50</option>
 								  </select> -->
 								  
-								<input value="{% if (table1|length)>0 %}{{ table1[row_i.index0][col_i.index0]}}{% endif %}" name="{{elem}}_{{col_i.index0}}_0" class="form-control input-sm" />
+								<input type="number" min="0" step="1" value="{% if (table1|length)>0 %}{{ table1[row_i.index0][col_i.index0]}}{% endif %}" name="{{elem}}_{{col_i.index0}}_0" class="form-control input-sm" />
 
 
 							</td>
@@ -133,19 +136,19 @@
 							
 							
 							<td>
-								<button id="dropminus" name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block dontwantgapleft dontwantgapright">
-								<span class="glyphicon glyphicon-minus"></span>
+								<button id="dropminus" name="{{ elem }}{{ name }}" action="min" type="button" class="qtybutton btn btn-warning btn-sm btn-block w-100">
+								<i class="fa-solid fa-minus"></i>
 								</button>
 						
 							</td>
 							<td>
 								<!--Time multiplier column (table)-->
-									<div class="col-xs-12">
-									<div class="drop" id="{{ elem }}{{ name }}">
-										<!--{% for n in range(table[row_i.index0][col_i.index0]) %}
-										<img src="/static/goccia-xs.png" style="height:35px"/>
-										{% endfor %}-->
-									</div>
+									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+										<div class="drop" id="{{ elem }}{{ name }}">
+											<!--{% for n in range(table[row_i.index0][col_i.index0]) %}
+											<img src="/static/goccia-xs.png" style="height:35px"/>
+											{% endfor %}-->
+										</div>
 									</div>
 
 								<input type="hidden" value="{% if (table|length)>0 %}{{ table[row_i.index0][col_i.index0]}}{% endif %}" id="{{ elem }}{{ name }}_input" name="{{elem}}_{{col_i.index0}}" class="form-control" />
@@ -153,15 +156,12 @@
 							
 							</td>
 							<td>
-								<button id="dropplus" name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block dontwantgapleft dontwantgapright">
-								<span class="glyphicon glyphicon-plus"></span>
+								<button id="dropplus" name="{{ elem }}{{ name }}" action="plus" type="button" class="qtybutton btn btn-primary btn-sm btn-block w-100">
+								<i class="fa-solid fa-plus"></i>
 								</button>
 							
 							
 							</td>
-							
-							
-							
 
 						  </tr>
 
@@ -172,117 +172,68 @@
 			  </div>		
 			  
 
-				<!-- autofertilizer part  OOOOOOOOOOOOOOOOOOOOOO-->
+			<!-- autofertilizer part -->
+			<div class="card card-body bg-light">
 				
-							<div class="well bs-component">
-				
-							<div class="form-group">			
-							<div class="row">
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<legend>Parameters Setting</legend>  
-								</div>	
-							</div>	
-							</div>	
+				<div class="row pb-2">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<legend>Parameters Setting</legend>  
+					</div>	
+				</div>	
 							
-							<div class="form-group">
-							<div class="row">
-								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-									<label>Working Mode</label>
-								</div>		
-								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-									<select class="form-control input-sm dontwantgap" name="{{elem}}_param1">
-									{% for name in modelist %}	
-										<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-									{% endfor %}											
-									</select>
-								<div class="small">ScheduledTime: Activate doser according to the Scheduled time.</div>
-								<div class="small">BeforeWatering: Activate the doser N times per month according to schedule, activation time just before the reference watering activation</div>
+				<div class="row pb-2">
+					<label for="WorkingMode" class="col-sm-2 col-form-label">Working Mode</label>	
+					<div class="col-sm-10">
+						<select class="form-select" name="{{elem}}_param1" id="WorkingMode">
+						{% for name in modelist %}	
+							<option {% if name==settingparam[1] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+						{% endfor %}											
+						</select>
+						<div class="small"><b>ScheduledTime:</b> Activate doser according to the scheduled time.</div>
+						<div class="small"><b>BeforeWatering:</b> Activate the doser N times per month according to schedule, activation time just before the reference watering activation</div>
 
-
-								</div>
-							</div>
-							</div>	
-
+					</div>
+				</div>	
 						
-							<div class="form-group">
-							<div class="row">
-								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-									<label>Reference Watering</label>
-								</div>		
-								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-									<select class="form-control input-sm dontwantgap" name="{{elem}}_param2">
-									{% for name in linkemelementlist %}	
-										<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
-									{% endfor %}											
-									</select>
-								</div>
-							</div>
-							</div>	
+				<div class="row pb-2">
+					<label for="ReferenceWatering" class="col-sm-2 col-form-label">Reference Watering</label>
+					<div class="col-sm-10">
+						<select class="form-select input-sm" name="{{elem}}_param2" id="ReferenceWatering">
+						{% for name in linkemelementlist %}	
+							<option {% if name==settingparam[2] %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
+						{% endfor %}											
+						</select>
+					</div>
+				</div>
 
-							<div class="form-group">		
-							<div class="row">
-								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-								<label>Min watering (seconds):
-								</label>
+				<div class="row pb-2">
+					<label for="MinWatering" class="col-sm-2 col-form-label">Min watering (seconds)</label>								</label>
+					<div class="col-sm-10">
+						<input id="MinWatering" type="number" min="0" step="1" value="30" class="form-control" name="{{elem}}_param3" type="text">
+						<div class="small">Activation will be done only if the watering period is longer then this value </div>
+					</div>
+				</div>				
 
-								
-								</div>
-								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-								
-								{% set arr=["10","20","30","40","50","60","70","80","90","100"] %}	 			
-								  <select class="form-control input-sm dontwantgap" name="{{elem}}_param3">
-									{% for item in arr %}
-									<option {% if item==settingparam[3] %}selected="selected"{% endif %} >{{item}}</option>
-									{% endfor %}
-								  </select>
-								
-								
-								
-								
-								
-								<div class="small">Activation will be done only if the watering period is longer then this value </div>
+				<div class="row pb-2">
+					<label for="SchedActTime" class="col-sm-2 col-form-label">Scheduled Activation Time</label>
+					<div class="col-sm-10">
+						<select class="form-select seltimeclass" valueinit="{{settingparam[4]}}" name="{{elem}}_param4" id="SchedActTime">
+						</select>
+						<div class="small">Set the time of the activation of the doser, in case the working mode above is set to ScheduledTime</div>
+					</div>
+				</div>				
 
-								</div>
-							</div>				
-							</div>
-			
-
-							<div class="form-group">		
-							<div class="row">
-								<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-								<label>Scheduled Activation Time:
-								</label>
-
-								
-								</div>
-								<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-								<select class="form-control input-sm dontwantgap seltimeclass" valueinit="{{settingparam[4]}}" name="{{elem}}_param4">
-								</select>
-								<div class="small">Set the time of the activation of the doser, in case the working mode above is set to ScheduledTime</div>
-
-								</div>
-							</div>				
-							</div>
-
-
-							</div>	
-			  
-			  
-			  
-				<!-- -- end panel content --->			  
-			  
-		  
+			</div>  
+			<!-- -- end panel content --->
 			    
-			  <div class="panel-footer">
+			  <div class="card-footer">
 				  <div class="row">
-					    <div class=" col-xs-9">
+					    <div class="col-6">
 							<span  style="font-size:1.2em;">{{ elem }}</span>
 						</div>
 
-						<div class=" col-xs-3">				
-							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp dontwantgap">Save
-							<span class="glyphicon glyphicon-saved"></span>
-							</button>
+						<div class="col-6 text-end">				
+							<button id="savebtn" name="save" type="submit" idref="actionbtn{{elem}}" class="thebutton btn btn-danger btn-md btn-block btn-warp"><i class="fa-solid fa-floppy-disk"></i> Save</button>
 						</div>
 					</div>
 			   </div>
@@ -384,7 +335,7 @@
 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

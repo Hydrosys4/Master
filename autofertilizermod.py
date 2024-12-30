@@ -24,30 +24,29 @@ AUTO_data["default"]={"triggerdate":datetime.utcnow(),"tobeactivated":False, "du
 # triggerdate, datetime when the doser have been triggered to start
 # tobeactivated, doser need to be activated in the next opportunity 
 
-
-def isschedulermode(element):
+def getworkmode(element):
 	recordkey="element"
 	recordvalue=element
 	keytosearch="workmode"
 	workmode=autofertilizerdbmod.searchdata(recordkey,recordvalue,keytosearch)
-	if workmode=="SceduledTime":
-		return True
-	else:
-		return False
-
+	return workmode
 
 def checkactivate(elementwater,durationwater):  # requires integer input
+	result = False
 	elementlist=fertilizerdbmod.getelementlist()
 	waterok=False
+
 	for doserelement in elementlist: # provided the waterelement, search for corresponding doserelement 
 		linkedwaterelement=autofertilizerdbmod.searchdata("element",doserelement,"waterZone")
 		if linkedwaterelement==elementwater:
 			waterok=True
 			element=doserelement
 			break
+
 	if waterok: # there is a corresponding doser element
 		minwaterduration=hardwaremod.toint(autofertilizerdbmod.searchdata("element",element,"minactivationsec"),0)
-		if not isschedulermode(element): #setup is not for scheduled time
+		workmode = getworkmode(element)
+		if workmode == "BeforeWatering": #setup is not for scheduled time
 			print(" Fertilizer " ,element ," set to autowater")
 			print(" Check Water duration ", durationwater ,">", minwaterduration)
 			if durationwater>minwaterduration: # watering time above the set threshold
@@ -57,11 +56,14 @@ def checkactivate(elementwater,durationwater):  # requires integer input
 					durationfer=statusdataDBmod.read_status_data(AUTO_data,element,"duration")
 					activatedoser(element,durationfer)
 					time.sleep(durationfer) #this blocks the system (and watering activation) for n seconds ... not best practice
+					result = True
 				else:
 					print(" No pending request to activate ", element)
-			
+
+	return result
+
 def activatedoser(element, duration):
-	print(element, " ",duration, " " , datetime.now()) 
+	print(element, " ",duration, " " , datetime.now())
 	logger.info('Doser Pulse, pulse time for ms = %s', duration)
 	msg, pulseok = ActuatorControllermod.activateactuator(element,duration)
 	# msg , pulseok=hardwaremod.makepulse(element,duration)
@@ -85,13 +87,17 @@ def checkworkmode(element):
 	return autofertilizerdbmod.searchdata("element",element,"workmode")
 
 def timelist(element):
-	if isschedulermode(element):
+	workmode = getworkmode(element)
+	if workmode == "ScheduledTime":
 		fertime=autofertilizerdbmod.searchdata("element",element,"time")
 		print("fertime " , fertime)
 		timelist=hardwaremod.separatetimestringint(fertime)
-	else:
+	elif workmode == "BeforeWatering":
 		print("non scheduler mode ")
 		timelist=hardwaremod.separatetimestringint("00:20:00") # get up 0 minutes and check for doseractivation
+	else:
+		print("Fertilizer is disabled")
+
 	return timelist
 
 if __name__ == '__main__':

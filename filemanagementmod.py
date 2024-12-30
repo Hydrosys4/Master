@@ -124,15 +124,30 @@ def configfilezip():
 	filedatalist=folderfilelist(basefolder, relativeconfigfolder , ".txt")
 	#copy config files in the folder
 	copyfiles(basefolder, filedatalist, relativedstfolder)
+
+	# remove credentials from downloadfolder
+	logincredpath = os.path.join(basefolder, relativedstfolder, "logincred.txt")
+	if os.path.isfile(logincredpath):
+		os.unlink(logincredpath)
+	emailcredpath = os.path.join(basefolder, relativedstfolder, "emailcred.txt")
+	if os.path.isfile(emailcredpath):
+		os.unlink(emailcredpath)
+
 	# make zip file and get link
 	zipfilename="allconfigfiles"
 	zipfilenamepath=zipfolder(basefolder, relativedstfolder, zipfilename , relativezipfolder)
+
+	#cleanup
+	deletefilesinfolder(basefolder, relativedstfolder)
+
 	# check file exist
 	if os.path.isfile(zipfilenamepath):
 		filelink=ZIPCONFIGDOWNLOADPATH+"/"+zipfilename+".zip" # relative path vithout static
 	else:
 		filelink=""
+
 	print(filelink)
+
 	return filelink
 
 def configfileunzip():

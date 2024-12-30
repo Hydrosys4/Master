@@ -4,17 +4,17 @@
   {% if session.logged_in %}
   
    
-<div class="container-fluid">
+<div class="container">
 		
-		
-
-		
+        <div class="pb-2 mt-4 mb-2 border-bottom">
+                <h3>Filter Data</h3>
+	</div>
 		
 								
   <form  action="{{ url_for('DATAsetup') }}" id="menuForm3" class="jotform-form" method="post" >
 													
 
-	<div class="well bs-component">				
+	<div class="card card-body bg-light">				
 			<!-- watering actuator choice  -->
 		<div class="form-group">			
 		<div class="row">
@@ -24,11 +24,11 @@
 		</div>	
 		</div>	
 			
-		 <table class="table table-sm" style="width: 100%">
-				<colgroup>
-				   <col span="1" style="width: 5%;">
-				   <col span="1" style="width: 95%;">
-				</colgroup>
+		 <table class="table table-condensed table-light table-sm">
+				<thead>
+				   <th class="col-2">Enable</th>
+				   <th class="col-10">Sensor</th>
+				</thead>
 		   	<tbody>		
 			
 			{% for item in finalitemlist %}
@@ -60,24 +60,14 @@
 		
 	</div> <!-- well componenet -->									
 				
-	<div class="form-group">
-        <div class="col-lg-10">
-		<button name="buttonsub" value="cancel" type="submit" class="thebutton btn btn-sm btn-warp">
-			cancel
-		</button>								
-
-		
-		<button name="buttonsub" value="save" type="submit" class="thebutton btn btn-danger btn-sm btn-warp">
-			Save
-		<span class="glyphicon glyphicon-cog"></span>
-		</button>
+	<div class="row pt-2">
+	        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+			<button name="buttonsub" value="save" type="submit" class="thebutton btn btn-md btn-success btn-block defaultbutton w-100"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+		</div>
+		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+			<button name="buttonsub" value="cancel" type="submit" class="thebutton btn btn-md btn-secondary btn-block defaultbutton w-100"><i class="fa-solid fa-circle-left"></i> Back</button>
+		</div>
 	</div>
-	</div>
-		
-		
-		
-		
-		
 		
 
 
@@ -124,7 +114,7 @@
 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

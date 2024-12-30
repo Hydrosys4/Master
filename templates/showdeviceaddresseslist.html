@@ -1,30 +1,28 @@
 {% extends "layout.html" %}
 {% set active_page = "showcalibration" %}
 {% block body %}
-  {% if session.logged_in %}
-  <div class="container-fluid">
-	  
-	  
+	{% if session.logged_in %}
 
-  
-  		<form novalidate="true" action="{{ url_for('showdeviceaddresseslist') }}" id="menuForm" method="post" >
-			<div class="page-header">
-					  <h3>Device addresses</h3>   
-			</div>
+<div class="container">
 
+	<form novalidate="true" action="{{ url_for('showdeviceaddresseslist') }}" id="menuForm" method="post" >
+        
+		<div class="pb-2 mt-4 mb-2 border-bottom">
+			<h3>Device addresses</h3>
+		</div>
 
-			
-			<div class="well bs-component smallgap">
+		<div class="card card-body bg-light">
 
 		{% if deviceaddresseslist|length > 0 %}			
 
-			<table class="table" margin: 20px;>
+			<table class="table table-condensed table-light table-sm">
 			<thead>
 				<tr>
 					<th>Address</th>
 					<th>Type</th>
 					<th>Name</th>
 					<th>Info</th>
+					<th>Action</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -67,29 +65,29 @@
         </tbody>
     </table>
     
-    {% else %}
-    		<div class="page-header">
-					  <h4>There are no device with address</h4>   
-			</div>
-    
+	{% else %}
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<h3>There are no device with address</h3>
+	</div>
+
 	
 	{% endif %}
 
-
-	<button class="btn btn-default" type="submit" name="buttonsub" value="cancel">Cancel</button>
-
+		<div class="row">
+			<div class="d-grid col-lg-4 col-md-4 col-sm-4 col-xs-4 pb-4">
+				<button class="btn btn-secondary defaultbutton w-100" type="submit" name="buttonsub" value="cancel"><i class="fa-solid fa-circle-left"></i> Back</button>
+			</div>
 		</div>
 
-			
-			
-		</form>			
-			
 
+		</div>
+			
+	</form>			
  
-   </div> 
+</div> 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}

@@ -46,7 +46,7 @@ def changesavesetting(FTparameter,FTvalue):
 	searchvalue="clock"
 	isok=filestoragemod.savechange(DATAFILENAME,searchfield,searchvalue,FTparameter,FTvalue)
 	if not isok:
-		print("problem saving paramete")
+		print("problem saving parameter")
 	return isok
 	
 def restoredefault():

@@ -97,7 +97,7 @@ class Messaging:
 		if mail:
 			Messaging.writemail(msg, status, mailtype)
 		if note:
-			dictitem={'title': "System Message (Alert) - Autowatering", 'content': msg }
+			dictitem={'title': "System Message (Alert) - Autowatering", 'content': msg, 'color': "blue" }
 			messageboxmod.SaveMessage(dictitem)
 			
 

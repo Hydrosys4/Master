@@ -1045,3 +1045,31 @@ This means that after the MQTT discovery configuration has been push to home ass
 2022-10-05 -> release 343d
 
 - Modify the Notification function to properly delete messages
+
+2024-10-07 -> version 344
+
+- Security fix with hashed passwords and removed logincred.txt from webserver
+- Improved LAN mode
+- Fix video stream resolutions
+- Fix photo quality
+- Add Create Image and modal dialogues in images
+
+2024-10-30 -> version 345
+
+- GUI rework on Bootstrap 5.3.3
+- JQuery updated to 3.7.1
+- jqplot updated to 1.0.9
+- Replaced bootstrap-table with bootstrap-table-1.23.5
+- Replaced datepicker with vanillajs-datepicker-1.3.4
+- Replaced Glyphicons with fontawesome icons
+- New Feature: Notify badge
+- New Feature: logstream
+- UI improvements
+- Improve and add more Notifications
+- Security fix for email credentials
+- Security fix for flask secret key
+
+2024-11-04 -> version 346
+
+- Cleanup code and files
+- Update photoswipe and improve image gallery

@@ -1142,9 +1142,11 @@ def GPIO_output(PINstr, level):
 		#print PINstr , " ***********************************************" , level
 		return True
 	else:
-		msg= "PIN=" +PINstr+ " not Valid for this Hardware"
-		logger.error(msg)
-		print(msg)
+		if PINstr != "N/A":
+			msg= "PIN=" +PINstr+ " not Valid for this Hardware"
+			logger.error(msg)
+			print(msg)
+
 	return False 
 		
 def GPIO_output_nostatus(PINstr, level):

@@ -3,16 +3,16 @@
 {% block body %}
   {% if session.logged_in %}
   
-   
+<div class="row top-buffer"></div>
+
 <div class="container-fluid">
 		
-
 <!-- Configuration management -->
  <form  action="{{ url_for('wateringplansensorselect') }}" id="menuFormupload" enctype="multipart/form-data" method="post" >	
 
 			
 			
-	<div class="well bs-component">				
+	<div class="card card-body bg-light">				
 			<!-- watering actuator choice  -->
 		<div class="form-group">			
 		<div class="row">
@@ -22,7 +22,7 @@
 		</div>	
 		</div>	
 			
-		 <table class="table table-sm" style="width: 100%">
+		 <table class="table table-condensed table-light table-sm">
 				<colgroup>
 				   <col span="1" style="width: 5%;">
 				   <col span="1" style="width: 20%;">
@@ -33,35 +33,31 @@
 					<th style="text-align:center">Activate Above</th>
 					<th style="text-align:center">Activate Below</th>
 				  </tr>
-				
-				
-				
+
 		   	<tbody>		
 			
 			{% for item in selsensorlistGUI %}
 			<tr>		
 					
 				<td>
-
 						<label>{{ item.name }}</label>
-
 				</td>
+
 				<td style="text-align:center">
 					
 						{% if item.active=="True" %}
-						<input class="toggle-event list1" checked="checked" type="checkbox" name="list1" value="{{ item.name }}">				
+						<input class="toggle-event list1 form-check-input align-middle big-checkbox" checked="checked" type="checkbox" name="list1" value="{{ item.name }}">				
 						{% else %}						
-						<input class="toggle-event list1" type="checkbox" name="list1" value="{{ item.name }}">
+						<input class="toggle-event list1 form-check-input align-middle big-checkbox" type="checkbox" name="list1" value="{{ item.name }}">
 						{% endif %}
-
 				</td>					
 
 				<td style="text-align:center">
 					
 						{% if item.active2=="True" %}
-						<input class="toggle-event list2" checked="checked" type="checkbox" name="list2" value="{{ item.name }}">				
+						<input class="toggle-event list2 form-check-input align-middle big-checkbox" checked="checked" type="checkbox" name="list2" value="{{ item.name }}">				
 						{% else %}						
-						<input class="toggle-event list2" type="checkbox" name="list2" value="{{ item.name }}">
+						<input class="toggle-event list2 form-check-input align-middle big-checkbox" type="checkbox" name="list2" value="{{ item.name }}">
 						{% endif %}
 
 				</td>	
@@ -74,12 +70,12 @@
 			</tbody>
 		</table>
 		
-	</div> <!-- well componenet -->									
+	</div> <!-- card componenet -->									
 												
 													
 
 				
-		<div class="well bs-component">	
+		<div class="card card-body bg-light">	
 
 
 		<!-- select average interval -->
@@ -91,7 +87,7 @@
 					<label>Average Duration (minutes)</label>
 				</div>		
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="durationmin">
+					<select class="form-select" name="durationmin">
 					{% for name in durationlist %}	
 						<option {% if name==selduration %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
@@ -105,12 +101,12 @@
 		
 
 			<div class="form-group">
-			<div class="row">
+			<div class="row mb-2">
 				<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 					<label>Condition to activate the Irrigation</label>
 				</div>		
 				<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-					<select class="form-control input-sm dontwantgap" name="condition">
+					<select class="form-select" name="condition">
 					{% for name in conditionlist %}	
 						<option {% if name==selcondition %}selected="selected"{% endif %} value="{{name}}">{{name}}</option>
 					{% endfor %}											
@@ -122,47 +118,13 @@
 			</div>
 			</div>		
 
-		</div> <!-- well componenet -->			
-			
+		</div> <!-- card componenet -->	
 
+		<button class="btn btn-secondary btn-block defaultbutton" type="submit" name="buttonsub" value="cancel"><i class="fa-solid fa-circle-left"></i> Back</button>
 
-
-
-
-
-							
-		<!-- testing buttons -->
-		<div class="form-group">					
-
-	
-		<div class="row">
-
-
-			<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
-				<button class=" btn btn-danger btn-block" type="submit" name="buttonsub" value="save">Save Config</button>
-			</div>
-			<div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">				
-				<button class=" btn btn-success btn-block" type="submit" name="buttonsub" value="cancel">Back</button>
-
-			</div>			
-			
-			
-
-		</div>	
-		
-		
-		
-		
-		</div>
-
+		<button class="btn btn-success btn-block defaultbutton" type="submit" name="buttonsub" value="save"><i class="fa-solid fa-floppy-disk"></i> Save Config</button>
 
 	</form>
-	
-	
-		
-		
-		
-		
 	
 </div>
 
@@ -213,25 +175,11 @@
 				});
 			
 			 
-			</script>
-
-
-
-
-
-
-
-
-  
-
-
-
-
-																																						
+			</script>																																
 
   {% else %}
 
-		<h1>Please log in</h1>
+		<h1>Please login</h1>
 
   
   {% endif %}
